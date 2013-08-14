@@ -19,7 +19,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
     typedef typename boost::mpl::at_c< Info, 0 >::type Model;
     typedef typename boost::mpl::at_c< Info, 1 >::type Distance;
     typedef typename boost::mpl::at_c< Info, 2 >::type Data;
-    typedef nonlinfit::plane::xs_joint<double,LengthUnit, 1>::type RefTag;
+    typedef nonlinfit::plane::xs_joint<double, 1>::type RefTag;
     MockDataTag::Data data = mock_data();
     Model z = mock_model<Model>();
     bool is_same = nonlinfit::plane::compare_evaluators< Distance, Data, RefTag >(z, data);
@@ -28,7 +28,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
 
 template <typename Model>
 boost::unit_test::test_suite* check_evaluator( const char* name ) {
-    typedef nonlinfit::plane::xs_joint<double,LengthUnit, 8>::type Joint;
+    typedef nonlinfit::plane::xs_joint<double, 8>::type Joint;
     typedef boost::mpl::vector< 
         boost::mpl::vector<Model, nonlinfit::plane::squared_deviations, Joint>,
         boost::mpl::vector<Model, nonlinfit::plane::negative_poisson_likelihood, Joint>,

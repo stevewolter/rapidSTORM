@@ -31,7 +31,7 @@ static void test_central_extraction() {
         for (int y = 0; y < traits.image.size.y().value(); ++y)
             image(x,y) = x + y;
 
-    PlaneCreatorImpl< nonlinfit::plane::xs_disjoint<double,boost::units::si::microlength,14>::type > extractor(optics);
+    PlaneCreatorImpl< nonlinfit::plane::xs_disjoint<double,14>::type > extractor(optics);
     std::auto_ptr<Plane> data = extractor.extract_data( image, position );
     BOOST_CHECK_CLOSE( data->pixel_size.value(), 230E-9 * 120E-9, 1 );
     BOOST_CHECK_CLOSE( data->highest_pixel.x().value(), 7130E-9, 1 );

@@ -19,16 +19,16 @@ namespace fit_window {
 
 using namespace boost::accumulators;
 
-template <typename Num, typename LengthUnit, int ChunkSize>
+template <typename Num, int ChunkSize>
 inline boost::optional< quantity<camera::length,int> >
-row_width( const nonlinfit::plane::DisjointData<Num,LengthUnit,ChunkSize>& )
+row_width( const nonlinfit::plane::DisjointData<Num,ChunkSize>& )
 {
     return ChunkSize * camera::pixel;
 }
 
-template <typename Num, typename LengthUnit, int ChunkSize>
+template <typename Num, int ChunkSize>
 inline boost::optional< quantity<camera::length,int> >
-row_width( const nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize>& )
+row_width( const nonlinfit::plane::JointData<Num,ChunkSize>& )
 {
     return boost::optional< quantity<camera::length,int> >();
 }
@@ -41,18 +41,18 @@ PlaneImpl<Tag>::PlaneImpl(
 ) : Plane(optics )
 {
     typedef typename Tag::Data Data;
-    typedef typename Data::data_point::Length Length;
-    typedef quantity< typename Length::unit_type > DoubleLength;
     typedef typename Data::DataRow DataRow;
 
     const float background_part = 0.25;
 
     this->pixel_size = optics.pixel_size(position);
-    data.pixel_size = quantity<typename Data::AreaUnit>( this->pixel_size );
+    data.pixel_size = quantity<si::area>( this->pixel_size ).value() * 1E12;
 
     /* Initialize iteratively computed statistics */
-    data.min = position.template cast< DoubleLength >();
-    data.max = position.template cast< DoubleLength >();
+    for (int i = 0; i < 2; ++i) {
+        data.min[i] = quantity<si::length>(position[i]).value() * 1E6;
+    }
+    data.max = data.min;
     this->peak_intensity = this->integral = 0;
 
     traits::Projection::ROI points 
@@ -72,8 +72,9 @@ PlaneImpl<Tag>::PlaneImpl(
         assert( image.contains( i->image_position ) );
 
         for (int d = 0; d < 2; ++d) {
-            data.min[d] = std::min( DoubleLength(i->sample_position[d]), data.min[d] );
-            data.max[d] = std::max( DoubleLength(i->sample_position[d]), data.max[d] );
+            double pos = quantity<si::length>(i->sample_position[d]).value() * 1E6;
+            data.min[d] = std::min( pos, data.min[d] );
+            data.max[d] = std::max( pos, data.max[d] );
         }
 
         Spot sample = i->sample_position;
@@ -86,7 +87,11 @@ PlaneImpl<Tag>::PlaneImpl(
             this->highest_pixel = sample;
         }
 
-        *o++ = typename Data::value_type( sample, value );
+        Eigen::Vector2d sample_in_mum;
+        for (int i = 0; i < 2; ++i) {
+            sample_in_mum[i] = quantity<si::length>(sample[i]).value() * 1E6;
+        }
+        *o++ = typename Data::value_type( sample_in_mum, value );
     }
 
     data.pad_last_chunk();
@@ -102,16 +107,15 @@ PlaneImpl<Tag>::PlaneImpl(
         for ( typename Data::const_iterator i = data.begin(); i != data.end(); ++i )
         {
             for (int dim = 0; dim < 2; ++dim) {
-                Length offset = i->position(dim) - Length(this->highest_pixel[dim]);
+                double offset = i->position(dim) - quantity<si::length>(this->highest_pixel[dim]).value() * 1E6;
                 double intensity_above_background = 
                     std::max(0.0, double(i->value() - this->background_estimate));
-                acc[dim]( offset.value(),
-                    weight = intensity_above_background );
+                acc[dim]( offset, weight = intensity_above_background );
             }
         }
         for (int dim = 0; dim < 2; ++dim)
             this->standard_deviation[dim] = quantity<si::length>( 
-                Length::from_value(sqrt( weighted_variance(acc[dim]) ) ) );
+                sqrt( weighted_variance(acc[dim]) ) * 1E-6 * si::meter );
     }
 }
 
@@ -119,8 +123,9 @@ template <typename Tag>
 std::auto_ptr<Centroid> PlaneImpl<Tag>::_residue_centroid() const
 { 
     std::auto_ptr<Centroid> rv( new Centroid( data.min, data.max ) );  
-    for ( typename Tag::Data::const_iterator i= data.begin(), e = data.end(); i != e; ++i )
-        rv->add( i->position().template cast< Centroid::Coordinate >(), i->residue() );
+    for ( typename Tag::Data::const_iterator i= data.begin(), e = data.end(); i != e; ++i ) {
+        rv->add( i->position().template cast<double>(), i->residue() );
+    }
 
     return rv;
 }

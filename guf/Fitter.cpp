@@ -66,8 +66,9 @@ int Fitter::fitSpot(
         if ( two_kernel_analysis ) {
             try {
                 MultiKernelModelStack& two_kernel_model = two_kernels_fitter->fit_position();
+                Eigen::Vector2f centroid = data->residue_centroid().current_position().cast<float>();
                 add_new_kernel( two_kernel_model, one_kernel, 
-                    data->residue_centroid().current_position().cast< Spot::Scalar >() );
+                    boost::units::from_value<si::length>(centroid * 1E-6f) );
                 double two_kernel_result = two_kernels_fitter->fit( *data, false );
                 if ( is_good_localization( two_kernel_model, spot ) )
                     improvement = 1.0 - two_kernel_result / lsq_result;

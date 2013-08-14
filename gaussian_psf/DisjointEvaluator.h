@@ -27,13 +27,13 @@ using boost::mpl::bool_;
 template <typename Parameter, typename Dimension>
 struct dimension_mismatch : public true_ {};
 template <template <int Foo> class Param, int Dim>
-struct dimension_mismatch< Param<Dim>, nonlinfit::Xs<Dim,LengthUnit> > 
+struct dimension_mismatch< Param<Dim>, nonlinfit::Xs<Dim> > 
     : public false_ {};
 template <template <int Foo, int Bar> class Param, int Dim, int Term>
-struct dimension_mismatch< Param<Dim,Term>, nonlinfit::Xs<Dim,LengthUnit> > 
+struct dimension_mismatch< Param<Dim,Term>, nonlinfit::Xs<Dim> > 
     : public false_ {};
 template <int Dim>
-struct dimension_mismatch< nonlinfit::Xs<Dim,gaussian_psf::LengthUnit>, nonlinfit::Xs<Dim,gaussian_psf::LengthUnit> > 
+struct dimension_mismatch< nonlinfit::Xs<Dim>, nonlinfit::Xs<Dim> > 
     : public false_ {};
 
 template <typename DerivationSummand>

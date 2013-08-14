@@ -1,8 +1,6 @@
 #ifndef DSTORM_FITTER_PSF_FWD_H
 #define DSTORM_FITTER_PSF_FWD_H
 
-#include "LengthUnit.h"
-
 namespace dStorm {
 namespace gaussian_psf {
 

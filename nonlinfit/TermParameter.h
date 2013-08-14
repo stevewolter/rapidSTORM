@@ -19,7 +19,6 @@ template <typename Func, typename BaseParameter>
 struct TermParameter {
     typedef Func Function;
     typedef BaseParameter base;
-    typedef typename BaseParameter::Unit Unit;
 };
 
 template <typename Func, typename BaseParameter>

@@ -23,9 +23,9 @@ mock_data() {
                 ? -23*d.output[j] : d.output[j] * log(d.output[j]);
         }
     }
-    disjoint_data.min.fill( boost::units::quantity<LengthUnit>::from_value( -1E50 ) );
-    disjoint_data.max.fill( boost::units::quantity<LengthUnit>::from_value( 1E50 ) );
-    disjoint_data.pixel_size = boost::units::quantity<AreaUnit>(1E-15 * boost::units::si::meter * boost::units::si::meter);
+    disjoint_data.min.fill( -1E50 );
+    disjoint_data.max.fill( 1E50 );
+    disjoint_data.pixel_size = 1E3;
     for (int j = 0; j < 12; ++j)
         disjoint_data.xs[j] = j * exp(1) / 30.0;
     return disjoint_data;
@@ -39,18 +39,18 @@ struct RandomParameterSetter {
     RandomParameterSetter() {}
 
     template <int Dim>
-    void operator()( BestSigma<Dim> p ) { m(p).set_value( 0.400+ 0.1*Dim ); }
+    void operator()( BestSigma<Dim> p ) { m(p) = 0.400+ 0.1*Dim; }
     template <int Dim>
-    void operator()( nonlinfit::Xs<Dim,LengthUnit> ) {}
+    void operator()( nonlinfit::Xs<Dim> ) {}
     template <int Dim>
-    void operator()( Mean<Dim> p ) { m(p).set_value( 2.500+ 0.050*Dim ); }
-    void operator()( MeanZ p ) { m(p).set_value( 0.600 ); }
+    void operator()( Mean<Dim> p ) { m(p) = 2.500+ 0.050*Dim; }
+    void operator()( MeanZ p ) { m(p) = 0.600; }
     template <int Dim>
-    void operator()( ZPosition<Dim> p ) { m(p).set_value( 0.200- 0.050*Dim ); }
-    void operator()( Amplitude p ) { m(p).set_value( 1E7 ); }
+    void operator()( ZPosition<Dim> p ) { m(p) = 0.200- 0.050*Dim; }
+    void operator()( Amplitude p ) { m(p) = 1E7; }
     template <int Dim, int Term>
-    void operator()( DeltaSigma<Dim,Term> p ) { m(p).set_value( 1.6 - 0.4 * Dim - 0.1 * Term ); }
-    void operator()( Prefactor p ) { m(p).set_value( 0.3 ); }
+    void operator()( DeltaSigma<Dim,Term> p ) { m(p) = 1.6 - 0.4 * Dim - 0.1 * Term; }
+    void operator()( Prefactor p ) { m(p) = 0.3; }
 
     const Expression& operator()() { 
         boost::mpl::for_each< typename Expression::Variables >( boost::ref(*this) );

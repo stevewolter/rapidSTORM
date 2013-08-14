@@ -111,14 +111,14 @@ class InitialValueFinder::set_parameter {
         : base( p.info.fluorophore, o ), p(p), s(s), e(e) {}
 
     template <typename Model>
-    void operator()( nonlinfit::Xs<0,gaussian_psf::LengthUnit> p, Model& m ) {}
+    void operator()( nonlinfit::Xs<0> p, Model& m ) {}
     template <typename Model>
-    void operator()( nonlinfit::Xs<1,gaussian_psf::LengthUnit> p, Model& m ) {}
+    void operator()( nonlinfit::Xs<1> p, Model& m ) {}
     template <int Dim, typename Model>
     void operator()( gaussian_psf::Mean<Dim> p, Model& m ) 
-        { m( p ) = s[Dim]; }
+        { m( p ) = quantity<si::length>(s[Dim]).value() * 1E6; }
     void operator()( gaussian_psf::MeanZ p, gaussian_psf::DepthInfo3D& m ) { 
-        m( p ) = e.z_estimate; 
+        m( p ) = quantity<si::length>(e.z_estimate).value() * 1E6; 
     }
     template <typename Model>
     void operator()( gaussian_psf::Amplitude a, Model& m ) 

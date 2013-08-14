@@ -77,13 +77,11 @@ class Lambda
 
     /** \sa nonlinfit::Lambda::operator() */
     template <typename Term, typename Parameter>
-    boost::units::quantity<typename Parameter::Unit>
-    operator()( TermParameter< Term, Parameter > ) const
+    double operator()( TermParameter< Term, Parameter > ) const
         { return get_part( Term() )( Parameter() ); }
     /** \sa nonlinfit::Lambda::operator() */
     template <typename Term, typename Parameter>
-    ParameterReference< Parameter >
-    operator()( TermParameter< Term, Parameter > ) 
+    double& operator()( TermParameter< Term, Parameter > ) 
         { return get_part( Term() )( Parameter() ); }
 
 

@@ -34,7 +34,7 @@ struct JointEvaluator
         { result += this->expT; }
 
     template <typename Target, int Dim>
-    void derivative( Target target, nonlinfit::Xs<Dim,LengthUnit> ) {
+    void derivative( Target target, nonlinfit::Xs<Dim> ) {
         target = (expT * normed.col(Dim)) * -this->sigmaI[Dim];
     }
     template <typename Target, int Dim>

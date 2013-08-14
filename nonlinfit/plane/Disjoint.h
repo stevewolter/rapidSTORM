@@ -44,11 +44,9 @@ namespace plane {
  **/
 template <typename Num, int _ChunkSize, typename OuterParam, typename InnerParam>
 struct Disjoint {
-    BOOST_STATIC_ASSERT(( boost::is_same< typename OuterParam::Unit, 
-                                typename InnerParam::Unit >::value ));
     typedef Num Number;
     static const int ChunkSize = _ChunkSize;
-    typedef DisjointData<Num,typename OuterParam::Unit,ChunkSize> Data;
+    typedef DisjointData<Num,ChunkSize> Data;
 
     template <typename Function, typename Parameter>
     struct make_derivative_terms;
@@ -59,9 +57,9 @@ struct Disjoint {
 
 /** Metafunction returning an instance of Disjoint with Xs as the
  *  parameters. Xs<0> is the fixed-size parameter. */
-template <typename Num, typename LengthUnit, int _ChunkSize>
+template <typename Num, int _ChunkSize>
 struct xs_disjoint {
-    typedef Disjoint<Num,_ChunkSize, Xs<0,LengthUnit>, Xs<1,LengthUnit> > type;
+    typedef Disjoint<Num,_ChunkSize, Xs<0>, Xs<1> > type;
 };
 
 }

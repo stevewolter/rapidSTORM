@@ -30,8 +30,7 @@ class FitTerminator {
             typedef nonlinfit::TermParameter<Kernel, gaussian_psf::Mean<Dim> > MyParameter;
             const int index = nonlinfit::index_of< 
                 typename Function::Variables, MyParameter >::value;
-            quantity<si::length> value( 
-                quantity< typename MyParameter::Unit >::from_value(shift[ index ]) );
+            quantity<si::length> value( shift[ index ] * 1E-6 * si::meter );
             DEBUG( "Checking convergence of mean " << Dim << " at index " << index << " with change " << value << " against threshold " << t.minimum_change );
             bool this_coordinate_converged = abs(value) < t.minimum_change;
             t.converged = t.converged && this_coordinate_converged;

@@ -35,7 +35,7 @@ class Computation {
     Computation( const Expression& m ) : m(&m) {}
     template <typename Data>
     bool prepare_iteration( const Data& ) { 
-        a = (*m)( Amount() ).value(); 
+        a = (*m)( Amount() ); 
         return a >= 0; 
     }
     template <typename Data> void prepare_chunk( const Data& ) {}

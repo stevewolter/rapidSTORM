@@ -12,8 +12,7 @@ namespace fit_window {
 /** This class computes a weighted centroid position of its input
  *  values. The weights may be negative. */
 struct Centroid {
-    typedef boost::units::quantity<boost::units::si::microlength> Coordinate;
-    typedef Eigen::Array< Coordinate, 2, 1, Eigen::DontAlign> Spot;
+    typedef Eigen::Array< double, 2, 1, Eigen::DontAlign> Spot;
   private:
 
     boost::optional<Spot> min, max;
@@ -22,9 +21,9 @@ struct Centroid {
 
     void init() {
         for (int i = 0; i < 2; ++i) {
-            weighted_sum[i] = Spot::Constant( Spot::Scalar::from_value(0) );
+            weighted_sum[i] = Spot::Constant( 0 );
             total_weight[i] = 0.0;
-            assert( weighted_sum[i].x().value() <= 1E40 );
+            assert( weighted_sum[i].x() <= 1E40 );
         }
     }
   public:
@@ -34,9 +33,9 @@ struct Centroid {
         int i = ( weight > 0 ) ? 0 : 1;
         weight = fabs(weight);
         for (int j = 0; j < weighted_sum[i].rows(); ++j)
-            weighted_sum[i][j] += Coordinate(s[j] * double(weight));
+            weighted_sum[i][j] += s[j] * double(weight);
         total_weight[i] += weight;
-        assert( weighted_sum[i].x().value() <= 1E40 );
+        assert( weighted_sum[i].x() <= 1E40 );
     }
     Centroid& operator+=( const Centroid& o ); 
 

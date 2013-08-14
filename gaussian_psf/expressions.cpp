@@ -22,8 +22,8 @@ bool BaseExpression::form_parameters_are_sane() const {
 bool BaseExpression::mean_within_range( const Bound& lower, const Bound& upper ) const {
     if ( may_leave_roi ) return true;
     bool is_good = 
-           (spatial_mean.array() >= boost::units::value(lower.head<2>()).array()).all()
-        && (spatial_mean.array() <= boost::units::value(upper.head<2>()).array()).all();
+           (spatial_mean.array() >= lower.head<2>().array()).all()
+        && (spatial_mean.array() <= upper.head<2>().array()).all();
     if ( ! is_good ) {
         DEBUG( "Spatial mean " << spatial_mean.transpose() << " is outside the boundaries " << lower.transpose() << " and " << upper.transpose() );
     }

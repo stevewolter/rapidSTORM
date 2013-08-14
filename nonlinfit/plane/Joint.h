@@ -23,17 +23,15 @@ namespace plane {
  **/
 template <typename Num, int _ChunkSize, typename FirstParam, typename SecondParam>
 struct Joint {
-    BOOST_STATIC_ASSERT(( boost::is_same< 
-        typename FirstParam::Unit, typename SecondParam::Unit >::value ));
     static const int ChunkSize = _ChunkSize;
-    typedef JointData<Num,typename FirstParam::Unit,_ChunkSize> Data;
+    typedef JointData<Num,_ChunkSize> Data;
     typedef Num Number;
 };
 
 /** Boost.MPL metafunction creating a Joint instance with Xs variables. */
-template <typename Num, typename LengthUnit, int _ChunkSize>
+template <typename Num, int _ChunkSize>
 struct xs_joint {
-    typedef Joint<Num,_ChunkSize, Xs<0,LengthUnit>, Xs<1,LengthUnit> > type;
+    typedef Joint<Num,_ChunkSize, Xs<0>, Xs<1> > type;
 };
 
 }

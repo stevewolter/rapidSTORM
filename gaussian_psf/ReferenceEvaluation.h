@@ -6,6 +6,7 @@
 #include "DepthInfo3D.h"
 #include <nonlinfit/plane/GenericData.h>
 #include <nonlinfit/Evaluator.h>
+#include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/area.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/mpl/for_each.hpp>
@@ -26,24 +27,23 @@ class ReferenceEvaluator <No3D, Number, P1, P2>
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number pixel_size;
   public:
-    typedef nonlinfit::plane::GenericData< LengthUnit > Data;
-    bool prepare_iteration( const Data& data ) {
-        pixel_size = data.pixel_size.value(); 
+    bool prepare_iteration( const nonlinfit::plane::GenericData& data ) {
+        pixel_size = data.pixel_size; 
         return true;
     }
 
     ReferenceEvaluator( No3D& expr ) : expr(&expr) {}
     void prepare_chunk( const Eigen::Array<Number,1,2>& xs ) {
-        (*expr)( P1() ).set_value( xs[0] );
-        (*expr)( P2() ).set_value( xs[1] );
-        x = (*expr)( nonlinfit::Xs<0,LengthUnit>() ).value();
-        y = (*expr)( nonlinfit::Xs<1,LengthUnit>() ).value();
-        x0 = (*expr)( Mean<0>() ).value();
-        y0 = (*expr)( Mean<1>() ).value();
-        s0x = (*expr)( BestSigma<0>() ).value();
-        s0y = (*expr)( BestSigma<1>() ).value();
-        A = (*expr)( Amplitude() ).value();
-        pf = (*expr)( Prefactor() ).value();
+        (*expr)( P1() ) = xs[0];
+        (*expr)( P2() ) = xs[1];
+        x = (*expr)( nonlinfit::Xs<0>() );
+        y = (*expr)( nonlinfit::Xs<1>() );
+        x0 = (*expr)( Mean<0>() );
+        y0 = (*expr)( Mean<1>() );
+        s0x = (*expr)( BestSigma<0>() );
+        s0y = (*expr)( BestSigma<1>() );
+        A = (*expr)( Amplitude() );
+        pf = (*expr)( Prefactor() );
     }
     void value( Eigen::Array<Number,1,1>& result ) 
         { result.fill(0); add_value(result); }
@@ -84,7 +84,7 @@ class ReferenceEvaluator <No3D, Number, P1, P2>
     }
 
     template <typename Target, int Dim>
-    void derivative( Target target, nonlinfit::Xs<Dim,LengthUnit> ) {
+    void derivative( Target target, nonlinfit::Xs<Dim> ) {
         derivative( target, Mean<Dim>() );
         target(0,0) *= -1;
     }
@@ -124,27 +124,26 @@ class ReferenceEvaluator <DepthInfo3D, Number, P1, P2>
     Number dsx, dsy;
     Number pixel_size;
   public:
-    typedef nonlinfit::plane::GenericData< LengthUnit > Data;
-    bool prepare_iteration( const Data& data ) {
-        pixel_size = data.pixel_size.value(); 
+    bool prepare_iteration( const nonlinfit::plane::GenericData& data ) {
+        pixel_size = data.pixel_size; 
         return true;
     }
 
     ReferenceEvaluator( DepthInfo3D& expr ) : expr(&expr) {}
     void prepare_chunk( const Eigen::Array<Number,1,2>& xs ) {
-        (*expr)( P1() ).set_value( xs[0] );
-        (*expr)( P2() ).set_value( xs[1] );
-        x = (*expr)( nonlinfit::Xs<0,LengthUnit>() ).value();
-        y = (*expr)( nonlinfit::Xs<1,LengthUnit>() ).value();
-        x0 = (*expr)( Mean<0>() ).value();
-        y0 = (*expr)( Mean<1>() ).value();
+        (*expr)( P1() ) = xs[0];
+        (*expr)( P2() ) = xs[1];
+        x = (*expr)( nonlinfit::Xs<0>() );
+        y = (*expr)( nonlinfit::Xs<1>() );
+        x0 = (*expr)( Mean<0>() );
+        y0 = (*expr)( Mean<1>() );
         s0x = expr->get_sigma().x();
         s0y = expr->get_sigma().y();
-        A = (*expr)( Amplitude() ).value();
-        pf = (*expr)( Prefactor() ).value();
-        threed_info::ZPosition z( *(*expr)( MeanZ() ) );
-        dsx = expr->get_spline(Direction_X).get_sigma_deriv(z );
-        dsy = expr->get_spline(Direction_Y).get_sigma_deriv(z );
+        A = (*expr)( Amplitude() );
+        pf = (*expr)( Prefactor() );
+        threed_info::ZPosition z( (*expr)( MeanZ() ) * 1E-6 * boost::units::si::meter );
+        dsx = expr->get_spline(Direction_X).get_sigma_deriv(z);
+        dsy = expr->get_spline(Direction_Y).get_sigma_deriv(z);
     }
     void value( Eigen::Array<Number,1,1>& result ) 
         { result.fill(0); add_value(result); }
@@ -185,7 +184,7 @@ class ReferenceEvaluator <DepthInfo3D, Number, P1, P2>
     }
 
     template <typename Target, int Dim>
-    void derivative( Target target, nonlinfit::Xs<Dim,LengthUnit> ) {
+    void derivative( Target target, nonlinfit::Xs<Dim> ) {
         derivative( target, Mean<Dim>() );
         target(0,0) *= -1;
     }

@@ -15,15 +15,14 @@ int ScheduleIndexFinder::get_evaluation_tag_index( const Spot& position ) const
     return table[width];
 }
 
-typedef boost::units::si::length LengthUnit;
 typedef boost::mpl::vector<
-    nonlinfit::plane::xs_disjoint<double,LengthUnit,14>::type,
-    nonlinfit::plane::xs_disjoint<double,LengthUnit,10>::type,
-    nonlinfit::plane::xs_disjoint<double,LengthUnit,8>::type,
-    nonlinfit::plane::xs_joint<double,LengthUnit,8>::type,
-    nonlinfit::plane::xs_disjoint<float,LengthUnit,12>::type,
-    nonlinfit::plane::xs_disjoint<float,LengthUnit,8>::type,
-    nonlinfit::plane::xs_joint<float,LengthUnit,8>::type
+    nonlinfit::plane::xs_disjoint<double,14>::type,
+    nonlinfit::plane::xs_disjoint<double,10>::type,
+    nonlinfit::plane::xs_disjoint<double,8>::type,
+    nonlinfit::plane::xs_joint<double,8>::type,
+    nonlinfit::plane::xs_disjoint<float,12>::type,
+    nonlinfit::plane::xs_disjoint<float,8>::type,
+    nonlinfit::plane::xs_joint<float,8>::type
 > test_tags;
 
 class ScheduleIndexFinderFixture {

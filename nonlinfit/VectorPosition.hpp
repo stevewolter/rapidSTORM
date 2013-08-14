@@ -21,7 +21,7 @@ struct VectorPosition<_Lambda>::get_variable {
     template <typename IndexType>
     void operator()( IndexType ) {
         typedef typename boost::mpl::at<Variables, IndexType>::type Parameter;
-        p[ IndexType::value ] = m( Parameter() ).value();
+        p[ IndexType::value ] = m( Parameter() );
     }
 };
 
@@ -38,7 +38,7 @@ struct VectorPosition<_Lambda>::set_variable {
     template <typename IndexType>
     void operator()( IndexType ) {
         typedef typename boost::mpl::at<Variables, IndexType>::type Parameter;
-        m( Parameter() ).set_value( p[ IndexType::value ] );
+        m( Parameter() ) = p[ IndexType::value ];
     }
 };
 

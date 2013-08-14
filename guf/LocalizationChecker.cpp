@@ -40,8 +40,8 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
             if ( info.get_judger( plane ).is_above_background( intensity, background ) )
                 makes_it_in_one_plane = true;
             for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
-                quantity<si::length> x_dist( (*j)( gaussian_psf::Mean<0>() ) - (*k)( gaussian_psf::Mean<0>() ) );
-                quantity<si::length> y_dist( (*j)( gaussian_psf::Mean<1>() ) - (*k)( gaussian_psf::Mean<1>() ) );
+                quantity<si::length> x_dist( ((*j)( gaussian_psf::Mean<0>() ) - (*k)( gaussian_psf::Mean<0>() )) * 1E-6 * si::meter );
+                quantity<si::length> y_dist( ((*j)( gaussian_psf::Mean<1>() ) - (*k)( gaussian_psf::Mean<1>() )) * 1E-6 * si::meter );
                 if ( pow<2>(x_dist) + pow<2>(y_dist) < pow<2>(theta_dist) )
                     return false;
             }
@@ -56,8 +56,8 @@ bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::BaseExpres
 {
     /* TODO: Make this 3.0 configurable */
     bool close_to_original = 
-        abs( quantity<si::length>(k( gaussian_psf::Mean<Dim>() ) ) - spot[Dim] ) 
-            < k.get_sigma()[Dim] * (1E-6 * si::meter) * 3.0;
+        abs( k( gaussian_psf::Mean<Dim>() ) - quantity<si::length>(spot[Dim]).value() * 1E6 ) 
+            < k.get_sigma()[Dim] * 3.0;
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;
 }
@@ -70,7 +70,7 @@ bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, c
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &k );
     bool z_ok = (!threed || 
         contains(allowed_z_positions, 
-             samplepos::Scalar( (*threed)( gaussian_psf::MeanZ() ) ) ) );
+             samplepos::Scalar( (*threed)( gaussian_psf::MeanZ() ) * 1E-6 * si::meter ) ) );
     DEBUG("Z position " << (*threed)( gaussian_psf::MeanZ() ) << " OK: " << z_ok);
     return kernels_ok && z_ok;
 }

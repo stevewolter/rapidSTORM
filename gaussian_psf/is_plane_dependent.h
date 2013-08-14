@@ -19,7 +19,7 @@ class is_plane_independent
           universal_prefactors( universal_prefactors ) {}
 
     template <int Dim>
-    bool operator()( nonlinfit::Xs<Dim,LengthUnit> ) { return false; }
+    bool operator()( nonlinfit::Xs<Dim> ) { return false; }
     template <int Dim>
     bool operator()( Mean<Dim> ) { return !laempi; }
     bool operator()( MeanZ ) { return true; }

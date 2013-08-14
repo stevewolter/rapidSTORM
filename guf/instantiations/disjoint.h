@@ -3,5 +3,5 @@
 #include <nonlinfit/plane/DisjointData.hpp>
 
 typedef nonlinfit::plane::xs_disjoint< 
-    InstantiatedNumberType, dStorm::gaussian_psf::LengthUnit, DisjointWidth >::type
+    InstantiatedNumberType, DisjointWidth >::type
     InstantiatedTag;

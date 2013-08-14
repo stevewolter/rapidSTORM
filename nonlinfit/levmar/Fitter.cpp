@@ -24,7 +24,7 @@ static void check_naive_fitter_finds_paraboles_minimum() {
     VectorPosition< Lambda > mover(a);
     terminators::StepLimit terminator(150);
     fitter.fit( function, mover, terminator );
-    BOOST_CHECK_SMALL( a( static_power::Variable() ).value(), 0.01 );
+    BOOST_CHECK_SMALL( a( static_power::Variable() ), 0.01 );
 }
 
 boost::unit_test::test_suite* register_unit_tests() {

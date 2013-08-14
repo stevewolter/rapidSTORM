@@ -7,42 +7,40 @@
 namespace nonlinfit {
 namespace plane {
 
-template <typename Num,typename LengthUnit, int ChunkSize>
-void JointCoreData<Num,LengthUnit,ChunkSize>::set( DataRow& row, int current_point, const data_point& point ) {
-    row.inputs( current_point, 0 ) = point.x().value();
-    row.inputs( current_point, 1 ) = point.y().value();
+template <typename Num, int ChunkSize>
+void JointCoreData<Num,ChunkSize>::set( DataRow& row, int current_point, const data_point& point ) {
+    row.inputs( current_point, 0 ) = point.x();
+    row.inputs( current_point, 1 ) = point.y();
     row.output[ current_point ] = point.value();
     row.logoutput[ current_point ] = point.logoutput();
     row.residues[ current_point ] = point.residue();
 }
 
-template <typename Num,typename LengthUnit, int ChunkSize>
-DataPoint<LengthUnit,Num>
-JointCoreData<Num,LengthUnit,ChunkSize>::get( const DataRow& chunk, int in_chunk ) const
+template <typename Num, int ChunkSize>
+DataPoint<Num>
+JointCoreData<Num,ChunkSize>::get( const DataRow& chunk, int in_chunk ) const
 {
     return data_point( 
-            data_point::Length::from_value(chunk.inputs(in_chunk,0)),
-            data_point::Length::from_value(chunk.inputs(in_chunk,1)),
+            chunk.inputs(in_chunk,0),
+            chunk.inputs(in_chunk,1),
             chunk.output[in_chunk],
             chunk.logoutput[in_chunk],
             chunk.residues[in_chunk]);
 }
 
-template <typename Num, typename LengthUnit, int ChunkSize>
+template <typename Num, int ChunkSize>
 template <typename ONum, int Width>
-JointData<Num,LengthUnit,ChunkSize>::JointData
-    ( const DisjointData<ONum,LengthUnit, Width>& od )
-: GenericData<LengthUnit>( od )
+JointData<Num,ChunkSize>::JointData( const DisjointData<ONum, Width>& od )
+: GenericData( od )
 {
     std::copy( od.begin(), od.end(), std::back_inserter(*this) );
     this->pad_last_chunk();
 }
 
-template <typename Num, typename LengthUnit, int ChunkSize>
+template <typename Num, int ChunkSize>
 template <typename ONum, int Width>
-JointData<Num,LengthUnit,ChunkSize>::JointData
-    ( const JointData<ONum,LengthUnit,Width>& od )
-: GenericData<LengthUnit>( od )
+JointData<Num,ChunkSize>::JointData( const JointData<ONum,Width>& od )
+: GenericData( od )
 {
     std::copy( od.begin(), od.end(), std::back_inserter(*this) );
     this->pad_last_chunk();

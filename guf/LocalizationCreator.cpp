@@ -105,11 +105,11 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
 
     Localization::Position::Type pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
-    pos.x() = quantity<si::length>( only_kernel( gaussian_psf::Mean<0>() ) );
-    pos.y() = quantity<si::length>( only_kernel( gaussian_psf::Mean<1>() ) );
+    pos.x() = only_kernel( gaussian_psf::Mean<0>() ) * 1E-6 * si::meter;
+    pos.y() = only_kernel( gaussian_psf::Mean<1>() ) * 1E-6 * si::meter;
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel );
     if ( threed )
-        pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) );
+        pos[2] = (*threed)( gaussian_psf::MeanZ() ) * 1E-6 * si::meter;
     Localization::Amplitude::Type amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
     rv = Localization(pos, amp );
 

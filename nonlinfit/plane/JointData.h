@@ -14,19 +14,19 @@ namespace nonlinfit {
 namespace plane {
 
 /** Data structure for the Joint computation way. */
-template <typename Number, typename LengthUnit, int ChunkSize_>
+template <typename Number, int ChunkSize_>
 class JointCoreData
 {
     BOOST_STATIC_ASSERT((ChunkSize_ != Eigen::Dynamic));
   public:
     static const int ChunkSize = ChunkSize_;
-    typedef DataPoint<LengthUnit,Number> data_point;
+    typedef DataPoint<Number> data_point;
     typedef Eigen::Array<Number, ChunkSize, 2> Input;
     typedef Eigen::Array<Number, ChunkSize, 1> Output;
 
     struct DataRow {
         typedef JointCoreData::Output Output;
-        /** The X and Y coordinates for the current row in LengthUnit. */
+        /** The X and Y coordinates for the current row. */
         Input inputs;
         /** The measurements for the matching row in #inputs. */
         Output output;
@@ -42,17 +42,17 @@ class JointCoreData
     void set( DataRow& chunk, int in_chunk, const data_point& );
 };
 
-template <typename Number, typename LengthUnit, int ChunkSize>
+template <typename Number, int ChunkSize>
 class JointData
-: public DataFacade< JointCoreData<Number,LengthUnit,ChunkSize> >,
-  public GenericData<LengthUnit>
+: public DataFacade< JointCoreData<Number,ChunkSize> >,
+  public GenericData
 {
 public:
     JointData() {}
     template <typename ONum, int Width>
-    JointData( const DisjointData< ONum, LengthUnit,Width >& );
+    JointData( const DisjointData< ONum, Width >& );
     template <typename ONum, int Width>
-    JointData( const JointData< ONum, LengthUnit,Width >& );
+    JointData( const JointData< ONum, Width >& );
 };
 
 }

@@ -21,7 +21,7 @@ public:
     bool operator()( nonlinfit::TermParameter< Func, Base > ) { return (*this)( Base() ); }
 
     template <int Dim> 
-    bool operator()( nonlinfit::Xs<Dim,gaussian_psf::LengthUnit> ) { return true; }
+    bool operator()( nonlinfit::Xs<Dim> ) { return true; }
     template <int Dim> 
     bool operator()( gaussian_psf::Mean<Dim> ) { return false; }
     bool operator()( gaussian_psf::Amplitude ) { return false; }

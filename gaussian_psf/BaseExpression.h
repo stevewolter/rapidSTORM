@@ -6,22 +6,17 @@
 
 #include <Eigen/Core>
 #include <boost/mpl/vector.hpp>
-#include <boost/units/quantity.hpp>
 #include <nonlinfit/Lambda.h>
-#include <boost/units/Eigen/Core>
 #include <nonlinfit/access_parameters.hpp>
 
 namespace dStorm {
 namespace gaussian_psf {
 
 using namespace nonlinfit;
-using namespace boost::units;
 
 struct BaseExpression
 : public nonlinfit::access_parameters< BaseExpression >
 {
-    typedef Micrometers LengthUnit;
-
     BaseExpression();
     virtual ~BaseExpression();
     // Returns the PSF standard deviation in micrometers.
@@ -40,7 +35,7 @@ struct BaseExpression
     double amplitude, transmission;
     bool may_leave_roi;
     typedef boost::mpl::vector< 
-        nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>,
+        nonlinfit::Xs<0>, nonlinfit::Xs<1>,
         Mean<0>, Mean<1>, 
         Amplitude, Prefactor
     > Variables;
@@ -51,7 +46,7 @@ struct BaseExpression
     template <class Num, class Expression, int Size> friend class DisjointEvaluator;
 
     template <typename Type> friend class nonlinfit::access_parameters;
-    template <int Index> double& access( nonlinfit::Xs<Index,LengthUnit> ) {
+    template <int Index> double& access( nonlinfit::Xs<Index> ) {
         return spatial_position[Index];
     }
     template <int Index> double& access( Mean<Index> ) { return spatial_mean[Index]; }
@@ -60,7 +55,7 @@ struct BaseExpression
 
     bool form_parameters_are_sane() const;
 
-    typedef Eigen::Matrix< quantity<Micrometers>, 2, 1, Eigen::DontAlign > Bound;
+    typedef Eigen::Matrix< double, 2, 1, Eigen::DontAlign > Bound;
     bool mean_within_range( const Bound& lower, const Bound& upper ) const;
     bool sigma_is_negligible( double pixel_size ) const;
 

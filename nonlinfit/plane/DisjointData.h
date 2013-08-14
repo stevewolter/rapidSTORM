@@ -17,14 +17,14 @@ namespace plane {
  *  independently, with the outer dimension residing in
  *  the #xs member and the inner dimension residing in
  *  DataRow::inputs. */
-template <typename Number, typename LengthUnit, int _ChunkSize>
+template <typename Number, int _ChunkSize>
 struct DisjointCoreData
 {
     BOOST_STATIC_ASSERT((_ChunkSize != Eigen::Dynamic));
     static const int ChunkSize = _ChunkSize;
     typedef Eigen::Array<Number,1,1> Input;
     typedef Eigen::Array<Number, _ChunkSize, 1> Output;
-    typedef DataPoint<LengthUnit,Number> data_point;
+    typedef DataPoint<Number> data_point;
 
     struct DataRow {
         typedef DisjointCoreData::Output Output;
@@ -47,10 +47,10 @@ struct DisjointCoreData
     void set( DataRow& chunk, int in_chunk, const data_point& );
 };
 
-template <typename Number, typename LengthUnit, int ChunkSize>
+template <typename Number, int ChunkSize>
 struct DisjointData
-: public DataFacade< DisjointCoreData<Number,LengthUnit,ChunkSize> >,
-  public GenericData<LengthUnit>
+: public DataFacade< DisjointCoreData<Number,ChunkSize> >,
+  public GenericData
 {
 };
 

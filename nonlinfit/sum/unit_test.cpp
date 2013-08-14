@@ -53,7 +53,7 @@ static void test_Evaluator()
     typedef sum::Lambda< boost::mpl::vector<constant::Expression, constant::Expression, constant::Expression > > 
         MyExpression;
     typedef get_evaluator< MyExpression, 
-        plane::xs_joint<double,boost::units::si::length,1>::type >::type MyEvaluator;
+        plane::xs_joint<double,1>::type >::type MyEvaluator;
     MyExpression m;
     m.get_part( boost::mpl::int_<0>() )( constant::Amount() ) = 5.0;
     m.get_part( boost::mpl::int_<1>() )( constant::Amount() ) = 4.0;
@@ -88,15 +88,15 @@ static void test_Expression() {
     m.get_part( boost::mpl::int_<0>() )( constant::Amount() ) = 5.0;
     m.get_part( boost::mpl::int_<2>() )( static_power::Prefactor() ) = 1.0;
     const MyExpression& m2 = m;
-    BOOST_CHECK_EQUAL( m2.get_part( boost::mpl::int_<0>() )( constant::Amount() ).value(), 5.0 );
-    BOOST_CHECK_EQUAL( m2.get_part( boost::mpl::int_<2>() )( static_power::Prefactor() ).value(), 1.0 );
+    BOOST_CHECK_EQUAL( m2.get_part( boost::mpl::int_<0>() )( constant::Amount() ), 5.0 );
+    BOOST_CHECK_EQUAL( m2.get_part( boost::mpl::int_<2>() )( static_power::Prefactor() ), 1.0 );
 
     MyOtherExpression mom;
     mom.get_part( boost::mpl::int_<0>() )( constant::Amount() ) = 5.0;
     mom.get_part( boost::mpl::int_<3>() )( constant::Amount() ) = 15.0;
     const MyOtherExpression& mom2 = mom;
-    BOOST_CHECK_EQUAL( mom2.get_part( boost::mpl::int_<0>() )( constant::Amount() ).value(), 5.0 );
-    BOOST_CHECK_EQUAL( mom2.get_part( boost::mpl::int_<3>() )( constant::Amount() ).value(), 15.0 );
+    BOOST_CHECK_EQUAL( mom2.get_part( boost::mpl::int_<0>() )( constant::Amount() ), 5.0 );
+    BOOST_CHECK_EQUAL( mom2.get_part( boost::mpl::int_<3>() )( constant::Amount() ), 15.0 );
 }
 
 boost::unit_test::test_suite* register_unit_tests() {
