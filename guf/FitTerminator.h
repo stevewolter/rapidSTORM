@@ -8,16 +8,14 @@
 #include <nonlinfit/TermParameter.h>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include <boost/units/cmath.hpp>
+#include "dStorm/LengthUnit.h"
 
 namespace dStorm {
 namespace guf {
 
-using namespace boost::units;
-
 template <typename Function>
 class FitTerminator {
-    quantity<si::length> minimum_change;
+    double minimum_change;
     double relative_change;
     bool converged;
 
@@ -30,7 +28,7 @@ class FitTerminator {
             typedef nonlinfit::TermParameter<Kernel, gaussian_psf::Mean<Dim> > MyParameter;
             const int index = nonlinfit::index_of< 
                 typename Function::Variables, MyParameter >::value;
-            quantity<si::length> value( shift[ index ] * 1E-6 * si::meter );
+            double value( shift[ index ] );
             DEBUG( "Checking convergence of mean " << Dim << " at index " << index << " with change " << value << " against threshold " << t.minimum_change );
             bool this_coordinate_converged = abs(value) < t.minimum_change;
             t.converged = t.converged && this_coordinate_converged;
@@ -49,7 +47,7 @@ class FitTerminator {
 
   public:
     FitTerminator( const Config& config ) 
-        : minimum_change(config.negligible_x_step()), 
+        : minimum_change(ToLengthUnit(config.negligible_x_step())), 
           relative_change( config.relative_epsilon() ), 
           converged(false) {}
 

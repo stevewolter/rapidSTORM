@@ -4,7 +4,6 @@
 #include <Eigen/StdVector>
 #include <nonlinfit/TermParameter.h>
 
-#include <boost/units/cmath.hpp>
 #include "Config.h"
 
 #undef DEBUG

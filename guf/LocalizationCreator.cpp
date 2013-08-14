@@ -10,11 +10,9 @@
 #include "gaussian_psf/BaseExpression.h"
 #include "gaussian_psf/Base3D.h"
 #include "constant_background/model.hpp"
-#include <boost/units/Eigen/Array>
 #include <boost/variant/get.hpp>
 #include "fit_window/Optics.h"
 #include "MultiKernelModel.h"
-#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace guf {
@@ -52,22 +50,20 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
     result = by_plane[0];
 
     for (int d = 0; d < 2; ++d) {
-        quantity< power_typeof_helper< si::length, static_rational<-1> >::type > accum
-            = 0 / si::meter;
-        quantity< power_typeof_helper< si::area, static_rational<-1> >::type > inv_variance,
-            total_inv_variance = 0 / si::meter / si::meter;
+        double accum = 0;
+        double inv_variance, total_inv_variance = 0;
         for (int p = 0; p < int( by_plane.size() ); ++p ) {
             if ( weight_by_uncertainty )
-                inv_variance = pow<-2>( by_plane[p].position.uncertainty()[d] );
+                inv_variance = pow(quantity<si::length>(by_plane[p].position.uncertainty()[d]).value() * 1E6, -2.0);
             else
-                inv_variance = 1.0 / si::meter / si::meter;
-            accum += by_plane[p].position()[d] * inv_variance;
+                inv_variance = 1.0;
+            accum += quantity<si::length>(by_plane[p].position()[d]).value() * 1E6 * inv_variance;
             total_inv_variance += inv_variance;
         }
         if ( laempi_fit )
-            result.position()[d] = accum / total_inv_variance;
+            result.position()[d] = 1E-6 * si::meter * accum / total_inv_variance;
         if ( weight_by_uncertainty )
-            result.position.uncertainty()[d] = sqrt(1.0 / total_inv_variance);
+            result.position.uncertainty()[d] = 1E-6 * si::meter * sqrt(1.0 / total_inv_variance);
         // TODO: This should probably be the total, pre-prefactor amplitude, and the others with PF
         result.amplitude() = by_plane[0].amplitude();
     }
@@ -77,7 +73,6 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
 void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKernelModel& m, const fit_window::Plane& p )  const
 {
     assert( m.kernel_count() == 1 );
-    using namespace boost::units;
     /* Mortenson formula */
     /* Number of photons */
     double N = m[0]( gaussian_psf::Amplitude() ) * m[0]( gaussian_psf::Prefactor() );

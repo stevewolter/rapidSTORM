@@ -19,7 +19,7 @@ class LocalizationChecker {
     typedef boost::icl::interval_set< samplepos::Scalar > AllowedZPositions;
 
     const dStorm::engine::JobInfo& info;
-    const boost::units::quantity<boost::units::si::length> theta_dist;
+    const double theta_dist_sq;
     AllowedZPositions allowed_z_positions;
 
     template <int Dim>

@@ -2,8 +2,6 @@
 #define DSTORM_FITTER_GUF_LOCALIZATION_CREATOR_H
 
 #include <boost/optional/optional.hpp>
-#include <boost/units/quantity.hpp>
-#include <boost/units/systems/si/length.hpp>
 #include <dStorm/engine/JobInfo_decl.h>
 #include <dStorm/Localization_decl.h>
 #include "Config_decl.h"

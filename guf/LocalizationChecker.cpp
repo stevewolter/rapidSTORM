@@ -8,17 +8,15 @@
 #include "constant_background/model.hpp"
 #include <dStorm/threed_info/DepthInfo.h>
 #include "MultiKernelModel.h"
-#include <boost/units/cmath.hpp>
 #include <dStorm/engine/FitJudger.h>
+#include "dStorm/LengthUnit.h"
 
 namespace dStorm {
 namespace guf {
 
-using namespace boost::units;
-
 LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::engine::JobInfo& info )
 : info(info),
-  theta_dist( config.theta_dist() ),
+  theta_dist_sq( pow(ToLengthUnit(config.theta_dist()), 2.0) ),
   allowed_z_positions()
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
@@ -40,9 +38,8 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
             if ( info.get_judger( plane ).is_above_background( intensity, background ) )
                 makes_it_in_one_plane = true;
             for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
-                quantity<si::length> x_dist( ((*j)( gaussian_psf::Mean<0>() ) - (*k)( gaussian_psf::Mean<0>() )) * 1E-6 * si::meter );
-                quantity<si::length> y_dist( ((*j)( gaussian_psf::Mean<1>() ) - (*k)( gaussian_psf::Mean<1>() )) * 1E-6 * si::meter );
-                if ( pow<2>(x_dist) + pow<2>(y_dist) < pow<2>(theta_dist) )
+                double dist_sq = (j->get<gaussian_psf::Mean>() - k->get<gaussian_psf::Mean>()).squaredNorm();
+                if ( dist_sq < theta_dist_sq )
                     return false;
             }
         }

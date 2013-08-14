@@ -141,6 +141,7 @@ endif
 
 rapidstorm_SOURCES = \
     installation-directory.h \
+    dStorm/LengthUnit.h \
     dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
     dStorm/Localization_decl.h dStorm/Localization.h \
