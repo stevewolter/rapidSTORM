@@ -10,6 +10,7 @@
 #include <boost/optional/optional.hpp>
 #include <vector>
 #include <dStorm/image/Box.h>
+#include <dStorm/engine/FitPosition.h>
 
 namespace dStorm {
 namespace traits {
@@ -36,6 +37,9 @@ struct Projection {
 
         ROISpecification( const SamplePosition& center_, 
                           const SamplePosition& width_ );
+        // Positions given in micrometers.
+        ROISpecification( const engine::FitPosition& center_, 
+                          const engine::FitPosition& width_ );
         bool contains( const SamplePosition& ) const;
     };
     typedef std::vector< MappedPoint > ROI;

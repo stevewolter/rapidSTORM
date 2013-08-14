@@ -41,7 +41,7 @@ double Detector::relative_in_photons( quantity<camera::intensity> amp ) const
     { return amp / photon_response_; }
 
 quantity< si::area > Optics::pixel_size( const Spot& center ) const {
-    return projection.pixel_size( projection.nearest_point_in_image_space( center ) );
+    return projection.pixel_size( projection.nearest_point_in_image_space( boost::units::from_value<si::length>(center.cast<float>() * 1E-6f) ) );
 }
 
 traits::Projection::ROI

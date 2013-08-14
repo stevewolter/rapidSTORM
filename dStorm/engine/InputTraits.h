@@ -1,10 +1,10 @@
 #ifndef DSTORM_ENIGNE_INPUTTRAITS_H
 #define DSTORM_ENIGNE_INPUTTRAITS_H
 
+#include <dStorm/input/Traits.h>
 #include "Image_decl.h"
 #include "InputPlane.h"
 #include <dStorm/traits/image_number.h>
-#include <dStorm/input/Traits.h>
 #include <dStorm/DataSetTraits.h>
 #include <boost/units/systems/camera/frame_rate.hpp>
 

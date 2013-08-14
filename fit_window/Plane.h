@@ -19,8 +19,8 @@ public:
     int tag_index;
     Spot highest_pixel;
     float integral, peak_intensity, background_estimate;
-    boost::units::quantity<boost::units::si::area> pixel_size;
-    boost::units::quantity<boost::units::si::length> standard_deviation[2];
+    double pixel_size;
+    double standard_deviation[2];
     int pixel_count;
 
 protected:

@@ -19,7 +19,7 @@ private:
 public:
     template <typename Schedule>
     Plane( const Config& c, const engine::InputPlane& plane, Schedule s, int max_width )
-        : optics( Spot::Constant( Spot::Scalar( c.fit_window_size() ) ), plane ),
+        : optics( Spot::Constant( quantity<si::length>( c.fit_window_size() ).value() * 1E6 ), plane ),
           index_finder( s, c.allow_disjoint(), c.double_computation(), optics, max_width ),
           extractor_table( s, optics )
         {}

@@ -45,13 +45,11 @@ PlaneImpl<Tag>::PlaneImpl(
 
     const float background_part = 0.25;
 
-    this->pixel_size = optics.pixel_size(position);
-    data.pixel_size = quantity<si::area>( this->pixel_size ).value() * 1E12;
+    this->pixel_size = quantity<si::area>(optics.pixel_size(position)).value() * 1E12;
+    data.pixel_size = this->pixel_size;
 
     /* Initialize iteratively computed statistics */
-    for (int i = 0; i < 2; ++i) {
-        data.min[i] = quantity<si::length>(position[i]).value() * 1E6;
-    }
+    data.min = position;
     data.max = data.min;
     this->peak_intensity = this->integral = 0;
 
@@ -77,7 +75,10 @@ PlaneImpl<Tag>::PlaneImpl(
             data.max[d] = std::max( pos, data.max[d] );
         }
 
-        Spot sample = i->sample_position;
+        Spot sample;
+        for (int d = 0; d < 2; ++d) {
+            sample[d] = quantity<si::length>(i->sample_position[d]).value() * 1E6;
+        }
         const typename Data::value_type::Intensity value = 
             std::max( 0.0, optics.absolute_in_photons( image( i->image_position ) * camera::ad_count ) );
         pixels.push_back( value );
@@ -87,11 +88,7 @@ PlaneImpl<Tag>::PlaneImpl(
             this->highest_pixel = sample;
         }
 
-        Eigen::Vector2d sample_in_mum;
-        for (int i = 0; i < 2; ++i) {
-            sample_in_mum[i] = quantity<si::length>(sample[i]).value() * 1E6;
-        }
-        *o++ = typename Data::value_type( sample_in_mum, value );
+        *o++ = typename Data::value_type( sample, value );
     }
 
     data.pad_last_chunk();
@@ -107,15 +104,14 @@ PlaneImpl<Tag>::PlaneImpl(
         for ( typename Data::const_iterator i = data.begin(); i != data.end(); ++i )
         {
             for (int dim = 0; dim < 2; ++dim) {
-                double offset = i->position(dim) - quantity<si::length>(this->highest_pixel[dim]).value() * 1E6;
+                double offset = i->position(dim) - this->highest_pixel[dim];
                 double intensity_above_background = 
                     std::max(0.0, double(i->value() - this->background_estimate));
                 acc[dim]( offset, weight = intensity_above_background );
             }
         }
         for (int dim = 0; dim < 2; ++dim)
-            this->standard_deviation[dim] = quantity<si::length>( 
-                sqrt( weighted_variance(acc[dim]) ) * 1E-6 * si::meter );
+            this->standard_deviation[dim] = sqrt( weighted_variance(acc[dim]) );
     }
 }
 

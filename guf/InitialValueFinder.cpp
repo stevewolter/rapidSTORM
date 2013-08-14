@@ -116,7 +116,7 @@ class InitialValueFinder::set_parameter {
     void operator()( nonlinfit::Xs<1> p, Model& m ) {}
     template <int Dim, typename Model>
     void operator()( gaussian_psf::Mean<Dim> p, Model& m ) 
-        { m( p ) = quantity<si::length>(s[Dim]).value() * 1E6; }
+        { m( p ) = s[Dim]; }
     void operator()( gaussian_psf::MeanZ p, gaussian_psf::DepthInfo3D& m ) { 
         m( p ) = quantity<si::length>(e.z_estimate).value() * 1E6; 
     }
@@ -176,8 +176,8 @@ void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<Pla
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
     boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
-        threed_info::Sigma(s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ]),
-        threed_info::Sigma(s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ]) );
+        threed_info::Sigma(s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ] * 1E-6 * si::meter),
+        threed_info::Sigma(s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ] * 1E-6 * si::meter) );
 
     for (size_t i = 0; i < v.size(); ++i)
         v[i].z_estimate = *z;

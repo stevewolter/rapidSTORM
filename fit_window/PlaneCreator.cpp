@@ -19,12 +19,12 @@ static void test_central_extraction() {
     traits.optics.set_projection_factory(  traits::test_scaled_projection() );
     traits.create_projection();
 
-    Spot max_distance( Spot::Constant( 1.6E-6f * si::meter ) );
+    Spot max_distance( Spot::Constant( 1.6 ) );
     Optics optics( max_distance, traits );
 
     Spot position;
-    position.x() = 5600.0E-9 * si::metre;
-    position.y() = 3000.0E-9 * si::metre;
+    position.x() = 5.6;
+    position.y() = 3.0;
 
     dStorm::engine::Image2D image( traits.image.size );
     for (int x = 0; x < traits.image.size.x().value(); ++x)
@@ -33,14 +33,14 @@ static void test_central_extraction() {
 
     PlaneCreatorImpl< nonlinfit::plane::xs_disjoint<double,14>::type > extractor(optics);
     std::auto_ptr<Plane> data = extractor.extract_data( image, position );
-    BOOST_CHECK_CLOSE( data->pixel_size.value(), 230E-9 * 120E-9, 1 );
-    BOOST_CHECK_CLOSE( data->highest_pixel.x().value(), 7130E-9, 1 );
-    BOOST_CHECK_CLOSE( data->highest_pixel.y().value(), 4560E-9, 1 );
+    BOOST_CHECK_CLOSE( data->pixel_size, 230E-3 * 120E-3, 1 );
+    BOOST_CHECK_CLOSE( data->highest_pixel.x(), 7130E-3, 1 );
+    BOOST_CHECK_CLOSE( data->highest_pixel.y(), 4560E-3, 1 );
     BOOST_CHECK_CLOSE( data->integral, 18711, 1 );
     BOOST_CHECK_CLOSE( data->peak_intensity, 69, 1 );
     BOOST_CHECK_CLOSE( data->background_estimate, 43, 1 );
-    BOOST_CHECK_CLOSE( data->standard_deviation[0].value(), 870E-9, 1 );
-    BOOST_CHECK_CLOSE( data->standard_deviation[1].value(), 636E-9, 1 );
+    BOOST_CHECK_CLOSE( data->standard_deviation[0], 870E-3, 1 );
+    BOOST_CHECK_CLOSE( data->standard_deviation[1], 636E-3, 1 );
     BOOST_CHECK_EQUAL( data->pixel_count, 378 );
 }
 

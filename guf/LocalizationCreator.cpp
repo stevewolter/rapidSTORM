@@ -88,12 +88,12 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
         : p.optics.background_noise_variance();
     /* Compute/get \sigma */
     for (int i = 0; i < 2; ++i) {
-        quantity<si::area> psf_variance 
-            = pow<2>( rv.psf_width()(i) / 2.35f ) + p.pixel_size / 12.0;
+        double psf_variance 
+            = quantity<si::area>(pow<2>( rv.psf_width()(i) / 2.35f )).value() * 1E12 + p.pixel_size / 12.0;
         double background_term
             = psf_variance * 8.0 * M_PI * background_variance / (N * p.pixel_size);
         rv.position.uncertainty()[i] 
-            = sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) );
+            = sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) ) * 1E-6 * si::meter;
     }
 }
 

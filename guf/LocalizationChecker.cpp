@@ -1,3 +1,4 @@
+#include <dStorm/engine/InputTraits.h>
 #include "debug.h"
 #include "LocalizationChecker.h"
 #include <dStorm/engine/JobInfo.h>
@@ -5,7 +6,6 @@
 #include "gaussian_psf/BaseExpression.h"
 #include "gaussian_psf/Base3D.h"
 #include "constant_background/model.hpp"
-#include <dStorm/engine/InputTraits.h>
 #include <dStorm/threed_info/DepthInfo.h>
 #include "MultiKernelModel.h"
 #include <boost/units/cmath.hpp>
@@ -56,7 +56,7 @@ bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::BaseExpres
 {
     /* TODO: Make this 3.0 configurable */
     bool close_to_original = 
-        abs( k( gaussian_psf::Mean<Dim>() ) - quantity<si::length>(spot[Dim]).value() * 1E6 ) 
+        abs( k( gaussian_psf::Mean<Dim>() ) - spot[Dim] ) 
             < k.get_sigma()[Dim] * 3.0;
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;

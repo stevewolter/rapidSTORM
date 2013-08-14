@@ -183,9 +183,8 @@ class Engine::_iterator::WorkHorse {
 FitPosition Engine::_iterator::WorkHorse::get_fit_position( const Spot& spot ) const
 {
     return
-        meta_info->plane(0).projection().
-            pixel_in_sample_space( spot.position() ).head<2>()
-            .cast< FitPosition::Scalar >(); 
+        boost::units::value(meta_info->plane(0).projection().
+            pixel_in_sample_space( spot.position() ).head<2>()).cast<double>() * 1E6;
 }
 
 

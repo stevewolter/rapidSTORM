@@ -43,7 +43,7 @@ class ScheduleIndexFinderFixture {
 public:
     ScheduleIndexFinderFixture( boost::shared_ptr< const traits::ProjectionFactory > projection )
     : traits( mock_input_plane(projection) ),
-      max_distance( Spot::Constant( 1.6E-6f * si::meter ) ),
+      max_distance( Spot::Constant( 1.6 ) ),
       optics( max_distance, traits ) {}
 
     void check_indices( Spot position, int disjoint_double, int disjoint_float ) {
@@ -61,24 +61,24 @@ public:
 static void test_central_selection() {
     ScheduleIndexFinderFixture optics( traits::test_scaled_projection() );
     Spot position;
-    position.x() = 5600.0E-9 * si::metre;
-    position.y() = 3000.0E-9 * si::metre;
+    position.x() = 5600.0E-3;
+    position.y() = 3000.0E-3;
     optics.check_indices( position, 0, 6 );
 }
 
 static void test_border_selection() {
     ScheduleIndexFinderFixture optics( traits::test_scaled_projection() );
     Spot position;
-    position.x() = 800.0E-9 * si::metre;
-    position.y() = 3000.0E-9 * si::metre;
+    position.x() = 800.0E-3;
+    position.y() = 3000.0E-3;
     optics.check_indices( position, 3, 4 );
 }
 
 static void test_closer_border_selection() {
     ScheduleIndexFinderFixture optics( traits::test_scaled_projection() );
     Spot position;
-    position.x() = 650.0E-9 * si::metre;
-    position.y() = 3000.0E-9 * si::metre;
+    position.x() = 650.0E-3;
+    position.y() = 3000.0E-3;
     optics.check_indices( position, 1, 4 );
 }
 

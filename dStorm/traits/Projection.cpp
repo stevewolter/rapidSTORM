@@ -27,5 +27,13 @@ Projection::ROISpecification::ROISpecification( const SamplePosition& center_,
                           const SamplePosition& width_ )
 : center(center_), width(width_) {}
 
+Projection::ROISpecification::ROISpecification( const engine::FitPosition& center_, 
+                          const engine::FitPosition& width_ ) {
+    for (int i = 0; i < 2; ++i) {
+        center[i] = center_[i] * 1E-6f * si::meter;
+        width[i] = width_[i] * 1E-6f * si::meter;
+    }
+}
+
 }
 }
