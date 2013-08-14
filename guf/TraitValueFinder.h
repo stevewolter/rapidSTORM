@@ -27,31 +27,26 @@ struct TraitValueFinder {
     template <int Dim>
     void operator()( gaussian_psf::BestSigma<Dim> p, gaussian_psf::No3D& m ) const { 
         Direction d = static_cast<Direction>(Dim);
-        m(p) = quantity< si::length >(
-            dynamic_cast< const threed_info::No3D&>(*plane.depth_info(d))
-                .sigma ).value() * 1E6;
+        m(p) = dynamic_cast< const threed_info::No3D&>(*plane.depth_info(d)).sigma;
     }
     template <int Dim>
     void operator()( gaussian_psf::BestSigma<Dim> p, gaussian_psf::Polynomial3D& m ) const { 
         Direction d = static_cast<Direction>(Dim);
-        m(p) = quantity< si::length >(
-            dynamic_cast< const threed_info::Polynomial3D&>(*plane.depth_info(d))
-                .get_base_width() ).value() * 1E6;
+        m(p) = dynamic_cast< const threed_info::Polynomial3D&>(*plane.depth_info(d))
+                .get_base_width();
     }
     template <int Dim, typename Structure, int Term>
     void operator()( gaussian_psf::DeltaSigma<Dim,Term> p, Structure& m ) const {
         Direction d = static_cast<Direction>(Dim);
-        m(p) = quantity< si::length >(
-            dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info(d))
-                .get_slope( Term ) ).value() * 1E6;
+        m(p) = dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info(d))
+                .get_slope( Term );
     }
 
     template <int Dim, typename Structure>
     void operator()( gaussian_psf::ZPosition<Dim> p, Structure& m ) const { 
         Direction d = static_cast<Direction>(Dim);
-        m( p ) = quantity< si::length >(
-            dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info(d))
-                .focal_plane() ).value() * 1E6;
+        m( p ) = dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info(d))
+                .focal_plane();
     }
 
     template <typename Structure>

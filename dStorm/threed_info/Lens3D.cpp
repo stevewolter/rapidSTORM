@@ -3,10 +3,13 @@
 #include "Lens3D.h"
 #include "Config.h"
 #include <dStorm/units/nanolength.h>
+#include <dStorm/LengthUnit.h>
 #include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace threed_info {
+
+using namespace boost::units;
 
 std::ostream& Lens3D::print_( std::ostream& o ) const {
     return o << "lens-determined 3D at " << z_position_;
@@ -17,7 +20,7 @@ class Lens3DConfig : public Config {
 
     boost::shared_ptr<DepthInfo> make_traits( Direction ) const { 
         boost::shared_ptr<Lens3D> rv( new Lens3D() );
-        rv->z_position_ = ZPosition(z_position());
+        rv->z_position_ = ToLengthUnit(z_position());
         return rv;
     }
     void read_traits( const DepthInfo& dx, const DepthInfo& dy ) 

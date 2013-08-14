@@ -9,6 +9,7 @@
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 
+#include <dStorm/LengthUnit.h>
 #include <dStorm/units/nanolength.h>
 #include <dStorm/units/microlength.h>
 #include <dStorm/units/permicrolength.h>
@@ -23,20 +24,20 @@ namespace threed_info {
 using namespace boost::units;
 
 Polynomial3D::Polynomial3D() 
-: sigma_(0.0 * si::meter),
-  z_position( 0.0 * si::meter ),
-  z_limit_( 0.0 * si::meter ),
-  widening( Widening::Constant( 0.0 * si::meter ) )
+: sigma_(0.0),
+  z_position( 0.0 ),
+  z_limit_( 0.0 ),
+  widening( Widening::Constant( 0.0 ) )
 {
 }
 
-Polynomial3D::WidthSlope Polynomial3D::get_slope( int term ) const
+double Polynomial3D::get_slope( int term ) const
 {
     assert( term >= MinTerm && term <= Order );
     return widening[ term ];
 }
 
-void Polynomial3D::set_slope( int term, WidthSlope s )
+void Polynomial3D::set_slope( int term, double s )
 {
     assert( term >= MinTerm && term <= Order );
     widening[ term ] = s;
@@ -81,10 +82,10 @@ std::ostream& Polynomial3D::print_( std::ostream& o ) const {
 }
 
 bool Polynomial3D::is_positive_over_depth_range() const {
-    double a = pow(1.0e-6/get_slope(4).value(), 4.0);
-    double b = pow(1.0e-6/get_slope(3).value(), 3.0);
-    double c = pow(1.0e-6/get_slope(2).value(), 2.0);
-    double d = 1.0e-6/get_slope(1).value();
+    double a = pow(1.0/get_slope(4), 4.0);
+    double b = pow(1.0/get_slope(3), 3.0);
+    double c = pow(1.0/get_slope(2), 2.0);
+    double d = 1.0/get_slope(1);
     double e = 1;
 
     // According to en.wikipedia.org/wiki/Discriminant
@@ -130,13 +131,13 @@ class Polynomial3DConfig : public Config {
     Polynomial3DConfig* clone() const { return new Polynomial3DConfig(*this); }
 };
 
-template <typename ToQuantity, typename FromUnit, typename Base>
+template <typename ToQuantity>
 Eigen::Matrix< ToQuantity, 2, 1 >
-matrify( quantity<FromUnit,Base> x, quantity<FromUnit,Base> y )
+matrify( double x, double y )
 {
     Eigen::Matrix< ToQuantity, 2, 1 > rv;
-    rv.x() = ToQuantity(x);
-    rv.y() = ToQuantity(y);
+    rv.x() = ToQuantity(FromLengthUnit(x));
+    rv.y() = ToQuantity(FromLengthUnit(y));
     return rv;
 }
 
@@ -147,14 +148,14 @@ void Polynomial3DConfig::read_traits( const DepthInfo& dx, const DepthInfo& dy )
     z_range = matrify<ZPosition::Scalar>(px.z_limit(), py.z_limit());
     z_position = matrify<ZPosition::Scalar>(px.focal_plane(), py.focal_plane());
 
-    psf_size = matrify< PSFSize::Scalar >( px.get_base_width() * 2.35f, py.get_base_width() * 2.35f );
+    psf_size = matrify<PSFSize::Scalar>( px.get_base_width() * 2.35f, py.get_base_width() * 2.35f );
 
     SlopeEntry::value_type slopes;
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
         const Polynomial3D& p = (dir == Direction_X) ? px : py;
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
             slopes(dir, term-Polynomial3D::MinTerm) = 
-                SlopeEntry::value_type::Scalar(1.0 / p.get_slope(term));
+                SlopeEntry::value_type::Scalar(1.0 / FromLengthUnit(p.get_slope(term)));
         }
     }
     this->slopes = slopes;
@@ -162,15 +163,15 @@ void Polynomial3DConfig::read_traits( const DepthInfo& dx, const DepthInfo& dy )
 
 boost::shared_ptr<DepthInfo> Polynomial3DConfig::make_traits(Direction dir) const {
     boost::shared_ptr<Polynomial3D> p( new Polynomial3D() );
-    p->set_z_limit( threed_info::ZPosition(z_range()[dir]) );
-    p->set_focal_plane( threed_info::ZPosition(z_position()[dir]) );
-    p->set_base_width( Sigma(psf_size()[dir] / 2.35) );
+    p->set_z_limit( ToLengthUnit(z_range()[dir]) );
+    p->set_focal_plane( ToLengthUnit(z_position()[dir]) );
+    p->set_base_width( ToLengthUnit(psf_size()[dir] / 2.35) );
     for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
         quantity< si::permicrolength > s = slopes()( dir, term-Polynomial3D::MinTerm );
         if ( abs(s) < 1E-30 / si::micrometer )
-            p->set_slope( term, 1E24 * si::meter );
+            p->set_slope( term, ToLengthUnit(1E24 * si::meter) );
         else
-            p->set_slope( term, Polynomial3D::WidthSlope( pow<-1>(s) ) ) ;
+            p->set_slope( term, ToLengthUnit(1.0 / s) ) ;
     }
     return p;
 }

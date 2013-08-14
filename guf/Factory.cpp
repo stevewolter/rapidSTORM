@@ -32,8 +32,8 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
             }
     }
     if ( ! is_empty( z_range ) ) {
-        traits.position().range().z().first = lower( z_range );
-        traits.position().range().z().second = upper( z_range );
+        traits.position().range().z().first = float(lower( z_range ) * 1E-6) * si::meter;
+        traits.position().range().z().second = float(upper( z_range ) * 1E-6) * si::meter;
     }
 
     traits.psf_width().is_given.fill( config.output_sigmas() );

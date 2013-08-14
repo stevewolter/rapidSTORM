@@ -15,6 +15,11 @@ Quantity ToLengthUnit(const boost::units::quantity<Unit,Quantity>& quantity) {
     return boost::units::quantity<LengthUnit>(quantity).value();
 }
 
+template <typename Quantity>
+boost::units::quantity<LengthUnit,Quantity> FromLengthUnit(const Quantity& quantity) {
+    return boost::units::quantity<LengthUnit,Quantity>::from_value(quantity);
+}
+
 }
 
 #endif

@@ -12,7 +12,7 @@ class MultiKernelModelStack;
 /** Function object to add an additional kernel to a MultiKernelModelStak instance based
  *  on the the residue centroid position. */
 class KernelCreator {
-    static const double fraction = 0.25;
+    static constexpr double fraction = 0.25;
   public:
     KernelCreator() {}
     void operator()( MultiKernelModelStack&, const MultiKernelModelStack&, const Spot& new_kernel ) const;

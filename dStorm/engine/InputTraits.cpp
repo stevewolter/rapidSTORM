@@ -52,8 +52,8 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
             z_range += optics(pl).depth_info(d)->z_range();
     }
     if ( ! is_empty( z_range ) ) {
-        min.z() = lower( z_range );
-        max.z() = upper( z_range );
+        min.z() = lower( z_range ) * 1E-6 * si::meter;
+        max.z() = upper( z_range ) * 1E-6 * si::meter;
     }
     return std::make_pair( min, max );
 }

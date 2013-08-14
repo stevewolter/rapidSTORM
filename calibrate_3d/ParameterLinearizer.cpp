@@ -172,11 +172,11 @@ bool ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
             boost::shared_ptr<threed_info::Polynomial3D> p 
                 ( new threed_info::Polynomial3D(
                     dynamic_cast<const threed_info::Polynomial3D&>(*o.depth_info(dir))) );
-            p->set_focal_plane( threed_info::ZPosition( m.get< gaussian_psf::ZPosition >(dir) * 1E-6 * si::meter ) );
-            p->set_base_width( threed_info::Sigma( m.get< gaussian_psf::BestSigma >(dir) * 1E-6 * si::meter ));
+            p->set_focal_plane( m.get< gaussian_psf::ZPosition >(dir) );
+            p->set_base_width( m.get< gaussian_psf::BestSigma >(dir) );
 
             for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term) {
-                p->set_slope( term, threed_info::Polynomial3D::WidthSlope(m.get_delta_sigma( dir, term ) * 1E-6 * si::meter) );
+                p->set_slope( term, m.get_delta_sigma( dir, term ) );
             }
             o.set_depth_info( dir, p );
 

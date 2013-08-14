@@ -174,7 +174,7 @@ double BesselFunction::integrate( const Subpixel& pixel_center) const
         = dynamic_cast<const dStorm::threed_info::Lens3D&>
                 (*trafo.optics.depth_info(dStorm::Direction_X))
             .z_position();
-    int_info->delta_z = plane_z - fluorophore.z();
+    int_info->delta_z = plane_z * 1E-6f * si::meter - fluorophore.z();
 
     int_info->orig_position = pixel_center;
     int_info->function = this;

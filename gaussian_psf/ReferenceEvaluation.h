@@ -20,7 +20,7 @@ template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <No3D, Number, P1, P2>
 {
     No3D * const expr;
-    static const Number Pi = M_PI;
+    static constexpr Number Pi = M_PI;
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number pixel_size;
   public:
@@ -116,7 +116,7 @@ template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <DepthInfo3D, Number, P1, P2>
 {
     DepthInfo3D * const expr;
-    static const Number Pi = M_PI;
+    static constexpr Number Pi = M_PI;
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number dsx, dsy;
     Number pixel_size;
@@ -138,7 +138,7 @@ class ReferenceEvaluator <DepthInfo3D, Number, P1, P2>
         s0y = expr->get_sigma().y();
         A = (*expr)( Amplitude() );
         pf = (*expr)( Prefactor() );
-        threed_info::ZPosition z( (*expr)( MeanZ() ) * 1E-6 * boost::units::si::meter );
+        threed_info::ZPosition z( (*expr)( MeanZ() ) );
         dsx = expr->get_spline(Direction_X).get_sigma_deriv(z);
         dsy = expr->get_spline(Direction_Y).get_sigma_deriv(z);
     }

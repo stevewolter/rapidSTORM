@@ -5,8 +5,6 @@
 namespace dStorm {
 namespace gaussian_psf {
 
-using namespace boost::units;
-
 void DepthInfo3D::set_spline( DepthInfo sx, DepthInfo sy )
 { 
     assert( sx.get() && sx->provides_3d_info() );
@@ -18,20 +16,19 @@ void DepthInfo3D::set_spline( DepthInfo sx, DepthInfo sy )
 template <typename Number>
 Eigen::Array<Number,2,1> Parameters<Number,DepthInfo3D>::compute_sigma_() 
 {
-    threed_info::ZPosition z( (*expr)( MeanZ() ) * 1E-6 * si::meter );
+    threed_info::ZPosition z( (*expr)( MeanZ() ) );
         
     Eigen::Array<Number,2,1> rv;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {
-        threed_info::Sigma s = expr->spline[i]->get_sigma(z);
-        rv[i] = quantity< si::length >( s ).value() * 1E6;
+        rv[i] = expr->spline[i]->get_sigma(z);
     }
     return rv;
 }
 
 template <typename Number>
 void Parameters<Number,DepthInfo3D>::compute_prefactors_() {
-    threed_info::ZPosition z( (*expr)( MeanZ() ) * 1E-6 * si::meter );
+    threed_info::ZPosition z( (*expr)( MeanZ() ) );
     this->sigma_deriv = this->sigmaI;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {

@@ -15,9 +15,8 @@ class Polynomial3D : public DepthInfo {
 public:
     Polynomial3D();
     static const int Order = polynomial_3d::Order, PrimaryTerm = 2, MinTerm = 1;
-    typedef boost::units::quantity< boost::units::si::length > WidthSlope;
 private:
-    typedef Eigen::Matrix< WidthSlope, Order+1, 1, Eigen::DontAlign > Widening;
+    typedef Eigen::Matrix< double, Order+1, 1, Eigen::DontAlign > Widening;
 
     Sigma sigma_;
     ZPosition z_position, z_limit_;
@@ -36,8 +35,8 @@ public:
     void set_base_width( Sigma s ) { sigma_ = s; }
     const Sigma get_base_width( ) const { return sigma_; }
 
-    WidthSlope get_slope( int term ) const;
-    void set_slope( int term, WidthSlope );
+    double get_slope( int term ) const;
+    void set_slope( int term, double );
 
     const ZPosition focal_plane() const { return z_position; }
     void set_focal_plane( ZPosition a ) { z_position = a; }

@@ -67,7 +67,7 @@ bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, c
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &k );
     bool z_ok = (!threed || 
         contains(allowed_z_positions, 
-             samplepos::Scalar( (*threed)( gaussian_psf::MeanZ() ) * 1E-6 * si::meter ) ) );
+             (*threed)( gaussian_psf::MeanZ() ) ) );
     DEBUG("Z position " << (*threed)( gaussian_psf::MeanZ() ) << " OK: " << z_ok);
     return kernels_ok && z_ok;
 }

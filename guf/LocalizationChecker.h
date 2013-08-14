@@ -1,7 +1,4 @@
-#include <boost/units/quantity.hpp>
-#include <boost/units/systems/si/length.hpp>
 #include <dStorm/engine/JobInfo_decl.h>
-#include <dStorm/units/icl.h>
 #include <boost/icl/interval.hpp>
 #include <boost/icl/interval_set.hpp>
 #include "Config_decl.h"
@@ -16,7 +13,7 @@ class MultiKernelModelStack;
 
 /** Functor checking whether a fitted position is a valid localization. */
 class LocalizationChecker {
-    typedef boost::icl::interval_set< samplepos::Scalar > AllowedZPositions;
+    typedef boost::icl::interval_set< double > AllowedZPositions;
 
     const dStorm::engine::JobInfo& info;
     const double theta_dist_sq;

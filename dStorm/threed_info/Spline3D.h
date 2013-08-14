@@ -34,14 +34,6 @@ private:
     struct Point {
         ZPosition z;
         Sigma sigma;
-
-    public:
-        Point( ZPosition z, Sigma sigma ) : z(z), sigma(sigma) {}
-        static double to_x( ZPosition z ) { return z / (1E-6f * si::meter); }
-        double x() const { return to_x(z); }
-        double y() const { return sigma / (1E-6f * si::meter); }
-        static ZPosition from_x( double x ) { return float(x * 1E-6) * si::meter; }
-        static Sigma from_y( double y ) { return float(y * 1E-6) * si::meter; }
     };
     const std::vector<Point> points;
     const ZPosition h;

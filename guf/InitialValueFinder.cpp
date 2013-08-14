@@ -33,7 +33,7 @@ threed_info::SigmaDiffLookup InitialValueFinder::SigmaDiff::lookup( const engine
     return threed_info::SigmaDiffLookup(
         *info.optics( minuend_plane ).depth_info( minuend_dir ),
         *info.optics( subtrahend_plane ).depth_info( subtrahend_dir ),
-        1E-8f * si::meter );
+        1E-2 );
 }
 
 bool InitialValueFinder::determine_z_estimate_need( const engine::InputTraits& t ) {
@@ -82,14 +82,14 @@ float InitialValueFinder::correlation( const SigmaDiff& sd ) const
     accumulator_set< double, stats< tag::variance, tag::covariance<double,tag::covariate1> > > diff_acc;
     accumulator_set< double, stats< tag::variance > > z_acc;
 
-    const threed_info::ZPosition scan_step = 5E-8f * si::meter;
+    const threed_info::ZPosition scan_step = 5E-2;
     const threed_info::SigmaDiffLookup lookup = sd.lookup(info.traits);
 
     threed_info::ZRange range( lookup.get_z_range() );
     for ( threed_info::ZPosition z = lower( range ); z < upper( range ); z += scan_step )
     {
-        diff_acc( lookup.get_sigma_diff(z).value(), covariate1 = z.value() );
-        z_acc( z.value() );
+        diff_acc( lookup.get_sigma_diff(z), covariate1 = z );
+        z_acc( z );
     }
 
     double total_variance = variance(diff_acc) * variance( z_acc );
@@ -176,11 +176,11 @@ void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<Pla
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
     boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
-        threed_info::Sigma(s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ] * 1E-6 * si::meter),
-        threed_info::Sigma(s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ] * 1E-6 * si::meter) );
+        s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ],
+        s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ] );
 
     for (size_t i = 0; i < v.size(); ++i)
-        v[i].z_estimate = *z;
+        v[i].z_estimate = *z * 1E-6 * si::meter;
 }
 
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 

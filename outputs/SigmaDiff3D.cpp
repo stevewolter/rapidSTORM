@@ -50,7 +50,7 @@ SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )
 : Filter( sub ),
   spline_x( threed_info::SplineFactory(c.calibration_file(), Direction_X) ),
   spline_y( threed_info::SplineFactory(c.calibration_file(), Direction_Y) ),
-  lookup_table( spline_x, spline_y, 1E-9f * si::meter )
+  lookup_table( spline_x, spline_y, 1E-3 )
 {
 }
 
@@ -62,8 +62,8 @@ SigmaDiff3D::announceStormSize(const Announcement& a) {
     Announcement my_announcement(a);
     my_announcement.position().is_given[2] = true;
     threed_info::ZRange z_range = spline_x.z_range() & spline_y.z_range();
-    my_announcement.position().range().z().first = lower( z_range );
-    my_announcement.position().range().z().second = upper( z_range );
+    my_announcement.position().range().z().first = float(lower( z_range ) * 1E-6) * si::meter;
+    my_announcement.position().range().z().second = float(upper( z_range ) * 1E-6) * si::meter;
     return Filter::announceStormSize( my_announcement );
 }
 
@@ -74,8 +74,8 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
     for ( i = r.begin(); i != e; ++i ) {
         threed_info::Sigma sigmas[2];
         for (Direction j = Direction_First; j != Direction_2D; ++j)
-            sigmas[j] = i->psf_width()[j] / 2.35f;
-        i->position().z() = lookup_table( sigmas[0], sigmas[1] );
+            sigmas[j] = quantity<si::length>(i->psf_width()[j]).value() * 1E6 / 2.35f;
+        i->position().z() = lookup_table( sigmas[0], sigmas[1] ) * 1E-6 * si::meter;
     }
 
     r.erase( e, r.end() );
