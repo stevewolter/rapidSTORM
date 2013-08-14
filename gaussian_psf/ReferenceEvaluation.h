@@ -6,9 +6,6 @@
 #include "DepthInfo3D.h"
 #include <nonlinfit/plane/GenericData.h>
 #include <nonlinfit/Evaluator.h>
-#include <boost/units/systems/si/length.hpp>
-#include <boost/units/systems/si/area.hpp>
-#include <boost/units/cmath.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
 #include <dStorm/threed_info/DepthInfo.h>

@@ -1,6 +1,5 @@
 #include "debug.h"
 #include "expressions.h"
-#include <boost/units/Eigen/Array>
 #include "BaseEvaluator.h"
 
 namespace dStorm {
