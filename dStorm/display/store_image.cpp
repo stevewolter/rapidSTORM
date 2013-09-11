@@ -3,9 +3,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#ifdef USE_GRAPHICSMAGICK
-#include <Magick++.h>
-#endif
 #include <cmath>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/image/slice.h>
@@ -15,6 +12,10 @@
 #include <dStorm/Pixel.h>
 #include <vector>
 #include <dStorm/display/DataSource.h>
+
+#ifdef USE_GRAPHICSMAGICK
+#include <Magick++.h>
+#endif
 
 static const char *SI_prefixes[]
 = { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
