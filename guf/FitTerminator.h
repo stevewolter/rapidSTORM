@@ -30,7 +30,7 @@ class FitTerminator {
                 typename Function::Variables, MyParameter >::value;
             double value( shift[ index ] );
             DEBUG( "Checking convergence of mean " << Dim << " at index " << index << " with change " << value << " against threshold " << t.minimum_change );
-            bool this_coordinate_converged = abs(value) < t.minimum_change;
+            bool this_coordinate_converged = fabs(value) < t.minimum_change;
             t.converged = t.converged && this_coordinate_converged;
         }
 
@@ -40,7 +40,7 @@ class FitTerminator {
                 typename Function::Variables, Parameter >::value;
             DEBUG( "Checking convergence of parameter at index " << index << 
                    " with relative change " << fabs(shift[index] / pos[index]) << 
-                   " against threshold " << 1E-3 );
+                   " against threshold " << t.relative_change );
             t.converged = t.converged && ( fabs(shift[index] / pos[index]) < t.relative_change );
         }
     };

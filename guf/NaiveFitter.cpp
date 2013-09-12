@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 #include "NaiveFitter.h"
 #include "ModelledFitter.h"
