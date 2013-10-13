@@ -16,6 +16,7 @@ public:
     Image2D &plane( int i ) { return planes_[i]; }
     const Image2D &plane( int i ) const { return planes_[i]; }
 
+    typedef Image2D value_type;
     typedef std::vector< Image2D >::iterator iterator;
     typedef std::vector< Image2D >::const_iterator const_iterator;
     typedef std::vector< Image2D >::reference reference;

@@ -22,6 +22,7 @@ class Queue {
 
     int ring() const { return next_output.value() % ring_buffer.size(); }
   public:
+    typedef output::LocalizedImage value_type;
     typedef const output::LocalizedImage& const_reference;
 
     Queue( frame_index first_image, int producer_count );

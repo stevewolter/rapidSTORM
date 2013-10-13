@@ -27,6 +27,7 @@ public:
     const traits::Optics& optics( int i ) const { return planes_[i].optics; }
     const traits::Projection& projection( int i ) const { return planes_[i].projection(); }
 
+    typedef engine::InputPlane value_type;
     typedef std::vector< engine::InputPlane >::iterator iterator;
     typedef std::vector< engine::InputPlane >::const_iterator const_iterator;
     typedef std::vector< engine::InputPlane >::reference reference;

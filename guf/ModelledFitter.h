@@ -53,8 +53,6 @@ class ModelledFitter
     double fit( fit_window::Stack& image, bool mle );
 
     MultiKernelModelStack& fit_position() { return _model; }
-
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }
