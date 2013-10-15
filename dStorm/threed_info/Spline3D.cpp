@@ -42,8 +42,7 @@ Spline3D::Spline3D( const SplineFactory& f )
     if ( N <= 3 ) throw std::runtime_error("Need at least 4 points for Z-sigma interpolation");
     /* Construction of spline linear equation system according to
         * McKinley and Levine, Cubic Spline Interpolation.
-        * Parabolic runout conditions to match theoretical parabolic
-        * curve. */
+        * Natural runout conditions to match GSL implementation. */
     Eigen::MatrixXd A = Eigen::MatrixXd::Zero(N-2,N-2);
     Eigen::VectorXd B( N - 2 );
     for (int j = 0; j < N-2; ++j) {
@@ -53,12 +52,11 @@ Spline3D::Spline3D( const SplineFactory& f )
         if ( j > 0 ) A(j,j-1) = 1;
         if ( j < N - 3 ) A(j,j+1) = 1;
     }
-    A(0,0) = A(N-3,N-3) = 5;
     B *= 6 / (h*h);
     Eigen::VectorXd M = Eigen::VectorXd::Zero(N);
     M.block( 1, 0, N-2, 1 ) = A.colPivHouseholderQr().solve(B);
-    M[0] = M[1];
-    M[N-1] = M[N-2];
+    M[0] = 0;
+    M[N-1] = 0;
     coeffs = Eigen::MatrixXd::Zero( N-1, 4 );
     for (int i = 0; i < N-1; ++i) {
         coeffs(i,3) = points[i].sigma;
