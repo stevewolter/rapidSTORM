@@ -36,6 +36,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Protobuf-dependent files are compiled */
+#undef HAVE_PROTOBUF
+
 /* Define to 1 if you have the `sqrt' function. */
 #undef HAVE_SQRT
 

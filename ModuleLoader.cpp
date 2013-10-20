@@ -27,6 +27,10 @@
 #include "config.h"
 #endif
 
+#if HAVE_PROTOBUF
+#include "tsf/Output.h"
+#endif
+
 namespace dStorm {
 
 void add_image_input_modules( dStorm::Config& car_config )
@@ -93,6 +97,9 @@ void add_output_modules( dStorm::Config& car_config )
     car_config.add_output( ripley_k::make_output_source().release() );
     test::output_modules( &car_config );
 
+#if HAVE_PROTOBUF
+    car_config.add_output( tsf::CreateOutput() );
+#endif
 }
 
 }

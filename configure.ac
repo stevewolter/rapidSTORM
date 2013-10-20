@@ -110,6 +110,18 @@ AC_SUBST([libb64_LIBS], "$libb64_LIBS")
 AC_CHECK_LIB([tiff], [main], [GraphicsMagick_LIBS="$GraphicsMagick_LIBS -ltiff"], [AC_ERROR(tiff library not found)])
 AC_SUBST([GraphicsMagick_LIBS], "$GraphicsMagick_LIBS")
 
+AC_CHECK_LIB([protobuf], [main], [protobuf_LIBS="-lprotobuf"], [])
+AC_SUBST([protobuf_LIBS])
+
+AC_CHECK_PROG([PROTOC], [protoc], [protoc])
+
+AS_IF(
+    [test "x$protobuf_LIBS" != "x" -a "x$PROTOC" != "x"],
+    [ AC_DEFINE([HAVE_PROTOBUF], [1], [Protobuf-dependent files are compiled]) ],
+    []
+)
+AM_CONDITIONAL([HAVE_PROTOBUF], [test "x$protobuf_LIBS" != "x" -a "x$PROTOC" != "x"])
+
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],
         [path to windows resource compiler @<:@default=guess@:>@])],

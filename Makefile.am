@@ -109,7 +109,13 @@ installation-directory.h : always-force-remake
 	diff --brief $@ $@.tmp || mv $@.tmp $@
 	rm -f $@.tmp
 
+PROTO_SOURCE_FILES = tsf/TSFProto.proto
+PROTO_GENERATED = $(PROTO_SOURCE_FILES:.proto=.pb.cc) $(PROTO_SOURCE_FILES:.proto=.pb.h)
+dist_noinst_DATA = $(PROTO_SOURCE_FILES)
 BUILT_SOURCES = installation-directory.h
+if HAVE_PROTOBUF
+BUILT_SOURCES += $(PROTO_GENERATED)
+endif
 
 clean-local :
 	-rm -fr test-temp-dir
@@ -833,6 +839,12 @@ rapidstorm_SOURCES += \
     binning/dummy_binner.h \
     binning/constant_binner.h binning/constant_binner.cpp 
 
+if HAVE_PROTOBUF
+rapidstorm_SOURCES += \
+    tsf/Output.cpp \
+    tsf/TSFProto.pb.cc
+endif
+
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
 rapidstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
@@ -844,4 +856,7 @@ rapidstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_L
 rapidstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)
 rapidstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 rapidstorm_LDADD += $(WX_LIBS) 
+rapidstorm_LDADD += $(protobuf_LIBS)
 
+%.pb.cc %.pb.h : %.proto
+	$(PROTOC) --proto_path=$(srcdir) --cpp_out=$(builddir) $<
