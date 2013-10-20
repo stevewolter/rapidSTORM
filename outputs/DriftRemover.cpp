@@ -9,8 +9,6 @@
 #include <boost/range/algorithm/lower_bound.hpp>
 
 #include <Eigen/Geometry>
-#include <boost/units/Eigen/Core>
-#include <boost/units/Eigen/Array>
 #include <fstream>
 #include <iostream>
 

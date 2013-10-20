@@ -1,8 +1,6 @@
 #include "InputTraits.h"
 #include <dStorm/traits/Projection.h>
 #include <boost/variant/get.hpp>
-#include <boost/units/Eigen/Core>
-#include <boost/units/Eigen/Array>
 #include <dStorm/units/microlength.h>
 #include <dStorm/threed_info/DepthInfo.h>
 
