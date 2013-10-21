@@ -484,6 +484,16 @@ rapidstorm_SOURCES += \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 
 rapidstorm_SOURCES += \
+    estimate_psf_form/Output.h estimate_psf_form/Output.cpp \
+    estimate_psf_form/Fitter.h estimate_psf_form/Fitter.cpp \
+    estimate_psf_form/Config.h estimate_psf_form/Config.cpp \
+    estimate_psf_form/decl.h estimate_psf_form/Tile.h \
+    estimate_psf_form/GUI.h estimate_psf_form/GUI.cpp \
+    estimate_psf_form/Input.h estimate_psf_form/Input.cpp \
+    estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp
+
+
+rapidstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
     nonlinfit/AbstractMoveable.h \
     nonlinfit/AbstractTerminator.h \
