@@ -10,7 +10,7 @@
 #include <dStorm/output/FileOutputBuilder.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-#include "TSFProto.pb.h"
+#include "tsf/TSFProto.pb.h"
 
 namespace dStorm {
 namespace tsf {

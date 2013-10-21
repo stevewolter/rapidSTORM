@@ -87,7 +87,7 @@ struct Value {
     typedef typename MoSb::type IsGivenType;
     IsGivenType is_given, uncertainty_is_given;
 
-    boost::optional<ValueType> static_value, static_uncertainty;
+    boost::optional<ValueType> static_value;
     Value() { MoSb::init(is_given, false); MoSb::init(uncertainty_is_given, false); }
 };
 

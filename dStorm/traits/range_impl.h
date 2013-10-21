@@ -16,8 +16,8 @@ struct Range<Base>::in_range_functor {
     typedef const typename Types::BoundPair second_argument_type;
 
     bool operator()( first_argument_type a, second_argument_type b ) { 
-        return ( (!b.first.is_set()) || a >= *b.first ) &&
-                ( (!b.second.is_set()) || a <= *b.second );
+        return ( (!b.first) || a >= *b.first ) &&
+                ( (!b.second) || a <= *b.second );
     }
 };
 
