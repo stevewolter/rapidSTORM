@@ -33,7 +33,7 @@ class AveragingReducer : public TraceReducer {
 
         Localization r;
         for (int i = 0; i < r.position().rows(); ++i)
-            r.position()[i] = position[i] / (1.0f*n) - shift[i];
+            r.set_position(i, position[i] / (1.0f*n) - shift[i]);
         r.amplitude = total_amplitude;
         r.frame_number = last_image_number;
         r.children = std::vector<Localization>();

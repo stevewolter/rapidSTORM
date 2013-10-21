@@ -25,7 +25,7 @@ mock_data() {
     }
     disjoint_data.min.fill( -1E50 );
     disjoint_data.max.fill( 1E50 );
-    disjoint_data.pixel_size = 1E3;
+    disjoint_data.pixel_size = 1E-3;
     for (int j = 0; j < 12; ++j)
         disjoint_data.xs[j] = j * exp(1) / 30.0;
     return disjoint_data;

@@ -38,6 +38,9 @@ bool compare_evaluators(
 
     assert(( ! test_result.contains_NaN() ));
     assert(( ! reference_result.contains_NaN() ));
+    if (!(test_result == reference_result)) {
+      std::cerr << "Test result " << test_result << " against reference " << reference_result << std::endl;
+    }
     return test_result == reference_result;
 }
 

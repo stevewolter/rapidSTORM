@@ -62,7 +62,9 @@ class DriftCorrection : public source::LValue {
 
     void operator()( Localization& l ) { 
         for (int i = 0; i < l.position().rows(); ++i) {
-            l.position()[i] += samplepos::Scalar(l.frame_number() * value[i]);
+          l.position_x() += samplepos::Scalar(l.frame_number() * value.x());
+          l.position_y() += samplepos::Scalar(l.frame_number() * value.y());
+          l.position_z() += samplepos::Scalar(l.frame_number() * value.z());
         }
     }
 

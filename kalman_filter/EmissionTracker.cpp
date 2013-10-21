@@ -284,8 +284,9 @@ void
 Output::update_positional( TracedObject& object ) 
 {
     dStorm::Localization estimate;
-    estimate.position().head<2>() = 
-        boost::units::from_value< boost::units::si::length >(object.getPositionEstimate().cast<float>());
+    Eigen::Vector2f position_estimate = object.getPositionEstimate().cast<float>();
+    estimate.position_x() = position_estimate.x() * si::meter;
+    estimate.position_y() = position_estimate.y() * si::meter;
     Eigen::Array2i new_pos;
     for (int i = 0; i < 2; ++i) {
         boost::optional<float> v = binners[i]->bin_point(estimate);

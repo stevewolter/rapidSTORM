@@ -33,9 +33,9 @@ std::vector< output::LocalizedImage > xenophon()
         for (int j = 0; j < 100; ++j) {
             Localization l;
             l.frame_number() = result.frame_number();
-            l.position().x() = (rand()*scale) * si::meter;
-            l.position().y() = (rand()*scale) * 0.5f * si::meter;
-            l.position().z() = (rand()*scale) * 0.2f * si::meter;
+            l.position_x() = (rand()*scale) * si::meter;
+            l.position_y() = (rand()*scale) * 0.5f * si::meter;
+            l.position_z() = (rand()*scale) * 0.2f * si::meter;
             l.amplitude() = rand() * M_PI * 1E-6 * camera::ad_count;
             result.push_back( l );
         }

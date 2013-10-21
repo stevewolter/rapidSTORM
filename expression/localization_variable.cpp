@@ -165,9 +165,9 @@ void check_localization_variable( TestState& state ) {
     dStorm::input::Traits<dStorm::Localization> traits;
     dStorm::Localization loc;
 
-    loc.position().x() = 15 * boost::units::si::meter;
+    loc.position_x() = 15 * boost::units::si::meter;
 
-    ValueVariable<0> v;
+    ValueVariable<Localization::Fields::PositionX> v;
 
     try {
         v.get(traits);

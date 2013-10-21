@@ -143,7 +143,9 @@ void DriftRemover::receiveLocalizations(const EngineResult& upstream) {
 
     EngineResult::iterator i, e = r.end();
     for ( i = r.begin(); i != e; ++i ) {
-        i->position() -= final_correction;
+        i->position_x() -= final_correction.x();
+        i->position_y() -= final_correction.y();
+        i->position_z() -= final_correction.z();
     }
 
     Filter::receiveLocalizations( r );

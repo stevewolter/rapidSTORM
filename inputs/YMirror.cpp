@@ -78,7 +78,7 @@ struct Mirrorer : public boost::static_visitor<void> {
 template <> 
 void Mirrorer::operator()<Localization>( Localization& l )
 {
-    l.position().y() = *range.second - l.position().y() + *range.first;
+    l.position_y() = *range.second - l.position().y() + *range.first;
 }
 
 template <> 

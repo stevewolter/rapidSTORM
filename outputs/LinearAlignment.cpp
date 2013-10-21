@@ -68,8 +68,9 @@ void LinearAlignment::receiveLocalizations(const EngineResult& upstream) {
 
     EngineResult::iterator i, e = r.end();
     for ( i = r.begin(); i != e; ++i ) {
-        i->position().head<2>() = from_value<si::length>( 
-            transformation * value( i->position().head<2>() ) );
+      Eigen::Vector2f transformed_in_m = transformation * value( i->position().head<2>() );
+      i->position_x() = transformed_in_m.x() * si::meter;
+      i->position_y() = transformed_in_m.y() * si::meter;
     }
 
     Filter::receiveLocalizations( r );

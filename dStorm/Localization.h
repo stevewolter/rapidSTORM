@@ -87,10 +87,10 @@ class Localization  {
     Localization( const Localization& );
     ~Localization();
 
-    quantity<si::length> psf_width(int index) const {
+    const quantity<si::length> psf_width(int index) const {
         return (index == 0) ? psf_width_x() : psf_width_y();
     }
-    quantity<si::length> position_uncertainty(int index) const {
+    const quantity<si::length> position_uncertainty(int index) const {
         switch (index) {
             case 0: return position_uncertainty_x();
             case 1: return position_uncertainty_y();
@@ -107,7 +107,7 @@ class Localization  {
         }
     }
 
-    samplepos position() const {
+    const samplepos position() const {
         samplepos rv;
         rv.x() = position_x();
         rv.y() = position_y();

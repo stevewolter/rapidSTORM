@@ -76,7 +76,7 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
         threed_info::Sigma sigmas[2];
         for (Direction j = Direction_First; j != Direction_2D; ++j)
           sigmas[j] = quantity<si::length>(i->psf_width(j)).value() * 1E6 / 2.35f;
-        i->position().z() = lookup_table( sigmas[0], sigmas[1] ) * 1E-6 * si::meter;
+        i->position_z() = lookup_table( sigmas[0], sigmas[1] ) * 1E-6 * si::meter;
     }
 
     r.erase( e, r.end() );

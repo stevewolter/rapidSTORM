@@ -61,7 +61,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
             total_inv_variance += inv_variance;
         }
         if ( laempi_fit )
-            result.position()[d] = 1E-6 * si::meter * accum / total_inv_variance;
+            result.set_position(d, 1E-6f * si::meter * float(accum / total_inv_variance));
         if ( weight_by_uncertainty )
             result.set_position_uncertainty(d, samplepos::Scalar(1E-6 * si::meter * sqrt(1.0 / total_inv_variance)));
         // TODO: This should probably be the total, pre-prefactor amplitude, and the others with PF
