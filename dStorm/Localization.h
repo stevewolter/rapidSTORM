@@ -48,7 +48,17 @@ class Localization  {
     typedef localization::Field<traits::LocalBackground> LocalBackground; 
         LocalBackground local_background;
     struct Fields {
-        enum Indices { PositionX, PositionY, PositionZ, PositionUncertaintyX, PositionUncertaintyY, PositionUncertaintyZ, ImageNumber, Amplitude, PSFWidthX, PSFWidthY, TwoKernelImprovement, FitResidues, Fluorophore, LocalBackground, Count };
+        enum Indices {
+            PositionX, PositionUncertaintyX,
+            PositionY, PositionUncertaintyY,
+            PositionZ, PositionUncertaintyZ,
+            ImageNumber, Amplitude,
+            PSFWidthX, PSFWidthY,
+            TwoKernelImprovement,
+            FitResidues,
+            Fluorophore,
+            LocalBackground,
+            Count };
     };
     template <int Index>
     struct Traits {
