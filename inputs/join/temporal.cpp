@@ -55,7 +55,6 @@ struct merge_localization_traits {
         for ( typename Scalar::Iterator i = Scalar::begin(); i != Scalar::end(); ++i )
         {
             if ( ! i->is_given(with) ) i->is_given(onto) = false;
-            if ( ! i->uncertainty_is_given(with) ) i->uncertainty_is_given(onto) = false;
 
             if ( i->range(onto).first.is_initialized() && i->range(with).first.is_initialized() )
                 i->range(onto).first = std::min( *i->range(onto).first, *i->range(with).first );

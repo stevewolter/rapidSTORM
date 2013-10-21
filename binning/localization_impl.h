@@ -82,7 +82,8 @@ template <int Index>
 boost::optional<float>
 Localization<Index,IsUnscaled>::get_uncertainty( const dStorm::Localization& l ) const
 {
-    return scalar.value(boost::fusion::at_c<Index>(l).uncertainty()).value();
+  // TODO: return scalar.value(boost::fusion::at_c<Index>(l).uncertainty()).value();
+  return boost::optional<float>();
 }
 
 template <int Index>

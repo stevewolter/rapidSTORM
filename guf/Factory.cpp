@@ -60,11 +60,11 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
             bool have_uncertainty = can_compute_uncertainty( info.traits.plane(i) );
             all_uncertainties_given = all_uncertainties_given && have_uncertainty;
         }
-        p->position().uncertainty_is_given.head<2>().fill( all_uncertainties_given );
+        p->position_uncertainty().is_given.head<2>().fill( all_uncertainties_given );
         traits.source_traits.push_back( p );
     }
 
-    traits.position().uncertainty_is_given.head<2>().fill( all_uncertainties_given );
+    traits.position_uncertainty().is_given.head<2>().fill( all_uncertainties_given );
     my_traits = traits;
 }
 

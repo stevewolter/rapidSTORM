@@ -13,6 +13,7 @@ Traits<dStorm::Localization>::Traits( const Traits<Localization>& i )
 : input::BaseTraits(i),
   DataSetTraits(i),
   traits::Position(i),
+  traits::PositionUncertainty(i),
   traits::Amplitude(i),
   traits::PSFWidth(i),
   traits::TwoKernelImprovement(i),

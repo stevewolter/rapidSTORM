@@ -54,7 +54,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
         double inv_variance, total_inv_variance = 0;
         for (int p = 0; p < int( by_plane.size() ); ++p ) {
             if ( weight_by_uncertainty )
-                inv_variance = pow(quantity<si::length>(by_plane[p].position.uncertainty()[d]).value() * 1E6, -2.0);
+                inv_variance = pow(quantity<si::length>(by_plane[p].position_uncertainty()[d]).value() * 1E6, -2.0);
             else
                 inv_variance = 1.0;
             accum += quantity<si::length>(by_plane[p].position()[d]).value() * 1E6 * inv_variance;
@@ -63,7 +63,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
         if ( laempi_fit )
             result.position()[d] = 1E-6 * si::meter * accum / total_inv_variance;
         if ( weight_by_uncertainty )
-            result.position.uncertainty()[d] = 1E-6 * si::meter * sqrt(1.0 / total_inv_variance);
+            result.position_uncertainty()[d] = 1E-6 * si::meter * sqrt(1.0 / total_inv_variance);
         // TODO: This should probably be the total, pre-prefactor amplitude, and the others with PF
         result.amplitude() = by_plane[0].amplitude();
     }
@@ -87,7 +87,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
             = quantity<si::area>(pow<2>( rv.psf_width()(i) / 2.35f )).value() * 1E12 + p.pixel_size / 12.0;
         double background_term
             = psf_variance * 8.0 * M_PI * background_variance / (N * p.pixel_size);
-        rv.position.uncertainty()[i] 
+        rv.position_uncertainty()[i] 
             = sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) ) * 1E-6 * si::meter;
     }
 }

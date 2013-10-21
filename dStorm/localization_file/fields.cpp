@@ -149,9 +149,9 @@ std::auto_ptr<Field> Field::construct( const Field::Traits& traits )
     return std::auto_ptr<Field>( new ChildrenField(traits, 0) );
 }
 
-template Field::Ptr create_localization_field<0>(int,int,bool);
-template Field::Ptr create_localization_field<1>(int,int,bool);
-template Field::Ptr create_localization_field<2>(int,int,bool);
+template Field::Ptr create_localization_field<0>(int,int);
+template Field::Ptr create_localization_field<1>(int,int);
+template Field::Ptr create_localization_field<2>(int,int);
 
 }
 }

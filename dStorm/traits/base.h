@@ -85,10 +85,10 @@ struct Value {
     typedef Type OutputType;
     typedef Type Scalar;
     typedef typename MoSb::type IsGivenType;
-    IsGivenType is_given, uncertainty_is_given;
+    IsGivenType is_given;
 
     boost::optional<ValueType> static_value;
-    Value() { MoSb::init(is_given, false); MoSb::init(uncertainty_is_given, false); }
+    Value() { MoSb::init(is_given, false); }
 };
 
 template <typename Type>

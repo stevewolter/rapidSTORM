@@ -35,8 +35,6 @@ struct Scalar<TraitsType, true>
 
     bool is_given( const TraitsType& t ) const { return t.is_given; }
     bool& is_given( TraitsType& t ) const { return t.is_given; }
-    bool uncertainty_is_given( const TraitsType& t ) const { return t.uncertainty_is_given; }
-    bool& uncertainty_is_given( TraitsType& t ) const { return t.uncertainty_is_given; }
 
     range_type range(const range_type& r) const { return r; }
     range_type& range(range_type& r) const { return r; }
@@ -108,8 +106,6 @@ class Scalar< TraitsType, false >
 
     bool is_given( const TraitsType& t ) const { return t.is_given(r,c); }
     bool& is_given( TraitsType& t ) const { return t.is_given(r,c); }
-    bool uncertainty_is_given( const TraitsType& t ) const { return t.uncertainty_is_given(r,c); }
-    bool& uncertainty_is_given( TraitsType& t ) const { return t.uncertainty_is_given(r,c); }
 
     range_type range(const typename TraitsType::RangeType& t) const { return t(r,c); }
     range_type& range(typename TraitsType::RangeType& t) const { return t(r,c); }

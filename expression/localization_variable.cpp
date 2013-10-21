@@ -104,45 +104,6 @@ class PositionBoundVariable : public Variable {
   QuantityDynamizer< quantity<si::length> > dynamizer;
 };
 
-class PositionUncertaintyVariable : public Variable {
- public:
-  PositionUncertaintyVariable(std::string name, int index) : Variable(name), index(index) {}
-
-  static DynamicUnit get_unit() {
-    DynamicUnit unit;
-    unit[BaseUnits::Meter] = 1;
-  }
-
-  Variable* clone() const { return new PositionUncertaintyVariable(*this); }
-
-  bool is_static(const input::Traits<Localization>& traits) const { return false; }
-
-  DynamicQuantity get(const input::Traits<Localization>& traits) const {
-    if (traits.position().uncertainty_is_given[index]) {
-      return dynamizer.from_value( std::numeric_limits<double>::quiet_NaN() );
-    } else {
-      throw std::runtime_error("Tried to read variable " + name + ", but it is not defined.");
-    }
-  }
-
-  DynamicQuantity get(const Localization& localization) const {
-    return dynamizer(localization.position.uncertainty()[index]);
-  }
-
-  void set( input::Traits<Localization>& traits, const DynamicQuantity& value ) const {
-    traits.position().uncertainty_is_given[index] = true;
-  }
-
-  bool set( const input::Traits<Localization>& traits, Localization& localization, const DynamicQuantity& value ) const {
-    localization.position.uncertainty()[index] = dynamizer(value);
-    return true;
-  }
-
- private:
-  int index;
-  QuantityDynamizer< quantity<si::length> > dynamizer;
-};
-
 
 /** \cond */
 template <int Field> struct FieldAdder;
@@ -188,7 +149,6 @@ struct FieldAdder<Localization::Fields::Position>
         target.push_back( new PositionVariable("pos" + dim, i) );
         target.push_back( new PositionBoundVariable("posmin" + dim, i, 0) );
         target.push_back( new PositionBoundVariable("posmax" + dim, i, 1) );
-        target.push_back( new PositionUncertaintyVariable("sigmapos" + dim, i) );
       }
     }
 };

@@ -97,14 +97,14 @@ void Output::BuildSpot(const Localization& localization, TSF::Spot* spot) {
     spot->set_z(localization.position().y() / (1E-9 * si::metre));
   }
 
-  if (traits.position().uncertainty_is_given.x()) {
-    spot->set_x_precision(localization.position.uncertainty().x() / (1E-9 * si::metre));
+  if (traits.position_uncertainty().is_given.x()) {
+    spot->set_x_precision(localization.position_uncertainty().x() / (1E-9 * si::metre));
   }
-  if (traits.position().uncertainty_is_given.y()) {
-    spot->set_y_precision(localization.position.uncertainty().y() / (1E-9 * si::metre));
+  if (traits.position_uncertainty().is_given.y()) {
+    spot->set_y_precision(localization.position_uncertainty().y() / (1E-9 * si::metre));
   }
-  if (traits.position().uncertainty_is_given.z()) {
-    spot->set_z_precision(localization.position.uncertainty().z() / (1E-9 * si::metre));
+  if (traits.position_uncertainty().is_given.z()) {
+    spot->set_z_precision(localization.position_uncertainty().z() / (1E-9 * si::metre));
   }
 
   if (traits.amplitude().is_given) {

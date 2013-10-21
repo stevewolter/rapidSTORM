@@ -81,17 +81,17 @@ static std::string guess_ident_from_semantic(const TiXmlElement& n) {
     const char *semantic_attrib = n.Attribute("semantic");
     if ( semantic_attrib != NULL ) semantic = semantic_attrib;
     if ( semantic == "x-position" )
-        return LocalizationField<Localization::Fields::Position>::identifier(0,0,false);
+        return LocalizationField<Localization::Fields::Position>::identifier(0,0);
     else if ( semantic == "y-position" )
-        return LocalizationField<Localization::Fields::Position>::identifier(1,0,false);
+        return LocalizationField<Localization::Fields::Position>::identifier(1,0);
     else if ( semantic == "z-position" )
-        return LocalizationField<Localization::Fields::Position>::identifier(2,0,false);
+        return LocalizationField<Localization::Fields::Position>::identifier(2,0);
     else if ( semantic == "frame number" )
-        return LocalizationField<Localization::Fields::ImageNumber>::identifier(0,0,false);
+        return LocalizationField<Localization::Fields::ImageNumber>::identifier(0,0);
     else if ( semantic == "emission strength" )
-        return LocalizationField<Localization::Fields::Amplitude>::identifier(0,0,false);
+        return LocalizationField<Localization::Fields::Amplitude>::identifier(0,0);
     else if ( semantic == "two kernel improvement" )
-        return LocalizationField<Localization::Fields::TwoKernelImprovement>::identifier(0,0,false);
+        return LocalizationField<Localization::Fields::TwoKernelImprovement>::identifier(0,0);
 
     // TODO: Implement more heuristics: x-sigma i.e.
     return "";
@@ -107,11 +107,10 @@ inline void output_value_only( std::ostream& o, quantity<Unit,Value> a )
 }
 
 template <int Index>
-std::string LocalizationField<Index>::identifier(int r, int c, bool uncertainty)
+std::string LocalizationField<Index>::identifier(int r, int c)
 {
     std::stringstream ident;
     ident << TraitsType::get_ident() << "-" << r << "-" << c;
-    if ( uncertainty ) ident << "-uncertainty";
     return ident.str();
 }
 
@@ -149,22 +148,18 @@ Field::Ptr LocalizationField<Index>::try_to_parse( const TiXmlElement& n, Traits
 
     if ( ident == TraitsType::get_ident() )
         return Field::Ptr( new LocalizationField<Index>(n, traits) );
-    else if ( ident == TraitsType::get_ident() + "-uncertainty" )
-        return Field::Ptr( new LocalizationField<Index>(n, traits, 0, 0, true) );
 
     for (int r = 0; r < TraitsType::Rows; ++r)
         for (int c = 0; c < TraitsType::Cols; ++c)
-            if ( identifier(r,c,false) == ident )
-                return Field::Ptr( new LocalizationField<Index>(n, traits, r, c, false) );
-            else if ( identifier(r,c,true) == ident )
-                return Field::Ptr( new LocalizationField<Index>(n, traits, r, c, true) );
+            if ( identifier(r,c) == ident )
+                return Field::Ptr( new LocalizationField<Index>(n, traits, r, c) );
 
     return Field::Ptr();
 }
 
 template <int Index>
-LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsType& traits, int row, int column, bool for_uncertainty ) 
-: scalar(row, column), for_uncertainty(for_uncertainty)
+LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsType& traits, int row, int column ) 
+: scalar(row, column)
 {
     const std::string 
         syntax = read_attribute(node, "syntax");
@@ -173,31 +168,25 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
         throw std::runtime_error("Unrecognized syntax "
             "in localization file: " + syntax );
 
-    if ( for_uncertainty ) {
-        scalar.uncertainty_is_given(traits) = true;
-    } else {
-        scalar.is_given(traits) = true;
+    scalar.is_given(traits) = true;
 
-        if ( TraitsType::has_range ) {
-            /* Backward compatibility: Old versions of the XML syntax didn't require lower boundaries for the
-             * spatial coordinates, but implied 0. */
-            if ( Index == Localization::Fields::Position && row < 2 && column == 0 && node.Attribute("min") == NULL && node.Attribute("identifier")  == NULL ) {
-                DEBUG("Setting field minimum to 0");
-                scalar.range(traits).first = Scalar::range_type::first_type::value_type::from_value(0);
-            }
-            cond_parse_attribute( node, "min", scalar.range(traits).first );
-            cond_parse_attribute( node, "max", scalar.range(traits).second );
+    if ( TraitsType::has_range ) {
+        /* Backward compatibility: Old versions of the XML syntax didn't require lower boundaries for the
+          * spatial coordinates, but implied 0. */
+        if ( Index == Localization::Fields::Position && row < 2 && column == 0 && node.Attribute("min") == NULL && node.Attribute("identifier")  == NULL ) {
+            DEBUG("Setting field minimum to 0");
+            scalar.range(traits).first = Scalar::range_type::first_type::value_type::from_value(0);
         }
+        cond_parse_attribute( node, "min", scalar.range(traits).first );
+        cond_parse_attribute( node, "max", scalar.range(traits).second );
     }
 
     set_input_unit( read_attribute(node, "unit"), traits );
 }
 
 template <int Index>
-LocalizationField<Index>::LocalizationField(int row, int column, bool uncertainty) 
-: scalar(row, column), for_uncertainty(uncertainty)
-{
-}
+LocalizationField<Index>::LocalizationField(int row, int column) 
+: scalar(row, column) {}
 
 template <int Index>
 LocalizationField<Index>::~LocalizationField()  {}
@@ -205,11 +194,10 @@ LocalizationField<Index>::~LocalizationField()  {}
 template <int Index>
 std::auto_ptr<TiXmlNode> LocalizationField<Index>::makeNode( const Field::Traits& traits ) { 
     std::auto_ptr<TiXmlElement> rv( new  TiXmlElement("field") );
-    rv->SetAttribute( "identifier", identifier(scalar.row(),scalar.column(), for_uncertainty).c_str() );
+    rv->SetAttribute( "identifier", identifier(scalar.row(),scalar.column()).c_str() );
     rv->SetAttribute( "syntax", type_string< typename TraitsType::ValueType >::ident().c_str() );
 
     std::stringstream semantic;
-    if ( for_uncertainty ) semantic << "uncertainty in ";
     semantic << TraitsType::get_desc();
     if ( TraitsType::Rows > 1 || TraitsType::Cols > 1 ) {
         semantic << " in ";
@@ -222,11 +210,9 @@ std::auto_ptr<TiXmlNode> LocalizationField<Index>::makeNode( const Field::Traits
         name_string(
             typename TraitsType::OutputType()).c_str() );
     
-    if ( ! for_uncertainty ) {
-        if ( TraitsType::has_range ) {
-            condAddAttribute( *rv, scalar.range(traits).first, "min" );
-            condAddAttribute( *rv, scalar.range(traits).second, "max" );
-        }
+    if ( TraitsType::has_range ) {
+        condAddAttribute( *rv, scalar.range(traits).first, "min" );
+        condAddAttribute( *rv, scalar.range(traits).second, "max" );
     }
 
     return std::auto_ptr<TiXmlNode>( rv.release() );
@@ -254,8 +240,7 @@ void LocalizationField<Index>::write(std::ostream& output, const Localization& s
         field = boost::fusion::at_c<Index>(source);
 
     typename TraitsType::OutputType ov 
-        = static_cast<typename TraitsType::OutputType>(
-            scalar.value( (for_uncertainty) ? field.uncertainty() : field.value() ) );
+        = static_cast<typename TraitsType::OutputType>( scalar.value( field.value() ) );
     output_value_only(output, ov);
 }
 
@@ -265,10 +250,7 @@ void LocalizationField<Index>::parse(std::istream& input, Localization& target)
     typename Scalar::value_type::value_type v;
     input >> v;
     typename Scalar::value_type t = converter->from_value(v);
-    if ( for_uncertainty )
-        scalar.value( boost::fusion::at_c<Index>(target).uncertainty() ) = t;
-    else
-        scalar.value( boost::fusion::at_c<Index>(target).value() ) = t;
+    scalar.value( boost::fusion::at_c<Index>(target).value() ) = t;
 }
 
 template <typename Type, typename LocalizationField>
@@ -277,9 +259,7 @@ struct NodeMaker
     static boost::ptr_vector<Field> make_nodes(const typename LocalizationField::TraitsType& traits) {
         boost::ptr_vector<Field> rv;
         if ( traits.is_given )
-            rv.push_back( new LocalizationField( 0, 0, false ) );
-        if ( traits.uncertainty_is_given )
-            rv.push_back( new LocalizationField(  0, 0, true ) );
+            rv.push_back( new LocalizationField( 0, 0 ) );
         return rv;
     }
 };
@@ -293,9 +273,7 @@ struct NodeMaker< Eigen::Matrix<Scalar, Rows, Cols, Flags, MaxRows, MaxCols>, Lo
           for (int c = 0; c < traits.is_given.cols(); ++c)
           {
             if ( traits.is_given(r,c) )
-                rv.push_back( new LocalizationField( r, c, false ) );
-            if ( traits.uncertainty_is_given(r,c) )
-                rv.push_back( new LocalizationField( r, c, true ) );
+                rv.push_back( new LocalizationField( r, c ) );
           }
         return rv;
     }
@@ -308,9 +286,9 @@ boost::ptr_vector<Field> LocalizationField<Index>::make_nodes(const TraitsType& 
 }
 
 template <int Index>
-Field::Ptr create_localization_field( int row, int column, bool uncertainty )
+Field::Ptr create_localization_field( int row, int column )
 {
-    return Field::Ptr(new LocalizationField<Index>(row, column, uncertainty));
+    return Field::Ptr(new LocalizationField<Index>(row, column));
 }
 
 }

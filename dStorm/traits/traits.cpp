@@ -1,5 +1,6 @@
 #include "image_number.h"
 #include "position.h"
+#include "position_uncertainty.h"
 #include "amplitude.h"
 #include "psf_width.h"
 #include "two_kernel_improvement.h"
@@ -24,6 +25,16 @@ std::string Position::get_desc() { return "position in sample space"; }
 std::string Position::get_shorthand() { return "pos"; }
 const Position::ValueType Position::default_value
     = Position::ValueType::Constant( Position::ValueType::Scalar::from_value(0) );
+
+std::string PositionUncertainty::get_ident() { return "Position-uncertainty"; }
+std::string PositionUncertainty::get_desc() { return "position uncertainty in sample space"; }
+std::string PositionUncertainty::get_shorthand() { return "sigmapos"; }
+const PositionUncertainty::ValueType PositionUncertainty::default_value
+    = PositionUncertainty::ValueType::Constant( PositionUncertainty::ValueType::Scalar::from_value(0) );
+template <>
+const PositionUncertainty::RangeType
+NoRange<PositionUncertainty>::static_range 
+    = PositionUncertainty::RangeType::Constant( PositionUncertainty::BoundPair() );
 
 std::string Amplitude::get_ident() { return "Amplitude"; }
 std::string Amplitude::get_desc() { return "emission strength"; }

@@ -54,13 +54,11 @@ struct Field
     typedef TraitsType Traits;
     typedef typename Traits::ValueType Type;
   private:
-    Type _value, _uncertainty;
+    Type _value;
 
   public:
     Field() : _value(Traits::default_value) {}
     Field( const Type& value ) : _value(value) {}
-    Field( const Type& value, const Type& uncertainty ) 
-        : _value(value), _uncertainty(uncertainty) {}
 
     Field<Traits>& operator=(const Type& t) { _value = t; return *this; }
     const Type& operator()() const { return _value; }
@@ -68,13 +66,9 @@ struct Field
 
     const Type& value() const { return _value; }
     Type& value() { return _value; }
-    const Type& uncertainty() const { return _uncertainty; }
-    Type& uncertainty() { return _uncertainty; }
 
     float in_nm( const Traits& t ) const
         { return impl::SIizer<Type>::get(_value, t.resolution); }
-    float uncertainty_in_nm( const Traits& t ) const
-        { return impl::SIizer<Type>::get(_uncertainty, t.resolution); }
 
     const Traits& traits( const Traits& t ) const { return t; }
 };

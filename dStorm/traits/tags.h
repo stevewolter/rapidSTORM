@@ -10,7 +10,6 @@ namespace dStorm {
 namespace traits {
 
 struct value_is_given_tag;
-struct uncertainty_is_given_tag;
 
 template <typename Traits, typename type>
 struct in_base {
@@ -58,22 +57,6 @@ struct value_tag {
     };
 };
 
-struct uncertainty_tag {
-    typedef uncertainty_is_given_tag is_given_tag;
-    template <typename Traits>
-    struct in: public in_base<Traits,typename Traits::ValueType> { 
-        typedef typename Traits::ValueType type; 
-        typedef in_base<Traits,type> base;
-        static const bool in_localization = true;
-
-        static type get(const localization::Field<Traits>& t) { return t.uncertainty(); }
-        static type& set(localization::Field<Traits>& t) { return t.uncertainty(); }
-        static type get(const Traits& t) { return base::get(t); }
-        static type& set(Traits& t) { return base::set(t); }
-        static std::string shorthand() { return "sigma" + Traits::get_shorthand(); }
-    };
-};
-
 struct value_is_given_tag {
     template <typename Traits>
     struct in : public in_base<Traits,typename Traits::IsGivenType> { 
@@ -86,21 +69,6 @@ struct value_is_given_tag {
         static type get(const Traits& t) { return t.is_given; }
         static type& set(Traits& t) { return t.is_given; }
         static std::string shorthand() { return Traits::get_shorthand() + "given"; }
-    };
-};
-
-struct uncertainty_is_given_tag {
-    template <typename Traits>
-    struct in : public in_base<Traits,typename Traits::IsGivenType> { 
-        typedef typename Traits::IsGivenType type; 
-        typedef in_base<Traits,type> base;
-        static const bool in_traits = true;
-
-        static type get(const localization::Field<Traits>& t) { return base::get(t); }
-        static type& set(localization::Field<Traits>& t) { return base::set(t); }
-        static type get(const Traits& t) { return t.uncertainty_is_given; }
-        static type& set(Traits& t) { return t.uncertainty_is_given; }
-        static std::string shorthand() { return "sigma" + Traits::get_shorthand() + "given"; }
     };
 };
 
@@ -152,7 +120,7 @@ struct max_tag {
     };
 };
 
-typedef boost::mpl::vector< value_tag, uncertainty_tag, min_tag, max_tag > tags;
+typedef boost::mpl::vector< value_tag, min_tag, max_tag > tags;
 
 }
 }

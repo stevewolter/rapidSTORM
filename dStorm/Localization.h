@@ -21,6 +21,8 @@ class Localization  {
   public:
     typedef localization::Field<traits::Position> Position; 
         Position position;
+    typedef localization::Field<traits::PositionUncertainty> PositionUncertainty; 
+        PositionUncertainty position_uncertainty;
     typedef localization::Field<traits::ImageNumber> ImageNumber; 
         ImageNumber frame_number;
     typedef localization::Field<traits::Amplitude> Amplitude; 
@@ -36,7 +38,7 @@ class Localization  {
     typedef localization::Field<traits::LocalBackground> LocalBackground; 
         LocalBackground local_background;
     struct Fields {
-        enum Indices { Position, ImageNumber, Amplitude, CovarianceMatrix, TwoKernelImprovement, FitResidues, Fluorophore, LocalBackground, Count };
+        enum Indices { Position, PositionUncertainty, ImageNumber, Amplitude, CovarianceMatrix, TwoKernelImprovement, FitResidues, Fluorophore, LocalBackground, Count };
     };
     template <int Index>
     struct Traits {
@@ -75,6 +77,7 @@ operator<<(std::ostream &o, const Localization& loc);
 BOOST_FUSION_ADAPT_STRUCT(
     dStorm::Localization,
     (dStorm::Localization::Position, position)
+    (dStorm::Localization::PositionUncertainty, position_uncertainty)
     (dStorm::Localization::ImageNumber, frame_number)
     (dStorm::Localization::Amplitude, amplitude)
     (dStorm::Localization::PSFWidth, psf_width)

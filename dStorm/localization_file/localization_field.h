@@ -17,7 +17,6 @@ class LocalizationField : public Field {
     typedef ValueConverter<typename Scalar::value_type> Converter;
     Scalar scalar;
     boost::shared_ptr<Converter> converter;
-    bool for_uncertainty;
 
     friend class Field;
     static Field::Ptr try_to_parse( const TiXmlElement&, TraitsType& traits );
@@ -30,10 +29,10 @@ class LocalizationField : public Field {
         const char *);
 
   public:
-    static std::string identifier(int r, int c, bool for_uncertainty);
+    static std::string identifier(int r, int c);
 
-    LocalizationField( int row = 0, int column = 0, bool uncertainty = false );
-    LocalizationField( const TiXmlElement&, TraitsType& traits, int row = 0, int column = 0, bool uncertainty = false );
+    LocalizationField( int row = 0, int column = 0 );
+    LocalizationField( const TiXmlElement&, TraitsType& traits, int row = 0, int column = 0 );
     ~LocalizationField();
 
     void set_input_unit( const std::string& unit, const Field::Traits& traits );

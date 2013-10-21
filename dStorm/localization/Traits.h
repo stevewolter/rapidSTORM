@@ -4,6 +4,7 @@
 #include "../traits/base.h"
 #include "../traits/image_number.h"
 #include "../traits/position.h"
+#include "../traits/position_uncertainty.h"
 #include "../traits/amplitude.h"
 #include "../traits/psf_width.h"
 #include "../traits/two_kernel_improvement.h"
@@ -32,6 +33,7 @@ struct Traits< Localization >
 : public input::BaseTraits,
   public DataSetTraits,
   public traits::Position,
+  public traits::PositionUncertainty,
   public traits::Amplitude,
   public traits::PSFWidth,
   public traits::TwoKernelImprovement,
@@ -49,6 +51,7 @@ struct Traits< Localization >
     x& n() { return *this; } \
     const x& n() const { return *this; }
     ACCESSORS(traits::Position,position)
+    ACCESSORS(traits::PositionUncertainty,position_uncertainty)
     ACCESSORS(traits::Amplitude,amplitude)
     ACCESSORS(traits::PSFWidth,psf_width)
     ACCESSORS(traits::TwoKernelImprovement,two_kernel_improvement)
