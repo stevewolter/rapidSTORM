@@ -4,7 +4,6 @@
 #include "debug.h"
 
 #include "binning/binning.h"
-#include <dStorm/traits/scalar.h>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/helpers/clone_ptr.hpp>
 

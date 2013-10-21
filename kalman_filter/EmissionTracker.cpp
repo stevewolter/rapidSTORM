@@ -11,6 +11,7 @@
 #include "KalmanTrace.h"
 #include <dStorm/output/FilterBuilder.h>
 #include "binning/binning.h"
+#include "binning/binning.hpp"
 #include <dStorm/UnitEntries/Nanometre.h>
 #include <boost/ptr_container/ptr_set.hpp>
 #include <boost/ptr_container/ptr_array.hpp>
@@ -59,8 +60,7 @@ private:
         void make_hope() { hope++; }
     };
 
-    boost::optional< binning::Localization<0,binning::ScaledToInterval> >
-        binners[2];
+    std::auto_ptr<binning::Scaled> binners[2];
     float binner_starts[2];
     typedef dStorm::Image< std::set<TracedObject*>, 2 > Positional;
     Positional positional;
@@ -177,8 +177,9 @@ Output::Output(
   reducer( config.reducer.make_trace_reducer() ), 
   maxDist( config.distance_threshold() )
 {
+    binners[0] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionX, binning::Bounded>());
+    binners[1] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionY, binning::Bounded>());
     for (int i = 0; i < 2; ++i) {
-        binners[i] = boost::in_place( 50,i,0 );
         kalman_info.set_diffusion(i, config.diffusion() * 2.0);
         kalman_info.set_mobility(i, config.mobility());
     }

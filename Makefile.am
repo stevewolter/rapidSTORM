@@ -163,8 +163,7 @@ rapidstorm_SOURCES = \
     dStorm/traits/psf_width.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
     dStorm/traits/position.h dStorm/traits/range.h \
     dStorm/traits/range_impl.h dStorm/traits/residues.h \
-    dStorm/traits/scalar.h \
-    dStorm/traits/two_kernel_improvement.h dStorm/traits/tags.h dStorm/traits/scalar_iterator.h \
+    dStorm/traits/two_kernel_improvement.h \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
@@ -307,7 +306,6 @@ rapidstorm_SOURCES += \
     dStorm/output/Filter.cpp \
     dStorm/Pixel.cpp \
     dStorm/image/slice.cpp dStorm/image/iterator.cpp \
-    dStorm/traits/scalar_check.cpp \
     dStorm/image/morphological_reconstruction.cpp \
     dStorm/threed_info/DepthInfo.cpp \
     dStorm/threed_info/Polynomial3D.cpp \
@@ -388,7 +386,6 @@ rapidstorm_SOURCES += \
     expression/Source.h  expression/Source_decl.h \
     expression/Evaluator.h expression/Simplifier.h expression/UnitChecker.h \
     expression/localization_variable.cpp expression/localization_variable_decl.h \
-    expression/localization_variable.h expression/localization_variable_impl.h \
     expression/SIPrefixes.h \
     expression/Variable.h \
     expression/DynamicQuantity.h \

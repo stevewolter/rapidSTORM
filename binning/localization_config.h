@@ -16,9 +16,6 @@ class LocalizationConfig : public FieldConfig
 {
     typedef typename Localization<Field,false>::TraitsType Traits;
     bool use_resolution;
-    int row, column;
-    static std::string make_ident(int r, int c);
-    static std::string make_desc(int r, int c);
 
     typedef quantity< 
         typename divide_typeof_helper<typename Traits::OutputType::unit_type, camera::length>::type,
@@ -37,8 +34,8 @@ class LocalizationConfig : public FieldConfig
     }
 
   public:
-    LocalizationConfig(std::string axis, bool use_resolution, int row, int column) ;
-    LocalizationConfig(std::string axis, float range, int row, int column) ;
+    LocalizationConfig(std::string axis, bool use_resolution) ;
+    LocalizationConfig(std::string axis, float range) ;
 
     LocalizationConfig* clone() const { return new LocalizationConfig(*this); }
 

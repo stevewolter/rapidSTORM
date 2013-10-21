@@ -2,7 +2,6 @@
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_H
 
 #include "binning.h"
-#include <dStorm/traits/scalar.h>
 #include <boost/fusion/include/sequence.hpp>
 
 #include <boost/units/io.hpp>
@@ -19,15 +18,15 @@ template <int Index>
 class Localization<Index, IsUnscaled> {
   public:
     typedef typename boost::fusion::result_of::value_at<dStorm::Localization, boost::mpl::int_<Index> >::type::Traits TraitsType;
-    typedef typename traits::Scalar<TraitsType>::value_type value;
+    typedef typename TraitsType::ValueType value;
 
-    Localization(int row, int column);
+    Localization();
     Localization* clone() const { return new Localization(*this); }
 
     void announce(const output::Output::Announcement& a);
     traits::ImageResolution resolution() const;
 
-    static bool can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column );
+    static bool can_work_with( const input::Traits<dStorm::Localization>& t);
 
     int field_number() const { return Index; }
     int bin_points( const output::LocalizedImage& l, float *target, int stride ) const;
@@ -36,7 +35,6 @@ class Localization<Index, IsUnscaled> {
 
   protected:
     value bin_naively( const dStorm::Localization& ) const;
-    traits::Scalar<TraitsType> scalar;
 };
 
 template <int Index>
@@ -45,9 +43,9 @@ struct Localization<Index, Bounded> : public Localization<Index,IsUnscaled> {
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
-    Localization(int row, int column);
+    Localization();
     Localization* clone() const { return new Localization(*this); }
-    static bool can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column );
+    static bool can_work_with( const input::Traits<dStorm::Localization>& t );
 
     dStorm::traits::ImageResolution resolution() const { return Base::resolution(); }
     void announce(const output::Output::Announcement& a);
@@ -78,9 +76,9 @@ class Localization<Index, ScaledByResolution>
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
-    Localization(value res, int row, int column);
+    Localization(value res);
     Localization* clone() const { return new Localization(*this); }
-    static bool can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column );
+    static bool can_work_with( const input::Traits<dStorm::Localization>& t);
 
     traits::ImageResolution resolution() const;
     int bin_points( const output::LocalizedImage& l, float *target, int stride ) const;
@@ -91,7 +89,7 @@ class Localization<Index, ScaledByResolution>
     std::pair< float, float > get_minmax() const;
 
   protected:
-    Localization(int row, int column) : Base(row, column) {}
+    Localization() : Base() {}
     typename Base::Scale scale;
 };
 
@@ -103,9 +101,9 @@ class Localization<Index, ScaledToInterval>
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
-    Localization(float interval_width, int row, int column);
+    Localization(float interval_width);
     Localization* clone() const { return new Localization(*this); }
-    static bool can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column );
+    static bool can_work_with( const input::Traits<dStorm::Localization>& t);
 
     void announce(const output::Output::Announcement& a);
     float get_size() const;
@@ -123,7 +121,7 @@ class Localization<Index, InteractivelyScaledToInterval> : public Localization<I
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
-    Localization(float interval_width, int row, int column);
+    Localization(float interval_width);
     Localization* clone() const { return new Localization(*this); }
 
     void announce(const output::Output::Announcement& a);
@@ -133,7 +131,7 @@ class Localization<Index, InteractivelyScaledToInterval> : public Localization<I
     boost::optional<float> get_uncertainty( const dStorm::Localization& ) const;
     float get_size() const { return Base::get_size(); }
 
-    static bool can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column );
+    static bool can_work_with( const input::Traits<dStorm::Localization>& t);
     int field_number() const { return Index; }
 
     double reverse_mapping( float f ) const { return Base::reverse_mapping(f); }
@@ -144,7 +142,7 @@ class Localization<Index, InteractivelyScaledToInterval> : public Localization<I
 
   private:
     std::bitset<2> not_given, user;
-    typename traits::Scalar< TraitsType >::range_type orig_range;
+    typename TraitsType::RangeType orig_range;
 };
 
 }

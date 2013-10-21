@@ -9,55 +9,20 @@
 namespace dStorm {
 namespace binning {
 
-inline std::string dimen_name(int d) {
-    switch (d) {
-        case 0: return "X";
-        case 1: return "Y";
-        case 2: return "Z";
-        case 3: return "A";
-        default:
-            throw std::logic_error("Ran out of dimension names");
-    }
-}
-
 template <int Field>
-std::string LocalizationConfig<Field>::make_ident(int r, int c) {
-        std::stringstream result;
-        result << Traits::get_ident();
-        if ( Traits::Rows > 1 ) result << dimen_name(r);
-        if ( Traits::Cols > 1 ) result << dimen_name(c);
-        return result.str();
-    }
-
-template <int Field>
-std::string LocalizationConfig<Field>::make_desc(int r, int c) {
-        std::stringstream result;
-        result << Traits::get_desc();
-        if ( Traits::Rows > 1 && Traits::Cols > 1 )
-            result << " " << dimen_name(r) << dimen_name(c);
-        else if ( Traits::Rows > 1 )
-            result << " " << dimen_name(r);
-        else if ( Traits::Cols > 1 )
-            result << " " << dimen_name(c);
-        return result.str();
-    }
-
-template <int Field>
-LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range, int row, int column) 
-: FieldConfig( make_ident(row,column), make_desc(row,column) ), 
+LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range) 
+: FieldConfig( Traits::get_ident(), Traits::get_desc() ), 
   use_resolution( false ),
-  row(row), column(column) ,
-    resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10)),
+  resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10)),
   range(range)
 {
 }
 
 template <int Field>
-LocalizationConfig<Field>::LocalizationConfig(std::string axis, bool use_resolution, int row, int column) 
-: FieldConfig( make_ident(row,column), make_desc(row,column) ), 
+LocalizationConfig<Field>::LocalizationConfig(std::string axis, bool use_resolution) 
+: FieldConfig( Traits::get_ident(), Traits::get_desc() ), 
   use_resolution( use_resolution ),
-  row(row), column(column) ,
-    resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
+  resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
 {
     resolution.setHelpID( "#Viewer_ResEnh" );
 }
@@ -69,14 +34,14 @@ LocalizationConfig<Field>::make_scaled_binner() const
     if ( range.is_initialized() ) {
         typedef Localization<Field,ScaledToInterval> T;
         return std::auto_ptr<Scaled>( 
-            new BinningAdapter<T,Scaled>( T(*range, row, column) ) );
+            new BinningAdapter<T,Scaled>( T(*range) ) );
     } else {
         typedef Localization<Field,ScaledByResolution> T;
         Resolution r1( resolution() );
         typename Traits::OutputType o( r1 * camera::pixel );
-        typename traits::Scalar<Traits>::value_type r(o);
+        typename Traits::ValueType r(o);
         return std::auto_ptr<Scaled>( 
-            new BinningAdapter<T,Scaled>( T(r, row, column) ) );
+            new BinningAdapter<T,Scaled>( T(r) ) );
     }
 }
 
@@ -86,10 +51,10 @@ LocalizationConfig<Field>::make_user_scaled_binner() const
 {
     if ( range.is_initialized() ) {
         std::auto_ptr< binning::Localization<Field,InteractivelyScaledToInterval> >
-            o ( new binning::Localization<Field,InteractivelyScaledToInterval>(*range, row, column) );
+            o ( new binning::Localization<Field,InteractivelyScaledToInterval>(*range) );
         typedef binning::Localization<Field,InteractivelyScaledToInterval> T;
         std::auto_ptr<UserScaled> rv( new BinningAdapter< T, UserScaled >( 
-            T(*range,row,column) ) );
+            T(*range) ) );
         return rv;
     } else 
         throw std::logic_error("Range not set");
@@ -100,7 +65,7 @@ std::auto_ptr<Unscaled>
 LocalizationConfig<Field>::make_unscaled_binner() const 
 {
     typedef binning::Localization<Field,IsUnscaled> T;
-    return make_BinningAdapter<Unscaled>( T(row, column));
+    return make_BinningAdapter<Unscaled>( T());
 }
 
 template <int Field>
@@ -109,11 +74,11 @@ void LocalizationConfig<Field>::set_visibility(
 ) {
     bool v;
     if ( unscaled_suffices )
-        v = binning::Localization<Field, IsUnscaled>::can_work_with(t, row, column);
+        v = binning::Localization<Field, IsUnscaled>::can_work_with(t);
     else if ( range.is_initialized() )
-        v = binning::Localization<Field, ScaledToInterval>::can_work_with(t, row, column);
+        v = binning::Localization<Field, ScaledToInterval>::can_work_with(t);
     else 
-        v = binning::Localization<Field, ScaledByResolution>::can_work_with(t, row, column);
+        v = binning::Localization<Field, ScaledByResolution>::can_work_with(t);
 
     set_viewability(v);
 }

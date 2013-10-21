@@ -3,7 +3,6 @@
 
 #include "types.h"
 #include "tokens.h"
-#include <dStorm/traits/tags.h>
 #include "Source.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 

@@ -81,17 +81,17 @@ static std::string guess_ident_from_semantic(const TiXmlElement& n) {
     const char *semantic_attrib = n.Attribute("semantic");
     if ( semantic_attrib != NULL ) semantic = semantic_attrib;
     if ( semantic == "x-position" )
-        return LocalizationField<Localization::Fields::PositionX>::identifier(0,0);
+        return dStorm::traits::PositionX::get_ident();
     else if ( semantic == "y-position" )
-        return LocalizationField<Localization::Fields::PositionY>::identifier(0,0);
+        return dStorm::traits::PositionY::get_ident();
     else if ( semantic == "z-position" )
-        return LocalizationField<Localization::Fields::PositionZ>::identifier(0,0);
+        return dStorm::traits::PositionZ::get_ident();
     else if ( semantic == "frame number" )
-        return LocalizationField<Localization::Fields::ImageNumber>::identifier(0,0);
+        return dStorm::traits::ImageNumber::get_ident();
     else if ( semantic == "emission strength" )
-        return LocalizationField<Localization::Fields::Amplitude>::identifier(0,0);
+        return dStorm::traits::Amplitude::get_ident();
     else if ( semantic == "two kernel improvement" )
-        return LocalizationField<Localization::Fields::TwoKernelImprovement>::identifier(0,0);
+        return dStorm::traits::TwoKernelImprovement::get_ident();
 
     // TODO: Implement more heuristics: x-sigma i.e.
     return "";
@@ -104,14 +104,6 @@ template <typename Unit, typename Value>
 inline void output_value_only( std::ostream& o, quantity<Unit,Value> a )
 {
     o << a.value();
-}
-
-template <int Index>
-std::string LocalizationField<Index>::identifier(int r, int c)
-{
-    std::stringstream ident;
-    ident << TraitsType::get_ident() << "-" << r << "-" << c;
-    return ident.str();
 }
 
 template <int Index>
@@ -149,18 +141,13 @@ Field::Ptr LocalizationField<Index>::try_to_parse( const TiXmlElement& n, Traits
     if ( ident == TraitsType::get_ident() )
         return Field::Ptr( new LocalizationField<Index>(n, traits) );
 
-    for (int r = 0; r < TraitsType::Rows; ++r)
-        for (int c = 0; c < TraitsType::Cols; ++c)
-            if ( identifier(r,c) == ident )
-                return Field::Ptr( new LocalizationField<Index>(n, traits, r, c) );
-
     return Field::Ptr();
 }
 
 template <int Index>
-LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsType& traits, int row, int column ) 
-: scalar(row, column)
+LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsType& localization_traits ) 
 {
+    TraitsType& traits = localization_traits;
     const std::string 
         syntax = read_attribute(node, "syntax");
 
@@ -168,7 +155,7 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
         throw std::runtime_error("Unrecognized syntax "
             "in localization file: " + syntax );
 
-    scalar.is_given(traits) = true;
+    traits.is_given = true;
 
     if ( TraitsType::has_range ) {
         /* Backward compatibility: Old versions of the XML syntax didn't require lower boundaries for the
@@ -176,18 +163,17 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
         if ( (Index == Localization::Fields::PositionX || Index == Localization::Fields::PositionY || Index == Localization::Fields::PositionZ)
              && node.Attribute("min") == NULL && node.Attribute("identifier")  == NULL ) {
             DEBUG("Setting field minimum to 0");
-            scalar.range(traits).first = Scalar::range_type::first_type::value_type::from_value(0);
+            traits.range().first = ValueType::from_value(0);
         }
-        cond_parse_attribute( node, "min", scalar.range(traits).first );
-        cond_parse_attribute( node, "max", scalar.range(traits).second );
+        cond_parse_attribute( node, "min", traits.range().first );
+        cond_parse_attribute( node, "max", traits.range().second );
     }
 
-    set_input_unit( read_attribute(node, "unit"), traits );
+    set_input_unit( read_attribute(node, "unit"), localization_traits );
 }
 
 template <int Index>
-LocalizationField<Index>::LocalizationField(int row, int column) 
-: scalar(row, column) {}
+LocalizationField<Index>::LocalizationField() {}
 
 template <int Index>
 LocalizationField<Index>::~LocalizationField()  {}
@@ -195,25 +181,19 @@ LocalizationField<Index>::~LocalizationField()  {}
 template <int Index>
 std::auto_ptr<TiXmlNode> LocalizationField<Index>::makeNode( const Field::Traits& traits ) { 
     std::auto_ptr<TiXmlElement> rv( new  TiXmlElement("field") );
-    rv->SetAttribute( "identifier", identifier(scalar.row(),scalar.column()).c_str() );
+    rv->SetAttribute( "identifier", TraitsType::get_ident().c_str() );
     rv->SetAttribute( "syntax", type_string< typename TraitsType::ValueType >::ident().c_str() );
 
     std::stringstream semantic;
     semantic << TraitsType::get_desc();
-    if ( TraitsType::Rows > 1 || TraitsType::Cols > 1 ) {
-        semantic << " in ";
-        if ( TraitsType::Rows > 1 ) semantic << dimen_name(scalar.row());
-        if ( TraitsType::Cols > 1 ) semantic << dimen_name(scalar.column());
-        semantic << " dimension";
-    }
     rv->SetAttribute( "semantic", semantic.str().c_str());
     rv->SetAttribute( "unit",
         name_string(
             typename TraitsType::OutputType()).c_str() );
     
     if ( TraitsType::has_range ) {
-        condAddAttribute( *rv, scalar.range(traits).first, "min" );
-        condAddAttribute( *rv, scalar.range(traits).second, "max" );
+        condAddAttribute( *rv, static_cast<const TraitsType&>(traits).range().first, "min" );
+        condAddAttribute( *rv, static_cast<const TraitsType&>(traits).range().second, "max" );
     }
 
     return std::auto_ptr<TiXmlNode>( rv.release() );
@@ -241,17 +221,16 @@ void LocalizationField<Index>::write(std::ostream& output, const Localization& s
         field = boost::fusion::at_c<Index>(source);
 
     typename TraitsType::OutputType ov 
-        = static_cast<typename TraitsType::OutputType>( scalar.value( field.value() ) );
+        = static_cast<typename TraitsType::OutputType>( field.value() );
     output_value_only(output, ov);
 }
 
 template <int Index>
 void LocalizationField<Index>::parse(std::istream& input, Localization& target)
 {
-    typename Scalar::value_type::value_type v;
+    typename ValueType::value_type v;
     input >> v;
-    typename Scalar::value_type t = converter->from_value(v);
-    scalar.value( boost::fusion::at_c<Index>(target).value() ) = t;
+    boost::fusion::at_c<Index>(target).value() = converter->from_value(v);
 }
 
 template <typename Type, typename LocalizationField>
@@ -260,37 +239,10 @@ struct NodeMaker
     static boost::ptr_vector<Field> make_nodes(const typename LocalizationField::TraitsType& traits) {
         boost::ptr_vector<Field> rv;
         if ( traits.is_given )
-            rv.push_back( new LocalizationField( 0, 0 ) );
+            rv.push_back( new LocalizationField() );
         return rv;
     }
 };
-
-template <typename Scalar, int Rows, int Cols, int Flags, int MaxRows, int MaxCols, typename LocalizationField>
-struct NodeMaker< Eigen::Matrix<Scalar, Rows, Cols, Flags, MaxRows, MaxCols>, LocalizationField >
-{
-    static boost::ptr_vector<Field> make_nodes(const typename LocalizationField::TraitsType& traits) {
-        boost::ptr_vector<Field> rv;
-        for (int r = 0; r < traits.is_given.rows(); ++r)
-          for (int c = 0; c < traits.is_given.cols(); ++c)
-          {
-            if ( traits.is_given(r,c) )
-                rv.push_back( new LocalizationField( r, c ) );
-          }
-        return rv;
-    }
-};
-
-template <int Index>
-boost::ptr_vector<Field> LocalizationField<Index>::make_nodes(const TraitsType& traits)
-{
-    return NodeMaker<typename TraitsType::ValueType, LocalizationField<Index> >::make_nodes(traits);
-}
-
-template <int Index>
-Field::Ptr create_localization_field( int row, int column )
-{
-    return Field::Ptr(new LocalizationField<Index>(row, column));
-}
 
 }
 }

@@ -2,7 +2,6 @@
 #define DSTORM_LOCALIZATION_FILE_LOCALIZATION_FIELD_H
 
 #include "field.h"
-#include <dStorm/traits/scalar.h>
 #include "converter.h"
 
 namespace dStorm {
@@ -13,9 +12,8 @@ class LocalizationField : public Field {
   public:
     typedef typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Index> >::type::Traits TraitsType;
   private:
-    typedef traits::Scalar<TraitsType> Scalar;
-    typedef ValueConverter<typename Scalar::value_type> Converter;
-    Scalar scalar;
+    typedef typename TraitsType::ValueType ValueType;
+    typedef ValueConverter<ValueType> Converter;
     boost::shared_ptr<Converter> converter;
 
     friend class Field;
@@ -25,14 +23,12 @@ class LocalizationField : public Field {
     static std::string dimen_name(int n);
 
     void parse_attribute_with_resolution( 
-        boost::optional<typename Scalar::value_type>&, boost::optional<typename Scalar::value_type>,
+        boost::optional<ValueType>&, boost::optional<ValueType>,
         const char *);
 
   public:
-    static std::string identifier(int r, int c);
-
-    LocalizationField( int row = 0, int column = 0 );
-    LocalizationField( const TiXmlElement&, TraitsType& traits, int row = 0, int column = 0 );
+    LocalizationField();
+    LocalizationField( const TiXmlElement&, TraitsType& traits );
     ~LocalizationField();
 
     void set_input_unit( const std::string& unit, const Field::Traits& traits );
@@ -41,8 +37,6 @@ class LocalizationField : public Field {
     void parse(std::istream& input, Localization& target);
     void write(std::ostream& output, const Localization& source);
     std::auto_ptr<TiXmlNode> makeNode( const Field::Traits& traits );
-
-    static boost::ptr_vector<Field> make_nodes( const TraitsType& traits );
 
     Field* clone() const { return new LocalizationField<Index>(*this); }
 };

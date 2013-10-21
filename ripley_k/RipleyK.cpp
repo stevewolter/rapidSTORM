@@ -74,9 +74,9 @@ Output::Output( const Config& config )
 {
     quantity<si::length, float> v( config.bin_size() );
     scalers.replace(0, binning::make_BinningAdapter<binning::Scaled>(
-          binning::Localization< Localization::Fields::PositionX, binning::ScaledByResolution >(v,0,0) ));
+          binning::Localization< Localization::Fields::PositionX, binning::ScaledByResolution >(v) ));
     scalers.replace(1, binning::make_BinningAdapter<binning::Scaled>(
-          binning::Localization< Localization::Fields::PositionY, binning::ScaledByResolution >(v,0,0) ));
+          binning::Localization< Localization::Fields::PositionY, binning::ScaledByResolution >(v) ));
 }
 
 Output::AdditionalData Output::announceStormSize(const Announcement& a) {

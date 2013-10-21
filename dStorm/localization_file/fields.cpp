@@ -129,8 +129,7 @@ void create_localization_fields_recursive<Localization::Fields::Count>(const Fie
 template <int LField>
 void create_localization_fields_recursive( const input::Traits<Localization>& traits, Field::Fields& result )
 {
-    boost::ptr_vector<Field> my_nodes = LocalizationField<LField>::make_nodes(traits);
-    result.transfer( result.end(), my_nodes );
+    result.push_back(new LocalizationField<LField>());
     create_localization_fields_recursive<LField+1>(traits, result);
 }
 
@@ -155,10 +154,6 @@ std::auto_ptr<Field> Field::construct( const Field::Traits& traits )
 {
     return std::auto_ptr<Field>( new ChildrenField(traits, 0) );
 }
-
-template Field::Ptr create_localization_field<0>(int,int);
-template Field::Ptr create_localization_field<1>(int,int);
-template Field::Ptr create_localization_field<2>(int,int);
 
 }
 }

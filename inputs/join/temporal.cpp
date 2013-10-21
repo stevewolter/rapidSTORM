@@ -7,8 +7,6 @@
 #include <boost/bind/bind.hpp>
 #include <boost/mpl/for_each.hpp>
 
-#include <dStorm/traits/scalar.h>
-#include <dStorm/traits/scalar_iterator.h>
 #include <dStorm/localization/field_index_enumeration.h>
 
 namespace dStorm {
@@ -46,26 +44,26 @@ struct merge_localization_traits {
 
     void operator()( Exception, GenTraits& _onto, const GenTraits& _with ) {}
     template <typename Field>
-    void operator()( Field, GenTraits& onto, const GenTraits& with )
+    void operator()( Field, GenTraits& onto_traits, const GenTraits& with_traits )
     {
         typedef typename boost::fusion::result_of::value_at<Localization, Field >::type::Traits Traits;
+        Traits& onto = onto_traits;
+        const Traits& with = with_traits;
         if ( ! Traits::has_range ) return;
-        typedef traits::Scalar< Traits > Scalar;
 
-        for ( typename Scalar::Iterator i = Scalar::begin(); i != Scalar::end(); ++i )
-        {
-            if ( ! i->is_given(with) ) i->is_given(onto) = false;
-
-            if ( i->range(onto).first.is_initialized() && i->range(with).first.is_initialized() )
-                i->range(onto).first = std::min( *i->range(onto).first, *i->range(with).first );
-            else
-                i->range(onto).first.reset();
-
-            if ( i->range(onto).second.is_initialized() && i->range(with).second.is_initialized() )
-                i->range(onto).second = std::max( *i->range(onto).second, *i->range(with).second );
-            else
-                i->range(onto).second.reset();
+        if ( ! with.is_given ) {
+          onto.is_given = false;
         }
+
+        if ( onto.range().first.is_initialized() && with.range().first.is_initialized() )
+            onto.range().first = std::min( *onto.range().first, *with.range().first );
+        else
+            onto.range().first.reset();
+
+        if ( onto.range().second.is_initialized() && with.range().second.is_initialized() )
+            onto.range().second = std::max( *onto.range().second, *with.range().second );
+        else
+            onto.range().second.reset();
     }
 };
 

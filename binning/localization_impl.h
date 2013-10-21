@@ -10,34 +10,29 @@ namespace dStorm {
 namespace binning {
 
 template <int Index>
-Localization<Index,IsUnscaled>::Localization(int row, int column)
-: scalar(row, column)
+Localization<Index,IsUnscaled>::Localization() {}
+
+template <int Index>
+Localization<Index,Bounded>::Localization()
+: Base(), discard( true ) {}
+
+template <int Index>
+Localization<Index,ScaledByResolution>::Localization(value res) 
+: Base(), scale(1.0f / quantity<typename value::unit_type,float>(res))
 {
+    DEBUG("Scale factor for field " << Index << " is " << scale);
 }
 
 template <int Index>
-Localization<Index,Bounded>::Localization(int row, int column)
-: Base(row, column), discard( true )
+Localization<Index,ScaledToInterval>::Localization(float desired_range) 
+: Base(), desired_range(desired_range)
 {
+    DEBUG("Desired range for field " << Index << " is " << desired_range);
 }
 
 template <int Index>
-Localization<Index,ScaledByResolution>::Localization(value res, int row, int column) 
-: Base(row, column), scale(1.0f / quantity<typename value::unit_type,float>(res))
-{
-    DEBUG("Scale factor for field " << Index << ":" << row << ":" << column << " is " << scale);
-}
-
-template <int Index>
-Localization<Index,ScaledToInterval>::Localization(float desired_range, int row, int column) 
-: Base(row, column), desired_range(desired_range)
-{
-    DEBUG("Desired range for field " << Index << ":" << row << ":" << column << " is " << desired_range);
-}
-
-template <int Index>
-Localization<Index,InteractivelyScaledToInterval>::Localization(float desired_range, int row, int column) 
-: Base(desired_range, row, column)
+Localization<Index,InteractivelyScaledToInterval>::Localization(float desired_range) 
+: Base(desired_range)
 {
     not_given.set();
 }
@@ -46,7 +41,7 @@ template <int Index>
 typename Localization<Index,IsUnscaled>::value
 Localization<Index,IsUnscaled>::bin_naively( const dStorm::Localization& l ) const
 {
-    return scalar.value(boost::fusion::at_c<Index>(l).value());
+    return boost::fusion::at_c<Index>(l).value();
 }
 
 template <int Index>
@@ -209,18 +204,18 @@ template <int Index>
 void Localization<Index,Bounded>::announce(const output::Output::Announcement& a) 
 { 
     Base::announce(a);
-    if ( ! Base::scalar.range(a).first.is_initialized() || ! Base::scalar.range(a).second.is_initialized() ) {
+    const TraitsType& traits = a;
+    if ( ! traits.range().first.is_initialized() || ! traits.range().second.is_initialized() ) {
         std::stringstream message;
-        if ( ! Base::scalar.range(a).first.is_initialized() ) message << "lower";
-        if ( ! Base::scalar.range(a).first.is_initialized() && ! Base::scalar.range(a).second.is_initialized() )
+        if ( ! traits.range().first.is_initialized() ) message << "lower";
+        if ( ! traits.range().first.is_initialized() && ! traits.range().second.is_initialized() )
             message << " and ";
-        if ( ! Base::scalar.range(a).second.is_initialized() ) message << "upper";
+        if ( ! traits.range().second.is_initialized() ) message << "upper";
         message << " bound not set for field " << TraitsType::get_ident();
-        if ( TraitsType::Rows > 1 ) message << " in " << dimen_name( Base::scalar.row() );
         throw std::runtime_error(message.str());
     }
-    range[0] = *Base::scalar.range(a).first; 
-    range[1] = *Base::scalar.range(a).second; 
+    range[0] = *traits.range().first; 
+    range[1] = *traits.range().second; 
 }
 
 template <int Index>
@@ -234,7 +229,7 @@ void Localization<Index,ScaledToInterval>::announce(const output::Output::Announ
 template <int Index>
 void Localization<Index,InteractivelyScaledToInterval>::announce(const output::Output::Announcement& a) 
 { 
-    orig_range = Base::scalar.range(a);
+    orig_range = static_cast<const TraitsType&>(a).range();
     if ( orig_range.first.is_initialized() && ! user.test(0) ) 
         { Base::range[0] = * orig_range.first; not_given.reset(0); }
     if ( orig_range.second.is_initialized() && ! user.test(1) ) 
@@ -252,7 +247,7 @@ template <int Index>
 float Localization<Index,ScaledByResolution>::get_size() const
 {
     float rv = Base::get_size() * scale.value();
-    DEBUG( "Size for field " << Index << ":" << Base::scalar.row() << ":" << Base::scalar.column() << " is " << rv );
+    DEBUG( "Size for field " << Index << " is " << rv );
     return rv;
 }
 template <int Index>
@@ -284,35 +279,34 @@ traits::ImageResolution Localization<Index,ScaledByResolution>::resolution() con
 }
 
 template <int Index>
-bool Localization<Index,IsUnscaled>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,IsUnscaled>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
-    traits::Scalar<TraitsType> s(row, column);
-    return s.is_given(t);
+    return static_cast<const TraitsType&>(t).is_given;
 } 
 
 template <int Index>
-bool Localization<Index,Bounded>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,Bounded>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
-    traits::Scalar<TraitsType> s(row, column);
-    return Base::can_work_with(t, row, column) && s.range(t).first.is_initialized() && s.range(t).second.is_initialized();
+  const TraitsType& traits = t;
+  return Base::can_work_with(t) && traits.range().first.is_initialized() && traits.range().second.is_initialized();
 }
 
 template <int Index>
-bool Localization<Index,ScaledByResolution>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,ScaledByResolution>::can_work_with( const input::Traits<dStorm::Localization>& t)
 {
-    return Base::can_work_with(t, row, column);
+    return Base::can_work_with(t);
 }
 
 template <int Index>
-bool Localization<Index,ScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,ScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t)
 {
-    return Base::can_work_with(t, row, column);
+    return Base::can_work_with(t);
 }
 
 template <int Index>
-bool Localization<Index,InteractivelyScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,InteractivelyScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
-    return traits::Scalar<TraitsType>(row, column).is_given(t);
+    return static_cast<const TraitsType&>(t).is_given;
 }
 
 template <int Index>

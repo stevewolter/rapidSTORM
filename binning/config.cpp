@@ -25,14 +25,12 @@ template <int Field>
 void FieldChoice::fill(BinningType type, std::string axis)
 {
     typedef typename Localization<Field,false>::TraitsType Traits;
-    for (int i = 0; i < Traits::Rows; ++i)
-        for (int j = 0; j < Traits::Cols; ++j)
-            if ( type == ScaledToInterval || type == InteractivelyScaledToInterval )
-                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, 1.0f , i, j)) );
-            else if ( (Traits::has_range && type == ScaledByResolution) )
-                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, true, i, j)) );
-            else if ( type == IsUnscaled )
-                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, false, i, j)) );
+    if ( type == ScaledToInterval || type == InteractivelyScaledToInterval )
+        addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, 1.0f)) );
+    else if ( (Traits::has_range && type == ScaledByResolution) )
+        addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, true) ));
+    else if ( type == IsUnscaled )
+        addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, false) ));
     fill<Field+1>(type, axis);
 }
 

@@ -1,7 +1,5 @@
 #include "SimpleFilters.h"
 #include "LValue.h"
-#include "localization_variable_impl.h"
-#include <dStorm/traits/tags.h>
 #include <boost/bind/bind.hpp>
 #include <boost/units/cmath.hpp>
 

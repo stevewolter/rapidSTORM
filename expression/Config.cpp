@@ -6,8 +6,6 @@
 #include <dStorm/Localization.h>
 #include <dStorm/localization/Traits.h>
 #include <simparm/Entry.h>
-#include <dStorm/traits/scalar_iterator.h>
-#include <dStorm/traits/tags.h>
 #include <boost/mpl/for_each.hpp>
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/output/Capabilities.h>
