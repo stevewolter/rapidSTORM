@@ -74,12 +74,14 @@ ROIFilter::ROIFilter(
 dStorm::output::Output::AdditionalData
 ROIFilter::announceStormSize(const Announcement &a)
 {
-    is_3d = a.position().is_given[2];
+    is_3d = a.position_z().is_given;
     Announcement my_announcement = a;
-    for ( int i = 0; i < to.rows(); ++i ) {
-        my_announcement.position().range()[i].first = from[i];
-        my_announcement.position().range()[i].second = to[i];
-    }
+    my_announcement.position_x().range().first = from.x();
+    my_announcement.position_y().range().first = from.y();
+    my_announcement.position_z().range().first = from.z();
+    my_announcement.position_x().range().second = to.x();
+    my_announcement.position_y().range().second = to.y();
+    my_announcement.position_z().range().second = to.z();
     return Filter::announceStormSize(my_announcement);
 }
 

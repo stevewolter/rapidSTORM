@@ -25,15 +25,14 @@ operator<<(std::ostream &o, const Localization& loc)
 
 Localization::Localization() {}
 
-Localization::Localization( 
-    const Position::Type& position,
-    Amplitude::Type strength
-)
-: position(position), amplitude(strength)
+Localization::Localization(const samplepos& position, Amplitude::Type strength)
+: position_x(position.x()), position_y(position.y()), position_z(position.z()), amplitude(strength)
 {}
 
 Localization::Localization( const Localization& l )
-: position(l.position),
+: position_x(l.position_x),
+  position_y(l.position_y),
+  position_z(l.position_z),
   position_uncertainty_x(l.position_uncertainty_x),
   position_uncertainty_y(l.position_uncertainty_y),
   position_uncertainty_z(l.position_uncertainty_z),

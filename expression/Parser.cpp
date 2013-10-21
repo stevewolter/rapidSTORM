@@ -238,7 +238,7 @@ test inputs[] = {
 void test_parser( TestState& state ) {
     Parser parser;
     dStorm::input::Traits<dStorm::Localization> traits;
-    traits.position().is_given(0,0) = true;
+    traits.position_x().is_given = true;
     Simplifier s( traits, parser.get_variable_table() );
     UnitChecker c( traits, parser.get_variable_table() );
     Evaluator v( parser.get_variable_table() );

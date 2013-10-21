@@ -98,7 +98,7 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
 
     const gaussian_psf::BaseExpression& only_kernel = m[0];
 
-    Localization::Position::Type pos;
+    samplepos pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
     pos.x() = only_kernel( gaussian_psf::Mean<0>() ) * 1E-6 * si::meter;
     pos.y() = only_kernel( gaussian_psf::Mean<1>() ) * 1E-6 * si::meter;

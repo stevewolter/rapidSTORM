@@ -198,7 +198,8 @@ Output::announceStormSize(const Announcement &a)
     static_cast< dStorm::input::Traits<Localization>& >(my_announcement) 
         = dStorm::input::Traits<Localization>();
     my_announcement.in_sequence = true;
-    my_announcement.position().is_given.head<2>().fill(true);
+    my_announcement.position_x().is_given = true;
+    my_announcement.position_y().is_given = true;
     my_announcement.amplitude() = a.amplitude();
     my_announcement.image_number() = a.image_number();
     my_announcement.source_traits.push_back( 

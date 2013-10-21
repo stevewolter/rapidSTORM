@@ -81,11 +81,11 @@ static std::string guess_ident_from_semantic(const TiXmlElement& n) {
     const char *semantic_attrib = n.Attribute("semantic");
     if ( semantic_attrib != NULL ) semantic = semantic_attrib;
     if ( semantic == "x-position" )
-        return LocalizationField<Localization::Fields::Position>::identifier(0,0);
+        return LocalizationField<Localization::Fields::PositionX>::identifier(0,0);
     else if ( semantic == "y-position" )
-        return LocalizationField<Localization::Fields::Position>::identifier(1,0);
+        return LocalizationField<Localization::Fields::PositionY>::identifier(0,0);
     else if ( semantic == "z-position" )
-        return LocalizationField<Localization::Fields::Position>::identifier(2,0);
+        return LocalizationField<Localization::Fields::PositionZ>::identifier(0,0);
     else if ( semantic == "frame number" )
         return LocalizationField<Localization::Fields::ImageNumber>::identifier(0,0);
     else if ( semantic == "emission strength" )
@@ -173,7 +173,8 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
     if ( TraitsType::has_range ) {
         /* Backward compatibility: Old versions of the XML syntax didn't require lower boundaries for the
           * spatial coordinates, but implied 0. */
-        if ( Index == Localization::Fields::Position && row < 2 && column == 0 && node.Attribute("min") == NULL && node.Attribute("identifier")  == NULL ) {
+        if ( (Index == Localization::Fields::PositionX || Index == Localization::Fields::PositionY || Index == Localization::Fields::PositionZ)
+             && node.Attribute("min") == NULL && node.Attribute("identifier")  == NULL ) {
             DEBUG("Setting field minimum to 0");
             scalar.range(traits).first = Scalar::range_type::first_type::value_type::from_value(0);
         }

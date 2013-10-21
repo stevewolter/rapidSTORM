@@ -20,11 +20,34 @@ const ImageNumber::ValueType ImageNumber::default_value
     = ImageNumber::ValueType::from_value(-1);
 std::string ImageNumber::get_shorthand() { return "frame"; }
 
-std::string Position::get_ident() { return "Position"; }
-std::string Position::get_desc() { return "position in sample space"; }
-std::string Position::get_shorthand() { return "pos"; }
-const Position::ValueType Position::default_value
-    = Position::ValueType::Constant( Position::ValueType::Scalar::from_value(0) );
+template <>
+std::string PositionX::get_ident() { return "Position-0-0"; }
+template <>
+std::string PositionX::get_desc() { return "position in sample space in X"; }
+template <>
+std::string PositionX::get_shorthand() { return "posx"; }
+template <>
+const PositionX::ValueType PositionX::default_value
+    = PositionX::ValueType::from_value(0);
+
+template <>
+std::string PositionY::get_ident() { return "Position-1-0"; }
+template <>
+std::string PositionY::get_desc() { return "position in sample space in Y"; }
+template <>
+std::string PositionY::get_shorthand() { return "posy"; }
+template <>
+const PositionY::ValueType PositionY::default_value
+    = PositionY::ValueType::from_value(0);
+
+template <>
+std::string PositionZ::get_ident() { return "Position-2-0"; }
+template <>
+std::string PositionZ::get_desc() { return "position in sample space in Z"; }
+template <>
+std::string PositionZ::get_shorthand() { return "posz"; }
+template <>
+const PositionZ::ValueType PositionZ::default_value = PositionZ::ValueType::from_value(0);
 
 template <> std::string PositionUncertaintyX::get_ident() { return "Position-0-0-uncertainty"; }
 template <> std::string PositionUncertaintyX::get_desc() { return "position uncertainty in sample space in X"; }

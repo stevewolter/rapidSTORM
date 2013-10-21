@@ -26,7 +26,7 @@ struct Verbose
     Verbose* clone() const;
 
     AdditionalData announceStormSize(const Announcement& a) { 
-        log = "Verbose plugin got announcement with " + boost::lexical_cast<std::string>(a.position().upper_limits().transpose());
+        log = "Verbose plugin got announcement";
         return AdditionalData(); 
     }
     RunRequirements announce_run(const RunAnnouncement&) {

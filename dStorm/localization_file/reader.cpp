@@ -65,8 +65,7 @@ int File::number_of_newlines() {
 
 localization::Record Source::iterator::read_localization( int level )
 {
-    typedef Localization::Position::Type Pos;
-    static const Pos no_shift = Pos::Zero();
+    static const samplepos no_shift = samplepos::Zero();
 
     static std::string missing_image_line("# No localizations in image ");
 

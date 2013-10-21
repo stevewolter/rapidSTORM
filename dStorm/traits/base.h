@@ -16,37 +16,7 @@ namespace dStorm {
 namespace traits {
 
 template <int Rows, int Cols>
-struct MatrixOrScalar {
-    template <typename Scalar, typename Constness = typename boost::is_const<Scalar>::type>
-    struct value; 
-
-    static const bool is_scalar = false;
-
-    template <class Functor>
-    static inline typename value<typename Functor::result_type>::type
-        apply( Functor& f, 
-               typename value<typename Functor::argument_type>::type& t );
-    template <class Functor>
-    static inline typename value<typename Functor::result_type>::type
-        apply( Functor& f, 
-               typename value<typename Functor::first_argument_type>::type& t1,
-               typename value<typename Functor::second_argument_type>::type& t2);
-};
-
-template <int Rows, int Cols>
-template <typename Scalar>
-struct MatrixOrScalar<Rows,Cols>::value<Scalar, boost::true_type>
-{ 
-    typedef const Eigen::Matrix<typename boost::remove_const<Scalar>::type,Rows,Cols, Eigen::DontAlign> type; 
-};
-
-template <int Rows, int Cols>
-template <typename Scalar>
-struct MatrixOrScalar<Rows,Cols>::value<Scalar, boost::false_type>
-{ 
-    typedef Eigen::Matrix<Scalar,Rows,Cols, Eigen::DontAlign> type; 
-    static void init( type& t, const Scalar& v ) { t.fill( v ); }
-};
+struct MatrixOrScalar;
 
 template <>
 struct MatrixOrScalar<1,1> {

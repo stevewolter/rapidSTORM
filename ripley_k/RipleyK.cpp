@@ -3,6 +3,7 @@
 #include "DistanceHistogram.h"
 #include <simparm/FileEntry.h>
 #include <dStorm/units/nanolength.h>
+#include "binning/binning.hpp"
 #include "binning/localization.h"
 #include <dStorm/output/OutputBuilder.h>
 #include <boost/ptr_container/ptr_array.hpp>
@@ -39,9 +40,8 @@ struct Config
 
 class Output : public dStorm::output::Output {
     simparm::FileEntry filename;
-    typedef binning::Localization< Localization::Fields::Position, binning::ScaledByResolution > Scaler;
     boost::optional<Histogram> histogram;
-    boost::ptr_array< Scaler, 2 > scalers;
+    boost::ptr_array< binning::Scaled, 2 > scalers;
     const quantity<si::length> bin_size, max_distance;
     quantity<si::area> measured_area;
     long int localization_count;
@@ -72,9 +72,11 @@ Output::Output( const Config& config )
   localization_count( 0 ),
   periodic( config.periodic_boundary() )
 {
-    Scaler::value v( config.bin_size() );
-    for (int i = 0; i < 2; ++i )
-        scalers.replace(i, new Scaler(v,i,0) );
+    quantity<si::length, float> v( config.bin_size() );
+    scalers.replace(0, binning::make_BinningAdapter<binning::Scaled>(
+          binning::Localization< Localization::Fields::PositionX, binning::ScaledByResolution >(v,0,0) ));
+    scalers.replace(1, binning::make_BinningAdapter<binning::Scaled>(
+          binning::Localization< Localization::Fields::PositionY, binning::ScaledByResolution >(v,0,0) ));
 }
 
 Output::AdditionalData Output::announceStormSize(const Announcement& a) {
@@ -85,8 +87,8 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
         range[i] = scalers[i].get_size();
     histogram = Histogram( range, max_distance / bin_size, periodic );
     measured_area = 
-        ( *a.position().range().x().second - *a.position().range().x().first ) *
-        ( *a.position().range().y().second - *a.position().range().y().first );
+        ( *a.position_x().range().second - *a.position_x().range().first ) *
+        ( *a.position_y().range().second - *a.position_y().range().first );
     return Output::AdditionalData();
 }
 

@@ -99,10 +99,10 @@ Engine::TraitsPtr Engine::get_traits(Wishes w) {
         convert_traits(config, *imProp);
 
     std::pair<samplepos,samplepos> size = imProp->size_in_sample_space();
-    for (int i = 0; i < 2; ++i) {
-        prv->position().range()[i].first = size.first[i];
-        prv->position().range()[i].second = size.second[i];
-    }
+    prv->position_x().range().first = size.first.x();
+    prv->position_y().range().first = size.first.y();
+    prv->position_x().range().second = size.second.x();
+    prv->position_y().range().second = size.second.y();
 
     prv->carburettor = input.get();
     prv->image_number().is_given = true;

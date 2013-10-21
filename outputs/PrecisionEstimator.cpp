@@ -291,7 +291,7 @@ PrecisionEstimator::PrecisionEstimator
 Output::AdditionalData
 PrecisionEstimator::announceStormSize(const Announcement& a)
 {
-    used_dimensions = a.position().is_given(2,0);
+    used_dimensions = a.position_z().is_given;
     return AdditionalData().set_cluster_sources();
 }
 

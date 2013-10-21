@@ -19,13 +19,14 @@ struct NumTraits< boost::optional<Type> > : public NumTraits< Type > {};
 namespace dStorm {
 namespace traits {
 
-struct Position;
-template <> struct value< Position > :
-    public derived_value< samplepos > {};
+template <int Dimension> struct Position;
+template <int Dimension> struct value< Position<Dimension> > :
+    public Value< samplepos::Scalar > {};
 
+template <int Dimension>
 struct Position 
-: public value<Position>,
-  public Range<Position>
+: public Value<samplepos::Scalar>,
+  public Range<Position<Dimension> >
 {
     typedef quantity< si::nanolength, float > OutputType;
     typedef quantity< nanometer_pixel_size, float > user_resolution_type;
@@ -33,8 +34,12 @@ struct Position
     static std::string get_ident();
     static std::string get_desc();
     static std::string get_shorthand();
-    static const ValueType default_value;
+    static const samplepos::Scalar default_value;
 };
+
+typedef Position<0> PositionX;
+typedef Position<1> PositionY;
+typedef Position<2> PositionZ;
 
 }
 }

@@ -142,10 +142,10 @@ void create_localization_fields( const Field::Traits& traits, Field::Fields& res
 std::auto_ptr<Field> Field::construct_xyztI( const Field::Traits& traits )
 {
     std::auto_ptr<ChildrenField> rv( new ChildrenField(traits) );
-    rv->add_field( new LocalizationField< Localization::Fields::Position >(0) );
-    rv->add_field( new LocalizationField< Localization::Fields::Position >(1) );
-    if ( traits.position().is_given[2] )
-        rv->add_field( new LocalizationField< Localization::Fields::Position >(2) );
+    rv->add_field( new LocalizationField< Localization::Fields::PositionX >() );
+    rv->add_field( new LocalizationField< Localization::Fields::PositionY >() );
+    if ( traits.position_z().is_given )
+        rv->add_field( new LocalizationField< Localization::Fields::PositionZ >() );
     rv->add_field( new LocalizationField< Localization::Fields::ImageNumber >() );
     rv->add_field( new LocalizationField< Localization::Fields::Amplitude >() );
     return std::auto_ptr<Field>(rv.release());

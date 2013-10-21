@@ -91,10 +91,10 @@ void Output::BuildSpot(const Localization& localization, TSF::Spot* spot) {
   spot->set_channel(1);
   spot->set_frame(localization.frame_number() / camera::frame + 1);
 
-  spot->set_x(localization.position().x() / (1E-9 * si::metre));
-  spot->set_y(localization.position().y() / (1E-9 * si::metre));
-  if (traits.position().is_given.z()) {
-    spot->set_z(localization.position().y() / (1E-9 * si::metre));
+  spot->set_x(localization.position_x() / (1E-9 * si::metre));
+  spot->set_y(localization.position_y() / (1E-9 * si::metre));
+  if (traits.position_z().is_given) {
+    spot->set_z(localization.position_z() / (1E-9 * si::metre));
   }
 
   if (traits.position_uncertainty_x().is_given) {

@@ -32,16 +32,17 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
             }
     }
     if ( ! is_empty( z_range ) ) {
-        traits.position().range().z().first = float(lower( z_range ) * 1E-6) * si::meter;
-        traits.position().range().z().second = float(upper( z_range ) * 1E-6) * si::meter;
+        traits.position_z().range().first = float(lower( z_range ) * 1E-6) * si::meter;
+        traits.position_z().range().second = float(upper( z_range ) * 1E-6) * si::meter;
     }
 
     traits.psf_width_x().is_given = config.output_sigmas();
     traits.psf_width_y().is_given = config.output_sigmas();
-    traits.position().is_given.head<2>().fill( true );
-    traits.position().is_given[2] = have_z_information;
-    traits.amplitude().is_given= true;
-    traits.fit_residues().is_given= true;
+    traits.position_x().is_given = true;
+    traits.position_y().is_given = true;
+    traits.position_z().is_given = have_z_information;
+    traits.amplitude().is_given = true;
+    traits.fit_residues().is_given = true;
     traits.local_background().is_given = (info.traits.plane_count() <= 1);
     traits.fluorophore().is_given = true;
     traits.two_kernel_improvement().is_given= config.two_kernel_fitting();
@@ -55,7 +56,8 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
         boost::shared_ptr< input::Traits<Localization> > p( new input::Traits<Localization>() );
         p->local_background().is_given = true;
         p->amplitude().is_given = config.disjoint_amplitudes();
-        p->position().is_given.head<2>().fill( config.laempi_fit() );
+        p->position_x().is_given = config.laempi_fit();
+        p->position_y().is_given = config.laempi_fit();
         p->repetitions = info.traits.plane_count();
         for (int i = 0; i < info.traits.plane_count(); ++i ) {
             bool have_uncertainty = can_compute_uncertainty( info.traits.plane(i) );

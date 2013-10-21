@@ -142,7 +142,7 @@ public:
         return RunRequirements();
     }
     AdditionalData announceStormSize(const Announcement &a) {
-        if ( ! a.position().is_given.z() )
+        if ( ! a.position_z().is_given )
             throw std::runtime_error("Z ground truth is not given for sigma curve generation");
         if ( ! a.psf_width_x().is_given )
             throw std::runtime_error("PSF width in X is not given for sigma curve generation");

@@ -19,8 +19,12 @@ namespace dStorm {
 
 class Localization  { 
   public:
-    typedef localization::Field<traits::Position> Position; 
-        Position position;
+    typedef localization::Field<traits::PositionX> PositionX; 
+        PositionX position_x;
+    typedef localization::Field<traits::PositionY> PositionY; 
+        PositionY position_y;
+    typedef localization::Field<traits::PositionZ> PositionZ; 
+        PositionZ position_z;
     typedef localization::Field<traits::PositionUncertaintyX> PositionUncertaintyX; 
         PositionUncertaintyX position_uncertainty_x;
     typedef localization::Field<traits::PositionUncertaintyY> PositionUncertaintyY; 
@@ -44,7 +48,7 @@ class Localization  {
     typedef localization::Field<traits::LocalBackground> LocalBackground; 
         LocalBackground local_background;
     struct Fields {
-        enum Indices { Position, PositionUncertaintyX, PositionUncertaintyY, PositionUncertaintyZ, ImageNumber, Amplitude, PSFWidthX, PSFWidthY, TwoKernelImprovement, FitResidues, Fluorophore, LocalBackground, Count };
+        enum Indices { PositionX, PositionY, PositionZ, PositionUncertaintyX, PositionUncertaintyY, PositionUncertaintyZ, ImageNumber, Amplitude, PSFWidthX, PSFWidthY, TwoKernelImprovement, FitResidues, Fluorophore, LocalBackground, Count };
     };
     template <int Index>
     struct Traits {
@@ -69,8 +73,7 @@ class Localization  {
     inline const_iterator end() const;
 
     Localization();
-    Localization( const Position::Type& position, 
-                    Amplitude::Type strength );
+    Localization( const samplepos& position, Amplitude::Type strength );
     Localization( const Localization& );
     ~Localization();
 
@@ -93,6 +96,23 @@ class Localization  {
             default: throw std::logic_error("Unknown position uncertainty index");
         }
     }
+
+    samplepos position() const {
+        samplepos rv;
+        rv.x() = position_x();
+        rv.y() = position_y();
+        rv.z() = position_z();
+        return rv;
+    }
+
+    void set_position(int dimension, samplepos::Scalar value) {
+        switch (dimension) {
+            case 0: position_x = value;
+            case 1: position_y = value;
+            case 2: position_z = value;
+            default: throw std::logic_error("Unknown position index");
+        }
+    }
 };
 
 std::ostream&
@@ -102,7 +122,9 @@ operator<<(std::ostream &o, const Localization& loc);
 
 BOOST_FUSION_ADAPT_STRUCT(
     dStorm::Localization,
-    (dStorm::Localization::Position, position)
+    (dStorm::Localization::PositionX, position_x)
+    (dStorm::Localization::PositionY, position_y)
+    (dStorm::Localization::PositionZ, position_z)
     (dStorm::Localization::PositionUncertaintyX, position_uncertainty_x)
     (dStorm::Localization::PositionUncertaintyY, position_uncertainty_y)
     (dStorm::Localization::PositionUncertaintyZ, position_uncertainty_z)

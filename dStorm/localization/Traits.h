@@ -32,7 +32,9 @@ template <>
 struct Traits< Localization > 
 : public input::BaseTraits,
   public DataSetTraits,
-  public traits::Position,
+  public traits::PositionX,
+  public traits::PositionY,
+  public traits::PositionZ,
   public traits::PositionUncertaintyX,
   public traits::PositionUncertaintyY,
   public traits::PositionUncertaintyZ,
@@ -53,7 +55,9 @@ struct Traits< Localization >
 #define ACCESSORS(x,n) \
     x& n() { return *this; } \
     const x& n() const { return *this; }
-    ACCESSORS(traits::Position,position)
+    ACCESSORS(traits::PositionX,position_x)
+    ACCESSORS(traits::PositionY,position_y)
+    ACCESSORS(traits::PositionZ,position_z)
     ACCESSORS(traits::PositionUncertaintyX,position_uncertainty_x)
     ACCESSORS(traits::PositionUncertaintyY,position_uncertainty_y)
     ACCESSORS(traits::PositionUncertaintyZ,position_uncertainty_z)

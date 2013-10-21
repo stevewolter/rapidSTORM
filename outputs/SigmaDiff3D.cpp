@@ -60,10 +60,11 @@ SigmaDiff3D::announceStormSize(const Announcement& a) {
         throw std::runtime_error("PSF width must be fitted and stored for sigma diff 3D");
 
     Announcement my_announcement(a);
-    my_announcement.position().is_given[2] = true;
+    my_announcement.position_x().is_given = true;
+    my_announcement.position_y().is_given = true;
     threed_info::ZRange z_range = spline_x.z_range() & spline_y.z_range();
-    my_announcement.position().range().z().first = float(lower( z_range ) * 1E-6) * si::meter;
-    my_announcement.position().range().z().second = float(upper( z_range ) * 1E-6) * si::meter;
+    my_announcement.position_z().range().first = float(lower( z_range ) * 1E-6) * si::meter;
+    my_announcement.position_z().range().second = float(upper( z_range ) * 1E-6) * si::meter;
     return Filter::announceStormSize( my_announcement );
 }
 

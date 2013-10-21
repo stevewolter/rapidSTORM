@@ -7,6 +7,7 @@
 namespace dStorm {
 namespace expression {
 
+#if 0
 class PositionVariable : public Variable {
  public:
   PositionVariable(std::string name, int index) : Variable(name), index(index) {}
@@ -19,7 +20,13 @@ class PositionVariable : public Variable {
   Variable* clone() const { return new PositionVariable(*this); }
 
   bool is_static(const input::Traits<Localization>& traits) const {
-    return traits.position().static_value;
+    if (index == 0) {
+      return traits.position_x().static_value;
+    } else if (index == 1) {
+      return traits.position_y().static_value;
+    } else if (index == 2) {
+      return traits.position_z().static_value;
+    }
   }
 
   DynamicQuantity get(const input::Traits<Localization>& traits) const {
@@ -103,11 +110,11 @@ class PositionBoundVariable : public Variable {
   int bound;
   QuantityDynamizer< quantity<si::length> > dynamizer;
 };
+#endif
 
 
 /** \cond */
 template <int Field> struct FieldAdder;
-template <> struct FieldAdder<Localization::Fields::Position>;
 template <> struct FieldAdder<Localization::Fields::Count>;
 
 template <>
@@ -136,23 +143,6 @@ struct FieldAdder : public FieldAdder<Field+1> {
     }
 };
 
-template <>
-struct FieldAdder<Localization::Fields::Position>
-: public FieldAdder<Localization::Fields::Position+1> {
-    boost::ptr_vector<Variable>& target;
-    FieldAdder( boost::ptr_vector<Variable>& target )
-        : FieldAdder<Localization::Fields::Position+1>(target), target(target) {}
-
-    void add_variables_for_field() const {
-      for (int i = 0; i < 3; ++i) {
-        std::string dim = (i == 0) ? "x" : (i == 1) ? "y" : "z";
-        target.push_back( new PositionVariable("pos" + dim, i) );
-        target.push_back( new PositionBoundVariable("posmin" + dim, i, 0) );
-        target.push_back( new PositionBoundVariable("posmax" + dim, i, 1) );
-      }
-    }
-};
-
 /** \endcond */
 
 std::auto_ptr< boost::ptr_vector<Variable> >
@@ -168,7 +158,7 @@ void check_localization_variable( TestState& state ) {
 
     loc.position().x() = 15 * boost::units::si::meter;
 
-    LocalizationVariable<0,dStorm::traits::value_tag> v( dStorm::traits::Scalar< dStorm::traits::Position >(0,0) );
+    LocalizationVariable<0,dStorm::traits::value_tag> v( dStorm::traits::Scalar< dStorm::traits::PositionX >(0,0) );
 
     try {
         v.get(traits);
@@ -179,7 +169,7 @@ void check_localization_variable( TestState& state ) {
     meter_only[ *UnitTable().find("m") ] = 1;
     DynamicQuantity fifteen_meters( 15, meter_only );
 
-    traits.position().is_given(0,0) = true;
+    traits.position_x().is_given = true;
     state( v.is_static(traits) == false );
     state( v.get(traits) != fifteen_meters );
     state( v.get(loc) == fifteen_meters );
