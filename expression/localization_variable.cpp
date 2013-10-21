@@ -61,7 +61,7 @@ class MinVariable : public Variable {
   DynamicQuantity get(const input::Traits<Localization>& localization_traits) const {
     const TraitsType& traits = localization_traits;
     if (traits.range().first) {
-      return dynamizer(*traits.range().second);
+      return dynamizer(*traits.range().first);
     } else {
       throw std::runtime_error("Tried to read variable " + name + ", but it is not defined.");
     }
@@ -76,11 +76,46 @@ class MinVariable : public Variable {
   }
 
   bool set( const input::Traits<Localization>& traits, Localization& localization, const DynamicQuantity& value ) const {
-    return *static_cast<const TraitsType&>(traits).range().first <= boost::fusion::at_c<Field>(localization);
+    return *static_cast<const TraitsType&>(traits).range().first <= boost::fusion::at_c<Field>(localization).value();
   }
 
  private:
-  QuantityDynamizer< quantity<si::length> > dynamizer;
+  QuantityDynamizer<  typename TraitsType::ValueType > dynamizer;
+};
+
+template <int Field>
+class MaxVariable : public Variable {
+  typedef typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Field> >::type::Traits TraitsType;
+ public:
+  MaxVariable() : Variable("max" + TraitsType::get_shorthand()) {}
+
+  Variable* clone() const { return new MaxVariable(*this); }
+
+  bool is_static(const input::Traits<Localization>& traits) const { return true; }
+
+  DynamicQuantity get(const input::Traits<Localization>& localization_traits) const {
+    const TraitsType& traits = localization_traits;
+    if (traits.range().second) {
+      return dynamizer(*traits.range().second);
+    } else {
+      throw std::runtime_error("Tried to read variable " + name + ", but it is not defined.");
+    }
+  }
+
+  DynamicQuantity get(const Localization& localization) const {
+    throw std::logic_error("Tried to read dynamic value of static variable " + name);
+  }
+
+  void set( input::Traits<Localization>& traits, const DynamicQuantity& value ) const {
+    static_cast<TraitsType&>(traits).range().second = dynamizer(value);
+  }
+
+  bool set( const input::Traits<Localization>& traits, Localization& localization, const DynamicQuantity& value ) const {
+    return *static_cast<const TraitsType&>(traits).range().second >= boost::fusion::at_c<Field>(localization).value();
+  }
+
+ private:
+  QuantityDynamizer< typename TraitsType::ValueType > dynamizer;
 };
 
 
@@ -88,21 +123,32 @@ class MinVariable : public Variable {
 template <int Field> struct FieldAdder;
 template <> struct FieldAdder<Localization::Fields::Count>;
 
+template <int Field, bool has_range>
+struct RangedFieldAdder {
+  static void add_variables_for_field(boost::ptr_vector<Variable>& target) {
+  }
+};
+
+template <int Field>
+struct RangedFieldAdder<Field,false> {
+  static void add_variables_for_field(boost::ptr_vector<Variable>& target) {
+  }
+};
+
 template <>
 struct FieldAdder<Localization::Fields::Count> {
-    FieldAdder( boost::ptr_vector<Variable>& ) {}
-    void add_variables_for_field() const {}
+    static void add_variables_for_field(boost::ptr_vector<Variable>& target) {}
 };
 
 template <int Field>
 struct FieldAdder : public FieldAdder<Field+1> {
-    boost::ptr_vector<Variable>& target;
-    FieldAdder( boost::ptr_vector<Variable>& target )
-        : FieldAdder<Field+1>(target), target(target) {}
-
-    void add_variables_for_field() const {
-        target.push_back( new ValueVariable<Field>() );
-        FieldAdder<Field+1>::add_variables_for_field();
+    static void add_variables_for_field(boost::ptr_vector<Variable>& target) {
+      target.push_back( new ValueVariable<Field>() );
+      if (boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Field> >::type::Traits::has_range) {
+        target.push_back( new MinVariable<Field>() );
+        target.push_back( new MaxVariable<Field>() );
+      }
+      FieldAdder<Field+1>::add_variables_for_field(target);
     }
 };
 
@@ -111,7 +157,7 @@ struct FieldAdder : public FieldAdder<Field+1> {
 std::auto_ptr< boost::ptr_vector<Variable> >
 variables_for_localization_fields() {
     boost::ptr_vector<Variable> rv;
-    FieldAdder<0>(rv).add_variables_for_field();
+    FieldAdder<0>::add_variables_for_field(rv);
     return rv.release();
 }
 
