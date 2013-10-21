@@ -190,7 +190,7 @@ Output::~Output() {
 output::Output::AdditionalData
 Output::announceStormSize(const Announcement &a) 
 {
-    if ( ! a.position_uncertainty().is_given.head<2>().all() )
+    if ( ! a.position_uncertainty_x().is_given || ! a.position_uncertainty_y().is_given )
         throw std::runtime_error("Localization precision is not known to Track Emissions. Either explicitly set the "
                                  "sigmaposx and sigmaposy variables in a Expression Filter or set the optics parameters "
                                  "for counts per photons and dark current.");

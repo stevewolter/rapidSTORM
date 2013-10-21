@@ -21,14 +21,20 @@ class Localization  {
   public:
     typedef localization::Field<traits::Position> Position; 
         Position position;
-    typedef localization::Field<traits::PositionUncertainty> PositionUncertainty; 
-        PositionUncertainty position_uncertainty;
+    typedef localization::Field<traits::PositionUncertaintyX> PositionUncertaintyX; 
+        PositionUncertaintyX position_uncertainty_x;
+    typedef localization::Field<traits::PositionUncertaintyY> PositionUncertaintyY; 
+        PositionUncertaintyY position_uncertainty_y;
+    typedef localization::Field<traits::PositionUncertaintyZ> PositionUncertaintyZ; 
+        PositionUncertaintyZ position_uncertainty_z;
     typedef localization::Field<traits::ImageNumber> ImageNumber; 
         ImageNumber frame_number;
     typedef localization::Field<traits::Amplitude> Amplitude; 
         Amplitude amplitude;
-    typedef localization::Field<traits::PSFWidth> PSFWidth; 
-        PSFWidth psf_width;
+    typedef localization::Field<traits::PSFWidthX> PSFWidthX;
+        PSFWidthX psf_width_x;
+    typedef localization::Field<traits::PSFWidthY> PSFWidthY;
+        PSFWidthY psf_width_y;
     typedef localization::Field<traits::TwoKernelImprovement> TwoKernelImprovement; 
         TwoKernelImprovement two_kernel_improvement;
     typedef localization::Field<traits::FitResidues> FitResidues; 
@@ -38,7 +44,7 @@ class Localization  {
     typedef localization::Field<traits::LocalBackground> LocalBackground; 
         LocalBackground local_background;
     struct Fields {
-        enum Indices { Position, PositionUncertainty, ImageNumber, Amplitude, CovarianceMatrix, TwoKernelImprovement, FitResidues, Fluorophore, LocalBackground, Count };
+        enum Indices { Position, PositionUncertaintyX, PositionUncertaintyY, PositionUncertaintyZ, ImageNumber, Amplitude, PSFWidthX, PSFWidthY, TwoKernelImprovement, FitResidues, Fluorophore, LocalBackground, Count };
     };
     template <int Index>
     struct Traits {
@@ -67,6 +73,26 @@ class Localization  {
                     Amplitude::Type strength );
     Localization( const Localization& );
     ~Localization();
+
+    quantity<si::length> psf_width(int index) const {
+        return (index == 0) ? psf_width_x() : psf_width_y();
+    }
+    quantity<si::length> position_uncertainty(int index) const {
+        switch (index) {
+            case 0: return position_uncertainty_x();
+            case 1: return position_uncertainty_y();
+            case 2: return position_uncertainty_z();
+            default: throw std::logic_error("Unknown position uncertainty index");
+        }
+    }
+    void set_position_uncertainty(int dimension, quantity<si::length,float> uncertainty) {
+        switch (dimension) {
+            case 0: position_uncertainty_x = uncertainty;
+            case 1: position_uncertainty_y = uncertainty;
+            case 2: position_uncertainty_z = uncertainty;
+            default: throw std::logic_error("Unknown position uncertainty index");
+        }
+    }
 };
 
 std::ostream&
@@ -77,10 +103,13 @@ operator<<(std::ostream &o, const Localization& loc);
 BOOST_FUSION_ADAPT_STRUCT(
     dStorm::Localization,
     (dStorm::Localization::Position, position)
-    (dStorm::Localization::PositionUncertainty, position_uncertainty)
+    (dStorm::Localization::PositionUncertaintyX, position_uncertainty_x)
+    (dStorm::Localization::PositionUncertaintyY, position_uncertainty_y)
+    (dStorm::Localization::PositionUncertaintyZ, position_uncertainty_z)
     (dStorm::Localization::ImageNumber, frame_number)
     (dStorm::Localization::Amplitude, amplitude)
-    (dStorm::Localization::PSFWidth, psf_width)
+    (dStorm::Localization::PSFWidthX, psf_width_x)
+    (dStorm::Localization::PSFWidthY, psf_width_y)
     (dStorm::Localization::TwoKernelImprovement, two_kernel_improvement)
     (dStorm::Localization::FitResidues, fit_residues)
     (dStorm::Localization::Fluorophore, fluorophore)

@@ -14,13 +14,17 @@
 namespace dStorm {
 namespace traits {
 
+template <int Dimension>
 struct PositionUncertainty;
-template <> struct value< PositionUncertainty > :
-    public derived_value< samplepos > {};
 
+template <int Dimension>
+struct value< PositionUncertainty<Dimension> > :
+    public Value< quantity<si::length, float> > {};
+
+template <int Dimension>
 struct PositionUncertainty
-: public value<PositionUncertainty>,
-  public NoRange<PositionUncertainty>
+: public value<PositionUncertainty<Dimension> >,
+  public NoRange<PositionUncertainty<Dimension> >
 {
     typedef quantity< si::nanolength, float > OutputType;
     typedef quantity< nanometer_pixel_size, float > user_resolution_type;
@@ -28,8 +32,12 @@ struct PositionUncertainty
     static std::string get_ident();
     static std::string get_desc();
     static std::string get_shorthand();
-    static const ValueType default_value;
+    static const quantity<si::length,float> default_value;
 };
+
+typedef PositionUncertainty<0> PositionUncertaintyX;
+typedef PositionUncertainty<1> PositionUncertaintyY;
+typedef PositionUncertainty<2> PositionUncertaintyZ;
 
 }
 }

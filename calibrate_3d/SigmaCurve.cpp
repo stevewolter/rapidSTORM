@@ -58,8 +58,10 @@ private:
         quantity<camera::intensity> amp;
     public:
         SigmaPair( const Localization& l )
-            : z( l.position().z() ), amp( l.amplitude() ) 
-            { for (int i = 0; i < 2; ++i) s[i] = l.psf_width()[i] / 2.35f; }
+            : z( l.position().z() ), amp( l.amplitude() ) {
+          s[0] = l.psf_width_x() / 2.35f;
+          s[1] = l.psf_width_y() / 2.35f;
+        }
         bool smaller_z( const SigmaPair& o ) const { return z < o.z; }
 
         double scaled_z() const { return z / (1E-6 * si::meter); }
@@ -142,9 +144,9 @@ public:
     AdditionalData announceStormSize(const Announcement &a) {
         if ( ! a.position().is_given.z() )
             throw std::runtime_error("Z ground truth is not given for sigma curve generation");
-        if ( ! a.psf_width().is_given[0] )
+        if ( ! a.psf_width_x().is_given )
             throw std::runtime_error("PSF width in X is not given for sigma curve generation");
-        if ( ! a.psf_width().is_given[1] )
+        if ( ! a.psf_width_y().is_given )
             throw std::runtime_error("PSF width in Y is not given for sigma curve generation");
         return AdditionalData(); 
     }

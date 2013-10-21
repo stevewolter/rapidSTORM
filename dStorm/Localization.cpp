@@ -33,9 +33,14 @@ Localization::Localization(
 {}
 
 Localization::Localization( const Localization& l )
-: position(l.position), position_uncertainty(l.position_uncertainty),
+: position(l.position),
+  position_uncertainty_x(l.position_uncertainty_x),
+  position_uncertainty_y(l.position_uncertainty_y),
+  position_uncertainty_z(l.position_uncertainty_z),
   frame_number(l.frame_number),
-  amplitude(l.amplitude), psf_width(l.psf_width),
+  amplitude(l.amplitude),
+  psf_width_x(l.psf_width_x),
+  psf_width_y(l.psf_width_y),
   two_kernel_improvement(l.two_kernel_improvement), 
   fit_residues(l.fit_residues), fluorophore(l.fluorophore),
   local_background(l.local_background),

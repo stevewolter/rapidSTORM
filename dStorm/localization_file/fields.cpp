@@ -39,7 +39,12 @@ class CovarianceMatrixField
     void parse(std::istream& input, Localization& target) {
         float value;
         input >> value;
-        target.psf_width()[ dir ] = sqrt(value) * 1E-6 * 2.35 * si::meter;
+        quantity<si::length, float> fwhm( sqrt(value) * 1E-6 * 2.35 * si::meter );
+        if (dir == 0) {
+          target.psf_width_x() = fwhm;
+        } else {
+          target.psf_width_y() = fwhm;
+        }
     }
     std::auto_ptr<TiXmlNode> makeNode( const Traits& traits ) 
         { throw std::logic_error("Read-only field written"); }
@@ -52,14 +57,16 @@ public:
             return Ptr();
 
         Direction dir;
-        if ( std::string( ident_attrib ) == "PSFCovarMatrix-0-0" )
+        if ( std::string( ident_attrib ) == "PSFCovarMatrix-0-0" ) {
             dir = Direction_X;
-        else if ( std::string( ident_attrib ) == "PSFCovarMatrix-1-1" )
+            traits.psf_width_x().is_given = true;
+        } else if ( std::string( ident_attrib ) == "PSFCovarMatrix-1-1" ) {
             dir = Direction_Y;
-        else
+            traits.psf_width_y().is_given = true;
+        } else {
             return Ptr();
+        }
 
-        traits.psf_width().is_given[dir] = true;
         return Ptr( new CovarianceMatrixField(dir) );
     }
 

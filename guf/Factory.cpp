@@ -36,7 +36,8 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
         traits.position().range().z().second = float(upper( z_range ) * 1E-6) * si::meter;
     }
 
-    traits.psf_width().is_given.fill( config.output_sigmas() );
+    traits.psf_width_x().is_given = config.output_sigmas();
+    traits.psf_width_y().is_given = config.output_sigmas();
     traits.position().is_given.head<2>().fill( true );
     traits.position().is_given[2] = have_z_information;
     traits.amplitude().is_given= true;
@@ -60,11 +61,15 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
             bool have_uncertainty = can_compute_uncertainty( info.traits.plane(i) );
             all_uncertainties_given = all_uncertainties_given && have_uncertainty;
         }
-        p->position_uncertainty().is_given.head<2>().fill( all_uncertainties_given );
+        p->position_uncertainty_x().is_given = all_uncertainties_given;
+        p->position_uncertainty_y().is_given = all_uncertainties_given;
+        p->position_uncertainty_z().is_given = false;
         traits.source_traits.push_back( p );
     }
 
-    traits.position_uncertainty().is_given.head<2>().fill( all_uncertainties_given );
+    traits.position_uncertainty_x().is_given = all_uncertainties_given;
+    traits.position_uncertainty_y().is_given = all_uncertainties_given;
+    traits.position_uncertainty_z().is_given = false;
     my_traits = traits;
 }
 

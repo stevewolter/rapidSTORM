@@ -54,7 +54,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
         double inv_variance, total_inv_variance = 0;
         for (int p = 0; p < int( by_plane.size() ); ++p ) {
             if ( weight_by_uncertainty )
-                inv_variance = pow(quantity<si::length>(by_plane[p].position_uncertainty()[d]).value() * 1E6, -2.0);
+                inv_variance = pow(quantity<si::length>(by_plane[p].position_uncertainty(d)).value() * 1E6, -2.0);
             else
                 inv_variance = 1.0;
             accum += quantity<si::length>(by_plane[p].position()[d]).value() * 1E6 * inv_variance;
@@ -63,7 +63,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
         if ( laempi_fit )
             result.position()[d] = 1E-6 * si::meter * accum / total_inv_variance;
         if ( weight_by_uncertainty )
-            result.position_uncertainty()[d] = 1E-6 * si::meter * sqrt(1.0 / total_inv_variance);
+            result.set_position_uncertainty(d, samplepos::Scalar(1E-6 * si::meter * sqrt(1.0 / total_inv_variance)));
         // TODO: This should probably be the total, pre-prefactor amplitude, and the others with PF
         result.amplitude() = by_plane[0].amplitude();
     }
@@ -84,11 +84,11 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
     /* Compute/get \sigma */
     for (int i = 0; i < 2; ++i) {
         double psf_variance 
-            = quantity<si::area>(pow<2>( rv.psf_width()(i) / 2.35f )).value() * 1E12 + p.pixel_size / 12.0;
+            = quantity<si::area>(pow<2>( rv.psf_width(i) / 2.35 )).value() * 1E12 + p.pixel_size / 12.0;
         double background_term
             = psf_variance * 8.0 * M_PI * background_variance / (N * p.pixel_size);
-        rv.position_uncertainty()[i] 
-            = sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) ) * 1E-6 * si::meter;
+        rv.set_position_uncertainty(i,
+            samplepos::Scalar(sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) ) * 1E-6 * si::meter));
     }
 }
 
@@ -112,10 +112,10 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
             quantity< camera::intensity, float >
                 ( m.background_model()( constant_background::Amount() ) * data.optics.photon_response() );
     rv.fit_residues = chi_sq;
-    if ( output_sigmas || data.optics.can_compute_localization_precision() )
-        for (int i = 0; i < 2; ++i) {
-            rv.psf_width()(i) = quantity<si::length,float>(only_kernel.get_sigma()[i] * 1E-6 * si::meter) * 2.35f;
-        }
+    if ( output_sigmas || data.optics.can_compute_localization_precision() ) {
+        rv.psf_width_x() = quantity<si::length,float>(only_kernel.get_sigma()[0] * 1E-6 * si::meter) * 2.35f;
+        rv.psf_width_y() = quantity<si::length,float>(only_kernel.get_sigma()[1] * 1E-6 * si::meter) * 2.35f;
+    }
 
     if ( data.optics.can_compute_localization_precision() )
         compute_uncertainty( rv, m, data );

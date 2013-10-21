@@ -26,15 +26,38 @@ std::string Position::get_shorthand() { return "pos"; }
 const Position::ValueType Position::default_value
     = Position::ValueType::Constant( Position::ValueType::Scalar::from_value(0) );
 
-std::string PositionUncertainty::get_ident() { return "Position-uncertainty"; }
-std::string PositionUncertainty::get_desc() { return "position uncertainty in sample space"; }
-std::string PositionUncertainty::get_shorthand() { return "sigmapos"; }
-const PositionUncertainty::ValueType PositionUncertainty::default_value
-    = PositionUncertainty::ValueType::Constant( PositionUncertainty::ValueType::Scalar::from_value(0) );
+template <> std::string PositionUncertaintyX::get_ident() { return "Position-0-0-uncertainty"; }
+template <> std::string PositionUncertaintyX::get_desc() { return "position uncertainty in sample space in X"; }
+template <> std::string PositionUncertaintyX::get_shorthand() { return "sigmaposx"; }
 template <>
-const PositionUncertainty::RangeType
-NoRange<PositionUncertainty>::static_range 
-    = PositionUncertainty::RangeType::Constant( PositionUncertainty::BoundPair() );
+const PositionUncertaintyX::ValueType PositionUncertaintyX::default_value
+    = PositionUncertaintyX::ValueType::from_value(0);
+template <>
+const PositionUncertaintyX::RangeType
+NoRange<PositionUncertaintyX>::static_range 
+    = PositionUncertaintyX::BoundPair();
+
+template <> std::string PositionUncertaintyY::get_ident() { return "Position-1-0-uncertainty"; }
+template <> std::string PositionUncertaintyY::get_desc() { return "position uncertainty in sample space in Y"; }
+template <> std::string PositionUncertaintyY::get_shorthand() { return "sigmaposy"; }
+template <>
+const PositionUncertaintyY::ValueType PositionUncertaintyY::default_value
+    = PositionUncertaintyY::ValueType::from_value(0);
+template <>
+const PositionUncertaintyY::RangeType
+NoRange<PositionUncertaintyY>::static_range 
+    = PositionUncertaintyY::BoundPair();
+
+template <> std::string PositionUncertaintyZ::get_ident() { return "Position-2-0-uncertainty"; }
+template <> std::string PositionUncertaintyZ::get_desc() { return "position uncertainty in sample space in Z"; }
+template <> std::string PositionUncertaintyZ::get_shorthand() { return "sigmaposz"; }
+template <>
+const PositionUncertaintyZ::ValueType PositionUncertaintyZ::default_value
+    = PositionUncertaintyZ::ValueType::from_value(0);
+template <>
+const PositionUncertaintyZ::RangeType
+NoRange<PositionUncertaintyZ>::static_range 
+    = PositionUncertaintyZ::BoundPair();
 
 std::string Amplitude::get_ident() { return "Amplitude"; }
 std::string Amplitude::get_desc() { return "emission strength"; }
@@ -42,21 +65,37 @@ const Amplitude::ValueType Amplitude::default_value
     = Amplitude::ValueType::from_value(0);
 std::string Amplitude::get_shorthand() { return "amp"; }
 
-std::string PSFWidth::get_ident() { return "PSFWidth"; }
-std::string PSFWidth::get_desc() { return "PSF FWHM"; }
-const PSFWidth::ValueType PSFWidth::default_value
-    = PSFWidth::ValueType::Constant( PSFWidth::ValueType::Scalar::from_value(0) );
+template <> std::string PSFWidthX::get_ident() { return "PSFWidth-0"; }
+template <> std::string PSFWidthX::get_desc() { return "PSF FWHM in X"; }
 template <>
-const NoRange<PSFWidth>::RangeType
-NoRange<PSFWidth>::static_range 
-    = NoRange<PSFWidth>::RangeType::Constant(
-        NoRange<PSFWidth>::BoundPair(
-            boost::optional< NoRange<PSFWidth>::Type >( 
-                NoRange<PSFWidth>::Type(0.0f * si::metre) ),
-            boost::optional< NoRange<PSFWidth>::Type >()
-        )
+const PSFWidthY::ValueType PSFWidthX::default_value = PSFWidthX::ValueType::from_value(0);
+template <>
+const NoRange<PSFWidthX>::RangeType
+NoRange<PSFWidthX>::static_range 
+    = NoRange<PSFWidthX>::BoundPair(
+            boost::optional< NoRange<PSFWidthX>::Type >( 
+                NoRange<PSFWidthX>::Type(0.0f * si::metre) ),
+            boost::optional< NoRange<PSFWidthX>::Type >()
     );
-std::string PSFWidth::get_shorthand() { return "psffwhm"; }
+template <>
+std::string PSFWidthX::get_shorthand() { return "psffwhmx"; }
+
+template <>
+std::string PSFWidthY::get_ident() { return "PSFWidth-1"; }
+template <>
+std::string PSFWidthY::get_desc() { return "PSF FWHM in Y"; }
+template <>
+const PSFWidthY::ValueType PSFWidthY::default_value = PSFWidthY::ValueType::from_value(0);
+template <>
+const NoRange<PSFWidthY>::RangeType
+NoRange<PSFWidthY>::static_range 
+    = NoRange<PSFWidthY>::BoundPair(
+            boost::optional< NoRange<PSFWidthY>::Type >( 
+                NoRange<PSFWidthY>::Type(0.0f * si::metre) ),
+            boost::optional< NoRange<PSFWidthY>::Type >()
+    );
+template <>
+std::string PSFWidthY::get_shorthand() { return "psffwhmy"; }
 
 std::string TwoKernelImprovement::get_ident() { return "TwoKernelImprovement"; }
 std::string TwoKernelImprovement::get_desc() { return "two kernel improvement"; }

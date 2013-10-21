@@ -51,7 +51,7 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
             uncertainty.fill(0);
             for (int i = 0; i < Dimensions; ++i) {
                 position[i] = l.position()[i] / si::metre;
-                uncertainty(i,i) = pow<2>(l.position_uncertainty()[i] / si::metre);
+                uncertainty(i,i) = pow<2>(l.position_uncertainty(i) / si::metre);
             }
         }
     };

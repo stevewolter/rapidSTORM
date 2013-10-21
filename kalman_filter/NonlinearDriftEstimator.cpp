@@ -36,13 +36,22 @@ struct BeadPosition {
 
     BeadPosition() {}
     BeadPosition( const Localization& l, const input::Traits<Localization>& t, int bead_id ) 
-    : position( l.position() ), uncertainty( l.position_uncertainty() ), time( l.frame_number() ), bead_id( bead_id )
+    : position( l.position() ), time( l.frame_number() ), bead_id( bead_id )
     {
         for (int i = 0; i < position.rows(); ++i) {
             if ( ! t.position().is_given[i] )
                 position[i] = 0 * si::meter;
-            if ( ! t.position_uncertainty().is_given[i] )
-                uncertainty[i] = 1E-8 * si::meter;
+        }
+
+        uncertainty = samplepos::Constant(1E-8f * si::meter);
+        if (t.position_uncertainty_x().is_given) {
+          uncertainty[0] = l.position_uncertainty_x();
+        }
+        if (t.position_uncertainty_y().is_given) {
+          uncertainty[1] = l.position_uncertainty_y();
+        }
+        if (t.position_uncertainty_z().is_given) {
+          uncertainty[2] = l.position_uncertainty_z();
         }
     }
 };

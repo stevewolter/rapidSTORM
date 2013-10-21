@@ -33,9 +33,12 @@ struct Traits< Localization >
 : public input::BaseTraits,
   public DataSetTraits,
   public traits::Position,
-  public traits::PositionUncertainty,
+  public traits::PositionUncertaintyX,
+  public traits::PositionUncertaintyY,
+  public traits::PositionUncertaintyZ,
   public traits::Amplitude,
-  public traits::PSFWidth,
+  public traits::PSFWidth<0>,
+  public traits::PSFWidth<1>,
   public traits::TwoKernelImprovement,
   public traits::FitResidues,
   public traits::ImageNumber,
@@ -51,9 +54,12 @@ struct Traits< Localization >
     x& n() { return *this; } \
     const x& n() const { return *this; }
     ACCESSORS(traits::Position,position)
-    ACCESSORS(traits::PositionUncertainty,position_uncertainty)
+    ACCESSORS(traits::PositionUncertaintyX,position_uncertainty_x)
+    ACCESSORS(traits::PositionUncertaintyY,position_uncertainty_y)
+    ACCESSORS(traits::PositionUncertaintyZ,position_uncertainty_z)
     ACCESSORS(traits::Amplitude,amplitude)
-    ACCESSORS(traits::PSFWidth,psf_width)
+    ACCESSORS(traits::PSFWidthX,psf_width_x)
+    ACCESSORS(traits::PSFWidthY,psf_width_y)
     ACCESSORS(traits::TwoKernelImprovement,two_kernel_improvement)
     ACCESSORS(traits::FitResidues,fit_residues)
     ACCESSORS(traits::ImageNumber,image_number)

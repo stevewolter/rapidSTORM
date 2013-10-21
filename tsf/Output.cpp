@@ -97,14 +97,14 @@ void Output::BuildSpot(const Localization& localization, TSF::Spot* spot) {
     spot->set_z(localization.position().y() / (1E-9 * si::metre));
   }
 
-  if (traits.position_uncertainty().is_given.x()) {
-    spot->set_x_precision(localization.position_uncertainty().x() / (1E-9 * si::metre));
+  if (traits.position_uncertainty_x().is_given) {
+    spot->set_x_precision(localization.position_uncertainty_x() / (1E-9 * si::metre));
   }
-  if (traits.position_uncertainty().is_given.y()) {
-    spot->set_y_precision(localization.position_uncertainty().y() / (1E-9 * si::metre));
+  if (traits.position_uncertainty_y().is_given) {
+    spot->set_y_precision(localization.position_uncertainty_y() / (1E-9 * si::metre));
   }
-  if (traits.position_uncertainty().is_given.z()) {
-    spot->set_z_precision(localization.position_uncertainty().z() / (1E-9 * si::metre));
+  if (traits.position_uncertainty_z().is_given) {
+    spot->set_z_precision(localization.position_uncertainty_z() / (1E-9 * si::metre));
   }
 
   if (traits.amplitude().is_given) {
@@ -115,14 +115,19 @@ void Output::BuildSpot(const Localization& localization, TSF::Spot* spot) {
     spot->set_background(localization.amplitude() / camera::ad_count);
   }
 
-  if (traits.psf_width().is_given.all() || traits.psf_width().static_value) {
+  if ((traits.psf_width_x().is_given || traits.psf_width_x().static_value) &&
+      (traits.psf_width_y().is_given || traits.psf_width_y().static_value)) {
     double wx, wy;
-    if (traits.psf_width().static_value) {
-      wx = traits.psf_width().static_value->x() / (1E-9 * si::metre);
-      wy = traits.psf_width().static_value->y() / (1E-9 * si::metre);
+    if (traits.psf_width_x().static_value) {
+      wx = *traits.psf_width_x().static_value / (1E-9 * si::metre);
     } else {
-      wx = localization.psf_width().x() / (1E-9 * si::metre);
-      wy = localization.psf_width().y() / (1E-9 * si::metre);
+      wx = localization.psf_width_x() / (1E-9 * si::metre);
+    }
+
+    if (traits.psf_width_y().static_value) {
+      wy = *traits.psf_width_y().static_value / (1E-9 * si::metre);
+    } else {
+      wy = localization.psf_width_y() / (1E-9 * si::metre);
     }
 
     spot->set_width(sqrt(wx * wy));
