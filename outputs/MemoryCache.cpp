@@ -16,7 +16,6 @@
 #include <boost/thread/thread.hpp>
 
 #include <dStorm/stack_realign.h>
-#include <dStorm/traits/range_impl.h>
 #include <dStorm/output/Localizations_iterator.h>
 #include <boost/thread/locks.hpp>
 #include "MemoryCache_Cache.h"

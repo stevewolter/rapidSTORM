@@ -162,7 +162,7 @@ rapidstorm_SOURCES = \
     dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
     dStorm/traits/psf_width.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
     dStorm/traits/position.h dStorm/traits/range.h \
-    dStorm/traits/range_impl.h dStorm/traits/residues.h \
+    dStorm/traits/residues.h \
     dStorm/traits/two_kernel_improvement.h \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \

@@ -9,13 +9,9 @@
 namespace dStorm {
 namespace traits {
 
-struct Amplitude;
-template <> struct value< Amplitude > :
-    public Value<  quantity< camera::intensity, float > > {};
-
 struct Amplitude 
-: public value<Amplitude>,
-  public Range<Amplitude>
+: public Value< quantity< camera::intensity, float > >,
+  public Range< quantity< camera::intensity, float > >
 {
     static std::string get_ident();
     static std::string get_desc();

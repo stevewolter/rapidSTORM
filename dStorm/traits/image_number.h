@@ -9,13 +9,9 @@
 namespace dStorm {
 namespace traits {
 
-struct ImageNumber;
-template <> struct value< ImageNumber > :
-    public Value< quantity< camera::time, int > > {};
-
 struct ImageNumber 
-: public value<ImageNumber>,
-  public Range< ImageNumber >
+: public Value< quantity<camera::time, int> >,
+  public Range< quantity<camera::time, int> >
 {
     ImageNumber();
     static std::string get_ident();

@@ -15,19 +15,11 @@ namespace dStorm {
 namespace traits {
 
 template <int Dimension>
-struct PositionUncertainty;
-
-template <int Dimension>
-struct value< PositionUncertainty<Dimension> > :
-    public Value< quantity<si::length, float> > {};
-
-template <int Dimension>
 struct PositionUncertainty
-: public value<PositionUncertainty<Dimension> >,
-  public NoRange<PositionUncertainty<Dimension> >
+: public Value< samplepos::Scalar >,
+  public NoRange< samplepos::Scalar >
 {
     typedef quantity< si::nanolength, float > OutputType;
-    typedef quantity< nanometer_pixel_size, float > user_resolution_type;
 
     static std::string get_ident();
     static std::string get_desc();

@@ -9,13 +9,9 @@
 namespace dStorm {
 namespace traits {
 
-struct LocalBackground;
-template <> struct value< LocalBackground > :
-    public Value< quantity< camera::intensity, float > > {};
-
 struct LocalBackground 
-: public value<LocalBackground>,
-  public Range<LocalBackground>
+: public Value< quantity<camera::intensity, float> >,
+  public Range< quantity<camera::intensity, float> >
 {
     static std::string get_ident();
     static std::string get_desc();

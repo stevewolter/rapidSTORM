@@ -7,7 +7,6 @@
 #include "BasenamePrinter.h"
 #include "DummyFileInput.h"
 #include "RepeatTrigger.h"
-#include <dStorm/traits/range_impl.h>
 #include "SmoothedImageSave.h"
 
 using namespace dStorm::output;

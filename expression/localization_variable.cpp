@@ -1,7 +1,6 @@
 #include "localization_variable_decl.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/fusion/include/value_at.hpp>
-#include <dStorm/traits/range_impl.h>
 #include "expression/QuantityDynamizer.hpp"
 #include "dStorm/Localization.h"
 #include "dejagnu.h"

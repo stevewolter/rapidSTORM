@@ -9,10 +9,10 @@
 namespace dStorm {
 namespace traits {
 
-template <typename Base>
+template <typename Type>
 class Range 
-: public NoRange<Base> {
-    typedef NoRange<Base> Types;
+: public NoRange<Type> {
+    typedef NoRange<Type> Types;
   public:
     static const bool has_range = true;
 
@@ -28,13 +28,13 @@ class Range
     const typename Types::RangeType& range() const { return _range; }
     typename Types::RangeType& range() { return _range; }
 
-    inline bool is_in_range( const typename Types::RangeBoundType& t) const;
-    inline bool is_in_range( const typename Types::MoS::template value< typename Types::Type >&) const;
+    inline bool is_in_range( const Type& t) const {
+      return _range.first <= t && _range.second >= t;
+    }
 
-    inline typename Types::RangeBoundType lower_limits() const;
-    inline typename Types::RangeBoundType upper_limits() const;
-    inline typename Types::RangeBoundType width() const;
-    inline typename Types::IntervalRangeType as_interval() const;
+    inline typename Types::RangeBoundType lower_limits() const { return _range.first; }
+    inline typename Types::RangeBoundType upper_limits() const { return _range.second; }
+    inline typename Types::RangeBoundType width() const { return _range.second - _range.first; }
 };
 
 }

@@ -9,13 +9,9 @@
 namespace dStorm {
 namespace traits {
 
-struct Fluorophore;
-template <> struct value< Fluorophore > :
-    public Value< dStorm::Fluorophore > {};
-
 struct Fluorophore 
-: public value<Fluorophore>,
-  public Range<Fluorophore>
+: public Value< dStorm::Fluorophore >,
+  public Range< dStorm::Fluorophore >
 {
     typedef dStorm::Fluorophore OutputType;
 

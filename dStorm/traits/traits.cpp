@@ -57,8 +57,8 @@ const PositionUncertaintyX::ValueType PositionUncertaintyX::default_value
     = PositionUncertaintyX::ValueType::from_value(0);
 template <>
 const PositionUncertaintyX::RangeType
-NoRange<PositionUncertaintyX>::static_range 
-    = PositionUncertaintyX::BoundPair();
+NoRange<PositionUncertaintyX::ValueType>::static_range 
+    = PositionUncertaintyX::RangeType();
 
 template <> std::string PositionUncertaintyY::get_ident() { return "Position-1-0-uncertainty"; }
 template <> std::string PositionUncertaintyY::get_desc() { return "position uncertainty in sample space in Y"; }
@@ -66,10 +66,6 @@ template <> std::string PositionUncertaintyY::get_shorthand() { return "sigmapos
 template <>
 const PositionUncertaintyY::ValueType PositionUncertaintyY::default_value
     = PositionUncertaintyY::ValueType::from_value(0);
-template <>
-const PositionUncertaintyY::RangeType
-NoRange<PositionUncertaintyY>::static_range 
-    = PositionUncertaintyY::BoundPair();
 
 template <> std::string PositionUncertaintyZ::get_ident() { return "Position-2-0-uncertainty"; }
 template <> std::string PositionUncertaintyZ::get_desc() { return "position uncertainty in sample space in Z"; }
@@ -77,10 +73,6 @@ template <> std::string PositionUncertaintyZ::get_shorthand() { return "sigmapos
 template <>
 const PositionUncertaintyZ::ValueType PositionUncertaintyZ::default_value
     = PositionUncertaintyZ::ValueType::from_value(0);
-template <>
-const PositionUncertaintyZ::RangeType
-NoRange<PositionUncertaintyZ>::static_range 
-    = PositionUncertaintyZ::BoundPair();
 
 std::string Amplitude::get_ident() { return "Amplitude"; }
 std::string Amplitude::get_desc() { return "emission strength"; }
@@ -93,14 +85,6 @@ template <> std::string PSFWidthX::get_desc() { return "PSF FWHM in X"; }
 template <>
 const PSFWidthY::ValueType PSFWidthX::default_value = PSFWidthX::ValueType::from_value(0);
 template <>
-const NoRange<PSFWidthX>::RangeType
-NoRange<PSFWidthX>::static_range 
-    = NoRange<PSFWidthX>::BoundPair(
-            boost::optional< NoRange<PSFWidthX>::Type >( 
-                NoRange<PSFWidthX>::Type(0.0f * si::metre) ),
-            boost::optional< NoRange<PSFWidthX>::Type >()
-    );
-template <>
 std::string PSFWidthX::get_shorthand() { return "psffwhmx"; }
 
 template <>
@@ -110,14 +94,6 @@ std::string PSFWidthY::get_desc() { return "PSF FWHM in Y"; }
 template <>
 const PSFWidthY::ValueType PSFWidthY::default_value = PSFWidthY::ValueType::from_value(0);
 template <>
-const NoRange<PSFWidthY>::RangeType
-NoRange<PSFWidthY>::static_range 
-    = NoRange<PSFWidthY>::BoundPair(
-            boost::optional< NoRange<PSFWidthY>::Type >( 
-                NoRange<PSFWidthY>::Type(0.0f * si::metre) ),
-            boost::optional< NoRange<PSFWidthY>::Type >()
-    );
-template <>
 std::string PSFWidthY::get_shorthand() { return "psffwhmy"; }
 
 std::string TwoKernelImprovement::get_ident() { return "TwoKernelImprovement"; }
@@ -125,8 +101,8 @@ std::string TwoKernelImprovement::get_desc() { return "two kernel improvement"; 
 const TwoKernelImprovement::ValueType TwoKernelImprovement::default_value = 0;
 template <>
 const TwoKernelImprovement::RangeType
-NoRange<TwoKernelImprovement>::static_range 
-    = TwoKernelImprovement::BoundPair(
+NoRange<TwoKernelImprovement::ValueType>::static_range 
+    = TwoKernelImprovement::RangeType(
         boost::optional< TwoKernelImprovement::ValueType >(0), boost::optional< TwoKernelImprovement::ValueType >(1) );
 std::string TwoKernelImprovement::get_shorthand() { return "fishy"; }
 
@@ -135,8 +111,8 @@ std::string FitResidues::get_desc() { return "fit residue chi square value"; }
 const FitResidues::ValueType FitResidues::default_value = 0;
 template <>
 const FitResidues::RangeType
-NoRange<FitResidues>::static_range 
-    = FitResidues::BoundPair();
+NoRange<FitResidues::ValueType>::static_range 
+    = FitResidues::RangeType();
 std::string FitResidues::get_shorthand() { return "chisq"; }
 
 std::string Fluorophore::get_ident() { return "Fluorophore"; }
@@ -144,8 +120,8 @@ std::string Fluorophore::get_desc() { return "index of fluorophore type"; }
 const Fluorophore::ValueType Fluorophore::default_value = 0;
 template <>
 const Fluorophore::RangeType
-NoRange<Fluorophore>::static_range 
-    = Fluorophore::BoundPair();
+NoRange<Fluorophore::ValueType>::static_range 
+    = Fluorophore::RangeType();
 std::string Fluorophore::get_shorthand() { return "fluo"; }
 
 std::string LocalBackground::get_ident() { return "LocalBackground"; }

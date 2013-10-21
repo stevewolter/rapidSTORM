@@ -8,13 +8,9 @@
 namespace dStorm {
 namespace traits {
 
-struct TwoKernelImprovement;
-template <> struct value< TwoKernelImprovement > :
-    public Value< quantity<si::dimensionless, float> > {};
-
 struct TwoKernelImprovement 
-: public value<TwoKernelImprovement>,
-  public NoRange<TwoKernelImprovement>
+: public Value< quantity<si::dimensionless, float> >,
+  public NoRange< quantity<si::dimensionless, float> >
 {
     static std::string get_ident();
     static std::string get_desc();

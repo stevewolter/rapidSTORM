@@ -10,15 +10,10 @@
 namespace dStorm {
 namespace traits {
 
-template <int Dimension> struct PSFWidth;
-
-template <int Dimension> struct value< PSFWidth<Dimension> > :
-    public Value< quantity< si::length, float > > {};
-
 template <int Dimension>
 struct PSFWidth 
-: public value< PSFWidth<Dimension> >,
-  public NoRange< PSFWidth<Dimension> >
+: public Value< quantity<si::length, float> >,
+  public NoRange< quantity<si::length, float> >
 {
     typedef quantity< power10< si::length, -9 >::type, float > OutputType;
     static std::string get_ident();

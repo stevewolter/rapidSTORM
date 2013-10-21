@@ -8,13 +8,9 @@
 namespace dStorm {
 namespace traits {
 
-struct FitResidues;
-template <> struct value< FitResidues > :
-    public Value< quantity<si::dimensionless, double> > {};
-
 struct FitResidues 
-: public value<FitResidues>,
-  public NoRange<FitResidues>
+: public Value< quantity<si::dimensionless, double> >,
+  public NoRange< quantity<si::dimensionless, double> >
 {
     static std::string get_ident();
     static std::string get_desc();

@@ -11,25 +11,15 @@
 #include "../units/nanolength.h"
 #include <boost/units/Eigen/Core>
 
-namespace Eigen {
-template <typename Type>
-struct NumTraits< boost::optional<Type> > : public NumTraits< Type > {};
-}
-
 namespace dStorm {
 namespace traits {
-
-template <int Dimension> struct Position;
-template <int Dimension> struct value< Position<Dimension> > :
-    public Value< samplepos::Scalar > {};
 
 template <int Dimension>
 struct Position 
 : public Value<samplepos::Scalar>,
-  public Range<Position<Dimension> >
+  public Range<samplepos::Scalar>
 {
     typedef quantity< si::nanolength, float > OutputType;
-    typedef quantity< nanometer_pixel_size, float > user_resolution_type;
 
     static std::string get_ident();
     static std::string get_desc();
