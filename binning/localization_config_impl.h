@@ -9,9 +9,11 @@
 namespace dStorm {
 namespace binning {
 
+template <int Field> std::string get_label();
+
 template <int Field>
 LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range) 
-: FieldConfig( Traits::get_ident(), Traits::get_desc() ), 
+: FieldConfig( get_label<Field>(), Traits::get_desc() ), 
   use_resolution( false ),
   resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10)),
   range(range)
@@ -20,7 +22,7 @@ LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range)
 
 template <int Field>
 LocalizationConfig<Field>::LocalizationConfig(std::string axis, bool use_resolution) 
-: FieldConfig( Traits::get_ident(), Traits::get_desc() ), 
+: FieldConfig( get_label<Field>(), Traits::get_desc() ), 
   use_resolution( use_resolution ),
   resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
 {

@@ -80,7 +80,7 @@ const Amplitude::ValueType Amplitude::default_value
     = Amplitude::ValueType::from_value(0);
 std::string Amplitude::get_shorthand() { return "amp"; }
 
-template <> std::string PSFWidthX::get_ident() { return "PSFWidth-0"; }
+template <> std::string PSFWidthX::get_ident() { return "PSFWidth-0-0"; }
 template <> std::string PSFWidthX::get_desc() { return "PSF FWHM in X"; }
 template <>
 const PSFWidthY::ValueType PSFWidthX::default_value = PSFWidthX::ValueType::from_value(0);
@@ -88,7 +88,7 @@ template <>
 std::string PSFWidthX::get_shorthand() { return "psffwhmx"; }
 
 template <>
-std::string PSFWidthY::get_ident() { return "PSFWidth-1"; }
+std::string PSFWidthY::get_ident() { return "PSFWidth-1-0"; }
 template <>
 std::string PSFWidthY::get_desc() { return "PSF FWHM in Y"; }
 template <>

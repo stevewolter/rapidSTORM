@@ -100,9 +100,9 @@ class Localization  {
     }
     void set_position_uncertainty(int dimension, quantity<si::length,float> uncertainty) {
         switch (dimension) {
-            case 0: position_uncertainty_x = uncertainty;
-            case 1: position_uncertainty_y = uncertainty;
-            case 2: position_uncertainty_z = uncertainty;
+            case 0: position_uncertainty_x = uncertainty; break;
+            case 1: position_uncertainty_y = uncertainty; break;
+            case 2: position_uncertainty_z = uncertainty; break;
             default: throw std::logic_error("Unknown position uncertainty index");
         }
     }
@@ -117,9 +117,9 @@ class Localization  {
 
     void set_position(int dimension, samplepos::Scalar value) {
         switch (dimension) {
-            case 0: position_x = value;
-            case 1: position_y = value;
-            case 2: position_z = value;
+            case 0: position_x = value; break;
+            case 1: position_y = value; break;
+            case 2: position_z = value; break;
             default: throw std::logic_error("Unknown position index");
         }
     }
@@ -133,10 +133,10 @@ operator<<(std::ostream &o, const Localization& loc);
 BOOST_FUSION_ADAPT_STRUCT(
     dStorm::Localization,
     (dStorm::Localization::PositionX, position_x)
-    (dStorm::Localization::PositionY, position_y)
-    (dStorm::Localization::PositionZ, position_z)
     (dStorm::Localization::PositionUncertaintyX, position_uncertainty_x)
+    (dStorm::Localization::PositionY, position_y)
     (dStorm::Localization::PositionUncertaintyY, position_uncertainty_y)
+    (dStorm::Localization::PositionZ, position_z)
     (dStorm::Localization::PositionUncertaintyZ, position_uncertainty_z)
     (dStorm::Localization::ImageNumber, frame_number)
     (dStorm::Localization::Amplitude, amplitude)
