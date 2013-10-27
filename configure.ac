@@ -44,7 +44,7 @@ AC_PROG_LIBTOOL
 
 AM_CONDITIONAL([IS_AMD64_BUILD], [test "$host_cpu" = "x86_64"])
 
-PKG_CHECK_MODULES([base], [cs_units eigen3 any_iterator])
+PKG_CHECK_MODULES([base], [cs_units eigen3])
 CPPFLAGS="$CPPFLAGS $base_CFLAGS"
 LIBS="$base_LIBS $LIBS"
 

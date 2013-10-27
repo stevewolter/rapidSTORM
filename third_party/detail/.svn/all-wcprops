@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/920/lib/any_iterator/trunk/detail
+END
+any_iterator_abstract_base.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/920/lib/any_iterator/trunk/detail/any_iterator_abstract_base.hpp
+END
+any_iterator_metafunctions.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/920/lib/any_iterator/trunk/detail/any_iterator_metafunctions.hpp
+END
+any_iterator_wrapper.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/920/lib/any_iterator/trunk/detail/any_iterator_wrapper.hpp
+END

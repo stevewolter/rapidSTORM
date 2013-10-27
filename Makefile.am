@@ -854,7 +854,8 @@ endif
 
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
-rapidstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
+rapidstorm_CPPFLAGS = -I$(srcdir)/third_party
+rapidstorm_CPPFLAGS += $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
 # TODO: This flag is only needed for old Eigen3 versions up to the fix of Eigen bug 477
 rapidstorm_CXXFLAGS += -Wno-enum-compare -std=c++11 -Wno-deprecated-declarations
