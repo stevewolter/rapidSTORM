@@ -1,0 +1,181 @@
+#ifndef CSUNITS_EIGEN_ARRAY_H
+#define CSUNITS_EIGEN_ARRAY_H
+
+#include "Core"
+#include <boost/units/quantity.hpp>
+
+namespace boost {
+namespace units {
+
+template <typename Result>
+struct value_functor {
+    typedef Result result_type;
+    template <typename Quantity>
+    result_type operator()( Quantity q ) const { return q.value(); }
+};
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    value_functor< typename Derived::Scalar::value_type >,
+    const Derived >
+value( const Eigen::MatrixBase<Derived>& m )
+{
+    return m.unaryExpr( value_functor< typename Derived::Scalar::value_type >() );
+}
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    value_functor< typename Derived::Scalar::value_type >,
+    const Derived >
+value( const Eigen::ArrayBase<Derived>& m )
+{
+    return m.unaryExpr( value_functor< typename Derived::Scalar::value_type >() );
+}
+
+template <typename Unit, typename Scalar>
+struct from_value_functor {
+    typedef quantity<Unit,Scalar> result_type;
+    result_type operator()( Scalar q ) const
+        { return result_type::from_value(q); }
+};
+
+template <typename Unit, typename Derived>
+const Eigen::CwiseUnaryOp< 
+    from_value_functor< Unit, typename Derived::Scalar >,
+    const Derived >
+from_value( const Eigen::MatrixBase<Derived>& m )
+{
+    return m.unaryExpr( from_value_functor< Unit, typename Derived::Scalar >());
+}
+
+template <typename Unit, typename Derived>
+const Eigen::CwiseUnaryOp< 
+    from_value_functor< Unit, typename Derived::Scalar >,
+    const Derived >
+from_value( const Eigen::ArrayBase<Derived>& m )
+{
+    return m.unaryExpr( from_value_functor< Unit, typename Derived::Scalar >());
+}
+
+}
+}
+
+namespace Eigen {
+
+template <typename Quantity>
+struct round_functor {
+    typedef Quantity result_type;
+    result_type operator()( Quantity q ) const
+        { return round(q); }
+};
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    round_functor< typename Derived::Scalar >,
+    const Derived >
+round( const Eigen::MatrixBase<Derived>& m )
+{
+    return m.unaryExpr( round_functor< typename Derived::Scalar >() );
+}
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    round_functor< typename Derived::Scalar >,
+    const Derived >
+round( const Eigen::ArrayBase<Derived>& m )
+{
+    return m.unaryExpr( round_functor< typename Derived::Scalar >() );
+}
+
+template <typename Quantity>
+struct floor_functor {
+    typedef Quantity result_type;
+    result_type operator()( Quantity q ) const
+        { return floor(q); }
+};
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    floor_functor< typename Derived::Scalar >,
+    const Derived >
+floor( const Eigen::MatrixBase<Derived>& m )
+{
+    return m.unaryExpr( floor_functor< typename Derived::Scalar >() );
+}
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    floor_functor< typename Derived::Scalar >,
+    const Derived >
+floor( const Eigen::ArrayBase<Derived>& m )
+{
+    return m.unaryExpr( floor_functor< typename Derived::Scalar >() );
+}
+
+template <typename Quantity>
+struct ceil_functor {
+    typedef Quantity result_type;
+    result_type operator()( Quantity q ) const
+        { return ceil(q); }
+};
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    ceil_functor< typename Derived::Scalar >,
+    const Derived >
+ceil( const Eigen::MatrixBase<Derived>& m )
+{
+    return m.unaryExpr( ceil_functor< typename Derived::Scalar >() );
+}
+
+template <typename Derived>
+const Eigen::CwiseUnaryOp< 
+    ceil_functor< typename Derived::Scalar >,
+    const Derived >
+ceil( const Eigen::ArrayBase<Derived>& m )
+{
+    return m.unaryExpr( ceil_functor< typename Derived::Scalar >() );
+}
+
+
+
+}
+
+#if 0
+namespace Eigen {
+
+template<typename Unit, typename Scalar, int Rows, int Cols, int Opts, int MaxR, int MaxC, typename Factor>
+Eigen::Matrix<
+typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type,
+    Rows, Cols, Opts, MaxR, MaxC>
+operator*(const Factor& lhs, const Eigen::Matrix<boost::units::quantity<Unit, Scalar>, Rows, Cols, Opts, MaxR, MaxC>& rhs)
+{
+    return Eigen::quantity_matrix<
+        typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
+        ( op_helper::value<Factor>::get(lhs) * unitless_value(rhs) );
+}
+
+template<typename Unit, typename Scalar, int Rows, int Cols, int Opts, int MaxR, int MaxC, typename Factor>
+Eigen::Matrix<
+typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type,
+    Rows, Cols, Opts, MaxR, MaxC>
+operator*(const Eigen::Matrix<boost::units::quantity<Unit, Scalar>, Rows, Cols, Opts, MaxR, MaxC>& a, const Factor& b)
+{
+    return Eigen::quantity_matrix<typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
+        ( unitless_value(a) * op_helper::value<Factor>::get(b) );
+}
+
+template<typename Unit, typename Scalar, int Rows, int Cols, int Opts, int MaxR, int MaxC, typename Factor>
+Eigen::Matrix<
+typename boost::units::divide_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type,
+    Rows, Cols, Opts, MaxR, MaxC>
+operator/(const Eigen::Matrix<boost::units::quantity<Unit, Scalar>, Rows, Cols, Opts, MaxR, MaxC>& a, const Factor& b)
+{
+    return Eigen::quantity_matrix<typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
+        ( unitless_value(a) / op_helper::value<Factor>::get(b) );
+}
+
+}
+#endif
+
+#endif

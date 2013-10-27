@@ -1,0 +1,14 @@
+#ifndef CSUNITS_EIGEN_CORE_H
+#define CSUNITS_EIGEN_CORE_H
+
+#include <Eigen/Core>
+#include <boost/units/units_fwd.hpp>
+
+namespace Eigen {
+    template <typename Unit, typename Scalar>
+    struct NumTraits< boost::units::quantity<Unit, Scalar> > : public NumTraits< Scalar > {};
+    template <typename Unit, typename Scalar>
+    struct NumTraits< const boost::units::quantity<Unit, Scalar> > : public NumTraits< Scalar > {};
+}
+
+#endif
