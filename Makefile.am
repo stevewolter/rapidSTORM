@@ -846,6 +846,26 @@ rapidstorm_SOURCES += \
     binning/dummy_binner.h \
     binning/constant_binner.h binning/constant_binner.cpp 
 
+rapidstorm_SOURCES += \
+    third_party/detail/any_iterator_abstract_base.hpp \
+    third_party/detail/any_iterator_wrapper.hpp \
+    third_party/detail/any_iterator_metafunctions.hpp \
+    third_party/any_iterator.hpp \
+    boost/units/Eigen/Core \
+    boost/units/Eigen/Array \
+    boost/units/systems/camera/time.hpp \
+    boost/units/systems/camera/length.hpp \
+    boost/units/systems/camera/resolution.hpp \
+    boost/units/systems/camera/frame_rate.hpp \
+    boost/units/systems/camera/area.hpp \
+    boost/units/systems/camera/intensity.hpp \
+    boost/units/systems/camera/intensity_dimension.hpp \
+    boost/units/systems/camera/pixel_size.hpp \
+    boost/units/systems/camera/base.hpp \
+    boost/units/systems/base_units/frame.hpp \
+    boost/units/systems/base_units/pixel.hpp \
+    boost/units/power10.hpp
+
 if HAVE_PROTOBUF
 rapidstorm_SOURCES += \
     tsf/Output.cpp \
