@@ -129,7 +129,9 @@ void create_localization_fields_recursive<Localization::Fields::Count>(const Fie
 template <int LField>
 void create_localization_fields_recursive( const input::Traits<Localization>& traits, Field::Fields& result )
 {
-    result.push_back(new LocalizationField<LField>());
+    if (static_cast<const typename LocalizationField<LField>::TraitsType&>(traits).is_given) {
+        result.push_back(new LocalizationField<LField>());
+    }
     create_localization_fields_recursive<LField+1>(traits, result);
 }
 
