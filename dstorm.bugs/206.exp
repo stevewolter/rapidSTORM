@@ -27,6 +27,7 @@ set job [get_job_number]
 set test "#206 implementation throws correct error"
 expect {
     -re "message set No valid points for sigma curve generation\r*\nseverity set Error" { pass "$test"; }
+    -re "in Progress in value set 1" { pass "$test"; }
     -re "remove $job" { fail "$test"; }
     -re "in $job in " { exp_continue; }
 }
