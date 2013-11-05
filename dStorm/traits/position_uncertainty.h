@@ -21,7 +21,6 @@ struct PositionUncertainty
 {
     typedef quantity< si::nanolength, float > OutputType;
 
-    static std::string get_ident();
     static std::string get_desc();
     static std::string get_shorthand();
     static const quantity<si::length,float> default_value;

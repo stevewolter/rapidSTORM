@@ -13,7 +13,6 @@ struct LocalBackground
 : public Value< quantity<camera::intensity, float> >,
   public Range< quantity<camera::intensity, float> >
 {
-    static std::string get_ident();
     static std::string get_desc();
     static std::string get_shorthand();
     static const ValueType default_value;

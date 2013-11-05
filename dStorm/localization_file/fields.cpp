@@ -12,7 +12,6 @@ namespace localization_file {
 
 using namespace boost::fusion;
 
-
 const std::string type_string<float>::ident ()
     { return "floating point with . for decimals and "
       "optional scientific e-notation"; }

@@ -16,7 +16,6 @@ struct PSFWidth
   public NoRange< quantity<si::length, float> >
 {
     typedef quantity< power10< si::length, -9 >::type, float > OutputType;
-    static std::string get_ident();
     static std::string get_desc();
     static std::string get_shorthand();
     static const quantity< si::length, float > default_value;

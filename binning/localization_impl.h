@@ -211,7 +211,7 @@ void Localization<Index,Bounded>::announce(const output::Output::Announcement& a
         if ( ! traits.range().first.is_initialized() && ! traits.range().second.is_initialized() )
             message << " and ";
         if ( ! traits.range().second.is_initialized() ) message << "upper";
-        message << " bound not set for field " << TraitsType::get_ident();
+        message << " bound not set for field " << TraitsType::get_shorthand();
         throw std::runtime_error(message.str());
     }
     range[0] = *traits.range().first; 

@@ -58,6 +58,24 @@ read_attribute(
         return std::string(a);
 }
 
+template <int Index>
+std::string field_identifier();
+
+template <> std::string field_identifier<Localization::Fields::PositionX>() { return "Position-0-0"; }
+template <> std::string field_identifier<Localization::Fields::PositionUncertaintyX>() { return "Position-0-0-uncertainty"; }
+template <> std::string field_identifier<Localization::Fields::PositionY>() { return "Position-1-0"; }
+template <> std::string field_identifier<Localization::Fields::PositionUncertaintyY>() { return "Position-1-0-uncertainty"; }
+template <> std::string field_identifier<Localization::Fields::PositionZ>() { return "Position-2-0"; }
+template <> std::string field_identifier<Localization::Fields::PositionUncertaintyZ>() { return "Position-2-0-uncertainty"; }
+template <> std::string field_identifier<Localization::Fields::ImageNumber>() { return "ImageNumber-0-0"; }
+template <> std::string field_identifier<Localization::Fields::Amplitude>() { return "Amplitude-0-0"; }
+template <> std::string field_identifier<Localization::Fields::PSFWidthX>() { return "PSFWidth-0-0"; }
+template <> std::string field_identifier<Localization::Fields::PSFWidthY>() { return "PSFWidth-1-0"; }
+template <> std::string field_identifier<Localization::Fields::TwoKernelImprovement>() { return "TwoKernelImprovement-0-0"; }
+template <> std::string field_identifier<Localization::Fields::LocalBackground>() { return "LocalBackground-0-0"; }
+template <> std::string field_identifier<Localization::Fields::FitResidues>() { return "FitResidues-0-0"; }
+template <> std::string field_identifier<Localization::Fields::Fluorophore>() { return "Fluorophore-0-0"; }
+
 template <typename Unit, typename Value>
 inline std::string name_string( const quantity<Unit,Value>& );
 
@@ -81,17 +99,17 @@ static std::string guess_ident_from_semantic(const TiXmlElement& n) {
     const char *semantic_attrib = n.Attribute("semantic");
     if ( semantic_attrib != NULL ) semantic = semantic_attrib;
     if ( semantic == "x-position" )
-        return dStorm::traits::PositionX::get_ident();
+        return field_identifier<Localization::Fields::PositionX>();
     else if ( semantic == "y-position" )
-        return dStorm::traits::PositionY::get_ident();
+        return field_identifier<Localization::Fields::PositionY>();
     else if ( semantic == "z-position" )
-        return dStorm::traits::PositionZ::get_ident();
+        return field_identifier<Localization::Fields::PositionZ>();
     else if ( semantic == "frame number" )
-        return dStorm::traits::ImageNumber::get_ident();
+        return field_identifier<Localization::Fields::ImageNumber>();
     else if ( semantic == "emission strength" )
-        return dStorm::traits::Amplitude::get_ident();
+        return field_identifier<Localization::Fields::Amplitude>();
     else if ( semantic == "two kernel improvement" )
-        return dStorm::traits::TwoKernelImprovement::get_ident();
+        return field_identifier<Localization::Fields::TwoKernelImprovement>();
 
     // TODO: Implement more heuristics: x-sigma i.e.
     return "";
@@ -138,7 +156,7 @@ Field::Ptr LocalizationField<Index>::try_to_parse( const TiXmlElement& n, Traits
 {
     std::string ident = ident_field(n);
 
-    if ( ident == TraitsType::get_ident() )
+    if ( ident == field_identifier<Index>() )
         return Field::Ptr( new LocalizationField<Index>(n, traits) );
 
     return Field::Ptr();
@@ -181,7 +199,7 @@ LocalizationField<Index>::~LocalizationField()  {}
 template <int Index>
 std::auto_ptr<TiXmlNode> LocalizationField<Index>::makeNode( const Field::Traits& traits ) { 
     std::auto_ptr<TiXmlElement> rv( new  TiXmlElement("field") );
-    rv->SetAttribute( "identifier", TraitsType::get_ident().c_str() );
+    rv->SetAttribute( "identifier", field_identifier<Index>().c_str() );
     rv->SetAttribute( "syntax", type_string< typename TraitsType::ValueType >::ident().c_str() );
 
     std::stringstream semantic;

@@ -14,7 +14,6 @@ struct ImageNumber
   public Range< quantity<camera::time, int> >
 {
     ImageNumber();
-    static std::string get_ident();
     static std::string get_desc();
     static std::string get_shorthand();
 
