@@ -177,8 +177,8 @@ Output::Output(
   reducer( config.reducer.make_trace_reducer() ), 
   maxDist( config.distance_threshold() )
 {
-    binners[0] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionX, binning::Bounded>());
-    binners[1] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionY, binning::Bounded>());
+    binners[0] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionX, binning::ScaledToInterval>(100));
+    binners[1] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionY, binning::ScaledToInterval>(100));
     for (int i = 0; i < 2; ++i) {
         kalman_info.set_diffusion(i, config.diffusion() * 2.0);
         kalman_info.set_mobility(i, config.mobility());
@@ -271,8 +271,8 @@ Output::search_closest_trace(
     }
 
     TracedObject* best = NULL;
-    for (int x = range[0][0]; x < range[0][1]; ++x)
-        for (int y = range[1][0]; y < range[1][1]; ++y)
+    for (int x = range[0][0]; x <= range[0][1]; ++x)
+        for (int y = range[1][0]; y <= range[1][1]; ++y)
             best = std::accumulate( 
                 positional(x,y).begin(), positional(x,y).end(), 
                 best, lowest_mahalanobis_distance(loc, excluded, maxDist * maxDist) );
