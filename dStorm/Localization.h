@@ -41,28 +41,6 @@ class Localization  {
     FIELD(LocalBackground, local_background);
 #undef FIELD
 
-    struct Fields {
-        enum Indices {
-            PositionX, PositionUncertaintyX,
-            PositionY, PositionUncertaintyY,
-            PositionZ, PositionUncertaintyZ,
-            ImageNumber, Amplitude,
-            PSFWidthX, PSFWidthY,
-            TwoKernelImprovement,
-            FitResidues,
-            Fluorophore,
-            LocalBackground,
-            Count };
-    };
-    template <int Index>
-    struct Traits {
-        typedef typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Index> >::type::Traits type;
-    };
-    template <typename _Tag, int Index>
-    struct Tag {
-        typedef typename _Tag::template in< typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Index> >::type::Traits > in;
-    };
-
     typedef std::vector<Localization> Children;
     boost::optional< Children > children;
 
@@ -123,23 +101,5 @@ std::ostream&
 operator<<(std::ostream &o, const Localization& loc);
 
 }
-
-BOOST_FUSION_ADAPT_STRUCT(
-    dStorm::Localization,
-    (dStorm::Localization::PositionX, position_x)
-    (dStorm::Localization::PositionUncertaintyX, position_uncertainty_x)
-    (dStorm::Localization::PositionY, position_y)
-    (dStorm::Localization::PositionUncertaintyY, position_uncertainty_y)
-    (dStorm::Localization::PositionZ, position_z)
-    (dStorm::Localization::PositionUncertaintyZ, position_uncertainty_z)
-    (dStorm::Localization::ImageNumber, frame_number)
-    (dStorm::Localization::Amplitude, amplitude)
-    (dStorm::Localization::PSFWidthX, psf_width_x)
-    (dStorm::Localization::PSFWidthY, psf_width_y)
-    (dStorm::Localization::TwoKernelImprovement, two_kernel_improvement)
-    (dStorm::Localization::FitResidues, fit_residues)
-    (dStorm::Localization::Fluorophore, fluorophore)
-    (dStorm::Localization::LocalBackground, local_background)
-)
 
 #endif

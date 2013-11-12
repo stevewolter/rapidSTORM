@@ -1,5 +1,8 @@
 #include "Localization.h"
+#include "localization/Fields.h"
 #include "localization/Traits.h"
+#include <boost/bind/bind.hpp>
+#include <boost/mpl/for_each.hpp>
 #include <boost/units/io.hpp>
 #include <boost/fusion/include/iteration.hpp>
 #include <Eigen/Core>
@@ -7,19 +10,26 @@
 namespace dStorm {
 
 struct spacesep_output_streamer {
-    std::ostream& l;
-    mutable bool first;
-    spacesep_output_streamer(std::ostream& l) : l(l), first(true) {}
+    bool first;
+    spacesep_output_streamer() : first(true) {}
 
+    typedef void result_type;
     template <typename Type>
-        std::ostream& operator()( Type& type ) const
-        { if ( first ) first = false; else l << " "; return (l << type()); }
+    void operator()( std::ostream& o, const Localization& loc, Type& type ) {
+        if ( first ) {
+            first = false;
+        } else {
+            o << " ";
+        }
+        o << loc.field(type).value();
+    }
 };
 
 std::ostream&
 operator<<(std::ostream &o, const Localization& loc)
 {
-    boost::fusion::for_each( loc, spacesep_output_streamer(o) );
+    boost::mpl::for_each<localization::Fields>(boost::bind(
+        spacesep_output_streamer(), boost::ref(o), boost::ref(loc), _1));
     return o << "\n";
 }
 
