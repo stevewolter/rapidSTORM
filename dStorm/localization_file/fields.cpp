@@ -1,8 +1,11 @@
 #include "debug.h"
 #include <boost/units/io.hpp>
+#include <boost/bind/bind.hpp>
+#include <boost/mpl/for_each.hpp>
 #include <sstream>
 #include <dStorm/output/Traits.h>
 
+#include "dStorm/localization/Fields.h"
 #include "localization_field_impl.h"
 #include "unknown_field.h"
 #include "children_field.h"
@@ -71,22 +74,35 @@ public:
 
 };
 
-template <int Index>
-Field* Field::create_interface( const TiXmlElement& node, input::Traits<Localization>& traits )
-{
-    typedef typename result_of::value_at<Localization, boost::mpl::int_<Index> >::type::Traits Traits;
-    Field::Ptr p = LocalizationField< Index >::try_to_parse(node, traits);
-    if ( p.get() )
-        return p.release();
-    else
-        return create_interface<Index+1>( node, traits );
-}
+class FieldCreator {
+  public:
+    FieldCreator(const TiXmlElement& node, input::Traits<Localization>& traits)
+        : node(node), traits(traits) {}
 
-template <>
-Field* Field::create_interface<Localization::Fields::Count>( const TiXmlElement& node, input::Traits<Localization>& t )
+    Field::Ptr get_result();
+
+    template <typename Tag>
+    void operator()(Tag tag) {
+        if (!named_field.get()) {
+            named_field = LocalizationField< Tag >::try_to_parse(node, traits.field(tag));
+        }
+    }
+
+  private:
+    const TiXmlElement& node;
+    input::Traits<Localization>& traits;
+    Field::Ptr named_field;
+};
+
+Field::Ptr FieldCreator::get_result()
 {
-    std::auto_ptr<Field> f = CovarianceMatrixField::parse(node,t);
-    if ( f.get() ) return f.release();
+    boost::mpl::for_each<localization::Fields>(boost::ref(*this));
+    if (named_field.get()) {
+        return named_field;
+    }
+
+    std::auto_ptr<Field> f = CovarianceMatrixField::parse(node, traits);
+    if ( f.get() ) return f;
 
     const char* syntax_attrib = node.Attribute("syntax");
     if ( syntax_attrib == NULL )
@@ -95,11 +111,11 @@ Field* Field::create_interface<Localization::Fields::Count>( const TiXmlElement&
     std::string syntax = syntax_attrib;
 
     if ( syntax == type_string<int>::ident() )
-        return new Unknown<int>();
+        return Field::Ptr(new Unknown<int>());
     else if ( syntax == type_string<double>::ident() )
-        return new Unknown<double>();
+        return Field::Ptr(new Unknown<double>());
     else if ( syntax == type_string<float>::ident() )
-        return new Unknown<float>();
+        return Field::Ptr(new Unknown<float>());
     else
         throw std::runtime_error("Unknown syntax " + syntax + " in localization file field.");
 }
@@ -111,43 +127,42 @@ Field::parse(const TiXmlNode& node, input::Traits<Localization>& traits)
     if ( ! element )
         return Field::Ptr();
     else if ( element->Value() == std::string("field") )
-        return Ptr( create_interface<0>( *element, traits ) );
+        return FieldCreator( *element, traits ).get_result();
     else if ( element->Value() == std::string("localizations") )
         return Ptr( new ChildrenField( *element, traits ) );
     else
         return Ptr(NULL);
 }
 
-template <int Field>
-static void create_localization_fields_recursive( const input::Traits<Localization>& traits, Field::Fields& result );
+struct LocalizationFieldCreator {
+    typedef void result_type;
 
-template <>
-void create_localization_fields_recursive<Localization::Fields::Count>(const Field::Traits&, Field::Fields&) {
-}
-
-template <int LField>
-void create_localization_fields_recursive( const input::Traits<Localization>& traits, Field::Fields& result )
-{
-    if (static_cast<const typename LocalizationField<LField>::TraitsType&>(traits).is_given) {
-        result.push_back(new LocalizationField<LField>());
+    template <typename Tag>
+    void operator()( const Field::Traits& traits, Field::Fields& result, Tag tag ) {
+        if (traits.field(tag).is_given) {
+            result.push_back(new LocalizationField<Tag>());
+        }
     }
-    create_localization_fields_recursive<LField+1>(traits, result);
-}
+};
 
 void create_localization_fields( const Field::Traits& traits, Field::Fields& result )
 {
-    create_localization_fields_recursive<0>( traits, result );
+    boost::mpl::for_each<localization::Fields>(boost::bind(
+        LocalizationFieldCreator(),
+        boost::ref(traits),
+        boost::ref(result),
+        _1));
 }
 
 std::auto_ptr<Field> Field::construct_xyztI( const Field::Traits& traits )
 {
     std::auto_ptr<ChildrenField> rv( new ChildrenField(traits) );
-    rv->add_field( new LocalizationField< Localization::Fields::PositionX >() );
-    rv->add_field( new LocalizationField< Localization::Fields::PositionY >() );
+    rv->add_field( new LocalizationField< traits::PositionX >() );
+    rv->add_field( new LocalizationField< traits::PositionY >() );
     if ( traits.position_z().is_given )
-        rv->add_field( new LocalizationField< Localization::Fields::PositionZ >() );
-    rv->add_field( new LocalizationField< Localization::Fields::ImageNumber >() );
-    rv->add_field( new LocalizationField< Localization::Fields::Amplitude >() );
+        rv->add_field( new LocalizationField< traits::PositionZ >() );
+    rv->add_field( new LocalizationField< traits::ImageNumber >() );
+    rv->add_field( new LocalizationField< traits::Amplitude >() );
     return std::auto_ptr<Field>(rv.release());
 }
 

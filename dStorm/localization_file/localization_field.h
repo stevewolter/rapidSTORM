@@ -7,17 +7,14 @@
 namespace dStorm {
 namespace localization_file {
 
-template <int Index>
+template <typename Tag>
 class LocalizationField : public Field {
   public:
-    typedef typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Index> >::type::Traits TraitsType;
+    typedef typename localization::MetaInfo<Tag> TraitsType;
   private:
     typedef typename TraitsType::ValueType ValueType;
     typedef ValueConverter<ValueType> Converter;
     boost::shared_ptr<Converter> converter;
-
-    friend class Field;
-    static Field::Ptr try_to_parse( const TiXmlElement&, TraitsType& traits );
 
     static std::string ident_field( const TiXmlElement& n );
     static std::string dimen_name(int n);
@@ -31,6 +28,8 @@ class LocalizationField : public Field {
     LocalizationField( const TiXmlElement&, TraitsType& traits );
     ~LocalizationField();
 
+    static Field::Ptr try_to_parse( const TiXmlElement&, TraitsType& traits );
+
     void set_input_unit( const std::string& unit, const Field::Traits& traits );
     void set_input_unit( const std::string& unit, const TraitsType& traits );
 
@@ -38,7 +37,7 @@ class LocalizationField : public Field {
     void write(std::ostream& output, const Localization& source);
     std::auto_ptr<TiXmlNode> makeNode( const Field::Traits& traits );
 
-    Field* clone() const { return new LocalizationField<Index>(*this); }
+    Field* clone() const { return new LocalizationField(*this); }
 };
 
 }

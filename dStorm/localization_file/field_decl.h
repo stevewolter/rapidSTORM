@@ -9,7 +9,7 @@ template <> class type_string<double>;
 class Field; 
 inline Field *new_clone( const Field& i );
 template <typename ValueType> class Unknown; 
-template <int Index> class LocalizationField; 
+template <typename Tag> class LocalizationField; 
 
 }
 }

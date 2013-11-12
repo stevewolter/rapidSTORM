@@ -19,34 +19,28 @@ namespace dStorm {
 
 class Localization  { 
   public:
-    typedef localization::Field<traits::PositionX> PositionX; 
-        PositionX position_x;
-    typedef localization::Field<traits::PositionY> PositionY; 
-        PositionY position_y;
-    typedef localization::Field<traits::PositionZ> PositionZ; 
-        PositionZ position_z;
-    typedef localization::Field<traits::PositionUncertaintyX> PositionUncertaintyX; 
-        PositionUncertaintyX position_uncertainty_x;
-    typedef localization::Field<traits::PositionUncertaintyY> PositionUncertaintyY; 
-        PositionUncertaintyY position_uncertainty_y;
-    typedef localization::Field<traits::PositionUncertaintyZ> PositionUncertaintyZ; 
-        PositionUncertaintyZ position_uncertainty_z;
-    typedef localization::Field<traits::ImageNumber> ImageNumber; 
-        ImageNumber frame_number;
-    typedef localization::Field<traits::Amplitude> Amplitude; 
-        Amplitude amplitude;
-    typedef localization::Field<traits::PSFWidthX> PSFWidthX;
-        PSFWidthX psf_width_x;
-    typedef localization::Field<traits::PSFWidthY> PSFWidthY;
-        PSFWidthY psf_width_y;
-    typedef localization::Field<traits::TwoKernelImprovement> TwoKernelImprovement; 
-        TwoKernelImprovement two_kernel_improvement;
-    typedef localization::Field<traits::FitResidues> FitResidues; 
-        FitResidues fit_residues;
-    typedef localization::Field<traits::Fluorophore> Fluorophore; 
-        Fluorophore fluorophore;
-    typedef localization::Field<traits::LocalBackground> LocalBackground; 
-        LocalBackground local_background;
+#define FIELD(type,name) \
+    typedef localization::Field<traits::type> type; \
+    type name; \
+    const localization::Field<traits::type>& field(traits::type tag) const { return name; } \
+    localization::Field<traits::type>& field(traits::type tag) { return name; }
+
+    FIELD(PositionX, position_x);
+    FIELD(PositionY, position_y);
+    FIELD(PositionZ, position_z);
+    FIELD(PositionUncertaintyX, position_uncertainty_x);
+    FIELD(PositionUncertaintyY, position_uncertainty_y);
+    FIELD(PositionUncertaintyZ, position_uncertainty_z);
+    FIELD(ImageNumber, frame_number);
+    FIELD(Amplitude, amplitude);
+    FIELD(PSFWidthX, psf_width_x);
+    FIELD(PSFWidthY, psf_width_y);
+    FIELD(TwoKernelImprovement, two_kernel_improvement);
+    FIELD(FitResidues, fit_residues);
+    FIELD(Fluorophore, fluorophore);
+    FIELD(LocalBackground, local_background);
+#undef FIELD
+
     struct Fields {
         enum Indices {
             PositionX, PositionUncertaintyX,

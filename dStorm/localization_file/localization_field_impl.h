@@ -58,23 +58,20 @@ read_attribute(
         return std::string(a);
 }
 
-template <int Index>
-std::string field_identifier();
-
-template <> std::string field_identifier<Localization::Fields::PositionX>() { return "Position-0-0"; }
-template <> std::string field_identifier<Localization::Fields::PositionUncertaintyX>() { return "Position-0-0-uncertainty"; }
-template <> std::string field_identifier<Localization::Fields::PositionY>() { return "Position-1-0"; }
-template <> std::string field_identifier<Localization::Fields::PositionUncertaintyY>() { return "Position-1-0-uncertainty"; }
-template <> std::string field_identifier<Localization::Fields::PositionZ>() { return "Position-2-0"; }
-template <> std::string field_identifier<Localization::Fields::PositionUncertaintyZ>() { return "Position-2-0-uncertainty"; }
-template <> std::string field_identifier<Localization::Fields::ImageNumber>() { return "ImageNumber-0-0"; }
-template <> std::string field_identifier<Localization::Fields::Amplitude>() { return "Amplitude-0-0"; }
-template <> std::string field_identifier<Localization::Fields::PSFWidthX>() { return "PSFWidth-0-0"; }
-template <> std::string field_identifier<Localization::Fields::PSFWidthY>() { return "PSFWidth-1-0"; }
-template <> std::string field_identifier<Localization::Fields::TwoKernelImprovement>() { return "TwoKernelImprovement-0-0"; }
-template <> std::string field_identifier<Localization::Fields::LocalBackground>() { return "LocalBackground-0-0"; }
-template <> std::string field_identifier<Localization::Fields::FitResidues>() { return "FitResidues-0-0"; }
-template <> std::string field_identifier<Localization::Fields::Fluorophore>() { return "Fluorophore-0-0"; }
+std::string field_identifier(traits::PositionX) { return "Position-0-0"; }
+std::string field_identifier(traits::PositionUncertaintyX) { return "Position-0-0-uncertainty"; }
+std::string field_identifier(traits::PositionY) { return "Position-1-0"; }
+std::string field_identifier(traits::PositionUncertaintyY) { return "Position-1-0-uncertainty"; }
+std::string field_identifier(traits::PositionZ) { return "Position-2-0"; }
+std::string field_identifier(traits::PositionUncertaintyZ) { return "Position-2-0-uncertainty"; }
+std::string field_identifier(traits::ImageNumber) { return "ImageNumber-0-0"; }
+std::string field_identifier(traits::Amplitude) { return "Amplitude-0-0"; }
+std::string field_identifier(traits::PSFWidthX) { return "PSFWidth-0-0"; }
+std::string field_identifier(traits::PSFWidthY) { return "PSFWidth-1-0"; }
+std::string field_identifier(traits::TwoKernelImprovement) { return "TwoKernelImprovement-0-0"; }
+std::string field_identifier(traits::LocalBackground) { return "LocalBackground-0-0"; }
+std::string field_identifier(traits::FitResidues) { return "FitResidues-0-0"; }
+std::string field_identifier(traits::Fluorophore) { return "Fluorophore-0-0"; }
 
 template <typename Unit, typename Value>
 inline std::string name_string( const quantity<Unit,Value>& );
@@ -99,17 +96,17 @@ static std::string guess_ident_from_semantic(const TiXmlElement& n) {
     const char *semantic_attrib = n.Attribute("semantic");
     if ( semantic_attrib != NULL ) semantic = semantic_attrib;
     if ( semantic == "x-position" )
-        return field_identifier<Localization::Fields::PositionX>();
+        return field_identifier(traits::PositionX());
     else if ( semantic == "y-position" )
-        return field_identifier<Localization::Fields::PositionY>();
+        return field_identifier(traits::PositionY());
     else if ( semantic == "z-position" )
-        return field_identifier<Localization::Fields::PositionZ>();
+        return field_identifier(traits::PositionZ());
     else if ( semantic == "frame number" )
-        return field_identifier<Localization::Fields::ImageNumber>();
+        return field_identifier(traits::ImageNumber());
     else if ( semantic == "emission strength" )
-        return field_identifier<Localization::Fields::Amplitude>();
+        return field_identifier(traits::Amplitude());
     else if ( semantic == "two kernel improvement" )
-        return field_identifier<Localization::Fields::TwoKernelImprovement>();
+        return field_identifier(traits::TwoKernelImprovement());
 
     // TODO: Implement more heuristics: x-sigma i.e.
     return "";
@@ -124,8 +121,8 @@ inline void output_value_only( std::ostream& o, quantity<Unit,Value> a )
     o << a.value();
 }
 
-template <int Index>
-std::string LocalizationField<Index>::ident_field(const TiXmlElement& n)
+template <typename Tag>
+std::string LocalizationField<Tag>::ident_field(const TiXmlElement& n)
 {
         std::string ident;
         if ( n.Attribute("identifier") )
@@ -139,8 +136,8 @@ std::string LocalizationField<Index>::ident_field(const TiXmlElement& n)
             return ident;
     }
 
-template <int Index>
-std::string LocalizationField<Index>::dimen_name(int d) {
+template <typename Tag>
+std::string LocalizationField<Tag>::dimen_name(int d) {
     switch (d) {
         case 0: return "x";
         case 1: return "y";
@@ -151,19 +148,29 @@ std::string LocalizationField<Index>::dimen_name(int d) {
     }
 }
 
-template <int Index>
-Field::Ptr LocalizationField<Index>::try_to_parse( const TiXmlElement& n, TraitsType& traits ) 
+template <typename Tag>
+Field::Ptr LocalizationField<Tag>::try_to_parse( const TiXmlElement& n, TraitsType& traits ) 
 {
     std::string ident = ident_field(n);
 
-    if ( ident == field_identifier<Index>() )
-        return Field::Ptr( new LocalizationField<Index>(n, traits) );
+    if ( ident == field_identifier(Tag()) )
+        return Field::Ptr( new LocalizationField<Tag>(n, traits) );
 
     return Field::Ptr();
 }
 
-template <int Index>
-LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsType& localization_traits ) 
+template <typename Tag>
+bool has_implied_lower_boundary_of_zero(Tag tag) {
+    return false;
+}
+
+template <int Dimension>
+bool has_implied_lower_boundary_of_zero(traits::Position<Dimension> tag) {
+    return true;
+}
+
+template <typename Tag>
+LocalizationField<Tag>::LocalizationField( const TiXmlElement& node, TraitsType& localization_traits ) 
 {
     TraitsType& traits = localization_traits;
     const std::string 
@@ -178,7 +185,7 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
     if ( TraitsType::has_range ) {
         /* Backward compatibility: Old versions of the XML syntax didn't require lower boundaries for the
           * spatial coordinates, but implied 0. */
-        if ( (Index == Localization::Fields::PositionX || Index == Localization::Fields::PositionY || Index == Localization::Fields::PositionZ)
+        if ( has_implied_lower_boundary_of_zero(Tag())
              && node.Attribute("min") == NULL && node.Attribute("identifier")  == NULL ) {
             DEBUG("Setting field minimum to 0");
             traits.range().first = ValueType::from_value(0);
@@ -190,16 +197,16 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
     set_input_unit( read_attribute(node, "unit"), localization_traits );
 }
 
-template <int Index>
-LocalizationField<Index>::LocalizationField() {}
+template <typename Tag>
+LocalizationField<Tag>::LocalizationField() {}
 
-template <int Index>
-LocalizationField<Index>::~LocalizationField()  {}
+template <typename Tag>
+LocalizationField<Tag>::~LocalizationField()  {}
 
-template <int Index>
-std::auto_ptr<TiXmlNode> LocalizationField<Index>::makeNode( const Field::Traits& traits ) { 
+template <typename Tag>
+std::auto_ptr<TiXmlNode> LocalizationField<Tag>::makeNode( const Field::Traits& traits ) { 
     std::auto_ptr<TiXmlElement> rv( new  TiXmlElement("field") );
-    rv->SetAttribute( "identifier", field_identifier<Index>().c_str() );
+    rv->SetAttribute( "identifier", field_identifier(Tag()).c_str() );
     rv->SetAttribute( "syntax", type_string< typename TraitsType::ValueType >::ident().c_str() );
 
     std::stringstream semantic;
@@ -210,21 +217,21 @@ std::auto_ptr<TiXmlNode> LocalizationField<Index>::makeNode( const Field::Traits
             typename TraitsType::OutputType()).c_str() );
     
     if ( TraitsType::has_range ) {
-        condAddAttribute( *rv, static_cast<const TraitsType&>(traits).range().first, "min" );
-        condAddAttribute( *rv, static_cast<const TraitsType&>(traits).range().second, "max" );
+        condAddAttribute( *rv, traits.field(Tag()).range().first, "min" );
+        condAddAttribute( *rv, traits.field(Tag()).range().second, "max" );
     }
 
     return std::auto_ptr<TiXmlNode>( rv.release() );
 }
 
-template <int Index>
-void LocalizationField<Index>::set_input_unit(const std::string& unit, const Field::Traits& traits)
+template <typename Tag>
+void LocalizationField<Tag>::set_input_unit(const std::string& unit, const Field::Traits& traits)
 {
     set_input_unit( unit, traits );
 }
 
-template <int Index>
-void LocalizationField<Index>::set_input_unit(const std::string& unit, const TraitsType& traits)
+template <typename Tag>
+void LocalizationField<Tag>::set_input_unit(const std::string& unit, const TraitsType& traits)
 {
     converter = Converter::create( unit );
     if ( converter.get() == NULL )
@@ -232,23 +239,20 @@ void LocalizationField<Index>::set_input_unit(const std::string& unit, const Tra
             "parsing localization file: " + unit);
 }
 
-template <int Index>
-void LocalizationField<Index>::write(std::ostream& output, const Localization& source)
+template <typename Tag>
+void LocalizationField<Tag>::write(std::ostream& output, const Localization& source)
 {
-    const typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Index> >::type&
-        field = boost::fusion::at_c<Index>(source);
-
     typename TraitsType::OutputType ov 
-        = static_cast<typename TraitsType::OutputType>( field.value() );
+        = static_cast<typename TraitsType::OutputType>( source.field(Tag()).value() );
     output_value_only(output, ov);
 }
 
-template <int Index>
-void LocalizationField<Index>::parse(std::istream& input, Localization& target)
+template <typename Tag>
+void LocalizationField<Tag>::parse(std::istream& input, Localization& target)
 {
     typename ValueType::value_type v;
     input >> v;
-    boost::fusion::at_c<Index>(target).value() = converter->from_value(v);
+    target.field(Tag()).value() = converter->from_value(v);
 }
 
 template <typename Type, typename LocalizationField>

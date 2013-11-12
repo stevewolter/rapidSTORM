@@ -22,8 +22,11 @@
 
 namespace dStorm {
 
-namespace input {
-template <> class Traits<Localization>;
+namespace localization {
+
+template <typename Tag>
+class MetaInfo : public Tag {};
+
 }
 
 namespace input {
@@ -32,20 +35,20 @@ template <>
 struct Traits< Localization > 
 : public input::BaseTraits,
   public DataSetTraits,
-  public traits::PositionX,
-  public traits::PositionY,
-  public traits::PositionZ,
-  public traits::PositionUncertaintyX,
-  public traits::PositionUncertaintyY,
-  public traits::PositionUncertaintyZ,
-  public traits::Amplitude,
-  public traits::PSFWidth<0>,
-  public traits::PSFWidth<1>,
-  public traits::TwoKernelImprovement,
-  public traits::FitResidues,
-  public traits::ImageNumber,
-  public traits::Fluorophore,
-  public traits::LocalBackground
+  public localization::MetaInfo<traits::PositionX>,
+  public localization::MetaInfo<traits::PositionY>,
+  public localization::MetaInfo<traits::PositionZ>,
+  public localization::MetaInfo<traits::PositionUncertaintyX>,
+  public localization::MetaInfo<traits::PositionUncertaintyY>,
+  public localization::MetaInfo<traits::PositionUncertaintyZ>,
+  public localization::MetaInfo<traits::Amplitude>,
+  public localization::MetaInfo<traits::PSFWidth<0>>,
+  public localization::MetaInfo<traits::PSFWidth<1>>,
+  public localization::MetaInfo<traits::TwoKernelImprovement>,
+  public localization::MetaInfo<traits::FitResidues>,
+  public localization::MetaInfo<traits::ImageNumber>,
+  public localization::MetaInfo<traits::Fluorophore>,
+  public localization::MetaInfo<traits::LocalBackground>
 {
     Traits();
     Traits( const Traits& );
@@ -70,6 +73,16 @@ struct Traits< Localization >
     ACCESSORS(traits::Fluorophore,fluorophore)
     ACCESSORS(traits::LocalBackground,local_background)
 #undef ACCESSORS
+
+    template <class Tag>
+    const typename localization::MetaInfo<Tag>& field(Tag tag) const {
+        return *this;
+    }
+
+    template <class Tag>
+    typename localization::MetaInfo<Tag>& field(Tag tag) {
+        return *this;
+    }
 
     typedef std::vector< boost::shared_ptr< Traits > > Sources;
     Sources source_traits;
