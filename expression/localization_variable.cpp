@@ -1,6 +1,9 @@
 #include "localization_variable_decl.h"
+#include <boost/bind/bind.hpp>
+#include <boost/mpl/bind.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/fusion/include/value_at.hpp>
+#include "dStorm/localization/Fields.h"
 #include "expression/QuantityDynamizer.hpp"
 #include "dStorm/Localization.h"
 #include "dejagnu.h"
@@ -8,20 +11,19 @@
 namespace dStorm {
 namespace expression {
 
-template <int Field>
+template <typename Tag>
 class ValueVariable : public Variable {
-  typedef typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Field> >::type::Traits TraitsType;
  public:
-  ValueVariable() : Variable(TraitsType::get_shorthand()) {}
+  ValueVariable() : Variable(Tag::get_shorthand()) {}
 
   Variable* clone() const { return new ValueVariable(*this); }
 
   bool is_static(const input::Traits<Localization>& traits) const {
-    return static_cast<const TraitsType&>(traits).static_value;
+    return traits.field(Tag()).static_value;
   }
 
   DynamicQuantity get(const input::Traits<Localization>& traits) const {
-    if (static_cast<const TraitsType&>(traits).is_given) {
+    if (traits.field(Tag()).is_given) {
       return dynamizer.from_value( std::numeric_limits<double>::quiet_NaN() );
     } else {
       throw std::runtime_error("Tried to read variable " + this->Variable::name + ", but it is not defined.");
@@ -29,39 +31,37 @@ class ValueVariable : public Variable {
   }
 
   DynamicQuantity get(const Localization& localization) const {
-    return dynamizer(boost::fusion::at_c<Field>(localization).value());
+    return dynamizer(localization.field(Tag()).value());
   }
 
   void set( input::Traits<Localization>& traits, const DynamicQuantity& value ) const {
-    static_cast<TraitsType&>(traits).is_given = true;
+    traits.field(Tag()).is_given = true;
   }
 
   bool set( const input::Traits<Localization>& localization_traits, Localization& localization, const DynamicQuantity& value ) const {
-    const typename TraitsType::ValueType parsed_value( dynamizer(value) );
-    boost::fusion::at_c<Field>(localization) = parsed_value;
-    const TraitsType& traits = localization_traits;
+    const typename Tag::ValueType parsed_value( dynamizer(value) );
+    localization.field(Tag()) = parsed_value;
+    const localization::MetaInfo<Tag>& traits = localization_traits;
     return (!traits.range().first || *traits.range().first <= parsed_value) &&
            (!traits.range().second || *traits.range().second >= parsed_value);
   }
 
  private:
-  QuantityDynamizer< typename TraitsType::ValueType > dynamizer;
+  QuantityDynamizer< typename Tag::ValueType > dynamizer;
 };
 
-template <int Field>
+template <typename Tag>
 class MinVariable : public Variable {
-  typedef typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Field> >::type::Traits TraitsType;
  public:
-  MinVariable() : Variable("min" + TraitsType::get_shorthand()) {}
+  MinVariable() : Variable("min" + Tag::get_shorthand()) {}
 
   Variable* clone() const { return new MinVariable(*this); }
 
   bool is_static(const input::Traits<Localization>& traits) const { return true; }
 
-  DynamicQuantity get(const input::Traits<Localization>& localization_traits) const {
-    const TraitsType& traits = localization_traits;
-    if (traits.range().first) {
-      return dynamizer(*traits.range().first);
+  DynamicQuantity get(const input::Traits<Localization>& traits) const {
+    if (traits.field(Tag()).range().first) {
+      return dynamizer(*traits.field(Tag()).range().first);
     } else {
       throw std::runtime_error("Tried to read variable " + name + ", but it is not defined.");
     }
@@ -72,31 +72,29 @@ class MinVariable : public Variable {
   }
 
   void set( input::Traits<Localization>& traits, const DynamicQuantity& value ) const {
-    static_cast<TraitsType&>(traits).range().first = dynamizer(value);
+    traits.field(Tag()).range().first = dynamizer(value);
   }
 
   bool set( const input::Traits<Localization>& traits, Localization& localization, const DynamicQuantity& value ) const {
-    return *static_cast<const TraitsType&>(traits).range().first <= boost::fusion::at_c<Field>(localization).value();
+    return *traits.field(Tag()).range().first <= localization.field(Tag()).value();
   }
 
  private:
-  QuantityDynamizer<  typename TraitsType::ValueType > dynamizer;
+  QuantityDynamizer<  typename Tag::ValueType > dynamizer;
 };
 
-template <int Field>
+template <typename Tag>
 class MaxVariable : public Variable {
-  typedef typename boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Field> >::type::Traits TraitsType;
  public:
-  MaxVariable() : Variable("max" + TraitsType::get_shorthand()) {}
+  MaxVariable() : Variable("max" + Tag::get_shorthand()) {}
 
   Variable* clone() const { return new MaxVariable(*this); }
 
   bool is_static(const input::Traits<Localization>& traits) const { return true; }
 
-  DynamicQuantity get(const input::Traits<Localization>& localization_traits) const {
-    const TraitsType& traits = localization_traits;
-    if (traits.range().second) {
-      return dynamizer(*traits.range().second);
+  DynamicQuantity get(const input::Traits<Localization>& traits) const {
+    if (traits.field(Tag()).range().second) {
+      return dynamizer(*traits.field(Tag()).range().second);
     } else {
       throw std::runtime_error("Tried to read variable " + name + ", but it is not defined.");
     }
@@ -107,57 +105,34 @@ class MaxVariable : public Variable {
   }
 
   void set( input::Traits<Localization>& traits, const DynamicQuantity& value ) const {
-    static_cast<TraitsType&>(traits).range().second = dynamizer(value);
+    traits.field(Tag()).range().second = dynamizer(value);
   }
 
   bool set( const input::Traits<Localization>& traits, Localization& localization, const DynamicQuantity& value ) const {
-    return *static_cast<const TraitsType&>(traits).range().second >= boost::fusion::at_c<Field>(localization).value();
+    return *traits.field(Tag()).range().second >= localization.field(Tag()).value();
   }
 
  private:
-  QuantityDynamizer< typename TraitsType::ValueType > dynamizer;
+  QuantityDynamizer< typename Tag::ValueType > dynamizer;
 };
 
-
-/** \cond */
-template <int Field> struct FieldAdder;
-template <> struct FieldAdder<Localization::Fields::Count>;
-
-template <int Field, bool has_range>
-struct RangedFieldAdder {
-  static void add_variables_for_field(boost::ptr_vector<Variable>& target) {
-  }
-};
-
-template <int Field>
-struct RangedFieldAdder<Field,false> {
-  static void add_variables_for_field(boost::ptr_vector<Variable>& target) {
-  }
-};
-
-template <>
-struct FieldAdder<Localization::Fields::Count> {
-    static void add_variables_for_field(boost::ptr_vector<Variable>& target) {}
-};
-
-template <int Field>
-struct FieldAdder : public FieldAdder<Field+1> {
-    static void add_variables_for_field(boost::ptr_vector<Variable>& target) {
-      target.push_back( new ValueVariable<Field>() );
-      if (boost::fusion::result_of::value_at<Localization, boost::mpl::int_<Field> >::type::Traits::has_range) {
-        target.push_back( new MinVariable<Field>() );
-        target.push_back( new MaxVariable<Field>() );
+struct FieldAdder {
+    typedef void result_type;
+    template <typename Tag>
+    void operator()(boost::ptr_vector<Variable>& target, Tag tag) {
+      target.push_back( new ValueVariable<Tag>() );
+      if (Tag::has_range) {
+        target.push_back( new MinVariable<Tag>() );
+        target.push_back( new MaxVariable<Tag>() );
       }
-      FieldAdder<Field+1>::add_variables_for_field(target);
     }
 };
-
-/** \endcond */
 
 std::auto_ptr< boost::ptr_vector<Variable> >
 variables_for_localization_fields() {
     boost::ptr_vector<Variable> rv;
-    FieldAdder<0>::add_variables_for_field(rv);
+    boost::mpl::for_each<localization::Fields>(boost::bind(
+        FieldAdder(), boost::ref(rv), _1));
     return rv.release();
 }
 
@@ -167,7 +142,7 @@ void check_localization_variable( TestState& state ) {
 
     loc.position_x() = 15 * boost::units::si::meter;
 
-    ValueVariable<Localization::Fields::PositionX> v;
+    ValueVariable<traits::PositionX> v;
 
     try {
         v.get(traits);
