@@ -11,10 +11,10 @@
 namespace dStorm {
 namespace binning {
 
-template <int Field>
+template <typename Tag>
 class LocalizationConfig : public FieldConfig
 {
-    typedef typename Localization<Field,false>::TraitsType Traits;
+    typedef typename Localization<Tag,false>::TraitsType Traits;
     bool use_resolution;
 
     typedef quantity< 

@@ -4,7 +4,7 @@
 #include <simparm/FileEntry.h>
 #include <dStorm/units/nanolength.h>
 #include "binning/binning.hpp"
-#include "binning/localization.h"
+#include "binning/localization_impl.h"
 #include <dStorm/output/OutputBuilder.h>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/output/FileOutputBuilder.h>
@@ -74,9 +74,9 @@ Output::Output( const Config& config )
 {
     quantity<si::length, float> v( config.bin_size() );
     scalers.replace(0, binning::make_BinningAdapter<binning::Scaled>(
-          binning::Localization< Localization::Fields::PositionX, binning::ScaledByResolution >(v) ));
+          binning::Localization< traits::PositionX, binning::ScaledByResolution >(v) ));
     scalers.replace(1, binning::make_BinningAdapter<binning::Scaled>(
-          binning::Localization< Localization::Fields::PositionY, binning::ScaledByResolution >(v) ));
+          binning::Localization< traits::PositionY, binning::ScaledByResolution >(v) ));
 }
 
 Output::AdditionalData Output::announceStormSize(const Announcement& a) {

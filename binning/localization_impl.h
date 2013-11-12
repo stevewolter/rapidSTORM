@@ -9,81 +9,79 @@
 namespace dStorm {
 namespace binning {
 
-template <int Index>
-Localization<Index,IsUnscaled>::Localization() {}
+template <typename Tag>
+Localization<Tag,IsUnscaled>::Localization() {}
 
-template <int Index>
-Localization<Index,Bounded>::Localization()
+template <typename Tag>
+Localization<Tag,Bounded>::Localization()
 : Base(), discard( true ) {}
 
-template <int Index>
-Localization<Index,ScaledByResolution>::Localization(value res) 
+template <typename Tag>
+Localization<Tag,ScaledByResolution>::Localization(value res) 
 : Base(), scale(1.0f / quantity<typename value::unit_type,float>(res))
 {
-    DEBUG("Scale factor for field " << Index << " is " << scale);
 }
 
-template <int Index>
-Localization<Index,ScaledToInterval>::Localization(float desired_range) 
+template <typename Tag>
+Localization<Tag,ScaledToInterval>::Localization(float desired_range) 
 : Base(), desired_range(desired_range)
 {
-    DEBUG("Desired range for field " << Index << " is " << desired_range);
 }
 
-template <int Index>
-Localization<Index,InteractivelyScaledToInterval>::Localization(float desired_range) 
+template <typename Tag>
+Localization<Tag,InteractivelyScaledToInterval>::Localization(float desired_range) 
 : Base(desired_range)
 {
     not_given.set();
 }
 
-template <int Index>
-typename Localization<Index,IsUnscaled>::value
-Localization<Index,IsUnscaled>::bin_naively( const dStorm::Localization& l ) const
+template <typename Tag>
+typename Localization<Tag,IsUnscaled>::value
+Localization<Tag,IsUnscaled>::bin_naively( const dStorm::Localization& l ) const
 {
-    return boost::fusion::at_c<Index>(l).value();
+    return l.field(Tag()).value();
 }
 
-template <int Index>
+template <typename Tag>
 bool
-Localization<Index,Bounded>::in_range( value v ) const
+Localization<Tag,Bounded>::in_range( value v ) const
 {
     return (v >= range[0] && v <= range[1]);
 }
 
-template <int Index>
+template <typename Tag>
 float
-Localization<Index,Bounded>::scale( value v ) const
+Localization<Tag,Bounded>::scale( value v ) const
 {
     return (v - range[0]).value();
 }
 
-template <int Index>
-typename Localization<Index,Bounded>::value
-Localization<Index,Bounded>::clip( value v ) const
+template <typename Tag>
+typename Localization<Tag,Bounded>::value
+Localization<Tag,Bounded>::clip( value v ) const
 {
     return std::max( range[0], std::min( v, range[1] ) );
 }
 
 
-template <int Index>
+template <typename Tag>
 boost::optional<float>
-Localization<Index,IsUnscaled>::bin_point( const dStorm::Localization& l ) const
+Localization<Tag,IsUnscaled>::bin_point( const dStorm::Localization& l ) const
 {
     return bin_naively(l).value(); 
 }
 
-template <int Index>
+template <typename Tag>
 boost::optional<float>
-Localization<Index,IsUnscaled>::get_uncertainty( const dStorm::Localization& l ) const
+Localization<Tag,IsUnscaled>::get_uncertainty( const dStorm::Localization& l ) const
 {
   // TODO: return scalar.value(boost::fusion::at_c<Index>(l).uncertainty()).value();
   return boost::optional<float>();
 }
 
-template <int Index>
+template <typename Tag>
 boost::optional<float>
-Localization<Index,Bounded>::bin_point( const dStorm::Localization& l ) const
+Localization<Tag,Bounded>::bin_point( const dStorm::Localization& l ) const
 {
     value v = this->bin_naively(l);
     if ( discard ) {
@@ -96,9 +94,9 @@ Localization<Index,Bounded>::bin_point( const dStorm::Localization& l ) const
     }
 }
 
-template <int Index>
+template <typename Tag>
 boost::optional<float>
-Localization<Index,ScaledByResolution>::bin_point( const dStorm::Localization& l ) const
+Localization<Tag,ScaledByResolution>::bin_point( const dStorm::Localization& l ) const
 {
     boost::optional<float> f = Base::bin_point( l );
     if ( f.is_initialized() )
@@ -107,17 +105,17 @@ Localization<Index,ScaledByResolution>::bin_point( const dStorm::Localization& l
         return f;
 }
 
-template <int Index>
+template <typename Tag>
 boost::optional<float>
-Localization<Index,ScaledByResolution>::get_uncertainty( const dStorm::Localization& l ) const
+Localization<Tag,ScaledByResolution>::get_uncertainty( const dStorm::Localization& l ) const
 {
     boost::optional<float> f = Base::get_uncertainty( l );
     if ( f.is_initialized() ) return *f * scale.value(); else return f;
 }
 
-template <int Index>
+template <typename Tag>
 boost::optional<float>
-Localization<Index,InteractivelyScaledToInterval>::bin_point( const dStorm::Localization& l ) const
+Localization<Tag,InteractivelyScaledToInterval>::bin_point( const dStorm::Localization& l ) const
 {
     if ( not_given.none() ) {
         return Base::bin_point(l);
@@ -126,9 +124,9 @@ Localization<Index,InteractivelyScaledToInterval>::bin_point( const dStorm::Loca
     }
 }
 
-template <int Index>
+template <typename Tag>
 boost::optional<float>
-Localization<Index,InteractivelyScaledToInterval>::get_uncertainty( const dStorm::Localization& l ) const
+Localization<Tag,InteractivelyScaledToInterval>::get_uncertainty( const dStorm::Localization& l ) const
 {
     if ( not_given.none() ) {
         return Base::get_uncertainty(l);
@@ -137,9 +135,9 @@ Localization<Index,InteractivelyScaledToInterval>::get_uncertainty( const dStorm
     }
 }
 
-template <int Index>
+template <typename Tag>
 int
-Localization<Index,IsUnscaled>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+Localization<Tag,IsUnscaled>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
 {
     float *t = target;
     for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i, t += stride)
@@ -147,9 +145,9 @@ Localization<Index,IsUnscaled>::bin_points(const output::LocalizedImage& l, floa
     return (t - target) / stride;
 }
 
-template <int Index>
+template <typename Tag>
 int
-Localization<Index,Bounded>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+Localization<Tag,Bounded>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
 {
     float *t = target;
     for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i)
@@ -163,9 +161,9 @@ Localization<Index,Bounded>::bin_points(const output::LocalizedImage& l, float *
     return (t - target) / stride;
 }
 
-template <int Index>
+template <typename Tag>
 int
-Localization<Index,ScaledByResolution>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+Localization<Tag,ScaledByResolution>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
 {
     int c = Base::bin_points(l, target, stride);
     for (int i = 0; i < c; ++i)
@@ -173,9 +171,9 @@ Localization<Index,ScaledByResolution>::bin_points(const output::LocalizedImage&
     return c;
 }
 
-template <int Index>
+template <typename Tag>
 int
-Localization<Index,InteractivelyScaledToInterval>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+Localization<Tag,InteractivelyScaledToInterval>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
 {
     if ( not_given.none() )
         return Base::bin_points(l, target, stride);
@@ -184,8 +182,8 @@ Localization<Index,InteractivelyScaledToInterval>::bin_points(const output::Loca
     }
 }
 
-template <int Index>
-void Localization<Index,IsUnscaled>::announce(const output::Output::Announcement& a) 
+template <typename Tag>
+void Localization<Tag,IsUnscaled>::announce(const output::Output::Announcement& a) 
 { 
 }
 
@@ -200,8 +198,8 @@ inline std::string dimen_name(int d) {
     }
 }
 
-template <int Index>
-void Localization<Index,Bounded>::announce(const output::Output::Announcement& a) 
+template <typename Tag>
+void Localization<Tag,Bounded>::announce(const output::Output::Announcement& a) 
 { 
     Base::announce(a);
     const TraitsType& traits = a;
@@ -218,16 +216,16 @@ void Localization<Index,Bounded>::announce(const output::Output::Announcement& a
     range[1] = *traits.range().second; 
 }
 
-template <int Index>
-void Localization<Index,ScaledToInterval>::announce(const output::Output::Announcement& a) 
+template <typename Tag>
+void Localization<Tag,ScaledToInterval>::announce(const output::Output::Announcement& a) 
 { 
     Base::announce(a);
 
     recompute_scale();
 }
 
-template <int Index>
-void Localization<Index,InteractivelyScaledToInterval>::announce(const output::Output::Announcement& a) 
+template <typename Tag>
+void Localization<Tag,InteractivelyScaledToInterval>::announce(const output::Output::Announcement& a) 
 { 
     orig_range = static_cast<const TraitsType&>(a).range();
     if ( orig_range.first.is_initialized() && ! user.test(0) ) 
@@ -237,110 +235,108 @@ void Localization<Index,InteractivelyScaledToInterval>::announce(const output::O
     if ( not_given.none() ) Base::recompute_scale();
 }
 
-template <int Index>
-float Localization<Index,Bounded>::get_size() const
+template <typename Tag>
+float Localization<Tag,Bounded>::get_size() const
 {
-    DEBUG("Interval for " << Index << " goes from " << range[0] << " " << range[1]);
     return (range[1] - range[0]).value();
 }
-template <int Index>
-float Localization<Index,ScaledByResolution>::get_size() const
+template <typename Tag>
+float Localization<Tag,ScaledByResolution>::get_size() const
 {
     float rv = Base::get_size() * scale.value();
-    DEBUG( "Size for field " << Index << " is " << rv );
     return rv;
 }
-template <int Index>
-float Localization<Index,ScaledToInterval>::get_size() const
+template <typename Tag>
+float Localization<Tag,ScaledToInterval>::get_size() const
 {
     return desired_range;
 }
 
-template <int Index>
-void Localization<Index,ScaledToInterval>::recompute_scale() 
+template <typename Tag>
+void Localization<Tag,ScaledToInterval>::recompute_scale() 
 {
     Base::scale = desired_range / typename Base::InvScale(Base::range[1] - Base::range[0]);
 }
 
-template <int Index>
-traits::ImageResolution Localization<Index,IsUnscaled>::resolution() const
+template <typename Tag>
+traits::ImageResolution Localization<Tag,IsUnscaled>::resolution() const
 {
     traits::ImageResolution rv( value::from_value(1.0) / camera::pixel );
     assert( rv.unit_symbol == symbol_string(typename value::unit_type()) );
     return rv;
 }
 
-template <int Index>
-traits::ImageResolution Localization<Index,ScaledByResolution>::resolution() const
+template <typename Tag>
+traits::ImageResolution Localization<Tag,ScaledByResolution>::resolution() const
 {
     traits::ImageResolution rv( static_cast<typename Base::Scale::value_type>(1.0) / scale / camera::pixel );
     assert( rv.unit_symbol == symbol_string(typename value::unit_type()) );
     return rv;
 }
 
-template <int Index>
-bool Localization<Index,IsUnscaled>::can_work_with( const input::Traits<dStorm::Localization>& t )
+template <typename Tag>
+bool Localization<Tag,IsUnscaled>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
     return static_cast<const TraitsType&>(t).is_given;
 } 
 
-template <int Index>
-bool Localization<Index,Bounded>::can_work_with( const input::Traits<dStorm::Localization>& t )
+template <typename Tag>
+bool Localization<Tag,Bounded>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
   const TraitsType& traits = t;
   return Base::can_work_with(t) && traits.range().first.is_initialized() && traits.range().second.is_initialized();
 }
 
-template <int Index>
-bool Localization<Index,ScaledByResolution>::can_work_with( const input::Traits<dStorm::Localization>& t)
+template <typename Tag>
+bool Localization<Tag,ScaledByResolution>::can_work_with( const input::Traits<dStorm::Localization>& t)
 {
     return Base::can_work_with(t);
 }
 
-template <int Index>
-bool Localization<Index,ScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t)
+template <typename Tag>
+bool Localization<Tag,ScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t)
 {
     return Base::can_work_with(t);
 }
 
-template <int Index>
-bool Localization<Index,InteractivelyScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t )
+template <typename Tag>
+bool Localization<Tag,InteractivelyScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
     return static_cast<const TraitsType&>(t).is_given;
 }
 
-template <int Index>
-std::pair< float, float > Localization<Index,Bounded>::get_minmax() const
+template <typename Tag>
+std::pair< float, float > Localization<Tag,Bounded>::get_minmax() const
 {
     return std::make_pair( range[0].value(), range[1].value() );
 }
 
-template <int Index>
-std::pair< float, float > Localization<Index,ScaledByResolution>::get_minmax() const
+template <typename Tag>
+std::pair< float, float > Localization<Tag,ScaledByResolution>::get_minmax() const
 {
     return std::make_pair( Base::range[0] * scale, Base::range[1] * scale );
 }
 
-template <int Index>
-bool Localization<Index,InteractivelyScaledToInterval>::is_bounded() const
+template <typename Tag>
+bool Localization<Tag,InteractivelyScaledToInterval>::is_bounded() const
 {
     return not_given.none();
 }
 
-template <int Index>
-double Localization<Index,Bounded>::reverse_mapping( float mapped_value ) const
+template <typename Tag>
+double Localization<Tag,Bounded>::reverse_mapping( float mapped_value ) const
 {
     return mapped_value + range[0].value();
 }
 
-template <int Index>
-double Localization<Index,ScaledByResolution>::reverse_mapping( float mapped_value ) const
+template <typename Tag>
+double Localization<Tag,ScaledByResolution>::reverse_mapping( float mapped_value ) const
 {
     return value(mapped_value / scale + Base::range[0]).value();
 }
 
-template <int Index>
-void Localization<Index,InteractivelyScaledToInterval>::set_user_limit( bool lower_limit, const std::string& s )
+template <typename Tag>
+void Localization<Tag,InteractivelyScaledToInterval>::set_user_limit( bool lower_limit, const std::string& s )
 {
     int i = (lower_limit) ? 0 : 1;
     if ( s == "" ) {
@@ -361,8 +357,8 @@ void Localization<Index,InteractivelyScaledToInterval>::set_user_limit( bool low
     if ( not_given.none() ) Base::recompute_scale();
 }
 
-template <int Index>
-display::KeyDeclaration Localization<Index,InteractivelyScaledToInterval>::key_declaration() const
+template <typename Tag>
+display::KeyDeclaration Localization<Tag,InteractivelyScaledToInterval>::key_declaration() const
 {
     traits::ImageResolution resolution = this->resolution();
     dStorm::display::KeyDeclaration rv(

@@ -30,7 +30,6 @@ struct FieldChoice
 : public simparm::ManagedChoiceEntry<FieldConfig>
 {
   private:
-    template <int Field> void fill(BinningType type, std::string axis);
     default_on_copy< boost::signals2::signal<void()> > change;
     simparm::BaseAttribute::ConnectionStore listening;
     

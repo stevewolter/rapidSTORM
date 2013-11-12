@@ -19,7 +19,7 @@ class Coordinate : public ColourScheme {
     static const int key_resolution = 100;
 
     Engine *repeater;
-    bool is_for_image_number, currently_mapping;
+    bool currently_mapping;
     const float range;
 
     void set_tone( const Localization& l );
@@ -53,7 +53,6 @@ class Coordinate : public ColourScheme {
 
 Coordinate::Coordinate( bool invert, std::auto_ptr< binning::UserScaled > scaled, float range )
 : ColourScheme(invert), mixer(0,0), variable( scaled ), repeater(NULL),
-  is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ),
   range(range)
 {
     currently_mapping = variable->is_bounded();
@@ -63,7 +62,7 @@ Coordinate::Coordinate( bool invert, std::auto_ptr< binning::UserScaled > scaled
 
 Coordinate::Coordinate( const Coordinate& o )
 : ColourScheme(o), mixer(o.mixer), variable( o.variable->clone() ), repeater(o.repeater),
-  is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping),
+  currently_mapping(o.currently_mapping),
   range(o.range)
 {
 }
@@ -118,16 +117,12 @@ void Coordinate::announce(const output::Output::Announcement& a)
     mixer.set_base_tone( 0, (currently_mapping) ? 1 : 0 );
 }
 
-void Coordinate::announce(const output::Output::EngineResult& er)
-{
-    if ( currently_mapping && is_for_image_number && ! er.empty() ) {
-        set_tone( er.front() );
-    }
+void Coordinate::announce(const output::Output::EngineResult& er) {
 }
 
 void Coordinate::announce(const Localization& l)
 {
-    if ( currently_mapping && ! is_for_image_number ) {
+    if ( currently_mapping ) {
         set_tone( l );
     }
 }

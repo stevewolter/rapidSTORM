@@ -21,7 +21,7 @@
 #include <numeric>
 #include <boost/units/Eigen/Array>
 #include <dStorm/helpers/back_inserter.h>
-#include "binning/localization.h"
+#include "binning/localization_impl.h"
 #include <dStorm/output/Filter.h>
 #include <dStorm/image/iterator.h>
 #include <boost/units/Eigen/Array>
@@ -177,8 +177,8 @@ Output::Output(
   reducer( config.reducer.make_trace_reducer() ), 
   maxDist( config.distance_threshold() )
 {
-    binners[0] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionX, binning::ScaledToInterval>(100));
-    binners[1] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<Localization::Fields::PositionY, binning::ScaledToInterval>(100));
+    binners[0] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<traits::PositionX, binning::ScaledToInterval>(100));
+    binners[1] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<traits::PositionY, binning::ScaledToInterval>(100));
     for (int i = 0; i < 2; ++i) {
         kalman_info.set_diffusion(i, config.diffusion() * 2.0);
         kalman_info.set_mobility(i, config.mobility());

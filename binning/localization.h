@@ -11,13 +11,13 @@
 namespace dStorm {
 namespace binning {
 
-template <int Index, int Mode>
+template <typename Tag, int Mode>
 class Localization;
 
-template <int Index>
-class Localization<Index, IsUnscaled> {
+template <typename Tag>
+class Localization<Tag, IsUnscaled> {
   public:
-    typedef typename boost::fusion::result_of::value_at<dStorm::Localization, boost::mpl::int_<Index> >::type::Traits TraitsType;
+    typedef typename localization::MetaInfo<Tag> TraitsType;
     typedef typename TraitsType::ValueType value;
 
     Localization();
@@ -28,7 +28,6 @@ class Localization<Index, IsUnscaled> {
 
     static bool can_work_with( const input::Traits<dStorm::Localization>& t);
 
-    int field_number() const { return Index; }
     int bin_points( const output::LocalizedImage& l, float *target, int stride ) const;
     boost::optional<float> bin_point( const dStorm::Localization& ) const;
     boost::optional<float> get_uncertainty( const dStorm::Localization& ) const;
@@ -37,9 +36,9 @@ class Localization<Index, IsUnscaled> {
     value bin_naively( const dStorm::Localization& ) const;
 };
 
-template <int Index>
-struct Localization<Index, Bounded> : public Localization<Index,IsUnscaled> {
-    typedef Localization<Index,IsUnscaled> Base;
+template <typename Tag>
+struct Localization<Tag, Bounded> : public Localization<Tag,IsUnscaled> {
+    typedef Localization<Tag,IsUnscaled> Base;
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
@@ -53,7 +52,6 @@ struct Localization<Index, Bounded> : public Localization<Index,IsUnscaled> {
     int bin_points( const output::LocalizedImage& l, float *target, int stride ) const;
     boost::optional<float> bin_point( const dStorm::Localization& ) const;
     std::pair< float, float > get_minmax() const;
-    int field_number() const { return Index; }
     double reverse_mapping( float ) const;
     void set_clipping( bool discard_outliers ) { discard = discard_outliers; }
 
@@ -68,11 +66,11 @@ struct Localization<Index, Bounded> : public Localization<Index,IsUnscaled> {
     value clip( value ) const;
 };
 
-template <int Index>
-class Localization<Index, ScaledByResolution> 
-: public Localization<Index,Bounded> {
+template <typename Tag>
+class Localization<Tag, ScaledByResolution> 
+: public Localization<Tag,Bounded> {
   public:
-    typedef Localization<Index,Bounded> Base;
+    typedef Localization<Tag,Bounded> Base;
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
@@ -93,11 +91,11 @@ class Localization<Index, ScaledByResolution>
     typename Base::Scale scale;
 };
 
-template <int Index>
-class Localization<Index, ScaledToInterval> 
-: public Localization<Index, ScaledByResolution> {
+template <typename Tag>
+class Localization<Tag, ScaledToInterval> 
+: public Localization<Tag, ScaledByResolution> {
   public:
-    typedef Localization<Index,ScaledByResolution> Base;
+    typedef Localization<Tag,ScaledByResolution> Base;
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
@@ -114,10 +112,10 @@ class Localization<Index, ScaledToInterval>
     void recompute_scale();
 };
 
-template <int Index>
-class Localization<Index, InteractivelyScaledToInterval> : public Localization<Index, ScaledToInterval> {
+template <typename Tag>
+class Localization<Tag, InteractivelyScaledToInterval> : public Localization<Tag, ScaledToInterval> {
   public:
-    typedef Localization<Index,ScaledToInterval> Base;
+    typedef Localization<Tag,ScaledToInterval> Base;
     typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
@@ -132,7 +130,6 @@ class Localization<Index, InteractivelyScaledToInterval> : public Localization<I
     float get_size() const { return Base::get_size(); }
 
     static bool can_work_with( const input::Traits<dStorm::Localization>& t);
-    int field_number() const { return Index; }
 
     double reverse_mapping( float f ) const { return Base::reverse_mapping(f); }
     void set_user_limit( bool lower_limit, const std::string& s );

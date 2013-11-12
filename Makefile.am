@@ -173,8 +173,9 @@ rapidstorm_SOURCES = \
     dStorm/threed_info/Config.h \
     dStorm/threed_info/look_up_sigma_diff.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
-    dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
+    dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
+    dStorm/localization/Fields.h \
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
     dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
     dStorm/output/Capabilities.h \
@@ -838,10 +839,8 @@ rapidstorm_SOURCES += \
     binning/inversion.h \
     binning/localization.h \
     binning/localization_impl.h \
-    binning/localization.cpp \
     binning/localization_config.h \
     binning/localization_config_impl.h \
-    binning/localization_config.cpp \
     binning/config.h binning/config.cpp \
     binning/dummy_binner.h \
     binning/constant_binner.h binning/constant_binner.cpp 

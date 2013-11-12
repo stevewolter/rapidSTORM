@@ -1,13 +1,37 @@
-#include "config.h"
-#include "localization_config.h"
+#include "binning/config.h"
+
+#include <boost/mpl/for_each.hpp>
+
+#include "binning/localization_config_impl.h"
+#include "dStorm/localization/Fields.h"
 
 namespace dStorm {
 namespace binning {
 
+struct FieldChoiceAdder {
+    typedef void result_type;
+    template <typename Tag> 
+    void operator()(BinningType type, std::string axis, simparm::ManagedChoiceEntry<FieldConfig>& choice, Tag tag)
+    {
+        typedef localization::MetaInfo<Tag> Traits;
+        if ( type == ScaledToInterval || type == InteractivelyScaledToInterval )
+            choice.addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Tag>(axis, 1.0f)) );
+        else if ( (Traits::has_range && type == ScaledByResolution) )
+            choice.addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Tag>(axis, true) ));
+        else if ( type == IsUnscaled )
+            choice.addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Tag>(axis, false) ));
+    }
+};
+
 FieldChoice::FieldChoice( const std::string& name, const std::string& desc, BinningType type, std::string axis )
 : simparm::ManagedChoiceEntry<FieldConfig>(name, desc) 
 {
-    fill<0>(type, axis);
+    boost::mpl::for_each<localization::Fields>(boost::bind(
+        FieldChoiceAdder(),
+        type,
+        axis,
+        boost::ref(static_cast<simparm::ManagedChoiceEntry<FieldConfig>&>(*this)),
+        _1));
 }
 
 FieldChoice::FieldChoice(const FieldChoice& o) 
@@ -20,23 +44,6 @@ void FieldChoice::set_visibility(const input::Traits<dStorm::Localization>& t, b
     for ( iterator i = begin(); i != end(); ++i )
         i->set_visibility( t, unscaled_suffices );
 }
-
-template <int Field> 
-void FieldChoice::fill(BinningType type, std::string axis)
-{
-    typedef typename Localization<Field,false>::TraitsType Traits;
-    if ( type == ScaledToInterval || type == InteractivelyScaledToInterval )
-        addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, 1.0f)) );
-    else if ( (Traits::has_range && type == ScaledByResolution) )
-        addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, true) ));
-    else if ( type == IsUnscaled )
-        addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, false) ));
-    fill<Field+1>(type, axis);
-}
-
-template <>
-void FieldChoice::fill< dStorm::Localization::Fields::Count >(BinningType type, std::string axis)
-{}
 
 FieldChoice::~FieldChoice() {}
 
