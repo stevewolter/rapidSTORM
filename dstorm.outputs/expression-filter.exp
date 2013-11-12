@@ -10,7 +10,7 @@ send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expres
 send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine1 in Expression in value set frame < 100 fr\n"
 send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Count\n"
 send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Progress\n"
-send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set posmaxx\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set maxposx\n"
 send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in Expression in value set 2000 nm\n"
 send "attach\n"
 send "in Car in Run in value set 1\n"
