@@ -7,7 +7,7 @@
 #include <boost/bind/bind.hpp>
 #include <boost/mpl/for_each.hpp>
 
-#include <dStorm/localization/field_index_enumeration.h>
+#include <dStorm/localization/Fields.h>
 
 namespace dStorm {
 namespace input {
@@ -37,16 +37,16 @@ void merge_size( Traits<engine::ImageStack>& onto, const Traits<engine::ImageSta
     }
 }
 
-template <typename Exception>
 struct merge_localization_traits {
     typedef Traits<Localization> GenTraits;
     typedef void result_type;
 
-    void operator()( Exception, GenTraits& _onto, const GenTraits& _with ) {}
-    template <typename Field>
-    void operator()( Field, GenTraits& onto_traits, const GenTraits& with_traits )
+    void operator()( traits::ImageNumber, GenTraits& _onto, const GenTraits& _with ) {}
+
+    template <typename Tag>
+    void operator()( Tag, GenTraits& onto_traits, const GenTraits& with_traits )
     {
-        typedef typename boost::fusion::result_of::value_at<Localization, Field >::type::Traits Traits;
+        typedef localization::MetaInfo<Tag> Traits;
         Traits& onto = onto_traits;
         const Traits& with = with_traits;
         if ( ! Traits::has_range ) return;
@@ -69,10 +69,9 @@ struct merge_localization_traits {
 
 void merge_size( Traits<Localization>& onto, const Traits<Localization> with, int )
 {
-    boost::mpl::for_each< localization::FieldIndices >(
-        boost::bind( 
-            merge_localization_traits< boost::mpl::int_<Localization::Fields::ImageNumber> >(), 
-            _1, boost::ref(onto), boost::ref(with) ) );
+    boost::mpl::for_each< localization::Fields >(boost::bind( 
+        merge_localization_traits(), 
+        _1, boost::ref(onto), boost::ref(with) ) );
     int children_count = std::min( onto.source_traits.size(), with.source_traits.size() );
     onto.source_traits.resize( children_count );
     for ( int i = 0; i < children_count; ++i)

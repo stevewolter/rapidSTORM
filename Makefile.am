@@ -173,7 +173,6 @@ rapidstorm_SOURCES = \
     dStorm/threed_info/Config.h \
     dStorm/threed_info/look_up_sigma_diff.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
-    dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
     dStorm/localization/Fields.h \
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
