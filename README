@@ -28,12 +28,10 @@ wxWidgets 2.8    http://www.wxwidgets.org
 GNU Scientific L http://www.gnu.org/s/gsl
 tinyxml	         http://www.grinninglizard.com/tinyxml
 
-Additionally, a few lesser-known libraries are required or recommended. We have packaged
+Additionally, a few lesser-known libraries are optional. We have packaged
 all of these libraries and made them available from our homepage at
 https://idefix.biozentrum.uni-wuerzburg.de/software/rapidSTORM:
 
 libreadsif 1.4   Library maintained by the rapidSTORM team based on code kindly released
                  by Andor technologies for reading Andor SIF files.
-any-iterator 1.0 C++ type erasure for iterators, by Thomas Becker
-cs-units 2       Boost.Units units for scientific computing
 libb64           Base64 encoding/decoding library by Chris Venter
