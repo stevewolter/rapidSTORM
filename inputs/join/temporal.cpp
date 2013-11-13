@@ -88,8 +88,11 @@ merge_traits<Type,temporal_tag>::operator()
         merge_size( *rv, *images[i], i );
         const dStorm::traits::ImageNumber::RangeType& range = images[i]->image_number().range();
         if ( rv->image_number().range().second.is_initialized() &&
-             range.first.is_initialized() && range.second.is_initialized() )
+             range.first.is_initialized() && range.second.is_initialized() ) {
             *rv->image_number().range().second += (*range.second - *range.first) + 1 * boost::units::camera::frame;
+        } else {
+            rv->image_number().range().second.reset();
+        }
     }
     
     return rv;
