@@ -16,7 +16,7 @@ class Coordinates
 public:
     struct ResultRow {
         Eigen::Matrix<float, Dim, 1> position, position_uncertainty;
-        float intensity, intensity_uncertainty;
+        float intensity;
     };
     typedef std::vector<ResultRow> Result;
 private:
@@ -24,6 +24,7 @@ private:
     typedef binning::Unscaled UnscaledAxis;
 
     boost::ptr_array<ScaledAxis, Dim> xy;
+    boost::ptr_array<UnscaledAxis, Dim> xy_uncertainties;
     boost::clone_ptr<UnscaledAxis> intensity;
 
 public:
@@ -53,21 +54,25 @@ public:
     int bin_points( const output::LocalizedImage& l, Result& r ) {
         int rv = 0;
         for ( output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i ) {
-            bool is_good = true;
-            for (int d = 0; d < Dim; ++d)
-                is_good = is_good && bin( *i, xy[d], r[rv].position[ d ], r[rv].position_uncertainty[ d ] );
-            is_good = is_good && bin( *i, *intensity, r[rv].intensity, r[rv].intensity_uncertainty );
-            if ( is_good ) ++rv;
+            if (bin_point(*i, r[rv])) {
+                ++rv;
+            }
         }
         return rv;
     }
 
   private:
-    bool bin( const Localization& l, const UnscaledAxis& b, float& target, float& uncertainty ) {
-        boost::optional<float> f = b.bin_point(l), u = b.get_uncertainty( l );
-        if ( f.is_initialized() ) target = *f;
-        if ( u.is_initialized() ) uncertainty = *u; else uncertainty = 0;
-        return f.is_initialized();
+    bool bin_point( const Localization& l, ResultRow& r ) {
+        for (int d = 0; d < Dim; ++d) {
+            boost::optional<float> value = xy[d].bin_point(l);
+            if (!value) return false;
+            r.position[d] = *value;
+            r.position_uncertainty[d] = xy_uncertainties[d].bin_point(l).get_value_or(0);
+        }
+        boost::optional<float> intensity = this->intensity->bin_point(l);
+        if (!intensity) return false;
+        r.intensity = *intensity;
+        return true;
     }
 };
 

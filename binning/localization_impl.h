@@ -73,14 +73,6 @@ Localization<Tag,IsUnscaled>::bin_point( const dStorm::Localization& l ) const
 
 template <typename Tag>
 boost::optional<float>
-Localization<Tag,IsUnscaled>::get_uncertainty( const dStorm::Localization& l ) const
-{
-  // TODO: return scalar.value(boost::fusion::at_c<Index>(l).uncertainty()).value();
-  return boost::optional<float>();
-}
-
-template <typename Tag>
-boost::optional<float>
 Localization<Tag,Bounded>::bin_point( const dStorm::Localization& l ) const
 {
     value v = this->bin_naively(l);
@@ -107,29 +99,10 @@ Localization<Tag,ScaledByResolution>::bin_point( const dStorm::Localization& l )
 
 template <typename Tag>
 boost::optional<float>
-Localization<Tag,ScaledByResolution>::get_uncertainty( const dStorm::Localization& l ) const
-{
-    boost::optional<float> f = Base::get_uncertainty( l );
-    if ( f.is_initialized() ) return *f * scale.value(); else return f;
-}
-
-template <typename Tag>
-boost::optional<float>
 Localization<Tag,InteractivelyScaledToInterval>::bin_point( const dStorm::Localization& l ) const
 {
     if ( not_given.none() ) {
         return Base::bin_point(l);
-    } else {
-        return boost::optional<float>();
-    }
-}
-
-template <typename Tag>
-boost::optional<float>
-Localization<Tag,InteractivelyScaledToInterval>::get_uncertainty( const dStorm::Localization& l ) const
-{
-    if ( not_given.none() ) {
-        return Base::get_uncertainty(l);
     } else {
         return boost::optional<float>();
     }

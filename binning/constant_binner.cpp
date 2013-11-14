@@ -39,6 +39,8 @@ class ConstantFieldConfig : public FieldConfig {
         { return make_constant_binner(); }
     std::auto_ptr<UserScaled> make_user_scaled_binner() const
         { throw std::logic_error("Constant binner cannot be user-scaled"); }
+    std::auto_ptr<Unscaled> make_uncertainty_binner() const
+        { throw std::logic_error("Constant binner has no uncertainty"); }
     void set_visibility(const input::Traits<Localization>&, bool unscaled_suffices) {}
 
     void add_listener( simparm::BaseAttribute::Listener& ) {}

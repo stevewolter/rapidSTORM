@@ -21,6 +21,7 @@ struct FieldConfig : public simparm::ObjectChoice {
     virtual std::auto_ptr<Scaled> make_scaled_binner() const = 0;
     virtual std::auto_ptr<Unscaled> make_unscaled_binner() const = 0;
     virtual std::auto_ptr<UserScaled> make_user_scaled_binner() const = 0;
+    virtual std::auto_ptr<Unscaled> make_uncertainty_binner() const = 0;
     virtual void set_visibility(const input::Traits<Localization>&, bool unscaled_suffices) = 0;
 
     virtual void add_listener( simparm::BaseAttribute::Listener& l ) = 0;

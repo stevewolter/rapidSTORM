@@ -5,6 +5,7 @@
 #include "localization_config.h"
 #include "localization_impl.h"
 #include "binning.hpp"
+#include "binning/always_failing_binner.h"
 #include <sstream>
 
 namespace dStorm {
@@ -82,6 +83,28 @@ LocalizationConfig<Tag>::make_unscaled_binner() const
 {
     typedef binning::Localization<Tag,IsUnscaled> T;
     return make_BinningAdapter<Unscaled>( T());
+}
+
+namespace {
+
+template <int Dimension>
+std::auto_ptr<Unscaled> make_uncertainty_binner(traits::Position<Dimension> tag) {
+    return make_BinningAdapter<Unscaled>(
+            binning::Localization<traits::PositionUncertainty<Dimension>, IsUnscaled>());
+}
+
+template <typename Tag>
+std::auto_ptr<Unscaled> make_uncertainty_binner(Tag tag) {
+    return std::auto_ptr<Unscaled>(new AlwaysFailingUnscaled());
+}
+
+}  // namespace
+
+template <typename Tag>
+std::auto_ptr<Unscaled>
+LocalizationConfig<Tag>::make_uncertainty_binner() const 
+{
+    return binning::make_uncertainty_binner(Tag());
 }
 
 template <typename Tag>

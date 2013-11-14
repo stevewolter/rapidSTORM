@@ -99,11 +99,9 @@ void Coordinate::create_full_key( display::Change::Keys::value_type& into, int i
 
             /* Key value in frames */
             float value = variable->reverse_mapping( (1.0f * i + 0.5f) / key_count );
+            display::Color color = weights * max_brightness;
 
-            into.push_back( display::KeyChange(
-                /* index */ i,
-                /* color */ weights * max_brightness,
-                /* value */ value ) );
+            into.push_back( display::KeyChange(i, color, value) );
         }
     }
 } 
