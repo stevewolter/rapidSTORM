@@ -9,21 +9,26 @@ const std::string ChoiceEntryBase::no_selection = "";
 ChoiceEntryBase::ChoiceEntryBase(string name, string desc)
 : BasicEntry(name,desc),
   auto_select(true),
+  checker(name, entries),
   value( "value", no_selection )
 {
+    value.change_is_OK = &checker;
 }
 
 ChoiceEntryBase::ChoiceEntryBase(string name)
 : BasicEntry(name),
   auto_select(true),
+  checker(name, entries),
   value( "value", no_selection )
 {
+    value.change_is_OK = &checker;
 }
 
 
 ChoiceEntryBase::ChoiceEntryBase(const ChoiceEntryBase& o)
-: BasicEntry(o), auto_select(o.auto_select), value(o.value)
+: BasicEntry(o), auto_select(o.auto_select), checker(o.getName(), entries), value(o.value)
 {
+    value.change_is_OK = &checker;
 }
 
 ChoiceEntryBase::~ChoiceEntryBase() {}
@@ -87,6 +92,12 @@ NodeHandle ChoiceEntryBase::attach_ui( NodeHandle node ) {
     return h;
 }
 
+bool ChoiceEntryBase::ChoiceValidityChecker::operator()(const string& from, const string& to) {
+    if (entries.find(to) == entries.end() && to != "") {
+        throw std::runtime_error("Invalid choice " + to + " for " + name);
+    }
+    return true;
+}
 
 struct DummyChoice : public Choice {
     DummyChoice* clone() const { return new DummyChoice(); }

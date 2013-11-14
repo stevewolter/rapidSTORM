@@ -47,6 +47,15 @@ class ChoiceEntryBase
     void addChoice(Choice& choice);
     void removeChoice(Choice &choice);
 
+    class ChoiceValidityChecker : public Attribute<string>::ChangeWatchFunction {
+        string name;
+        const Entries& entries;
+        virtual bool operator()(const string& from, const string& to);
+      public:
+        ChoiceValidityChecker(const string& name, const Entries& entries)
+            : name(name), entries(entries) {}
+    };
+    ChoiceValidityChecker checker;
   public:
     Attribute< std::string > value;
 
