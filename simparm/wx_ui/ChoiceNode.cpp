@@ -57,7 +57,7 @@ public:
     ) 
         : wxChoice( parent, wxID_ANY ),
           shown_children(NULL),
-          current_selection(*value->get_value()),
+          current_selection(value->get_value().get_value_or("")),
           value(value),
           vc( vc )
     {
@@ -138,7 +138,7 @@ void ChoiceNode::initialization_finished() {
                   get_visibility_control() ) );
     attach_help( my_line->label );
     attach_help( my_line->contents );
-    is_chosen = (*value_handle->get_value() == "");
+    is_chosen = (value_handle->get_value().get_value_or("") == "");
     update_visibility();
     InnerNode::add_entry_line( *my_line );
 }
@@ -252,6 +252,12 @@ void ChoiceNode::update_visibility() {
         my_line->label->change_frontend_visibility( should_be_visible );
         my_line->contents->change_frontend_visibility( should_be_visible );
         visible = should_be_visible;
+    }
+}
+
+ChoiceNode::~ChoiceNode() {
+    if (value_handle) {
+        value_handle->detach();
     }
 }
 

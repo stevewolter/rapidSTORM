@@ -26,6 +26,7 @@ class ChoiceNode : public InnerNode {
 public:
     ChoiceNode( boost::shared_ptr<Node> n, std::string name )
         : InnerNode(n, name), choice( new ChoiceWidget*() ), visible(true), choices_count(0), is_chosen(false) {}
+    ~ChoiceNode();
     virtual void set_description( std::string d ) { description = d; }
     void initialization_finished();
     NodeHandle create_object( std::string name );
