@@ -358,6 +358,11 @@ SupportPointProjection::nearest_point_in_image_space_
         from_value<camera::length>( round(
             approx_reverse * value(pos).cast<float>()
         ).cast<int>() );
+    for (int i = 0; i < 2; ++i) {
+        best_estimate[i] = std::max(0 * camera::pixel, best_estimate[i]);
+        best_estimate[i] = std::min(forward_map.sizes()[i] - 1 * camera::pixel,
+                                    best_estimate[i]);
+    }
     float best_distance = 
         value( forward_map( best_estimate ) - pos ).squaredNorm();
     
@@ -367,12 +372,11 @@ SupportPointProjection::nearest_point_in_image_space_
         for (int dx = -1; dx <= 1; ++dx)
             for (int dy = -1; dy <= 1; ++dy)
             {
-                if ( dx == 0 && dy == 0 ) continue;
                 ImagePosition t = best_estimate;
                 t.x() += dx * camera::pixel;
                 t.y() += dy * camera::pixel;
-                float distance = value( forward_map( best_estimate ) - pos )
-                    .squaredNorm();
+                if (!forward_map.contains(t)) continue;
+                float distance = value( forward_map( t ) - pos ).squaredNorm();
                 if ( distance < best_distance ) {
                     new_best_estimate = t;
                     best_distance = distance;
