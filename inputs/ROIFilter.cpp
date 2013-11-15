@@ -139,7 +139,7 @@ class ChainLink
     Config config;
     simparm::BaseAttribute::ConnectionStore listening[2];
 
-    typedef Localization::ImageNumber::Traits TemporalTraits;
+    typedef localization::MetaInfo<localization::ImageNumber> TemporalTraits;
 
     void set_temporal_ROI( TemporalTraits& t ) {
         t.range().first = config.first_frame();

@@ -18,7 +18,7 @@ template <typename Tag>
 class Localization<Tag, IsUnscaled> {
   public:
     typedef typename localization::MetaInfo<Tag> TraitsType;
-    typedef typename TraitsType::ValueType value;
+    typedef typename Tag::ValueType value;
 
     Localization();
     Localization* clone() const { return new Localization(*this); }

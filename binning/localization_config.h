@@ -14,12 +14,11 @@ namespace binning {
 template <typename Tag>
 class LocalizationConfig : public FieldConfig
 {
-    typedef typename Localization<Tag,false>::TraitsType Traits;
     bool use_resolution;
 
     typedef quantity< 
-        typename divide_typeof_helper<typename Traits::OutputType::unit_type, camera::length>::type,
-        typename Traits::OutputType::value_type>
+        typename divide_typeof_helper<typename Tag::OutputType::unit_type, camera::length>::type,
+        typename Tag::OutputType::value_type>
         Resolution;
     simparm::Entry<Resolution> resolution;
     boost::optional<float> range;

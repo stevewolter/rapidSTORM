@@ -12,7 +12,7 @@ class LocalizationField : public Field {
   public:
     typedef typename localization::MetaInfo<Tag> TraitsType;
   private:
-    typedef typename TraitsType::ValueType ValueType;
+    typedef typename Tag::ValueType ValueType;
     typedef ValueConverter<ValueType> Converter;
     boost::shared_ptr<Converter> converter;
 

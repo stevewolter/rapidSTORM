@@ -41,7 +41,7 @@ struct merge_localization_traits {
     typedef Traits<Localization> GenTraits;
     typedef void result_type;
 
-    void operator()( traits::ImageNumber, GenTraits& _onto, const GenTraits& _with ) {}
+    void operator()( localization::ImageNumber, GenTraits& _onto, const GenTraits& _with ) {}
 
     template <typename Tag>
     void operator()( Tag, GenTraits& onto_traits, const GenTraits& with_traits )
@@ -86,7 +86,7 @@ merge_traits<Type,temporal_tag>::operator()
     std::auto_ptr< Traits<Type> > rv( new Traits<Type>(*images[0]) );
     for ( size_t i = 1; i < images.size(); ++i ) {
         merge_size( *rv, *images[i], i );
-        const dStorm::traits::ImageNumber::RangeType& range = images[i]->image_number().range();
+        auto range = images[i]->image_number().range();
         if ( rv->image_number().range().second.is_initialized() &&
              range.first.is_initialized() && range.second.is_initialized() ) {
             *rv->image_number().range().second += (*range.second - *range.first) + 1 * boost::units::camera::frame;
@@ -103,7 +103,7 @@ iterator<Type,temporal_tag>::InputPart::InputPart(
     const boost::shared_ptr<Base>& base, const input::Traits<Type>& traits )
 : begin( base->begin() ), end( base->end() ), source( base )
 {
-    const traits::ImageNumber::RangeType range = traits.image_number().range();
+    auto range = traits.image_number().range();
     if ( range.first.is_initialized() && range.second.is_initialized() )
         length = *range.second - *range.first;
 }

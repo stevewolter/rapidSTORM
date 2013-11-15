@@ -6,6 +6,7 @@
 #include "dStorm/localization/Fields.h"
 #include "expression/QuantityDynamizer.hpp"
 #include "dStorm/Localization.h"
+#include "dStorm/localization/Traits.h"
 #include "dejagnu.h"
 
 namespace dStorm {
@@ -121,7 +122,7 @@ struct FieldAdder {
     template <typename Tag>
     void operator()(boost::ptr_vector<Variable>& target, Tag tag) {
       target.push_back( new ValueVariable<Tag>() );
-      if (Tag::has_range) {
+      if (localization::MetaInfo<Tag>::has_range) {
         target.push_back( new MinVariable<Tag>() );
         target.push_back( new MaxVariable<Tag>() );
       }
@@ -142,7 +143,7 @@ void check_localization_variable( TestState& state ) {
 
     loc.position_x() = 15 * boost::units::si::meter;
 
-    ValueVariable<traits::PositionX> v;
+    ValueVariable<localization::PositionX> v;
 
     try {
         v.get(traits);

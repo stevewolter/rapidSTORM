@@ -159,22 +159,16 @@ rapidstorm_SOURCES = \
     dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
     dStorm/unit_interval.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
-    dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
-    dStorm/traits/psf_width.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
-    dStorm/traits/position.h dStorm/traits/range.h \
-    dStorm/traits/residues.h \
-    dStorm/traits/two_kernel_improvement.h \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
-    dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
     dStorm/threed_info/types.h \
     dStorm/threed_info/DepthInfo.h \
     dStorm/threed_info/Config.h \
     dStorm/threed_info/look_up_sigma_diff.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
-    dStorm/localization/Fields.h \
+    dStorm/localization/Fields.h dStorm/localization/Fields.cpp \
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
     dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
     dStorm/output/Capabilities.h \
@@ -272,7 +266,7 @@ rapidstorm_SOURCES += \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \
     dStorm/localization/Field.cpp \
     dStorm/localization/Traits.cpp \
-    dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
+    dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp dStorm/traits/optics_config.cpp \
     dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
     dStorm/traits/Projection.cpp \
@@ -842,6 +836,7 @@ rapidstorm_SOURCES += \
     binning/localization_config_impl.h \
     binning/config.h binning/config.cpp \
     binning/dummy_binner.h \
+    binning/always_failing_binner.h \
     binning/constant_binner.h binning/constant_binner.cpp 
 
 rapidstorm_SOURCES += \

@@ -1,6 +1,7 @@
 #include "TraceReducer.h"
 #include <boost/units/Eigen/Array>
 #include <dStorm/units/amplitude.h>
+#include <dStorm/units/frame_count.h>
 #include <boost/units/systems/camera/intensity.hpp>
 
 namespace dStorm {
@@ -17,7 +18,7 @@ class AveragingReducer : public TraceReducer {
 
         int n = 0;
         frame_index last_image_number = 0;
-        Localization::Amplitude::Type total_amplitude;
+        amplitude total_amplitude;
         total_amplitude = 0 * camera::ad_count;
 
         for ( Input i = start; i != end; ++i )

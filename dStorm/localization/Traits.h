@@ -1,16 +1,7 @@
 #ifndef DSTORM_LOCALIZATION_TRAITS_H
 #define DSTORM_LOCALIZATION_TRAITS_H
 
-#include "../traits/base.h"
-#include "../traits/image_number.h"
-#include "../traits/position.h"
-#include "../traits/position_uncertainty.h"
-#include "../traits/amplitude.h"
-#include "../traits/psf_width.h"
-#include "../traits/two_kernel_improvement.h"
-#include "../traits/residues.h"
-#include "../traits/fluorophore.h"
-#include "../traits/local_background.h"
+#include "dStorm/localization/Fields.h"
 
 #include "../engine/Image_decl.h"
 #include "../input/Traits.h"
@@ -25,7 +16,35 @@ namespace dStorm {
 namespace localization {
 
 template <typename Tag>
-class MetaInfo : public Tag {};
+struct MetaInfo {
+    MetaInfo() : is_given(false) {}
+    MetaInfo& operator=(const Tag& tag) {
+        static_cast<Tag&>(*this) = tag;
+        return *this;
+    }
+
+    typedef boost::optional<typename Tag::ValueType> RangeBoundType;
+    typedef std::pair< boost::optional<typename Tag::ValueType>, boost::optional<typename Tag::ValueType> > RangeType;
+
+    static const bool has_range = true;
+
+    bool is_given;
+    boost::optional<typename Tag::ValueType> static_value;
+
+    const RangeType& range() const { return range_; }
+    RangeType& range() { return range_; }
+
+    bool is_in_range( const typename Tag::ValueType& t) const {
+      return range_.first <= t && range_.second >= t;
+    }
+
+    RangeBoundType lower_limits() const { return range_.first; }
+    RangeBoundType upper_limits() const { return range_.second; }
+    RangeBoundType width() const { return range_.second - range_.first; }
+
+  private:
+    RangeType range_;
+};
 
 }
 
@@ -35,20 +54,20 @@ template <>
 struct Traits< Localization > 
 : public input::BaseTraits,
   public DataSetTraits,
-  public localization::MetaInfo<traits::PositionX>,
-  public localization::MetaInfo<traits::PositionY>,
-  public localization::MetaInfo<traits::PositionZ>,
-  public localization::MetaInfo<traits::PositionUncertaintyX>,
-  public localization::MetaInfo<traits::PositionUncertaintyY>,
-  public localization::MetaInfo<traits::PositionUncertaintyZ>,
-  public localization::MetaInfo<traits::Amplitude>,
-  public localization::MetaInfo<traits::PSFWidth<0>>,
-  public localization::MetaInfo<traits::PSFWidth<1>>,
-  public localization::MetaInfo<traits::TwoKernelImprovement>,
-  public localization::MetaInfo<traits::FitResidues>,
-  public localization::MetaInfo<traits::ImageNumber>,
-  public localization::MetaInfo<traits::Fluorophore>,
-  public localization::MetaInfo<traits::LocalBackground>
+  public localization::MetaInfo<localization::PositionX>,
+  public localization::MetaInfo<localization::PositionY>,
+  public localization::MetaInfo<localization::PositionZ>,
+  public localization::MetaInfo<localization::PositionUncertaintyX>,
+  public localization::MetaInfo<localization::PositionUncertaintyY>,
+  public localization::MetaInfo<localization::PositionUncertaintyZ>,
+  public localization::MetaInfo<localization::Amplitude>,
+  public localization::MetaInfo<localization::PSFWidth<0>>,
+  public localization::MetaInfo<localization::PSFWidth<1>>,
+  public localization::MetaInfo<localization::TwoKernelImprovement>,
+  public localization::MetaInfo<localization::FitResidues>,
+  public localization::MetaInfo<localization::ImageNumber>,
+  public localization::MetaInfo<localization::Fluorophore>,
+  public localization::MetaInfo<localization::LocalBackground>
 {
     Traits();
     Traits( const Traits& );
@@ -56,33 +75,26 @@ struct Traits< Localization >
     std::string desc() const;
 
 #define ACCESSORS(x,n) \
-    x& n() { return *this; } \
-    const x& n() const { return *this; }
-    ACCESSORS(traits::PositionX,position_x)
-    ACCESSORS(traits::PositionY,position_y)
-    ACCESSORS(traits::PositionZ,position_z)
-    ACCESSORS(traits::PositionUncertaintyX,position_uncertainty_x)
-    ACCESSORS(traits::PositionUncertaintyY,position_uncertainty_y)
-    ACCESSORS(traits::PositionUncertaintyZ,position_uncertainty_z)
-    ACCESSORS(traits::Amplitude,amplitude)
-    ACCESSORS(traits::PSFWidthX,psf_width_x)
-    ACCESSORS(traits::PSFWidthY,psf_width_y)
-    ACCESSORS(traits::TwoKernelImprovement,two_kernel_improvement)
-    ACCESSORS(traits::FitResidues,fit_residues)
-    ACCESSORS(traits::ImageNumber,image_number)
-    ACCESSORS(traits::Fluorophore,fluorophore)
-    ACCESSORS(traits::LocalBackground,local_background)
+    localization::MetaInfo<x>& n() { return *this; } \
+    const localization::MetaInfo<x>& n() const { return *this; } \
+    const localization::MetaInfo<x>& field(x tag) const { return *this; } \
+    localization::MetaInfo<x>& field(x tag) { return *this; }
+
+    ACCESSORS(localization::PositionX,position_x)
+    ACCESSORS(localization::PositionY,position_y)
+    ACCESSORS(localization::PositionZ,position_z)
+    ACCESSORS(localization::PositionUncertaintyX,position_uncertainty_x)
+    ACCESSORS(localization::PositionUncertaintyY,position_uncertainty_y)
+    ACCESSORS(localization::PositionUncertaintyZ,position_uncertainty_z)
+    ACCESSORS(localization::Amplitude,amplitude)
+    ACCESSORS(localization::PSFWidthX,psf_width_x)
+    ACCESSORS(localization::PSFWidthY,psf_width_y)
+    ACCESSORS(localization::TwoKernelImprovement,two_kernel_improvement)
+    ACCESSORS(localization::FitResidues,fit_residues)
+    ACCESSORS(localization::ImageNumber,image_number)
+    ACCESSORS(localization::Fluorophore,fluorophore)
+    ACCESSORS(localization::LocalBackground,local_background)
 #undef ACCESSORS
-
-    template <class Tag>
-    const typename localization::MetaInfo<Tag>& field(Tag tag) const {
-        return *this;
-    }
-
-    template <class Tag>
-    typename localization::MetaInfo<Tag>& field(Tag tag) {
-        return *this;
-    }
 
     typedef std::vector< boost::shared_ptr< Traits > > Sources;
     Sources source_traits;

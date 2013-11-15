@@ -7,8 +7,6 @@
 #include <boost/units/systems/camera/resolution.hpp>
 #include <boost/utility/enable_if.hpp>
 
-#include "Traits.h"
-
 namespace dStorm {
 namespace localization {
 
@@ -28,22 +26,6 @@ struct SIizer< quantity< si::length, NumType > > {
     template <typename Resolution>
     static float get( const quantity< si::length, NumType >& value, const Resolution& )
         { return value / si::metre; }
-};
-
-template <typename Type>
-struct Accessor {
-    typedef Type type;
-    static type& get(Type& t) { return t; }
-    static const type& get(const Type& t) { return t; }
-};
-
-template <typename Scalar, int Flags, int MR, int MC>
-struct Accessor< Eigen::Matrix<Scalar, 1, 1, Flags, MR, MC> >
-: public Accessor<Scalar>
-{
-    typedef Scalar type;
-    static type& get(Eigen::Matrix<Scalar, 1, 1, Flags, MR, MC>& t) { return t.data()[0]; }
-    static const type& get(const Eigen::Matrix<Scalar, 1, 1, Flags, MR, MC>& t) { return t.data()[0]; }
 };
 
 }

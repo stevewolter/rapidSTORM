@@ -1,8 +1,11 @@
 #include "children_field.h"
+
 #include <boost/bind/bind.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
+
+#include "dStorm/localization/Traits.h"
 
 namespace dStorm {
 namespace localization_file {

@@ -58,20 +58,20 @@ read_attribute(
         return std::string(a);
 }
 
-std::string field_identifier(traits::PositionX) { return "Position-0-0"; }
-std::string field_identifier(traits::PositionUncertaintyX) { return "Position-0-0-uncertainty"; }
-std::string field_identifier(traits::PositionY) { return "Position-1-0"; }
-std::string field_identifier(traits::PositionUncertaintyY) { return "Position-1-0-uncertainty"; }
-std::string field_identifier(traits::PositionZ) { return "Position-2-0"; }
-std::string field_identifier(traits::PositionUncertaintyZ) { return "Position-2-0-uncertainty"; }
-std::string field_identifier(traits::ImageNumber) { return "ImageNumber-0-0"; }
-std::string field_identifier(traits::Amplitude) { return "Amplitude-0-0"; }
-std::string field_identifier(traits::PSFWidthX) { return "PSFWidth-0-0"; }
-std::string field_identifier(traits::PSFWidthY) { return "PSFWidth-1-0"; }
-std::string field_identifier(traits::TwoKernelImprovement) { return "TwoKernelImprovement-0-0"; }
-std::string field_identifier(traits::LocalBackground) { return "LocalBackground-0-0"; }
-std::string field_identifier(traits::FitResidues) { return "FitResidues-0-0"; }
-std::string field_identifier(traits::Fluorophore) { return "Fluorophore-0-0"; }
+std::string field_identifier(localization::PositionX) { return "Position-0-0"; }
+std::string field_identifier(localization::PositionUncertaintyX) { return "Position-0-0-uncertainty"; }
+std::string field_identifier(localization::PositionY) { return "Position-1-0"; }
+std::string field_identifier(localization::PositionUncertaintyY) { return "Position-1-0-uncertainty"; }
+std::string field_identifier(localization::PositionZ) { return "Position-2-0"; }
+std::string field_identifier(localization::PositionUncertaintyZ) { return "Position-2-0-uncertainty"; }
+std::string field_identifier(localization::ImageNumber) { return "ImageNumber-0-0"; }
+std::string field_identifier(localization::Amplitude) { return "Amplitude-0-0"; }
+std::string field_identifier(localization::PSFWidthX) { return "PSFWidth-0-0"; }
+std::string field_identifier(localization::PSFWidthY) { return "PSFWidth-1-0"; }
+std::string field_identifier(localization::TwoKernelImprovement) { return "TwoKernelImprovement-0-0"; }
+std::string field_identifier(localization::LocalBackground) { return "LocalBackground-0-0"; }
+std::string field_identifier(localization::FitResidues) { return "FitResidues-0-0"; }
+std::string field_identifier(localization::Fluorophore) { return "Fluorophore-0-0"; }
 
 template <typename Unit, typename Value>
 inline std::string name_string( const quantity<Unit,Value>& );
@@ -96,17 +96,17 @@ static std::string guess_ident_from_semantic(const TiXmlElement& n) {
     const char *semantic_attrib = n.Attribute("semantic");
     if ( semantic_attrib != NULL ) semantic = semantic_attrib;
     if ( semantic == "x-position" )
-        return field_identifier(traits::PositionX());
+        return field_identifier(localization::PositionX());
     else if ( semantic == "y-position" )
-        return field_identifier(traits::PositionY());
+        return field_identifier(localization::PositionY());
     else if ( semantic == "z-position" )
-        return field_identifier(traits::PositionZ());
+        return field_identifier(localization::PositionZ());
     else if ( semantic == "frame number" )
-        return field_identifier(traits::ImageNumber());
+        return field_identifier(localization::ImageNumber());
     else if ( semantic == "emission strength" )
-        return field_identifier(traits::Amplitude());
+        return field_identifier(localization::Amplitude());
     else if ( semantic == "two kernel improvement" )
-        return field_identifier(traits::TwoKernelImprovement());
+        return field_identifier(localization::TwoKernelImprovement());
 
     // TODO: Implement more heuristics: x-sigma i.e.
     return "";
@@ -165,7 +165,7 @@ bool has_implied_lower_boundary_of_zero(Tag tag) {
 }
 
 template <int Dimension>
-bool has_implied_lower_boundary_of_zero(traits::Position<Dimension> tag) {
+bool has_implied_lower_boundary_of_zero(localization::Position<Dimension> tag) {
     return true;
 }
 
@@ -176,7 +176,7 @@ LocalizationField<Tag>::LocalizationField( const TiXmlElement& node, TraitsType&
     const std::string 
         syntax = read_attribute(node, "syntax");
 
-    if ( syntax != type_string<typename TraitsType::ValueType>::ident() )
+    if ( syntax != type_string<typename Tag::ValueType>::ident() )
         throw std::runtime_error("Unrecognized syntax "
             "in localization file: " + syntax );
 
@@ -207,14 +207,14 @@ template <typename Tag>
 std::auto_ptr<TiXmlNode> LocalizationField<Tag>::makeNode( const Field::Traits& traits ) { 
     std::auto_ptr<TiXmlElement> rv( new  TiXmlElement("field") );
     rv->SetAttribute( "identifier", field_identifier(Tag()).c_str() );
-    rv->SetAttribute( "syntax", type_string< typename TraitsType::ValueType >::ident().c_str() );
+    rv->SetAttribute( "syntax", type_string< typename Tag::ValueType >::ident().c_str() );
 
     std::stringstream semantic;
-    semantic << TraitsType::get_desc();
+    semantic << Tag::get_desc();
     rv->SetAttribute( "semantic", semantic.str().c_str());
     rv->SetAttribute( "unit",
         name_string(
-            typename TraitsType::OutputType()).c_str() );
+            typename Tag::OutputType()).c_str() );
     
     if ( TraitsType::has_range ) {
         condAddAttribute( *rv, traits.field(Tag()).range().first, "min" );
@@ -242,8 +242,8 @@ void LocalizationField<Tag>::set_input_unit(const std::string& unit, const Trait
 template <typename Tag>
 void LocalizationField<Tag>::write(std::ostream& output, const Localization& source)
 {
-    typename TraitsType::OutputType ov 
-        = static_cast<typename TraitsType::OutputType>( source.field(Tag()).value() );
+    typename Tag::OutputType ov 
+        = static_cast<typename Tag::OutputType>( source.field(Tag()).value() );
     output_value_only(output, ov);
 }
 

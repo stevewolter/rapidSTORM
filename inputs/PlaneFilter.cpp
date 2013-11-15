@@ -143,8 +143,6 @@ class ChainLink
     Config config;
     simparm::BaseAttribute::ConnectionStore listening;
 
-    typedef Localization::ImageNumber::Traits TemporalTraits;
-
     void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& traits ) {
         if ( config.which_plane().selects_plane() ) {
             engine::InputPlane only = traits.plane( config.which_plane().plane_index() );

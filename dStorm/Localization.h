@@ -3,12 +3,14 @@
 
 #include <math.h>
 #include <iostream>
+#include <stdexcept>
 #include <Eigen/Core>
 
 #include "units/nanolength.h"
 #include "input/Traits.h"
 
 #include "localization/Field.h"
+#include "dStorm/localization/Fields.h"
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/value_at.hpp>
@@ -19,26 +21,25 @@ namespace dStorm {
 
 class Localization  { 
   public:
-#define FIELD(type,name) \
-    typedef localization::Field<traits::type> type; \
-    type name; \
-    const localization::Field<traits::type>& field(traits::type tag) const { return name; } \
-    localization::Field<traits::type>& field(traits::type tag) { return name; }
+#define FIELD(tag,name) \
+    localization::Field<tag> name; \
+    const localization::Field<tag>& field(tag) const { return name; } \
+    localization::Field<tag>& field(tag) { return name; }
 
-    FIELD(PositionX, position_x);
-    FIELD(PositionY, position_y);
-    FIELD(PositionZ, position_z);
-    FIELD(PositionUncertaintyX, position_uncertainty_x);
-    FIELD(PositionUncertaintyY, position_uncertainty_y);
-    FIELD(PositionUncertaintyZ, position_uncertainty_z);
-    FIELD(ImageNumber, frame_number);
-    FIELD(Amplitude, amplitude);
-    FIELD(PSFWidthX, psf_width_x);
-    FIELD(PSFWidthY, psf_width_y);
-    FIELD(TwoKernelImprovement, two_kernel_improvement);
-    FIELD(FitResidues, fit_residues);
-    FIELD(Fluorophore, fluorophore);
-    FIELD(LocalBackground, local_background);
+    FIELD(localization::PositionX, position_x);
+    FIELD(localization::PositionY, position_y);
+    FIELD(localization::PositionZ, position_z);
+    FIELD(localization::PositionUncertaintyX, position_uncertainty_x);
+    FIELD(localization::PositionUncertaintyY, position_uncertainty_y);
+    FIELD(localization::PositionUncertaintyZ, position_uncertainty_z);
+    FIELD(localization::ImageNumber, frame_number);
+    FIELD(localization::Amplitude, amplitude);
+    FIELD(localization::PSFWidthX, psf_width_x);
+    FIELD(localization::PSFWidthY, psf_width_y);
+    FIELD(localization::TwoKernelImprovement, two_kernel_improvement);
+    FIELD(localization::FitResidues, fit_residues);
+    FIELD(localization::Fluorophore, fluorophore);
+    FIELD(localization::LocalBackground, local_background);
 #undef FIELD
 
     typedef std::vector<Localization> Children;
@@ -55,7 +56,7 @@ class Localization  {
     inline const_iterator end() const;
 
     Localization();
-    Localization( const samplepos& position, Amplitude::Type strength );
+    Localization( const samplepos& position, localization::Amplitude::ValueType strength );
     Localization( const Localization& );
     ~Localization();
 

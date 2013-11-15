@@ -72,7 +72,7 @@ class OpenFile
             dStorm::input::Traits<dStorm::engine::ImageStack> t( size_info );
             t.image_number().range().first = 0 * boost::units::camera::frame;
             t.image_number().range().second = 
-                dStorm::traits::ImageNumber::ValueType::from_value(number - 1);
+                dStorm::localization::ImageNumber::ValueType::from_value(number - 1);
             rv.reset( new dStorm::input::Traits<dStorm::engine::ImageStack>(t) );
         }
         return rv;

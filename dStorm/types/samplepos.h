@@ -2,6 +2,7 @@
 #define DSTORM_TYPES_SUBPIXELPOSITION_H
 
 #include <boost/units/systems/si/length.hpp>
+#include <boost/units/Eigen/Core>
 #include <Eigen/Core>
 
 namespace dStorm {

@@ -1,10 +1,10 @@
 #ifndef DSTORM_ENIGNE_INPUTTRAITS_H
 #define DSTORM_ENIGNE_INPUTTRAITS_H
 
+#include "InputPlane.h"
 #include <dStorm/input/Traits.h>
 #include "Image_decl.h"
-#include "InputPlane.h"
-#include <dStorm/traits/image_number.h>
+#include <dStorm/localization/Traits.h>
 #include <dStorm/DataSetTraits.h>
 #include <boost/units/systems/camera/frame_rate.hpp>
 
@@ -40,8 +40,8 @@ public:
 
     std::pair<samplepos,samplepos> size_in_sample_space() const;
 
-    traits::ImageNumber& image_number() { return in; }
-    const traits::ImageNumber& image_number() const { return in; }
+    localization::MetaInfo<localization::ImageNumber>& image_number() { return in; }
+    const localization::MetaInfo<localization::ImageNumber>& image_number() const { return in; }
 
     boost::units::quantity<boost::units::camera::frame_rate>
         frame_rate;
@@ -60,7 +60,7 @@ public:
 
 private:
     std::vector< engine::InputPlane > planes_;
-    traits::ImageNumber in;
+    localization::MetaInfo<localization::ImageNumber> in;
 };
 
 }

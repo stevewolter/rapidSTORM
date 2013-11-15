@@ -13,7 +13,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/ManagedChoiceEntry.h>
 
-#include "position.h"
+#include "dStorm/localization/Fields.h"
 #include "ProjectionConfig.h"
 #include <dStorm/threed_info/Config.h>
 #include <dStorm/Localization_decl.h>

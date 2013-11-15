@@ -295,8 +295,7 @@ NoiseConfig::make_image_size() const
 
     std::auto_ptr< Traits > rv( new Traits() );
     rv->image_number().range().first = 0 * camera::frame;
-    rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
-        ::from_value( (imageNumber() - 1) );
+    rv->image_number().range().second = int(imageNumber() - 1) * camera::frame ;
     for (size_t p = 0; p < layer_count(); ++p) {
         dStorm::image::MetaInfo<2> meta_info;
         meta_info.size.x() = noiseGeneratorConfig.width() * camera::pixel;

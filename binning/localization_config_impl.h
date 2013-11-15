@@ -11,24 +11,24 @@
 namespace dStorm {
 namespace binning {
 
-inline std::string get_label(dStorm::traits::PositionX) { return "PositionX"; }
-inline std::string get_label(dStorm::traits::PositionY) { return "PositionY"; }
-inline std::string get_label(dStorm::traits::PositionZ) { return "PositionZ"; }
-inline std::string get_label(dStorm::traits::PositionUncertaintyX) { return "PositionUncertaintyX"; }
-inline std::string get_label(dStorm::traits::PositionUncertaintyY) { return "PositionUncertaintyY"; }
-inline std::string get_label(dStorm::traits::PositionUncertaintyZ) { return "PositionUncertaintyZ"; }
-inline std::string get_label(dStorm::traits::PSFWidthX) { return "PSFWidthX"; }
-inline std::string get_label(dStorm::traits::PSFWidthY) { return "PSFWidthY"; }
-inline std::string get_label(dStorm::traits::ImageNumber) { return "ImageNumber"; }
-inline std::string get_label(dStorm::traits::Amplitude) { return "Amplitude"; }
-inline std::string get_label(dStorm::traits::TwoKernelImprovement) { return "TwoKernelImprovement"; }
-inline std::string get_label(dStorm::traits::FitResidues) { return "FitResidues"; }
-inline std::string get_label(dStorm::traits::Fluorophore) { return "Fluorophore"; }
-inline std::string get_label(dStorm::traits::LocalBackground) { return "LocalBackground"; }
+inline std::string get_label(dStorm::localization::PositionX) { return "PositionX"; }
+inline std::string get_label(dStorm::localization::PositionY) { return "PositionY"; }
+inline std::string get_label(dStorm::localization::PositionZ) { return "PositionZ"; }
+inline std::string get_label(dStorm::localization::PositionUncertaintyX) { return "PositionUncertaintyX"; }
+inline std::string get_label(dStorm::localization::PositionUncertaintyY) { return "PositionUncertaintyY"; }
+inline std::string get_label(dStorm::localization::PositionUncertaintyZ) { return "PositionUncertaintyZ"; }
+inline std::string get_label(dStorm::localization::PSFWidthX) { return "PSFWidthX"; }
+inline std::string get_label(dStorm::localization::PSFWidthY) { return "PSFWidthY"; }
+inline std::string get_label(dStorm::localization::ImageNumber) { return "ImageNumber"; }
+inline std::string get_label(dStorm::localization::Amplitude) { return "Amplitude"; }
+inline std::string get_label(dStorm::localization::TwoKernelImprovement) { return "TwoKernelImprovement"; }
+inline std::string get_label(dStorm::localization::FitResidues) { return "FitResidues"; }
+inline std::string get_label(dStorm::localization::Fluorophore) { return "Fluorophore"; }
+inline std::string get_label(dStorm::localization::LocalBackground) { return "LocalBackground"; }
 
 template <typename Tag>
 LocalizationConfig<Tag>::LocalizationConfig(std::string axis, float range) 
-: FieldConfig( get_label(Tag()), Traits::get_desc() ), 
+: FieldConfig( get_label(Tag()), Tag::get_desc() ), 
   use_resolution( false ),
   resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10)),
   range(range)
@@ -37,7 +37,7 @@ LocalizationConfig<Tag>::LocalizationConfig(std::string axis, float range)
 
 template <typename Tag>
 LocalizationConfig<Tag>::LocalizationConfig(std::string axis, bool use_resolution) 
-: FieldConfig( get_label(Tag()), Traits::get_desc() ), 
+: FieldConfig( get_label(Tag()), Tag::get_desc() ), 
   use_resolution( use_resolution ),
   resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
 {
@@ -55,8 +55,8 @@ LocalizationConfig<Tag>::make_scaled_binner() const
     } else {
         typedef Localization<Tag,ScaledByResolution> T;
         Resolution r1( resolution() );
-        typename Traits::OutputType o( r1 * camera::pixel );
-        typename Traits::ValueType r(o);
+        typename Tag::OutputType o( r1 * camera::pixel );
+        typename Tag::ValueType r(o);
         return std::auto_ptr<Scaled>( 
             new BinningAdapter<T,Scaled>( T(r) ) );
     }
@@ -88,9 +88,9 @@ LocalizationConfig<Tag>::make_unscaled_binner() const
 namespace {
 
 template <int Dimension>
-std::auto_ptr<Unscaled> make_uncertainty_binner(traits::Position<Dimension> tag) {
+std::auto_ptr<Unscaled> make_uncertainty_binner(localization::Position<Dimension> tag) {
     return make_BinningAdapter<Unscaled>(
-            binning::Localization<traits::PositionUncertainty<Dimension>, IsUnscaled>());
+            binning::Localization<localization::PositionUncertainty<Dimension>, IsUnscaled>());
 }
 
 template <typename Tag>

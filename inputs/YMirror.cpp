@@ -30,7 +30,7 @@ class Source
 {
     typedef Type Input;
     typedef input::Source<Input> Base;
-    typedef Localization::PositionY::Traits::RangeType Range;
+    typedef localization::MetaInfo<localization::PositionY>::RangeType Range;
     Range range;
     struct iterator;
     void modify_traits( input::Traits<Type>& );
@@ -68,7 +68,7 @@ class ChainLink
 };
 
 struct Mirrorer : public boost::static_visitor<void> {
-    typedef Localization::PositionY::Traits::RangeType Range;
+    typedef localization::MetaInfo<localization::PositionY>::RangeType Range;
     const Range& range;
     Mirrorer(const Range& range) : range(range) {}
     template <typename Type>

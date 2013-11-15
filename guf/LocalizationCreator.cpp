@@ -105,7 +105,7 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel );
     if ( threed )
         pos[2] = (*threed)( gaussian_psf::MeanZ() ) * 1E-6 * si::meter;
-    Localization::Amplitude::Type amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
+    localization::Amplitude::ValueType amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
     rv = Localization(pos, amp );
 
     rv.local_background() = 
