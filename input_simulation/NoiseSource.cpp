@@ -201,6 +201,8 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
         t->plane(p).create_projection();
     }
     imN = config.imageNumber();
+    t->image_number().range().first = 0 * camera::frame;
+    t->image_number().range().second = (imN-1) * camera::frame ;
     integration_time = config.integrationTime() * si::seconds;
 
     if ( config.saveActivity )
