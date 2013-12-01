@@ -91,17 +91,23 @@ template <int Dim>
 std::auto_ptr< Coordinates<Dim> > CoordinatesFactory<Dim>::make() const
 {
     boost::ptr_array< binning::Scaled, Dim> spatial;
-    for (int i = 0; i < Dim; ++i)
+    boost::ptr_array< binning::Unscaled, Dim> spatial_uncertainty;
+    for (int i = 0; i < Dim; ++i) {
         if ( i == 1 && invert_y_axis() ) {
             boost::shared_ptr<binning::Scaled> base_y( 
                 components[i]().make_scaled_binner().release() );
             spatial.replace( i, new binning::Inversion<binning::Scaled>(base_y) );
+            spatial_uncertainty.replace( i, components[i]().make_uncertainty_binner() );
         } else if ( i == 2 && ! use_z_axis() ) {
             spatial.replace( i, new binning::Zero() );
-        } else
+            spatial_uncertainty.replace( i, new binning::Zero() );
+        } else {
             spatial.replace( i, components[i]().make_scaled_binner() );
+            spatial_uncertainty.replace( i, components[i]().make_uncertainty_binner() );
+        }
+    }
     return std::auto_ptr< Coordinates<Dim> >(
-        new Coordinates<Dim>( spatial, make_i() ) );
+        new Coordinates<Dim>( spatial, spatial_uncertainty, make_i() ) );
 }
 
 template <int Dim>
