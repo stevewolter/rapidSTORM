@@ -84,6 +84,7 @@ OpenFile::getTraits()
         rv->frame_rate = 1.0f * camera::frame / ( dataSet->instaImage.kinetic_cycle_time
                 * boost::units::si::second );
     }
+    rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second =
         (readsif_numberOfImages(dataSet) - 1) * camera::frame;
 

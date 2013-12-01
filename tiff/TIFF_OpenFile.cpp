@@ -108,6 +108,7 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
     }
 
     DEBUG("Returning traits");
+    rv->image_number().range().first = 0 * camera::frame;
     if ( _no_images != -1 )
         rv->image_number().range().second = (_no_images - 1) * camera::frame;
     return rv;
