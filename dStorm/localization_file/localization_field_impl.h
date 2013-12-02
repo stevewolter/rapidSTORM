@@ -169,6 +169,10 @@ bool has_implied_lower_boundary_of_zero(localization::Position<Dimension> tag) {
     return true;
 }
 
+bool has_implied_lower_boundary_of_zero(localization::ImageNumber tag) {
+    return true;
+}
+
 template <typename Tag>
 LocalizationField<Tag>::LocalizationField( const TiXmlElement& node, TraitsType& localization_traits ) 
 {
@@ -184,7 +188,7 @@ LocalizationField<Tag>::LocalizationField( const TiXmlElement& node, TraitsType&
 
     if ( TraitsType::has_range ) {
         /* Backward compatibility: Old versions of the XML syntax didn't require lower boundaries for the
-          * spatial coordinates, but implied 0. */
+          * spatial or frame number coordinates, but implied 0. */
         if ( has_implied_lower_boundary_of_zero(Tag())
              && node.Attribute("min") == NULL && node.Attribute("identifier")  == NULL ) {
             DEBUG("Setting field minimum to 0");
