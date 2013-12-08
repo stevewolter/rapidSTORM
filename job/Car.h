@@ -66,6 +66,7 @@ namespace job {
         void run();
         void drive();
         void stop();
+        void close_when_finished() override { control.close_when_finished(); }
         bool needs_stopping() { return true; }
 
         simparm::NodeHandle attach_ui( simparm::NodeHandle ) ;

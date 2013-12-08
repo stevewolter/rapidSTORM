@@ -37,6 +37,11 @@ public:
     void set_current_run( boost::shared_ptr<Run> );
     void wait_until_termination_is_allowed();
     void stop();
+    void close_when_finished() {
+        boost::unique_lock<boost::mutex> lock( mutex );
+        close_job = true;
+        allow_termination.notify_all();
+    }
 
     void restart();
     void repeat_results();

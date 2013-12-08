@@ -135,6 +135,7 @@ public:
     AlignmentFitterConfig* clone() const { return new AlignmentFitterConfig(*this); }
     simparm::NodeHandle attach_ui( simparm::NodeHandle );
     void attach_children_ui( simparm::NodeHandle );
+    void close_when_finished() override {}
 
     std::auto_ptr<dStorm::Job> make_job();
 };
@@ -163,6 +164,7 @@ public:
     void run();
     void stop() { continue_running = false; can_stop_running.notify_all(); }
     simparm::NodeHandle attach_ui( simparm::NodeHandle );
+    void close_when_finished() override {}
 };
 
 int AlignmentFitterJob::ident = 1;

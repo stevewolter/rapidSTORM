@@ -20,6 +20,7 @@ struct JobConfig : public Job {
     virtual JobConfig* clone() const = 0;
     virtual void run() {}
     virtual void stop() {}
+    virtual void close_when_finished() {}
 };
 
 struct Config : public JobConfig

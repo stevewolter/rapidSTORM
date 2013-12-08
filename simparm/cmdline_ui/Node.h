@@ -5,6 +5,7 @@
 #include "../BaseAttribute.h"
 #include <map>
 #include <boost/enable_shared_from_this.hpp>
+#include "dStorm/Job.h"
 
 namespace simparm {
 namespace cmdline_ui {
@@ -59,6 +60,11 @@ public:
     void set_help_id( std::string ) {}
     void set_help( std::string ) {}
     void set_editability( bool ) {}
+
+    void stop_job_on_ui_detachment( boost::shared_ptr<dStorm::Job> job )
+        override {
+        job->close_when_finished();
+    }
 
     NodeHandle get_handle() { return shared_from_this(); }
 
