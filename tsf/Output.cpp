@@ -84,6 +84,7 @@ Output::RunRequirements Output::announce_run(const RunAnnouncement&) {
   coded_output.WriteRaw("\0\0\0\0"           // magic version bytes
                         "\0\0\0\0\0\0\0\0",  // placeholder for SpotList offset
                         12);
+  return Output::RunRequirements();
 }
 
 void Output::BuildSpot(const Localization& localization, TSF::Spot* spot) {
