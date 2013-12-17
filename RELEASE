@@ -4,3 +4,26 @@
     $ git log --format=oneline ${OLD_VERSION}..${NEW_VERSION}
 * $ make distcheck
 * git tag ${NEW_VERSION}
+
+=== Building the Debian source package ===
+
+* Get the latest Debian package sources:
+    $ apt-get source rapidstorm
+* Get the source distribution file:
+    $ cp ${BUILDDIR}/rapidstorm-${NEW_VERSION}.tar.gz .
+* Use uupdate to re-package:
+    $ cd rapidstorm-${OLD_VERSION}
+    $ uupdate ../rapidstorm-${NEW_VERSION}.tar.gz
+    $ cd ../rapidstorm-${NEW_VERSION}
+    $ vi debian/changelog
+    # Replace UNRELEASED by testing
+    $ dpkg-buildpackage -S
+
+=== Building the Debian binary packages ===
+
+* Copy the source package into the incoming area of the package builder:
+    $ scp rapidstorm_${NEW_VERSION}{.orig.tar.gz,-1{_source.changes,.dsc,.debian.tar.gz}} asterix.biozentrum.uni-wuerzburg.de:/projects/www/debian/incoming/rapidstorm
+* Run the package building pipeline on autogenix:
+    $ ssh -t asterix.biozentrum.uni-wuerzburg.de ssh -t autogenix screen
+        $ cd /srv/package-build/build
+        $ make
