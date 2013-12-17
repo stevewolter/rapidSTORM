@@ -1,6 +1,6 @@
 #include "SharedDataSource.h"
 
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 
 namespace dStorm {
 namespace display {

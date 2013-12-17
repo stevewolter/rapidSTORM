@@ -1,6 +1,6 @@
 #include "NodeBackend.h"
 
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 
 #include "InnerBackendNode.h"
 

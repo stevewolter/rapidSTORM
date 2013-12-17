@@ -9,7 +9,7 @@
 #include <iterator>
 
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/SpotFinder.h>

@@ -2,7 +2,7 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/Eigen.h>
 
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/ptr_container/ptr_array.hpp>
 
 #include "binning/config.h"

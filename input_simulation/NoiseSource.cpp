@@ -4,7 +4,7 @@
 #include "debug.h"
 #include "NoiseSource.h"
 
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <time.h>
 #include <gsl/gsl_randist.h>

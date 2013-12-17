@@ -3,7 +3,7 @@
 
 #include <wx/msgdlg.h>
 #include <simparm/Attribute.h>
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/lexical_cast.hpp>
 #include "ProtocolNode.h"

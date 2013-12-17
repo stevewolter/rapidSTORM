@@ -1,6 +1,6 @@
 #include "LiveBackend.h"
 
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 
 #include "ImageDiscretizer.h"
 #include "ImageDiscretizer_converter.h"

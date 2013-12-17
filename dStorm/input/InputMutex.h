@@ -1,5 +1,5 @@
 #include "fwd.h"
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
 namespace dStorm {

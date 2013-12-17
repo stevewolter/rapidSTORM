@@ -1,7 +1,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/make_shared.hpp>
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/engine/Image.h>

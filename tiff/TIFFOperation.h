@@ -1,5 +1,5 @@
 #include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 #include <string>
 #include <list>
 #include <tiffio.h>
