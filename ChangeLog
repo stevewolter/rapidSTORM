@@ -1,3 +1,46 @@
+== 3.3.0 ==
+
+New functionality:
+ * Added experimental support for writing TSF files
+
+Bug fixes:
+ * Fixed bugs #218, #228, #226, #227, #321
+ * Fixed termination of jobs on the command line. rapidSTORM used to hang
+   indefinitely when GUI work was involved.
+ * GUI fix: When loading a settings file, correctly check or uncheck the
+   checkbox for optional values.
+ * Checked validity of GUI choices early on to give good errors on reading bad
+   scripts
+ * Fixed bound checking and reverse transform in support point alignment
+ * Fixed estimation of total frame count when temporally joining a movie with
+   a given length and a movie with unknown length
+ * Fixed binning for Kalman tracker
+ * Fixed read-in of splines by using natural boundary conditions to match GSL
+ * Fixed fit convergence criterium for x/y convergence to avoid z localization
+   errors
+ * Improved handling of partially negative polynomial 3D sigma curves in 3D
+   calibration
+ * Fixed computation of localization uncertainties
+ * Fixed handling of invalid Z polynomials (i.e. with values < 0 in the z range)
+   in the 3D calibrator
+ * Shrunk size of initial polynomial of 3D calibrator to 1/20th instead of 1/2
+   of the parameter value
+ * Fixed handling of negative linear/cubic polynomial 3D terms
+ * Improved error message on non-overlapping astigmatic zones of trust
+ * Fixed 3D calibration and run_finished message when used inside filters
+
+Refactoring:
+ * Simplified code by making ranges compulsory for all localization variables
+   and moving value + range into separate class from Tag
+ * Dropped field enumeration for localization class
+ * Killed meta-tags and scalars for localization fields because they were
+   unnecessarily complex.
+ * Included any_iterator and cs_units headers in core rapidSTORM distribution
+ * Dropped unused includes of /b/units/Eigen/Core and b/units/Eigen/Array
+ * Dropped boost::units all over the place because they added more complexity
+   than value
+ * Stabilized alignment fitter unit test by removing randomness
+
 == 3.2.1 ==
 
 * Stabilized unit tests

@@ -1,0 +1,6 @@
+=== Source release ===
+
+* Update the changelog. Use the output of 
+    $ git log --format=oneline ${OLD_VERSION}..${NEW_VERSION}
+* $ make distcheck
+* git tag ${NEW_VERSION}
