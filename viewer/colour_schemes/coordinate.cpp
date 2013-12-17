@@ -87,8 +87,7 @@ void Coordinate::create_full_key( display::Change::Keys::value_type& into, int i
 
     if (currently_mapping) {
         const float max_saturation = 1;
-        const BrightnessType max_brightness 
-            = std::numeric_limits<BrightnessType>::max();
+        const uint8_t max_brightness = 255;
         const int key_count = key_resolution;
         into.reserve( key_count );
         for (int i = 0; i < key_count; ++i) {
