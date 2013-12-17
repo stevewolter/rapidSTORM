@@ -8,6 +8,9 @@
 #include <cassert>
 #include <iterator>
 
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/thread/lock_guard.hpp>
+
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
@@ -20,7 +23,6 @@
 #include <dStorm/image/slice.h>
 #include <dStorm/helpers/back_inserter.h>
 #include <dStorm/traits/Projection.h>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include "PlaneFlattener.h"
 #include "Config.h"
 #include <simparm/dummy_ui/fwd.h>

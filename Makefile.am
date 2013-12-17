@@ -46,7 +46,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.volker/fall_b.exp dstorm.guf/negative-alignment.exp \
     dstorm.guf/multi-plane-gui.exp dstorm.guf/precision.exp \
     dstorm.guf/error-check.exp dstorm.guf/two-plane-form-fitter.exp \
-    dstorm.guf/3d.exp dstorm.guf/andre-test-1.exp \
+    dstorm.guf/andre-test-1.exp \
     dstorm.guf/performance.exp dstorm.guf/fixed-settings.exp \
     dstorm.00-pre/01-plugins-loaded.exp \
     dstorm.00-pre/03-test-plugin-can-close-windows.exp \
@@ -113,6 +113,7 @@ PROTO_SOURCE_FILES = tsf/TSFProto.proto
 PROTO_GENERATED = $(PROTO_SOURCE_FILES:.proto=.pb.cc) $(PROTO_SOURCE_FILES:.proto=.pb.h)
 dist_noinst_DATA = $(PROTO_SOURCE_FILES)
 BUILT_SOURCES = installation-directory.h
+CLEANFILES += $(PROTO_GENERATED)
 if HAVE_PROTOBUF
 BUILT_SOURCES += $(PROTO_GENERATED)
 endif
@@ -595,7 +596,6 @@ rapidstorm_SOURCES += \
     gaussian_psf/DepthInfo3D.h gaussian_psf/DepthInfo3D.cpp \
     gaussian_psf/is_plane_dependent.h \
     gaussian_psf/JointEvaluator.h \
-    gaussian_psf/LengthUnit.h \
     gaussian_psf/unit_test.h gaussian_psf/unit_test.cpp \
     gaussian_psf/ReferenceEvaluation.h \
     gaussian_psf/mock_model.h gaussian_psf/mock_model.cpp \
@@ -861,6 +861,7 @@ rapidstorm_SOURCES += \
 
 if HAVE_PROTOBUF
 rapidstorm_SOURCES += \
+    tsf/Output.h \
     tsf/Output.cpp \
     tsf/TSFProto.pb.cc
 endif

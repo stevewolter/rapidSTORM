@@ -1,4 +1,8 @@
 #include <boost/algorithm/string.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/smart_ptr/make_shared.hpp>
+#include <boost/thread/lock_guard.hpp>
+
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/InputTraits.h>
@@ -6,8 +10,6 @@
 #include <dStorm/input/Choice.h>
 #include <dStorm/input/Forwarder.h>
 #include <simparm/FileEntry.h>
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/smart_ptr/make_shared.hpp>
 #include <simparm/Group.h>
 
 #include "FileMethod.h"
@@ -152,7 +154,7 @@ void unit_test( TestState& t ) {
         "Test method publishes traits for TIFF file name" );
     t.testrun( ! file_method.current_meta_info()->provides_nothing(), 
         "Test method provides something for TIFF file name" );
-    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::ImageStack >(),
+    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::ImageStack >().get() != nullptr,
         "Test method provides correct image type" );
     t.testrun( file_method.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );

@@ -1,4 +1,7 @@
 #include "NodeBackend.h"
+
+#include <boost/thread/lock_guard.hpp>
+
 #include "InnerBackendNode.h"
 
 namespace simparm {
