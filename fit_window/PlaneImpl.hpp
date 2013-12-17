@@ -41,7 +41,6 @@ PlaneImpl<Tag>::PlaneImpl(
 ) : Plane(optics )
 {
     typedef typename Tag::Data Data;
-    typedef typename Data::DataRow DataRow;
 
     const float background_part = 0.25;
 
