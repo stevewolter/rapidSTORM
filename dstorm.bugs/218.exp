@@ -9,6 +9,7 @@ send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission
 send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set posz\n"
 send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in Expression in value set 0.3 nm/fr * frame\n"
 send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Expression in Output0 in Image in ToFile in value set \n"
 
 dstorm_attach
 send "in Car set Run value set 1\n"
