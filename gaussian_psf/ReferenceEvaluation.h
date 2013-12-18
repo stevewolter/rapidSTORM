@@ -1,6 +1,8 @@
 #ifndef PSF_REFERENCEEVALUATION_H
 #define PSF_REFERENCEEVALUATION_H
 
+#include <boost/math/constants/constants.hpp>
+
 #include <nonlinfit/plane/fwd.h>
 #include "No3D.h"
 #include "DepthInfo3D.h"
@@ -20,7 +22,7 @@ template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <No3D, Number, P1, P2>
 {
     No3D * const expr;
-    static constexpr Number Pi = M_PI;
+    static constexpr Number Pi = boost::math::constants::pi<double>();
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number pixel_size;
   public:
@@ -116,7 +118,7 @@ template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <DepthInfo3D, Number, P1, P2>
 {
     DepthInfo3D * const expr;
-    static constexpr Number Pi = M_PI;
+    static constexpr Number Pi = boost::math::constants::pi<double>();
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number dsx, dsy;
     Number pixel_size;

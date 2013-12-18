@@ -10,6 +10,7 @@
 #include <boost/range/numeric.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/foreach.hpp>
+#include <boost/math/constants/constants.hpp>
 
 namespace dStorm {
 namespace density_map {
@@ -36,7 +37,7 @@ private:
                 Position p = base_pos;
                 for (int i = lower; i <= upper; ++i) {
                     p[d] = i * camera::pixel;
-                    float subfactor = exp( -0.5 * pow<2>( (i - v[d]) / sigma ) ) / sqrt( 2 * M_PI * sigma );
+                    float subfactor = exp( -0.5 * pow<2>( (i - v[d]) / sigma ) ) / sqrt( 2 * boost::math::constants::pi<double>() * sigma );
                     apply_factors( p, d + 1, v, u, factor * subfactor, target );
                 }
             } else {

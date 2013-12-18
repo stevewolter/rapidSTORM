@@ -1,8 +1,11 @@
 #include "FluorophoreDistributions.h"
-#include <Eigen/Core>
-#include <boost/units/Eigen/Array>
+
+#include <boost/math/constants/constants.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include <Eigen/Core>
+#include <boost/units/Eigen/Array>
 
 using namespace Eigen;
 using namespace boost::units;
@@ -135,9 +138,10 @@ FluorophoreDistribution::Positions Lines::Line::
           border = size, shift;
     zero.z() = Fluorophore::Position::Scalar::from_value(-std::numeric_limits<float>::infinity());
     border.z() = Fluorophore::Position::Scalar::from_value(std::numeric_limits<float>::infinity());
-    shift.x() = Fluorophore::Position::Scalar(cos(2*M_PI*angle()/360)*cos(2*M_PI*z_angle()/360) * density()); 
-    shift.y() = Fluorophore::Position::Scalar(sin(2*M_PI*angle()/360)*cos(2*M_PI*z_angle()/360) * density());
-    shift.z() = Fluorophore::Position::Scalar(sin(2*M_PI*z_angle()/360) * density()); 
+    const double pi = boost::math::constants::pi<double>();
+    shift.x() = Fluorophore::Position::Scalar(cos(2*pi*angle()/360)*cos(2*pi*z_angle()/360) * density()); 
+    shift.y() = Fluorophore::Position::Scalar(sin(2*pi*angle()/360)*cos(2*pi*z_angle()/360) * density());
+    shift.z() = Fluorophore::Position::Scalar(sin(2*pi*z_angle()/360) * density()); 
 
     int number = 0;
     for (unsigned int i = 0; i <= repeat(); i++) {

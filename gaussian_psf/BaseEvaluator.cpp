@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "debug.h"
 #include "BaseEvaluator.h"
 #include "expressions.h"
@@ -20,7 +22,7 @@ bool BaseParameters<Number>::prepare_iteration( const nonlinfit::plane::GenericD
     amplitude = expr->amplitude;
     transmission = expr->transmission;
     sigma = compute_sigma_();
-    double covariance_ellipse_area = 4 * M_PI * sigma[0] * sigma[1],
+    double covariance_ellipse_area = 4 * boost::math::constants::pi<double>() * sigma[0] * sigma[1],
             pixel_size_in_sqmum = data.pixel_size;
     if ( (sigma < 0).any() || pixel_size_in_sqmum > covariance_ellipse_area ) {
         return false;
@@ -28,7 +30,7 @@ bool BaseParameters<Number>::prepare_iteration( const nonlinfit::plane::GenericD
 
     sigmaI = sigma.array().inverse();
     prefactor = data.pixel_size * amplitude * transmission 
-            / (2 * M_PI * sigma.x() * sigma.y());
+            / (2 * boost::math::constants::pi<double>() * sigma.x() * sigma.y());
     compute_prefactors();
     return true;
 }

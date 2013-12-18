@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include <dStorm/output/OutputSource.h>
 
 #include <endian.h>
@@ -137,7 +139,7 @@ void Output::BuildSpot(const Localization& localization, TSF::Spot* spot) {
       spot->set_theta(0);
     } else {
       spot->set_a(wy / wx);
-      spot->set_theta(0.5 * M_PI);
+      spot->set_theta(0.5 * boost::math::constants::pi<double>());
     }
   }
 }

@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "debug.h"
 #include "HueSaturationMixer.h"
 #include <cassert>
@@ -16,9 +18,9 @@ void HueSaturationMixer::set_tone( float hue ) {
     DEBUG("Setting tone to hue " << hue);
     float saturation = 0;
     ColourVector current_tone = base_tone + ColourVector( hue, saturation );
-    tone_point.x() = cosf( 2 * M_PI * current_tone[0] ) 
+    tone_point.x() = cosf( 2 * boost::math::constants::pi<double>() * current_tone[0] ) 
                         * current_tone[1];
-    tone_point.y() = sinf( 2 * M_PI * current_tone[0] ) 
+    tone_point.y() = sinf( 2 * boost::math::constants::pi<double>() * current_tone[0] ) 
                         * current_tone[1];
 }
 

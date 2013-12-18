@@ -1,4 +1,7 @@
 #include "pixelatedBessel.h"
+
+#include <boost/math/constants/constants.hpp>
+
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_sf_bessel.h>
 #include <Eigen/Core>
@@ -150,7 +153,7 @@ double BesselFunction::wavelength_callback(double l, void *params)
 {
     IntegrationInfo *i = static_cast<IntegrationInfo*>(params);
     quantity<si::length> lambda = l * si::meter;
-    i->wavenumber = (i->function->n * 2 * M_PI / lambda);
+    i->wavenumber = (i->function->n * 2 * boost::math::constants::pi<double>() / lambda);
     i->z_offset = -1.0 * (i->delta_z * i->wavenumber);
 
     double yc = i->orig_position.y().value(), val, abserr;

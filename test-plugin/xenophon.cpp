@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "xenophon.h"
 #include <dStorm/output/LocalizedImage.h>
 #include <dStorm/Localization.h>
@@ -18,7 +20,7 @@ input::Traits< output::LocalizedImage > xenophon_traits() {
     traits.position_x().range().second = float(10000E-9) * si::meter;
     traits.position_y().range().second = float(5000E-9) * si::meter;
     traits.position_z().range().second = float(2000E-9) * si::meter;
-    traits.amplitude().range().second = float(RAND_MAX * M_PI * 1E-9) * camera::ad_count;
+    traits.amplitude().range().second = float(RAND_MAX * boost::math::constants::pi<double>() * 1E-9) * camera::ad_count;
     traits.image_number().range().second = 99 * camera::frame;
     return traits;
 }
@@ -36,7 +38,7 @@ std::vector< output::LocalizedImage > xenophon()
             l.position_x() = (rand()*scale) * si::meter;
             l.position_y() = (rand()*scale) * 0.5f * si::meter;
             l.position_z() = (rand()*scale) * 0.2f * si::meter;
-            l.amplitude() = rand() * M_PI * 1E-6 * camera::ad_count;
+            l.amplitude() = rand() * boost::math::constants::pi<double>() * 1E-6 * camera::ad_count;
             result.push_back( l );
         }
         rv.push_back( result );

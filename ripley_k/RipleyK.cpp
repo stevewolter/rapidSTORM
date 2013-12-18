@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include <Eigen/StdVector>
 #include <simparm/BoostUnits.h>
 #include "DistanceHistogram.h"
@@ -112,9 +114,9 @@ static quantity<si::area> area_of_ring(
 ) {
     quantity<si::length> outer_radius = middle_radius + 0.5 * thickness;
     if ( outer_radius < thickness ) 
-        return M_PI * outer_radius * outer_radius;
+        return boost::math::constants::pi<double>() * outer_radius * outer_radius;
     else
-        return M_PI * thickness * (2.0 * outer_radius - thickness);
+        return boost::math::constants::pi<double>() * thickness * (2.0 * outer_radius - thickness);
 }
 
 void Output::store_results_( bool success ) {
@@ -136,7 +138,7 @@ void Output::store_results_( bool success ) {
             accum += h.counts[i] * 2;
 
             quantity<si::area> ripley_k = (accum * 1.0 / (average_count_density * (1.0 * localization_count)));
-            quantity<si::length> ripley_l = sqrt(ripley_k / M_PI);
+            quantity<si::length> ripley_l = sqrt(ripley_k / boost::math::constants::pi<double>());
             output << quantity<si::microlength>(bin_center).value() << "\t" 
                       << quantity<microarea>(ring_area).value() << "\t"
                       << (h.counts[i] * 2) << "\t"

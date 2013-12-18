@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "mock_model.h"
 #include <boost/mpl/for_each.hpp>
 #include <Eigen/StdVector>
@@ -16,7 +18,7 @@ mock_data() {
     for (int i = 0; i < 10; ++i) {
         disjoint_data.data.push_back( MockDataTag::Data::DataRow() );
         MockDataTag::Data::DataRow& d = disjoint_data.data.back();
-        d.inputs(0,0) = i * M_PI / 30.0;
+        d.inputs(0,0) = i * boost::math::constants::pi<double>() / 30.0;
         for (int j = 0; j < 12; ++j) {
             d.output[j] = rand() * 1E-5;
             d.logoutput[j] = (d.output[j] < 1E-10)

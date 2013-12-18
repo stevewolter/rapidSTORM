@@ -6,6 +6,8 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf.h>
 
+#include <boost/math/constants/constants.hpp>
+
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 
@@ -69,8 +71,8 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
             "than refractive index. Please reconsider.");
     const double 
         alpha = asin( config.numerical_aperture() / config.refractive_index() ),
-        complete_bessel_integral_value = 0.7 * M_PI * alpha * alpha 
-            + 0.3 * M_PI * sin( alpha ) * sin( alpha );
+        complete_bessel_integral_value = 0.7 * boost::math::constants::pi<double>() * alpha * alpha 
+            + 0.3 * boost::math::constants::pi<double>() * sin( alpha ) * sin( alpha );
     initTimes(config);
     //history.resize(noImages, false);
 

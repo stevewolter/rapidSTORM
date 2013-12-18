@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "base.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -29,8 +31,8 @@ void rgb_weights_from_hue_saturation
 }
 
 static const Eigen::Rotation2D<float> 
-    rot_90_deg_clockw( - M_PI / 2 ),
-    rot_30_deg_clockw( - M_PI / 6 );
+    rot_90_deg_clockw( - boost::math::constants::pi<double>() / 2 ),
+    rot_30_deg_clockw( - boost::math::constants::pi<double>() / 6 );
 
 void convert_xy_tone_to_hue_sat( 
     float x, float y, float& hue, float& sat ) 

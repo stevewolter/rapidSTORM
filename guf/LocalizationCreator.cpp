@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "debug.h"
 #include <Eigen/StdVector>
 #include <dStorm/engine/InputTraits.h>
@@ -86,7 +88,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
         double psf_variance 
             = quantity<si::area>(pow<2>( rv.psf_width(i) / 2.35 )).value() * 1E12 + p.pixel_size / 12.0;
         double background_term
-            = psf_variance * 8.0 * M_PI * background_variance / (N * p.pixel_size);
+            = psf_variance * 8.0 * boost::math::constants::pi<double>() * background_variance / (N * p.pixel_size);
         rv.set_position_uncertainty(i,
             samplepos::Scalar(sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) ) * 1E-6 * si::meter));
     }

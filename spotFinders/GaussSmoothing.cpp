@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include <simparm/Eigen_decl.h>
 #include <simparm/Object.h>
 #include <simparm/BoostUnits.h>
@@ -37,7 +39,7 @@ private:
 };
 
 static void fillWithGauss(std::vector<int>::iterator values, int n, double sigma, int A) {
-    const double sig_sq = sigma * sigma, norm = 1 / (2 * M_PI * sigma);
+    const double sig_sq = sigma * sigma, norm = 1 / (2 * boost::math::constants::pi<double>() * sigma);
 
     for (int i = 0; i < n; i++)
         *values++ = (int)round(A * norm * exp( -0.5 * i * i / sig_sq ) );
