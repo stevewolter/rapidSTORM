@@ -136,7 +136,7 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
 
                 gui_result = gui_selection.get_future();
 
-                boost::thread gui_thread( boost::move(gui_selection) );
+                boost::thread gui_thread( std::move(gui_selection) );
                 gui_thread.detach();
             } else if ( ! gui_result.is_ready() ) {
                 /* Wait a few spots more. */
