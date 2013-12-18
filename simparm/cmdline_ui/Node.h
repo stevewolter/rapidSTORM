@@ -61,8 +61,7 @@ public:
     void set_help( std::string ) {}
     void set_editability( bool ) {}
 
-    void stop_job_on_ui_detachment( boost::shared_ptr<dStorm::Job> job )
-        override {
+    void stop_job_on_ui_detachment( boost::shared_ptr<dStorm::Job> job ) {
         job->close_when_finished();
     }
 
