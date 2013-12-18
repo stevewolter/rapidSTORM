@@ -3,6 +3,7 @@ begin_test_suite
 set test "Bug #218 is fixed"
 set_input_file "${workspace_target}Mikrotubuli.tif"
 set_last_image 50
+send "in Car in AutoTerminate in value set false\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Cache\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
 send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Expression\n"
