@@ -22,7 +22,7 @@ template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <No3D, Number, P1, P2>
 {
     No3D * const expr;
-    static constexpr Number Pi = boost::math::constants::pi<double>();
+    static constexpr Number Pi = 3.14159265359;
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number pixel_size;
   public:
@@ -118,7 +118,7 @@ template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <DepthInfo3D, Number, P1, P2>
 {
     DepthInfo3D * const expr;
-    static constexpr Number Pi = boost::math::constants::pi<double>();
+    static constexpr Number Pi = 3.14159265359;
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number dsx, dsy;
     Number pixel_size;
