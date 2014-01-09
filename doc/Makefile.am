@@ -17,7 +17,7 @@ else
     PDF_TARGET = 
 endif
 
-doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
+doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET) spline-theory.pdf
 pkgdata_DATA = manual.zip alias.h 
 noinst_DATA = guilabels.h
 
@@ -69,6 +69,10 @@ manual.pdf : manual.fo foprc
 
 .tex.png :
 	bash $(srcdir)/tex2im -r 150x150 -o $@ $^
+
+spline-theory.pdf : spline-theory.tex spline-theory-example.pdf
+	TEXINPUTS=$(srcdir): pdflatex -interaction=batchmode $<
+	rm -f $(@:.pdf=.aux) $(@:.pdf=.log)
 
 CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml \
     manual.hhp titlepage.xsl alias.h context.h manual.hhk manual.hhc manual.zip \
