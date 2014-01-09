@@ -69,6 +69,10 @@
 
    <section id="interpolated_3d">
       <title>Piecewise cubic model</title>
+      <para>The points in a <xref linkend="z_calibration_table"/> are interpolated with a cubic B-spline.
+          This approach is described in depth in <xref linkend="Proppert2014"/>.
+          A short overview over the theoretical background is available from <ulink url="spline-theory.pdf">
+              Sven Propperts description included with this package</ulink>.</para>
    </section>
 
    <section id="z_calibration_table">

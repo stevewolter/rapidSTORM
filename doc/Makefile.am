@@ -72,6 +72,7 @@ manual.pdf : manual.fo foprc
 
 spline-theory.pdf : spline-theory.tex spline-theory-example.pdf
 	TEXINPUTS=$(srcdir): pdflatex -interaction=batchmode $<
+	TEXINPUTS=$(srcdir): pdflatex -interaction=batchmode $<
 	rm -f $(@:.pdf=.aux) $(@:.pdf=.log)
 
 CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml \
