@@ -98,6 +98,14 @@
         You are encouraged to interface the direct camera input driver with a camera system or use 
         the different output options for necessary control systems.
     </para>
+    <para>
+        You can find discussions, help, advice and announcements for rapidSTORM on
+        <ulink url="https://groups.google.com/forum/#!forum/rapidstorm-discuss">the
+            rapidstorm-discuss mailing list</ulink>. The source code is available from
+        <ulink url="https://github.com/stevewolter/rapidSTORM">the GitHub repository</ulink>.
+        Bugs can be reported at <ulink url="https://github.com/stevewolter/rapidSTORM/issues">the
+            GitHub issue tracker</ulink>.
+    </para>
 </preface>
 
 <preface>
