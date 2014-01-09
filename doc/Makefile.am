@@ -36,7 +36,7 @@ bib4wbbt.xml : xml2db5.xsl bib4wbbt.bib
 titlepage.xsl : make_titlepage.xsl titlepage.xml
 	$(XSLTPROC) $(XSLT_FLAGS) -o $@ $^
 
-manual.zip : manual.hhp manual.hhc manual.hhk alias.h $(GRAPHICS)
+manual.zip : manual.hhp manual.hhc manual.hhk alias.h $(GRAPHICS) spline-theory.pdf
 	rm -f $@
 	$(SED) -e '1,/\[FILES\]/d' -e '/^$$/,$$d' $< | \
 	$(ZIP) $@ -@ --junk-paths $^
