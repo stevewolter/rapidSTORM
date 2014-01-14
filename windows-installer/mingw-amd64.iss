@@ -1,0 +1,3 @@
+[Setup]
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64

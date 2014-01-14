@@ -1,0 +1,35 @@
+; dSTORM 1.3.0, MP, Dec. 2009
+; Changed to integrate with SVN by swolter, 2010
+
+[Setup]
+AppName=rapidSTORM
+AppID=rapidSTORM@MAJOR_VERSION@
+AppVersion=@VERSION@
+DefaultGroupName=rapidSTORM
+DefaultDirName={pf}\rapidstorm@MAJOR_VERSION@
+UsePreviousAppDir=yes
+LicenseFile=@srcdir@/rapidstorm-license-note
+InfoBeforeFile=@README@
+AlwaysRestart=no
+
+;das bezieht sich auf Anzeige in Software unter W2k/XP
+AppCopyright=Copyright © 1999-2014 Steve Wolter
+AppPublisher=Sauer Lab, University of Wuerzburg
+AppPublisherURL=http://www.super-resolution.de
+
+DiskSpanning=no
+ReserveBytes=16384
+Compression=bzip/9
+SolidCompression=yes
+
+[Icons]
+Name: "{group}\rapidSTORM @MAJOR_VERSION@"; Filename: "{app}\bin\rapidstorm.exe"
+Name: "{group}\Online Help (PDF)"; Filename: "{app}\share\doc\rapidstorm-doc\manual.pdf"
+Name: "{group}\Online Help (HTML)"; Filename: "{app}\share\doc\rapidstorm-doc\manual.html"
+Name: "{group}\Uninstall\Uninstall rapidSTORM @MAJOR_VERSION@"; Filename: "{uninstallexe}"
+
+[Registry]
+; Try to install system-wide key. Should work for admin users and fail silently
+; for others
+Root: HKLM; Subkey: "Software\rapidstorm"; ValueType: string; ValueName: "InstallationPrefix"; ValueData: "{app}"; Flags: noerror uninsdeletevalue uninsdeletekeyifempty
+Root: HKCU; Subkey: "Software\rapidstorm"; ValueType: string; ValueName: "InstallationPrefix"; ValueData: "{app}"; Flags: uninsdeletevalue uninsdeletekeyifempty
