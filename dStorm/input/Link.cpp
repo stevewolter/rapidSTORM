@@ -7,7 +7,6 @@
 #include "dStorm/output/LocalizedImage_traits.h"
 #include "dStorm/localization/Traits.h"
 #include "dStorm/Localization.h"
-#include "dStorm/ImageTraits.h"
 #include "MetaInfo.h"
 #endif
 

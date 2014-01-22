@@ -26,8 +26,6 @@ LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::en
 
 void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelStack& pos, double chi_sq, const fit_window::Stack& data ) const
 {
-    DEBUG("Creating localization for fluorophore " << fluorophore << " from parameters " << parameters.transpose() );
-
     assert( ! pos.empty() );
 
     const int plane_count = pos.size();

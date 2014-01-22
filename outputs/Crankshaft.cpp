@@ -58,7 +58,6 @@ void Crankshaft::_add( Output *tm, bool imp, bool man )
 {
     assert( tm != NULL );
 
-    DEBUG("Crankshaft accepted transmission " << tm->getNode().getName());
     clutches.push_back( Clutch( *tm, imp, id++, man ) );
     if ( current_ui )
         clutches.back().attach_ui( *current_ui );
@@ -70,9 +69,7 @@ Crankshaft::announceStormSize(const Announcement &a)
 {
     AdditionalData data;
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++){
-        DEBUG("Announcing size to transmission " << (*i)->getNode().getName());
         data |= (*i)->announceStormSize(a);
-        DEBUG("Announced size to transmission " << (*i)->getNode().getName());
     }
     return data;
 }

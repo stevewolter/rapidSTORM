@@ -109,7 +109,6 @@ void RawImageFile::receiveLocalizations(const EngineResult& er)
 }
 
 void RawImageFile::write_image(const engine::ImageStack& img) {
-    DEBUG("Writing " << img.frame_number().value() << " of size " << size.size.transpose());
     assert( img.has_invalid_planes() || (size[0].size.array() == img.plane(0).sizes().array()).all() );
     int lines = 0;
     for (int p = 0; p < img.plane_count(); ++p)

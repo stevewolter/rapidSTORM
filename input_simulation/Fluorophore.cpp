@@ -80,7 +80,6 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
     planes.resize( optics.plane_count() );
     DEBUG("Generating fluorophore at " << pos.transpose());
     for (int i = 0; i < optics.plane_count(); ++i) {
-        DEBUG("Generating plane " << i << " with z position " << *optics.optics(i).z_position);
         Plane& p = planes[i];
         /* This size of the fluorophore is a safe initial guess - we might need more pixels,
         * and this case is detected by the loop below. */
