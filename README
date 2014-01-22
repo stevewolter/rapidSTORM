@@ -31,3 +31,15 @@ https://idefix.biozentrum.uni-wuerzburg.de/software/rapidSTORM:
 libreadsif 1.4   Library maintained by the rapidSTORM team based on code kindly released
                  by Andor technologies for reading Andor SIF files.
 libb64           Base64 encoding/decoding library by Chris Venter
+
+On Debian or Ubuntu systems, you can add our repository to the sources as described on the
+website, and install all dependencies as:
+
+$ sudo apt-get build-dep rapidstorm
+
+If you have cloned the git repository (instead of using the release .tar.gz), you need to
+run autoreconf to create the configure script. This requires the autoconf-archive scripts.
+
+$ sudo apt-get install autoconf-archive
+# In the source directory:
+$ autoreconf --install
