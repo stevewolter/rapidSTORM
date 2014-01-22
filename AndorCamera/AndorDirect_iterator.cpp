@@ -113,7 +113,6 @@ void Source::iterator::increment() {
         }
     }
     image_ready = false;
-    DEBUG("Incremented to image " << img.frame_number() << " (" << img.is_valid() << ")");
 }
 
 CamSource::iterator

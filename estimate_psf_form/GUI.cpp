@@ -228,8 +228,6 @@ GUI::make_spot_display() {
             to_upper.head<2>() = (from_upper - from_lower).head<2>() + to_lower.head<2>();
             if ( p == 0 ) i->region_start = to_lower; 
             if ( p == i->image.plane_count()-1 ) i->region_end = to_upper;
-            DEBUG("Cropping " << from_lower.transpose() << " to " << 
-                  from_upper.transpose() << " from " << i->image.sizes().transpose());
             engine::Image2D cropped = crop( i->image.plane(p), from_lower, from_upper );
             DEBUG("Transform-Cropping " << to_lower.transpose() << " to " << 
                   to_upper.transpose() << " from " << normalized.sizes().transpose());

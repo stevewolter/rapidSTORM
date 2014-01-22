@@ -12,8 +12,7 @@ BaseExpression::~BaseExpression() {}
 bool BaseExpression::form_parameters_are_sane() const {
     bool is_good = amplitude >= 0 && transmission >= 0;
     if ( ! is_good ) {
-        DEBUG("The form parameters " << best_sigma.transpose() << " " 
-              << amplitude << " " << transmission << " are insane");
+        DEBUG("The form parameters " << amplitude << " " << transmission << " are insane");
     }
     return is_good;
 }

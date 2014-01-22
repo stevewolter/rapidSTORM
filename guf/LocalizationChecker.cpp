@@ -34,7 +34,6 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
             if ( ! check_kernel(*j, spot, plane) ) return false;
             double intensity = (*j)( gaussian_psf::Amplitude() ) * (*j)( gaussian_psf::Prefactor() );
             double background = i->background_model()( constant_background::Amount() );
-            DEBUG("Checking amplitude threshold of " << local_threshold << " against " << intensity);
             if ( info.get_judger( plane ).is_above_background( intensity, background ) )
                 makes_it_in_one_plane = true;
             for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
@@ -68,7 +67,6 @@ bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, c
     bool z_ok = (!threed || 
         contains(allowed_z_positions, 
              (*threed)( gaussian_psf::MeanZ() ) ) );
-    DEBUG("Z position " << (*threed)( gaussian_psf::MeanZ() ) << " OK: " << z_ok);
     return kernels_ok && z_ok;
 }
 

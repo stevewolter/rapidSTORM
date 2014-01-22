@@ -65,7 +65,6 @@ void Choice::traits_changed( TraitsRef t, Link* from ) {
             choices.value = "";
     }
     if ( auto_select && ! choices.isValid() && provides_something ) {
-        DEBUG("Auto-selecting " << from->link->getName() );
         for ( iterator i = choices.begin(); i != choices.end(); ++i )
             if ( &i->link() == from )
                 choices.value = i->getName();

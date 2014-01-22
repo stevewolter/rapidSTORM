@@ -42,7 +42,6 @@ struct LocalizationValueFinder::application {
     template <typename Structure>
     void operator()( PSF::Amplitude p, Structure& m ) const { 
         m(p) = optics.relative_in_photons( parent.amplitude() ); 
-        DEBUG( "Have set amplitude to " << m(p).value() );
     }
     template <typename Structure>
     void operator()( constant_background::Amount p, Structure& m ) const
