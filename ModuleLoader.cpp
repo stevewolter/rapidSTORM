@@ -22,6 +22,7 @@
 #include "andor-sif/augment_config.h"
 #include "calibrate_3d/fwd.h"
 #include "ripley_k/fwd.h"
+#include "inputs/MedianFilter.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -50,6 +51,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 
     car_config.add_input( Splitter::makeLink(), BeforeEngine );
     car_config.add_input( plane_filter::make_link(), BeforeEngine );
+    //car_config.add_input( MedianFilter::make_link(), BeforeEngine );
     car_config.add_input( input_buffer::makeLink(), BeforeEngine );
     car_config.add_input( basename_input_field::makeLink(), BeforeEngine );
 
