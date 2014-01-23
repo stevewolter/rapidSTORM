@@ -22,7 +22,8 @@ class AdapterSource
     const Source<Type>& base() const { return *_base; }
     AdapterSource( std::auto_ptr< Source<Type> > b ) : _base(b) {}
   public:
-    bool GetNext(Type* target) { return _base->GetNext(target); }
+    void set_thread_count(int num_threads) override { _base->set_thread_count(num_threads); }
+    bool GetNext(int thread, Type* target) override { return _base->GetNext(thread, target); }
     typename Source<Type>::TraitsPtr get_traits() { return _base->get_traits(); }
     void dispatch(typename Source<Type>::Messages m) { _base->dispatch(m); }
     typename Source<Type>::Capabilities capabilities() const 

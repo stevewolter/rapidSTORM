@@ -73,47 +73,6 @@ Visitor::add<Localization>(Localization& argument)
 }
 
 template <typename Input>
-output::LocalizedImage& LocalizationBuncher<Input>::dereference() const
-{
-    DEBUG("Returning " << output.get() << " for " << this );
-    return *output;
-}
-
-template <typename Input>
-LocalizationBuncher<Input>::LocalizationBuncher( Source<Input>* master, frame_index first_image )
-: master(master), outputImage( first_image - 1 * camera::frame )
-{
-    if ( master ) { increment(); }
-}
-
-template <typename Input>
-void LocalizationBuncher<Input>::increment() {
-    DEBUG("Incrementing iterator with master " << master);
-    output.reset();
-    try {
-        outputImage += 1 * camera::frame;
-        if ( master->is_finished( outputImage ) ) {
-            DEBUG("Not serving after " << outputImage);
-            master = NULL;
-        } else {
-            output = master->read( outputImage );
-            DEBUG("Serving " << output->forImage);
-        }
-    } catch (...) {
-        master = NULL;
-        throw;
-    }
-}
-
-template <typename Input>
-bool LocalizationBuncher<Input>::equal(const LocalizationBuncher<Input>& o) const
-{
-    DEBUG("Comparing " << master << " " << o.master << " " << outputImage 
-          << " " << o.outputImage << " for equality");
-    return master == o.master && ( master == NULL || outputImage == o.outputImage );
-}
-
-template <typename Input>
 std::auto_ptr<output::LocalizedImage> 
 Source<Input>::read( frame_index outputImage )
 {
@@ -203,20 +162,35 @@ template <class InputType>
 void Source<InputType>::dispatch(Messages m)
 {
     if ( m.test( RepeatInput ) ) {
-        m.reset( RepeatInput );
-        current = base->begin();
-        base_end = base->end();
+        current_image = first_image;
     }
     m.reset( WillNeverRepeatAgain );
     base->dispatch(m);
 }
 
 template <class InputType>
-bool Source<InputType>::is_finished( frame_index at_image ) const { 
-    if ( last_image.is_initialized() )
-        return *last_image < at_image;
-    else
-        return current == base_end && canned.empty();
+void Source<InputType>::set_number_of_threads(int threads) {
+    if (threads != 1) {
+        throw std::logic_error("Can only read localizations single-threaded");
+    }
+}
+
+template <class InputType>
+bool Source<InputType>::GetNext(output::LocalizedImage* target) {
+    try {
+        InputType input;
+        if (!
+        if ( master->is_finished( outputImage ) ) {
+            DEBUG("Not serving after " << outputImage);
+            master = NULL;
+        } else {
+            output = master->read( outputImage );
+            DEBUG("Serving " << output->forImage);
+        }
+        current_image += 1 * camera::frame;
+    } catch (...) {
+        return false;
+    }
 }
 
 template class Source<localization::Record>;

@@ -22,8 +22,11 @@ Source::Source( const File& file,
 {
 }
 
-bool Source::GetNext(localization::Record* output) { 
-    trace_buffer.clear(); 
+bool Source::GetNext(int thread, localization::Record* output) { 
+    if (thread != 0) {
+        throw std::logic_error("Localization file reading must be single-threaded.");
+    }
+    trace_buffer.clear();
     *output = read_localization( file.level );
     return file.input;
 }

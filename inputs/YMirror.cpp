@@ -32,7 +32,7 @@ class Source
 
     void modify_traits( input::Traits<Type>& );
     void attach_local_ui_( simparm::NodeHandle ) {}
-    bool GetNext(Type* target);
+    bool GetNext(int thread, Type* target) override;
 
   public:
     Source( std::auto_ptr< Base > base ) : input::AdapterSource<Type>(base) {}
@@ -80,13 +80,13 @@ void mirror(const localization::MetaInfo<localization::PositionY>::RangeType& ra
 }
 
 template <typename Type>
-bool Source<Type>::GetNext(Type* target) {
+bool Source<Type>::GetNext(int thread, Type* target) {
     if ( need_range(target) &&
             (! range.first.is_initialized() || ! range.second.is_initialized()) ) {
         throw std::runtime_error("Range for Y coordinate unknown, cannot mirror results");
     }
 
-    if (!input::AdapterSource<Type>::GetNext(target)) {
+    if (!input::AdapterSource<Type>::GetNext(thread, target)) {
         return false;
     }
 

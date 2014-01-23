@@ -54,7 +54,7 @@ namespace Reader {
       public:
         Source(const File& file, std::auto_ptr<output::TraceReducer>);
 
-        bool GetNext(localization::Record* output) override;
+        bool GetNext(int thread, localization::Record* output) override;
         TraitsPtr get_traits(BaseSource::Wishes);
         Capabilities capabilities() const { return Capabilities().set( Repeatable ); }
 
@@ -69,6 +69,7 @@ namespace Reader {
 
         void dispatch(Messages m) { assert( ! m.any() ); }
         void attach_ui_(simparm::NodeHandle ) {}
+        void set_thread_count(int num_threads) override {}
     };
 
     class Config 

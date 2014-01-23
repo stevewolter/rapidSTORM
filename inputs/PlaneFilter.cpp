@@ -77,7 +77,7 @@ class Source
 {
     const int plane;
     void attach_local_ui_( simparm::NodeHandle ) {}
-    bool GetNext(engine::ImageStack* target) override;
+    bool GetNext(int thread, engine::ImageStack* target) override;
 
   public:
     Source( std::auto_ptr< input::Source<engine::ImageStack> > upstream,
@@ -93,9 +93,9 @@ class Source
     }
 };
 
-bool Source::GetNext(engine::ImageStack* target) {
+bool Source::GetNext(int thread, engine::ImageStack* target) {
     engine::ImageStack all_planes;
-    if (!input::AdapterSource< engine::ImageStack >::GetNext(&all_planes)) {
+    if (!input::AdapterSource< engine::ImageStack >::GetNext(thread, &all_planes)) {
         return false;
     }
 

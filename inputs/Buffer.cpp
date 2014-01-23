@@ -24,7 +24,7 @@ template <typename Ty>
 class Source : public AdapterSource<Ty>
 {
     void attach_local_ui_( simparm::NodeHandle ) {}
-    bool GetNext(Ty* target) override;
+    bool GetNext(int thread, Ty* target) override;
   public:
     Source(std::auto_ptr< input::Source<Ty> >);
     ~Source();
@@ -52,12 +52,34 @@ class Source : public AdapterSource<Ty>
     Slots buffer;
     typename Slots::iterator next_output;
 
-    typename Slots::iterator get_free_slot();
     void discard( typename Slots::iterator slot );
 };
 
 template<typename Type>
-bool Source<Type>::GetNext(Type* target) override {
+bool Source<Type>::GetNext(int thread, Type* target) {
+    if (is_transparent) {
+        return AdapterSource<Type>::GetNext(thread, target);
+    }
+
+    boost::lock_guard<boost::mutex> lock(mutex);
+    if ( next_output != buffer.end() ) {
+        DEBUG("Returning stored object " << next_output->frame_number() << " for " << this);
+        *target = *next_output;
+        if (mayDiscard) {
+            next_output = buffer.erase(next_output);
+        } else {
+            ++next_output;
+        }
+        return true;
+    } else {
+        if (!AdapterSource<Type>::GetNext(thread, target)) {
+            return false;
+        }
+
+        if (!mayDiscard) {
+            buffer.push_back(*target);
+        }
+    }
 }
 
 template <typename Object>
@@ -96,60 +118,6 @@ void Source<Object>::dispatch(BaseSource::Messages m) {
 }
 
 template<typename Object>
-typename Source<Object>::Slots::iterator 
-Source<Object>::get_free_slot() 
-{
-    boost::lock_guard<boost::mutex> lock(mutex);
-    while ( true ) {
-        if ( next_output != buffer.end() ) {
-            DEBUG("Returning stored object " << next_output->frame_number() << " for " << this);
-            return next_output++;
-        } else if ( current_input == end_of_input )
-        {
-            DEBUG("Returning empty list" << " for " << this);
-            return buffer.end();
-        } else {
-            buffer.push_back( *current_input );
-            ++current_input;
-            DEBUG("Got input " << buffer.back().frame_number() << " for " << this);
-            return --buffer.end();
-        }
-    }
-}
-
-template<typename Object>
-void Source<Object>::discard( typename Slots::iterator slot ) {
-    boost::lock_guard<boost::mutex> lock(mutex);
-    if ( mayDiscard && slot != buffer.end() ) {
-        buffer.erase( slot );
-    } 
-}
-
-template<typename Object>
-typename input::Source<Object>::iterator
-Source<Object>::begin() 
-{ 
-    if ( ! is_transparent ) {
-        assert( ! need_to_init_iterators );
-        return typename input::Source<Object>::iterator( iterator(*this) );
-    } else {
-        return this->base().begin();
-    }
-}
-
-template<typename Object>
-typename input::Source<Object>::iterator
-Source<Object>::end() 
-{ 
-    if ( ! is_transparent ) {
-        assert( ! need_to_init_iterators );
-        return typename input::Source<Object>::iterator( iterator() );
-    } else {
-        return this->base().end();
-    }
-}
-
-template<typename Object>
 typename input::Source<Object>::TraitsPtr
 Source<Object>::get_traits( BaseSource::Wishes w ) 
 {
@@ -161,11 +129,6 @@ Source<Object>::get_traits( BaseSource::Wishes w )
     for (int i = 0; i < 2; ++i)
         is_transparent = is_transparent &&
             ( c.test( providing[i] ) || ! w.test( providing[i] ) );
-    if ( !is_transparent && need_to_init_iterators ) {
-        current_input = this->base().begin();
-        end_of_input = this->base().end();
-        need_to_init_iterators = false;
-    }
     return t;
 }
 

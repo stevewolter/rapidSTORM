@@ -65,13 +65,13 @@ bool merge_data< engine::ImageStack, spatial_tag<2> >::operator()(
     engine::ImageStack* target) const
 {
     assert( ! s.empty() );
-    if (!s[0]->GetNext(target)) {
+    if (!s[0]->GetNext(thread, target)) {
         return false;
     }
 
     for (size_t i = 1; i < s.size(); ++i) {
         engine::ImageStack next_plane;
-        if (!s[i]->GetNext(&next_plane)) {
+        if (!s[i]->GetNext(thread, &next_plane)) {
             return false;
         }
         target->push_back(next_plane);

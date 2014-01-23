@@ -299,7 +299,7 @@ void AlignmentFitterJob::run() {
 
         for (int m = 0; m < 2; ++m) {
             dStorm::localization::Record record;
-            while (file_source[m]->GetNext(&record)) {
+            while (file_source[m]->GetNext(0, &record)) {
                 const dStorm::Localization* l = boost::get<dStorm::Localization>(&record);
                 if ( l && l->frame_number().value() >= image_count.value() ) continue;
                 if ( l ) { images[ l->frame_number().value() ][m].push_back( 

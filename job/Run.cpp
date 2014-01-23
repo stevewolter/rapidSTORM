@@ -46,10 +46,12 @@ Run::Result Run::run() {
     if ( ! r.test(Output::MayNeedRestart) )
         input.dispatch( Input::WillNeverRepeatAgain );
 
+    input.set_thread_count(piston_count);
+
     lock.unlock();
 
     for (int i = 0; i < piston_count; ++i)
-        threads.push_back( new boost::thread( &Run::compute_input, this ) );
+        threads.push_back( new boost::thread( &Run::compute_input, this, i ) );
 
     while ( queue.has_more_input() )
     {
@@ -99,10 +101,10 @@ void Run::restart() {
     restarted = true;
 }
 
-void Run::compute_input() {
+void Run::compute_input(int thread) {
     try {
         output::LocalizedImage image;
-        while (input.GetNext(&image)) {
+        while (input.GetNext(thread, &image)) {
             queue.push_back(image);
         }
     } catch ( const boost::thread_interrupted& e ) {

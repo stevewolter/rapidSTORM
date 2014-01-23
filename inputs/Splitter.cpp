@@ -57,7 +57,7 @@ class Source
   public:
     Source(bool vertical, std::auto_ptr< input::Source<engine::ImageStack> > base);
 
-    bool GetNext(engine::ImageStack* target) override;
+    bool GetNext(int thread, engine::ImageStack* target) override;
 };
 
 struct NoSplit : public Split {
@@ -153,9 +153,9 @@ void Source::modify_traits( input::Traits<engine::ImageStack>& s ) {
     ChainLink::split_planes( s, splitdim );
 }
 
-bool Source::GetNext(engine::ImageStack* result) {
+bool Source::GetNext(int thread, engine::ImageStack* result) {
     engine::ImageStack e;
-    if (!input::AdapterSource<engine::ImageStack>::GetNext(&e)) {
+    if (!input::AdapterSource<engine::ImageStack>::GetNext(thread, &e)) {
         return false;
     }
 

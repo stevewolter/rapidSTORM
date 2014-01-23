@@ -52,7 +52,7 @@ class Source
 
     inline bool is_in_range(const Ty& t) const;
     void attach_local_ui_( simparm::NodeHandle ) {}
-    bool GetNext(Ty* target) override;
+    bool GetNext(int thread, Ty* target) override;
 
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
@@ -73,9 +73,9 @@ class Source
 };
 
 template <typename Ty>
-bool Source<Ty>::GetNext(Ty* target) {
+bool Source<Ty>::GetNext(int thread, Ty* target) {
     while (true) {
-        if (!input::AdapterSource<Ty>::GetNext(target)) {
+        if (!input::AdapterSource<Ty>::GetNext(thread, target)) {
             return false;
         }
 

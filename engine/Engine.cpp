@@ -6,7 +6,6 @@
 #include "engine/Engine.h"
 
 #include <cassert>
-#include <iterator>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/locks.hpp>
@@ -34,6 +33,34 @@ clock_t smooth_time = 0, search_time = 0, fit_time = 0;
 
 namespace dStorm {
 namespace engine {
+
+class Engine::WorkHorse {
+    Engine& engine;
+    Config& config;
+    Input::TraitsPtr meta_info;
+
+    int maximumLimit;
+    PlaneFlattener flattener;
+    std::auto_ptr<spot_finder::Base> finder;
+    boost::ptr_vector<spot_fitter::Implementation> fitter;
+    CandidateTree<SmoothedPixel> maximums;
+    int origMotivation;
+    FitPosition get_fit_position( const Spot& ) const;
+
+  public:
+    WorkHorse( Engine& engine );
+    ~WorkHorse() {
+        DEBUG("Destructing spot finder");
+        finder.reset();
+        DEBUG("Destructing spot fitters");
+        fitter.clear();
+        DEBUG("Destructing rest");
+    }
+    void compute(const ImageStack& image, output::LocalizedImage* target);
+
+    output::LocalizedImage resultStructure;
+};
+
 
 Engine::Engine(
     const Config &config, 
@@ -123,101 +150,30 @@ void Engine::dispatch(Messages m) {
     upstream().dispatch(m);
 }
 
-class Engine::_iterator
-: public boost::iterator_facade< 
-    _iterator, 
-    output::LocalizedImage,
-    std::input_iterator_tag>
-{
-    Input::iterator base;
-
-    Engine& engine;
-
-    class WorkHorse;
-    mutable std::auto_ptr<WorkHorse> work_horse;
-    mutable bool did_compute;
-
-    /*=== iterator_facade interface ===*/
-    output::LocalizedImage& dereference() const; 
-    bool equal(const _iterator& o) const { 
-        DEBUG("Comparing engine iterators"); 
-        bool rv = ( base == o.base ); 
-        DEBUG("Compared engine iterators with " << rv); 
-        return rv;
+void Engine::set_thread_count(int num_threads) {
+    while (int(work_horses.size()) < num_threads) {
+        work_horses.emplace_back(new WorkHorse(*this));
     }
-    void increment() { DEBUG("Incrementing engine iterators"); did_compute = false; ++base; }
+}
 
-  public:
-    _iterator( Engine& engine, Input::iterator base );
-    _iterator( const _iterator& );
-    ~_iterator();
-
-    friend class boost::iterator_core_access;
-};
-
-class Engine::_iterator::WorkHorse {
-    Engine& engine;
-    Config& config;
-    Input::TraitsPtr meta_info;
-
-    int maximumLimit;
-    PlaneFlattener flattener;
-    std::auto_ptr<spot_finder::Base> finder;
-    boost::ptr_vector<spot_fitter::Implementation> fitter;
-    CandidateTree<SmoothedPixel> maximums;
-    int origMotivation;
-    FitPosition get_fit_position( const Spot& ) const;
-
-  public:
-    WorkHorse( Engine& engine );
-    ~WorkHorse() {
-        DEBUG("Destructing spot finder");
-        finder.reset();
-        DEBUG("Destructing spot fitters");
-        fitter.clear();
-        DEBUG("Destructing rest");
-    }
-    void compute( ImageStack& image );
-
-    output::LocalizedImage resultStructure;
-};
-
-FitPosition Engine::_iterator::WorkHorse::get_fit_position( const Spot& spot ) const
+FitPosition Engine::WorkHorse::get_fit_position( const Spot& spot ) const
 {
     return
         boost::units::value(meta_info->plane(0).projection().
             pixel_in_sample_space( spot.position() ).head<2>()).cast<double>() * 1E6;
 }
 
-
-output::LocalizedImage& Engine::_iterator::dereference() const
-{
-    DEBUG("Checking if iterator was already dereferenced");
-    if ( ! did_compute ) {
-        DEBUG("Checking if workhorse has been constructed");
-        if ( work_horse.get() == NULL ) {
-            DEBUG("Constructing workhorse");
-            work_horse.reset( new WorkHorse(engine) );
-            DEBUG("Constructed workhorse");
-        }
-        DEBUG("Computing result");
-        work_horse->compute(*base);
-        DEBUG("Computed result");
-        did_compute = true;
-    } else {
-        DEBUG("Iterator has already been dereferenced");
+bool Engine::GetNext(int thread, output::LocalizedImage* target) {
+    ImageStack image;
+    if (!input->GetNext(thread, &image)) {
+        return false;
     }
-    return work_horse->resultStructure;
+
+    work_horses[thread]->compute(image, target);
+    return true;
 }
 
-Engine::_iterator::_iterator( Engine& engine, Input::iterator base )
-: base(base),
-  engine(engine),
-  did_compute(false)
-{
-}
-
-Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
+Engine::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
   meta_info( engine.imProp ),
@@ -251,23 +207,15 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     resultStructure.candidates = &maximums;
 };
 
-Engine::_iterator::_iterator( const _iterator& o ) 
-: base( o.base ),
-  engine(const_cast<Engine&>(o.engine)),
-  did_compute(false)
+void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage* target ) 
 {
-}
-
-void Engine::_iterator::WorkHorse::compute( ImageStack& image ) 
-{
-    resultStructure.clear();
+    target->clear();
 
     DEBUG("Intake (" << image.frame_number() << ")");
 
     if ( image.has_invalid_planes() ) {
-        resultStructure.forImage = image.frame_number();
-        resultStructure.clear();
-        resultStructure.source = image;
+        target->forImage = image.frame_number();
+        target->source = image;
 
         boost::lock_guard<boost::mutex> lock( engine.mutex );
         engine.errors = engine.errors() + 1;
@@ -298,35 +246,34 @@ void Engine::_iterator::WorkHorse::compute( ImageStack& image )
         FitPosition fit_position = get_fit_position( cM->spot() );
         DEBUG("Trying candidate " << fit_position.transpose() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
-        output::LocalizedImage& buffer = resultStructure;
-        int candidate = buffer.size(), start = candidate;
+        int candidate = target->size(), start = candidate;
         double best_total_residues = std::numeric_limits<double>::infinity();
         int best_found = -1;
         for (unsigned int fit_fluo = 0; fit_fluo < fitter.size(); ++fit_fluo) {
-            candidate = buffer.size();
+            candidate = target->size();
             int found_number = fitter[fit_fluo].fitSpot(fit_position, image, 
-                spot_fitter::Implementation::iterator( boost::back_inserter( buffer ) ) );
+                spot_fitter::Implementation::iterator( boost::back_inserter( *target ) ) );
             double total_residues = 0;
 
             if ( found_number > 0 )
-                for ( size_t i = candidate; i < buffer.size(); ++i )
-                    total_residues = buffer[i].fit_residues().value();
+                for ( size_t i = candidate; i < target->size(); ++i )
+                    total_residues = (*target)[i].fit_residues().value();
             else
                 total_residues = std::numeric_limits<double>::infinity();
             DEBUG("Fitter " << fit_fluo << " found " << found_number << " with total residues " << total_residues);
             if ( total_residues < best_total_residues ) {
                 for (int i = 0; i < best_found && i < found_number; ++i)
-                    buffer[start+i] = buffer[candidate+found_number-i-1];
+                    (*target)[start+i] = (*target)[candidate+found_number-i-1];
                 best_found = found_number;
                 best_total_residues = total_residues;
             }
         }
-        buffer.resize(start+std::max<int>(0,best_found));
+        target->resize(start+std::max<int>(0,best_found));
         for (int i = 0; i < best_found; ++i) {
-            buffer[i+start].frame_number() = image.frame_number();
+            (*target)[i+start].frame_number() = image.frame_number();
         }
         if ( best_found > 0 ) {
-            DEBUG("Committing " << best_found << " localizations found at position " << buffer[start].position().transpose());
+            DEBUG("Committing " << best_found << " localizations found at position " << (*target)[start].position().transpose());
             motivation = origMotivation;
         } else {
             motivation += best_found;
@@ -339,30 +286,16 @@ void Engine::_iterator::WorkHorse::compute( ImageStack& image )
         maximumLimit *= 2;
         DEBUG("Raising maximumLimit to " << maximumLimit);
         maximums.setLimit(maximumLimit);
-        resultStructure.clear();
+        target->clear();
         goto recompress;
     }
 
-    DEBUG("Found " << resultStructure.size() << " localizations");
+    DEBUG("Found " << target->size() << " localizations");
     IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
 
-    DEBUG("Power with " << resultStructure.size() << " localizations");
-    resultStructure.forImage = image.frame_number();
-    resultStructure.source = image;
-}
-
-Engine::_iterator::~_iterator() {
-    DEBUG("Destructing iterator");
-    work_horse.reset();
-    DEBUG("Destructed iterator");
-}
-
-Engine::Base::iterator Engine::begin() {
-    return Base::iterator( _iterator( *this, input->begin() ) );
-}
-
-Engine::Base::iterator Engine::end() {
-    return Base::iterator( _iterator( *this, input->end() ) );
+    DEBUG("Power with " << target->size() << " localizations");
+    target->forImage = image.frame_number();
+    target->source = image;
 }
 
 void Engine::restart() { throw std::logic_error("Not implemented."); }

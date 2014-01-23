@@ -29,25 +29,26 @@ namespace engine {
         typedef input::Source<output::LocalizedImage>::TraitsPtr TraitsPtr;
       private:
         typedef input::Source<output::LocalizedImage> Base;
+        class WorkHorse;
 
         std::auto_ptr<Input> input;
         Input::TraitsPtr imProp, last_run_meta_info;
 
         Config config;
+        std::vector<std::unique_ptr<WorkHorse>> work_horses;
         boost::mutex mutex;
         simparm::Entry<unsigned long> errors;
 
-        class _iterator;
         void attach_ui_( simparm::NodeHandle );
         std::vector<float> make_plane_weight_vector() const;
+        bool GetNext(int thread, output::LocalizedImage* target) override;
+        void set_thread_count(int num_threads) override;
 
       public:
         Engine(const Config& config, std::auto_ptr<Input> input);
         virtual ~Engine();
 
         void dispatch(Messages m);
-        Base::iterator begin();
-        Base::iterator end();
         TraitsPtr get_traits(Wishes);
 
         BaseSource& upstream() { return *input; }
