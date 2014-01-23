@@ -101,8 +101,10 @@ void Run::restart() {
 
 void Run::compute_input() {
     try {
-        std::copy( input.begin(), input.end(), 
-            std::back_inserter( queue ) );
+        output::LocalizedImage image;
+        while (input.GetNext(&image)) {
+            queue.push_back(image);
+        }
     } catch ( const boost::thread_interrupted& e ) {
         /* Terminate normally. */
     } catch ( const boost::exception& e ) {

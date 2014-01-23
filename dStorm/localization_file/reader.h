@@ -52,23 +52,23 @@ namespace Reader {
     : public input::Source<localization::Record>
     {
       public:
-        class iterator;
-        friend class iterator;
+        Source(const File& file, std::auto_ptr<output::TraceReducer>);
+
+        bool GetNext(localization::Record* output) override;
+        TraitsPtr get_traits(BaseSource::Wishes);
+        Capabilities capabilities() const { return Capabilities().set( Repeatable ); }
 
       private:
+        typedef std::list< std::vector<Localization> > TraceBuffer;
+
+        TraceBuffer trace_buffer;
         File file;
-        std::auto_ptr<output::TraceReducer> reducer;
+        std::unique_ptr<output::TraceReducer> reducer;
+
+        localization::Record read_localization( int level ); 
 
         void dispatch(Messages m) { assert( ! m.any() ); }
         void attach_ui_(simparm::NodeHandle ) {}
-
-      public:
-        Source(const File& file, std::auto_ptr<output::TraceReducer>);
-
-        input::Source<localization::Record>::iterator begin();
-        input::Source<localization::Record>::iterator end();
-        TraitsPtr get_traits(BaseSource::Wishes);
-        Capabilities capabilities() const { return Capabilities().set( Repeatable ); }
     };
 
     class Config 

@@ -1,7 +1,8 @@
 #ifndef DSTORM_INPUT_JOIN_ITERATOR_DECL_HPP
 #define DSTORM_INPUT_JOIN_ITERATOR_DECL_HPP
 
-#include <dStorm/input/Source.h>
+#include "dStorm/input/Source.h"
+#include "dStorm/input/Traits.h"
 #include <vector>
 
 namespace dStorm {

@@ -297,14 +297,15 @@ void AlignmentFitterJob::run() {
         file_source[0] = dStorm::localization_file::Reader::ChainLink::read_file( file1, context );
         file_source[1] = dStorm::localization_file::Reader::ChainLink::read_file( file2, context );
 
-        for (int m = 0; m < 2; ++m)
-            for ( dStorm::input::Source<dStorm::localization::Record>::iterator
-                    i = file_source[m]->begin(); i != file_source[m]->end(); ++i ) {
-                const dStorm::Localization* l = boost::get<dStorm::Localization>(&*i);
+        for (int m = 0; m < 2; ++m) {
+            dStorm::localization::Record record;
+            while (file_source[m]->GetNext(&record)) {
+                const dStorm::Localization* l = boost::get<dStorm::Localization>(&record);
                 if ( l && l->frame_number().value() >= image_count.value() ) continue;
                 if ( l ) { images[ l->frame_number().value() ][m].push_back( 
                             boost::units::value( l->position() ).head<2>().cast<double>() * 1E6 ); }
             }
+        }
 
         improve_position( position, 6 );
 

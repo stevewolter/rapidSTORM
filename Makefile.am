@@ -345,10 +345,6 @@ rapidstorm_SOURCES += \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
     inputs/join.h inputs/join.cpp \
-    inputs/join/iterator_decl.hpp inputs/join/iterator_generic.hpp \
-    inputs/join/iterator.hpp inputs/join/iterator.cpp \
-    inputs/join/spatial.hpp inputs/join/spatial.cpp \
-    inputs/join/temporal.hpp inputs/join/temporal.cpp \
     inputs/Splitter.h inputs/Splitter.cpp \
     inputs/YMirror.h inputs/YMirror.cpp \
     inputs/ResolutionSetter.h \

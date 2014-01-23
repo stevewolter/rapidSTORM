@@ -46,6 +46,9 @@ class Source
         config.write_traits(t); 
     }
     void attach_local_ui_( simparm::NodeHandle ) {}
+    bool GetNext(ForwardedType* target) {
+        return input::AdapterSource<ForwardedType>::GetNext(target);
+    }
 
   public:
     Source(
@@ -122,10 +125,8 @@ struct DummyImageSource : public input::Source<engine::ImageStack>
 {
     DummyImageSource() {}
     void attach_ui_( simparm::NodeHandle ) {}
-    typedef Source<engine::ImageStack>::iterator iterator;
     void dispatch(Messages m) {}
-    iterator begin() { return iterator(); }
-    iterator end() { return iterator(); }
+    bool GetNext(engine::ImageStack* target) { return false; }
     TraitsPtr get_traits( Wishes ) { 
         return TraitsPtr( 
             new TraitsPtr::element_type(

@@ -22,8 +22,7 @@ class AdapterSource
     const Source<Type>& base() const { return *_base; }
     AdapterSource( std::auto_ptr< Source<Type> > b ) : _base(b) {}
   public:
-    typename Source<Type>::iterator begin() { return _base->begin(); }
-    typename Source<Type>::iterator end() { return _base->end(); }
+    bool GetNext(Type* target) { return _base->GetNext(target); }
     typename Source<Type>::TraitsPtr get_traits() { return _base->get_traits(); }
     void dispatch(typename Source<Type>::Messages m) { _base->dispatch(m); }
     typename Source<Type>::Capabilities capabilities() const 

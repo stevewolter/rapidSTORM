@@ -14,7 +14,7 @@
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/make_clone_allocator.hpp>
 
-#include "join/spatial.hpp"
+#include "join/spatial.h"
 #include "join/temporal.hpp"
 #include "join/iterator_generic.hpp"
 
@@ -22,7 +22,7 @@ namespace dStorm {
 namespace input {
 namespace join {
 
-typedef std::vector< boost::shared_ptr<BaseSource> > Sources;
+typedef std::vector<std::unique_ptr<BaseSource>> Sources;
 
 struct fluorophore_tag {
     static std::string get_name() { return "Fluorophore"; }
@@ -36,7 +36,7 @@ struct Strategist
     virtual Strategist* clone() const = 0;
     virtual boost::shared_ptr< const MetaInfo > make_traits(
         const std::vector< boost::shared_ptr< const MetaInfo > >& v ) = 0;
-    virtual std::auto_ptr<BaseSource> make_source( const Sources& sources ) = 0;
+    virtual std::auto_ptr<BaseSource> make_source( Sources sources ) = 0;
     void attach_ui( simparm::NodeHandle to ) { attach_parent(to); }
 };
 
@@ -50,7 +50,7 @@ namespace dStorm {
 namespace input {
 namespace join {
 
-
+#if 0
 template <typename Type, typename Tag>
 class Source
 : public input::Source<Type>
@@ -107,26 +107,29 @@ typename input::Source<Type>::iterator
 Source<Type,Tag>::end()  {
     return typename Base::iterator( iterator<Type,Tag>(traits, base_traits, sources, true) );
 }
+#endif
 
 std::auto_ptr< BaseSource > make_specialized_source( 
-        const std::vector< boost::shared_ptr< input::Source<engine::ImageStack> > >& v ,
-        spatial_tag<2>
+        std::vector<std::unique_ptr<input::Source<engine::ImageStack>>> v,
+        spatial_join::tag
 ) { 
-    return std::auto_ptr< BaseSource >( new Source<engine::ImageStack, spatial_tag<2> >(v) ); 
+    return std::auto_ptr< BaseSource >(spatial_join::Create(std::move(v)).release()); 
 }
 
+#if 0
 template <typename Type>
 std::auto_ptr< BaseSource > make_specialized_source( 
-        const std::vector< boost::shared_ptr< input::Source<Type> > >& v ,
+        std::vector<std::unique_ptr<input::Source<Type>>> v,
         temporal_tag
 ) { 
     std::auto_ptr< BaseSource > rv( new Source<Type, temporal_tag >(v) ); 
     return rv;
 }
+#endif
 
 template <typename Type, typename Tag>
 std::auto_ptr< BaseSource > make_specialized_source( 
-        const std::vector< boost::shared_ptr< input::Source<Type> > >& v ,
+        std::vector<std::unique_ptr<input::Source<Type>>> v,
         Tag
 ) { 
     throw std::runtime_error("Sorry, joining input files with these types not implemented yet.");
@@ -164,17 +167,22 @@ class StrategistImplementation
 
     template <typename Type>
     void operator()( 
-        const Sources& sources, const Type&,
+        Sources* sources, const Type&,
         std::auto_ptr<BaseSource>& result
     ) {
         if ( result.get() ) return;
-        std::vector< boost::shared_ptr< input::Source<Type> > > typed;
-        for (size_t i = 0; i < sources.size(); ++i) {
-            typed.push_back( 
-                boost::dynamic_pointer_cast< input::Source<Type>, BaseSource >( sources[i] ) );
-            if ( ! typed.back().get() ) return;
+        if ( sources->size() == 0 ) return;
+        if (dynamic_cast<input::Source<Type>*>(sources->at(0).get()) == nullptr) {
+            return;
         }
-        result = make_specialized_source( typed, Tag() );
+
+        std::vector<std::unique_ptr<input::Source<Type>>> typed;
+        for (size_t i = 0; i < sources->size(); ++i) {
+            typed.emplace_back(
+                dynamic_cast<input::Source<Type>*>(sources->at(i).release()));
+            assert(typed.back().get());
+        }
+        result = make_specialized_source( std::move(typed), Tag() );
     }
 
     boost::shared_ptr< const MetaInfo > make_traits(
@@ -186,10 +194,10 @@ class StrategistImplementation
         if ( ! result ) result.reset( new MetaInfo() );
         return result;
     }
-    std::auto_ptr<BaseSource> make_source( const Sources& sources ) { 
+    std::auto_ptr<BaseSource> make_source( Sources sources ) { 
         std::auto_ptr<BaseSource> result;
         boost::mpl::for_each< DefaultTypes >(
-            boost::bind( boost::ref(*this), boost::ref(sources), _1, boost::ref(result) ) );
+            boost::bind( boost::ref(*this), &sources, _1, boost::ref(result) ) );
         return result;
     }
 };
@@ -276,10 +284,10 @@ Link::Link()
 {
     channel_count.min = 1;
 
-    join_type.addChoice( new StrategistImplementation< spatial_tag<2> >() );
+    join_type.addChoice( new StrategistImplementation< spatial_join::tag >() );
     join_type.addChoice( new StrategistImplementation< temporal_tag >() );
     // TODO: Implement join_type.addChoice( new StrategistImplementation< fluorophore_tag >() );
-    join_type.choose( spatial_tag<2>::get_name() );
+    join_type.choose( spatial_join::tag::get_name() );
     join_type.set_visibility( false );
 }
 
@@ -316,9 +324,8 @@ BaseSource* Link::makeSource() {
     } else {
         Sources sources;
         for (size_t i = 0; i < children.size(); ++i)
-            sources.push_back( boost::shared_ptr<BaseSource>( 
-                children[i].make_source() ) );
-        return join_type().make_source( sources ).release();
+            sources.emplace_back(children[i].make_source());
+        return join_type().make_source( std::move(sources) ).release();
     }
 }
 

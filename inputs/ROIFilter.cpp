@@ -49,12 +49,10 @@ class Source
 {
     const frame_index from;
     const boost::optional<frame_index> to;
-    typedef typename input::Source<Ty>::iterator base_iterator;
-
-    struct _iterator;
 
     inline bool is_in_range(const Ty& t) const;
     void attach_local_ui_( simparm::NodeHandle ) {}
+    bool GetNext(Ty* target) override;
 
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
@@ -62,8 +60,6 @@ class Source
         : input::AdapterSource<Ty>(upstream), from(from), to(to) {}
     Source* clone() const { return new Source(*this); }
 
-    base_iterator begin();
-    base_iterator end();
     void modify_traits( input::Traits<Ty>& p)
     {
         frame_index from = std::max( this->from, *p.image_number().range().first );
@@ -77,38 +73,17 @@ class Source
 };
 
 template <typename Ty>
-class Source<Ty>::_iterator 
-  : public boost::iterator_adaptor< 
-        Source<Ty>::_iterator,
-        typename input::Source<Ty>::iterator >
-{
-    const Source<Ty>& s;
-    typedef typename input::Source<Ty>::iterator Base;
-    const Base end;
-    mutable Ty i;
+bool Source<Ty>::GetNext(Ty* target) {
+    while (true) {
+        if (!input::AdapterSource<Ty>::GetNext(target)) {
+            return false;
+        }
 
-    friend class boost::iterator_core_access;
-    void increment() { 
-        ++this->base_reference(); 
-        if ( this->base() == end )
-            return;
-        else if ( s.is_in_range(*this->base()) )
-            i = *this->base();
-        else
-            this->base_reference() = end;
+        if (is_in_range(*target)) {
+            return true;
+        }
     }
-
-    Ty& dereference() const { return i; }
-    
-  public:
-    explicit _iterator(const Source<Ty>& s, const Base& from, const Base& end)
-      : _iterator::iterator_adaptor_(from), s(s), end(end) 
-    {
-        while ( this->base() != end && ! s.is_in_range(*this->base()) )
-            ++this->base_reference();
-        if ( this->base() != end ) i = *this->base();
-    }
-};
+}
 
 template <class Ty>
 bool Source<Ty>::is_in_range(const Ty& t) const
@@ -117,19 +92,6 @@ bool Source<Ty>::is_in_range(const Ty& t) const
     bool rv = f >= from && (!to.is_initialized() || f <= *to);
     return rv;
 }
-
-template <typename Ty>
-typename Source<Ty>::base_iterator
-Source<Ty>::begin() { 
-    return typename Source<Ty>::base_iterator( 
-        _iterator( *this, this->base().begin(), this->base().end() ) ); 
-}
-
-template <typename Ty>
-typename Source<Ty>::base_iterator
-Source<Ty>::end() 
-    { return typename Source<Ty>::base_iterator( 
-        _iterator( *this, this->base().end(), this->base().end() ) ); }
 
 class ChainLink 
 : public input::Method<ChainLink>

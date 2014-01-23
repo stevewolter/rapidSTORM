@@ -12,7 +12,6 @@
 
 #include "Traits.h"
 
-#include <any_iterator.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm { 
@@ -65,13 +64,11 @@ namespace input {
       public:
         typedef Type value_type;
 
-        typedef IteratorTypeErasure::any_iterator< Type, std::input_iterator_tag > iterator;
         typedef input::Traits<Type> Traits;
         typedef boost::shared_ptr<Traits> TraitsPtr;
         typedef boost::shared_ptr<const Traits> ConstTraitsPtr;
 
-        virtual iterator begin() = 0;
-        virtual iterator end() = 0;
+        virtual bool GetNext(Type* output) = 0;
         virtual TraitsPtr get_traits(BaseSource::Wishes) = 0;
     };
 

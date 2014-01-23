@@ -50,16 +50,14 @@ class Source
 : public input::AdapterSource<engine::ImageStack>,
   boost::noncopyable
 {
-    struct iterator;
-    const bool vertical;
+    const int splitdim;
 
     void modify_traits( input::Traits<engine::ImageStack>& );
     void attach_local_ui_( simparm::NodeHandle ) {}
   public:
     Source(bool vertical, std::auto_ptr< input::Source<engine::ImageStack> > base);
 
-    input::Source<engine::ImageStack>::iterator begin();
-    input::Source<engine::ImageStack>::iterator end();
+    bool GetNext(engine::ImageStack* target) override;
 };
 
 struct NoSplit : public Split {
@@ -148,64 +146,39 @@ Config::Config()
 }
 
 Source::Source(bool vertical, std::auto_ptr<input::Source<engine::ImageStack> > base)
-: input::AdapterSource<engine::ImageStack>(base), vertical(vertical)
-{
+: input::AdapterSource<engine::ImageStack>(base), splitdim(vertical ? 1 : 0) {
 }
 
 void Source::modify_traits( input::Traits<engine::ImageStack>& s ) {
-    const int dim = (vertical) ? 1 : 0;
-    ChainLink::split_planes( s, dim );
+    ChainLink::split_planes( s, splitdim );
 }
 
-struct Source::iterator 
-: public boost::iterator_adaptor<iterator, input::Source<engine::ImageStack>::iterator>
-{
-    const int splitdim;
-    mutable boost::optional<engine::ImageStack> i;
+bool Source::GetNext(engine::ImageStack* result) {
+    engine::ImageStack e;
+    if (!input::AdapterSource<engine::ImageStack>::GetNext(&e)) {
+        return false;
+    }
 
-    iterator( bool vertical, input::Source<engine::ImageStack>::iterator base )
-        :  iterator::iterator_adaptor_(base), splitdim( (vertical) ? 1 : 0) {}
-  private:
-    friend class boost::iterator_core_access;
-    void increment() { ++this->base_reference(); i.reset(); }
-    engine::ImageStack& dereference() const; 
-};
-
-engine::ImageStack& Source::iterator::dereference() const {
-    if ( ! i.is_initialized() ) {
-        const engine::ImageStack& e = *base();
-        i = engine::ImageStack( e.frame_number() );
-        for (int p = 0; p < e.plane_count(); ++p ) {
-            if ( e.plane(p).is_invalid() ) {
-                for (int j = 0; j < 2; ++j)
-                    i->push_back( e.plane(p) );
-            } else {
-                const engine::Image2D& im = e.plane(p);
-                engine::Image2D::Size sz = im.sizes();
-                engine::Image2D::Offsets o = im.get_offsets();
-                sz[splitdim] /= 2;
-                const int offset = sz[splitdim].value() * o[splitdim];
-                for (int j = 0; j < 2; ++j) {
-                    i->push_back( 
-                        engine::Image2D( 
-                            sz, im.get_data_reference(), o,
-                            im.get_global_offset() + j * offset, 
-                            im.frame_number() ) );
-                }
+    *result = engine::ImageStack( e.frame_number() );
+    for (int p = 0; p < e.plane_count(); ++p ) {
+        if ( e.plane(p).is_invalid() ) {
+            for (int j = 0; j < 2; ++j) {
+                result->push_back( e.plane(p) );
+            }
+        } else {
+            const engine::Image2D& im = e.plane(p);
+            engine::Image2D::Size sz = im.sizes();
+            engine::Image2D::Offsets o = im.get_offsets();
+            sz[splitdim] /= 2;
+            const int offset = sz[splitdim].value() * o[splitdim];
+            for (int j = 0; j < 2; ++j) {
+                result->push_back(engine::Image2D( 
+                        sz, im.get_data_reference(), o,
+                        im.get_global_offset() + j * offset, 
+                        im.frame_number() ) );
             }
         }
     }
-    return *i;
-}
-
-input::Source<engine::ImageStack>::iterator
-Source::begin() {
-    return input::Source<engine::ImageStack>::iterator( iterator(vertical, base().begin()) );
-}
-
-input::Source<engine::ImageStack>::iterator
-Source::end() {
-    return input::Source<engine::ImageStack>::iterator( iterator(vertical, base().end()) );
 }
 
 std::auto_ptr<input::Link> makeLink() {
