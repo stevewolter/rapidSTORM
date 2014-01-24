@@ -37,7 +37,7 @@ class Source : public AdapterSource<Ty>
     }
     typename input::Source<Ty>::TraitsPtr get_traits( BaseSource::Wishes );
 
-    protected:
+  protected:
     void init( std::auto_ptr< Source<Ty> > );
     /** Discarding license variable. Is set to true on WillNeverRepeatAgain message. */
     bool mayDiscard, need_to_init_iterators;
@@ -53,6 +53,13 @@ class Source : public AdapterSource<Ty>
     typename Slots::iterator next_output;
 
     void discard( typename Slots::iterator slot );
+    void set_thread_count(int num_threads) override {
+        if (is_transparent) {
+            AdapterSource<Ty>::set_thread_count(num_threads);
+        } else {
+            AdapterSource<Ty>::set_thread_count(1);
+        }
+    }
 };
 
 template<typename Type>
@@ -72,7 +79,7 @@ bool Source<Type>::GetNext(int thread, Type* target) {
         }
         return true;
     } else {
-        if (!AdapterSource<Type>::GetNext(thread, target)) {
+        if (!AdapterSource<Type>::GetNext(0, target)) {
             return false;
         }
 

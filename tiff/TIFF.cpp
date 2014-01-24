@@ -20,7 +20,6 @@
 #include <string>
 #include <tiffio.h>
 
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/base_units/us/inch.hpp>
 
 #include <simparm/Entry.h>
@@ -60,20 +59,25 @@ class Source : public input::Source< engine::ImageStack >
     typedef engine::ImageStack Image;
     typedef engine::Image2D Plane;
     typedef input::Source<engine::ImageStack> BaseSource;
-    typedef typename BaseSource::iterator base_iterator;
     typedef typename BaseSource::TraitsPtr TraitsPtr;
 
     simparm::Entry<long> count;
     simparm::NodeHandle current_ui;
+    boost::shared_ptr<simparm::Node> msg;
+    int directory;
+
     void attach_ui_( simparm::NodeHandle n ) { current_ui = count.attach_ui( n ); }
 
+    void set_thread_count(int num_threads) override {
+        assert(num_threads == 1);
+    }
+
+    bool GetNext(int thread, engine::ImageStack* output) override;
+
 public:
-    class iterator;
     Source(std::auto_ptr<OpenFile> file);
     virtual ~Source();
 
-    base_iterator begin();
-    base_iterator end();
     TraitsPtr get_traits(typename BaseSource::Wishes);
 
     void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
@@ -120,90 +124,25 @@ const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 
 Source::Source( std::auto_ptr<OpenFile> file )
 : count( "EntryCount", "Number of images in TIFF file", 0 ),
-  file(file)
+  file(file),
+  directory(0)
 {
 }
 
-class Source::iterator 
-: public boost::iterator_facade<iterator,Image,std::random_access_iterator_tag>
-{
-    mutable OpenFile* src;
-    mutable boost::shared_ptr<simparm::Node> msg;
-    int directory;
-    mutable boost::optional<Image> img;
+bool Source::GetNext(int thread, engine::ImageStack* target) {
+    assert(thread == 0);
 
-    void check_params() const;
-
-  public:
-    iterator() : src(NULL) {}
-    iterator(Source &s) : src(s.file.get()), msg(s.current_ui), directory(0) {}
-
-    Image& dereference() const; 
-    bool equal(const iterator& i) const {
-        DEBUG( "Comparing " << src << " " << i.src << " " << directory << " " << i.directory );
-        return (src == i.src) && (src == NULL || i.src == NULL || directory == i.directory);
-    }
-    void increment() { 
-        DEBUG("Incrementing TIFF iterator " << this);
-        src->seek_to_image( msg, directory);
-        img.reset(); 
-        bool success = src->next_image( msg );
-        if ( ! success ) 
-            src = NULL;
-        else {
-            ++directory;
-        }
-    }
-    void decrement() { 
-        DEBUG("Decrementing TIFF iterator " << this);
-        img.reset(); 
-        if ( directory == 0 ) 
-            src = NULL; 
-        else {
-            --directory;
-            src->seek_to_image( msg, directory );
-        }
-    }
-    void advance(int n) { 
-        DEBUG("Advancing TIFF iterator " << this);
-        if (n) {
-            img.reset(); 
-            directory += n;
-            src->seek_to_image(msg, directory);
-        }
-    }
-    int distance_to(const iterator& i) {
-        return i.directory - directory;
-    }
-};
-
-void Source::iterator::check_params() const
-{
-}
-
-Source::Image&
-Source::iterator::dereference() const
-{ 
-    DEBUG("Dereferencing TIFF iterator " << this);
-    if ( ! img.is_initialized() ) {
-        src->seek_to_image(msg, directory);
-        OpenFile::Image three_d = src->read_image( msg );
-        img = engine::ImageStack( directory * camera::frame );
-        for (int z = 0; z < three_d.depth_in_pixels(); ++z)
-            img->push_back( three_d.slice( 2, z * camera::pixel ) );
+    if (!file->next_image(msg)) {
+        return false;
     }
 
-    return *img;
-}
-
-Source::base_iterator
-Source::begin() {
-    return base_iterator( iterator(*this) );
-}
-
-Source::base_iterator
-Source::end() {
-    return base_iterator( iterator() );
+    OpenFile::Image three_d = file->read_image( msg );
+    *target = engine::ImageStack( directory * camera::frame );
+    for (int z = 0; z < three_d.depth_in_pixels(); ++z) {
+        target->push_back( three_d.slice( 2, z * camera::pixel ) );
+    }
+    ++directory;
+    return true;
 }
 
 Config::Config()

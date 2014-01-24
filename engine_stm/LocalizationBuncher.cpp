@@ -3,8 +3,7 @@
 #include "LocalizationBuncher.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Output.h>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/get.hpp>
 #include <dStorm/localization/record.h>
 
 using namespace dStorm::output;
@@ -13,117 +12,6 @@ namespace dStorm {
 namespace engine_stm {
 
 enum VisitResult { KeepComing, IAmFinished, FinishedAndReject };
-
-class Visitor 
-: public boost::static_visitor<VisitResult>
-{
-    std::auto_ptr<output::LocalizedImage> can;
-    boost::optional<frame_index> my_image;
-
-  public:
-    ~Visitor() {}
-    VisitResult operator()( const dStorm::Localization& l ) 
-    {
-        DEBUG( "Got localization " << l.frame_number() );
-        if ( my_image.is_initialized() ) {
-            if ( l.frame_number() != *my_image )
-                return FinishedAndReject;
-        } else {
-            my_image = l.frame_number();
-            can.reset( new output::LocalizedImage() );
-            can->forImage = *my_image;
-        }
-        can->push_back( l );
-        return KeepComing;
-    }
-
-    VisitResult operator()( const dStorm::localization::EmptyLine& i ) 
-    {
-        DEBUG( "Got empty line " << i.number );
-        default_to( i.number );
-        return IAmFinished;
-    }
-
-    template <typename Type> VisitResult add(Type& argument);
-    frame_index for_frame() { return *my_image; }
-    std::auto_ptr<output::LocalizedImage> get_result() { 
-        assert( can.get() );
-        return can; 
-    }
-    void default_to( frame_index i ) { 
-        if ( ! my_image.is_initialized() ) {
-            my_image = i;
-            can.reset( new output::LocalizedImage(i) );
-        }
-    }
-};
-
-template <typename Type>
-VisitResult 
-Visitor::add(Type& argument)
-{
-    return boost::apply_visitor( *this, argument );
-}
-
-template <>
-VisitResult 
-Visitor::add<Localization>(Localization& argument)
-{
-    return (*this)( argument );
-}
-
-template <typename Input>
-std::auto_ptr<output::LocalizedImage> 
-Source<Input>::read( frame_index outputImage )
-{
-    DEBUG("Seeking " << outputImage);
-    while ( canned.find(outputImage) == canned.end() )
-    {
-        Visitor v;
-        for ( ; current != base_end; ++current )  {
-            VisitResult r = v.add(*current);
-            if ( r == FinishedAndReject )
-                break;
-            else if ( r == IAmFinished ) {
-                ++current;
-                break;
-            }
-        }
-        v.default_to( outputImage );
-        DEBUG("Visitor declares to be finished with " << v.for_frame() << ", want " << outputImage);
-
-        if ( in_sequence ) {
-            for ( frame_index f = outputImage; f < v.for_frame(); 
-                    f += 1 * camera::frame ) 
-            {
-                DEBUG("Putting " << f << " into the can");
-                canned.insert( f, new output::LocalizedImage(f) );
-            }
-        }
-
-        DEBUG("Putting " << v.for_frame() << " into the can");
-        canned.insert( v.for_frame(), v.get_result() );
-    }
-    DEBUG("Removing " << outputImage << " from the can");
-    assert( canned.find(outputImage) != canned.end() );
-    std::auto_ptr<output::LocalizedImage> rv( 
-        canned.release(canned.find(outputImage)).release() );
-    assert( rv.get() );
-    return rv;
-}
-
-template <typename Input>
-LocalizationBuncher<Input>::LocalizationBuncher
-    (const LocalizationBuncher& o)
-: master( const_cast< Source<Input>* >(o.master) ),
-  output(o.output),
-  outputImage(o.outputImage)
-{
-}
-
-template <typename Input>
-LocalizationBuncher<Input>::~LocalizationBuncher() {
-}
 
 template <typename InputType>
 typename Source<InputType>::TraitsPtr
@@ -135,13 +23,9 @@ Source<InputType>::get_traits( Wishes w )
     this->in_sequence = traits->in_sequence;
     DEBUG("Localizations are " << ((this->in_sequence) ? "" : "not") << " in sequence");
 
-    current = base->begin();
-    base_end = base->end();
-
     if ( ! r.first.is_initialized() )
         throw std::runtime_error("First image index in STM file must be known");
     first_image = *r.first;
-    last_image = r.second;
     traits->in_sequence = true;
 
     return TraitsPtr( new TraitsPtr::element_type( *traits, "Buncher", "Localizations" ) );
@@ -149,13 +33,12 @@ Source<InputType>::get_traits( Wishes w )
 
 template <class InputType>
 Source<InputType>::Source( std::auto_ptr<Input> base )
-: base(base) {}
+    : base(base), input_left_over(false) {}
 
 template <class InputType>
 Source<InputType>::~Source()
 {
     canned.clear();
-    current = base_end = InputIterator();
 }
 
 template <class InputType>
@@ -169,24 +52,104 @@ void Source<InputType>::dispatch(Messages m)
 }
 
 template <class InputType>
-void Source<InputType>::set_number_of_threads(int threads) {
+void Source<InputType>::set_thread_count(int threads) {
     if (threads != 1) {
         throw std::logic_error("Can only read localizations single-threaded");
+    }
+
+    base->set_thread_count(threads);
+}
+
+frame_index GetImageNumber(const Localization& input) {
+    return input.frame_number();
+}
+
+frame_index GetImageNumber(const dStorm::localization::Record& input) {
+    if (const localization::EmptyLine* line = boost::get<localization::EmptyLine>(&input)) {
+        return line->number;
+    } else if (const Localization* localization = boost::get<dStorm::Localization>(&input)) {
+        return localization->frame_number();
+    }
+}
+
+VisitResult AddInputToImage(output::LocalizedImage* target, const Localization& input) {
+    if (input.frame_number() == target->forImage) {
+        target->push_back(input);
+        return KeepComing;
+    } else {
+        return FinishedAndReject;
+    }
+}
+
+VisitResult AddInputToImage(output::LocalizedImage* target, const localization::Record& input) {
+    if (const localization::EmptyLine* line = boost::get<const localization::EmptyLine>(&input)) {
+        return IAmFinished;
+    } else if (const Localization* localization = boost::get<const Localization>(&input)) {
+        return AddInputToImage(target, *localization);
+    }
+}
+
+template <typename InputType>
+void Source<InputType>::CollectEntireImage(output::LocalizedImage* target) {
+    while (true) {
+        switch (AddInputToImage(target, input)) {
+            case KeepComing:
+                break;
+            case IAmFinished:
+                input_left_over = false;
+                return;
+            case FinishedAndReject:
+                input_left_over = true;
+                return;
+        }
+
+        if (!base->GetNext(0, &input)) {
+            return;
+        }
     }
 }
 
 template <class InputType>
-bool Source<InputType>::GetNext(output::LocalizedImage* target) {
-    try {
-        InputType input;
-        if (!
-        if ( master->is_finished( outputImage ) ) {
-            DEBUG("Not serving after " << outputImage);
-            master = NULL;
-        } else {
-            output = master->read( outputImage );
-            DEBUG("Serving " << output->forImage);
+void Source<InputType>::ReadImage(output::LocalizedImage* target) {
+    while (true) {
+        if (!input_left_over) {
+            if (!base->GetNext(0, &input)) {
+                return;
+            }
         }
+
+        frame_index input_image = GetImageNumber(input);
+        assert(target->forImage <= input_image);
+        if (in_sequence && target->forImage < input_image) {
+            return;
+        }
+
+        if (target->forImage == input_image) {
+            CollectEntireImage(target);
+            return;
+        } else {
+            auto can = canned.emplace(input_image, input_image);
+            CollectEntireImage(&can.first->second);
+        }
+    }
+}
+
+template <class InputType>
+bool Source<InputType>::GetNext(int thread, output::LocalizedImage* target) {
+    assert(thread == 0);
+
+    try {
+        auto in_can = canned.find(current_image);
+        if (in_can != canned.end()) {
+            *target = in_can->second;
+            canned.erase(in_can);
+            return true;
+        }
+
+        *target = output::LocalizedImage(current_image);
+        ReadImage(target);
+        return true;
+
         current_image += 1 * camera::frame;
     } catch (...) {
         return false;

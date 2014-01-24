@@ -19,7 +19,6 @@
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/engine/InputTraits.h>
 #include <boost/units/Eigen/Array>
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <dStorm/threed_info/Config.h>
@@ -219,63 +218,35 @@ NoiseSource::~NoiseSource()
     gsl_rng_free(rng);
 }
 
-dStorm::engine::ImageStack* NoiseSource::fetch( int imNum )
+bool NoiseSource::GetNext(int thread, dStorm::engine::ImageStack* output)
 {
     boost::lock_guard<boost::mutex> lock(mutex);
-    std::auto_ptr<dStorm::engine::ImageStack>
-        result(new dStorm::engine::ImageStack(imNum * camera::frame));
+    if (current_image >= imN) {
+        return false;
+    }
+
+    *output = dStorm::engine::ImageStack(current_image * camera::frame);
 
     for ( int p = 0; p < t->plane_count(); ++p ) {
         dStorm::engine::Image2D i( t->image(p).size );
         noiseGenerator->pixelNoise(i.ptr(), i.size_in_pixels());
-        result->push_back( i );
+        output->push_back( i );
     }
 
     /* Then add the fluorophores. */
     DEBUG("Making glare for " << fluorophores.size() << " fluorophores");
-    if ( output.get() ) *output << imNum;
+    if ( this->output.get() ) *this->output << current_image;
     int index = 0;
     BOOST_FOREACH( Fluorophore& fl, fluorophores )  {
         int photons =
-            fl.glareInImage(rng, *result, imNum, integration_time);
-        if ( photons > 0 && output.get() ) *output << ", " << index << " " << photons;
+            fl.glareInImage(rng, *output, current_image, integration_time);
+        if ( photons > 0 && this->output.get() ) *this->output << ", " << index << " " << photons;
         ++index;
     }
-    if ( output.get() ) *output << "\n";
+    if ( this->output.get() ) *this->output << "\n";
 
-    return result.release();
-}
-
-class NoiseSource::iterator
-: public boost::iterator_facade<iterator,Image,std::input_iterator_tag>
-{
-    friend class boost::iterator_core_access;
-    NoiseSource* const src;
-    mutable boost::shared_ptr<Image> img;
-    int image_number;
-    
-    Image& dereference() const { 
-        if ( img.get() == NULL ) {
-            img.reset( src->fetch(image_number) ); 
-        }
-        return *img; 
-    }
-    void increment() { img.reset(); image_number++; }
-    bool equal(const iterator& i) const { return image_number == i.image_number; }
-
-  public:
-    iterator() : src(NULL), image_number(0) {}
-    iterator(NoiseSource& ns, int im) : src(&ns), image_number(im) {}
-};
-
-NoiseSource::base_iterator 
-NoiseSource::begin() {
-    return base_iterator( iterator(*this, 0) );
-}
-
-NoiseSource::base_iterator 
-NoiseSource::end() {
-    return base_iterator( iterator(*this, imN) );
+    ++current_image;
+    return true;
 }
 
 NoiseSource::Source::TraitsPtr

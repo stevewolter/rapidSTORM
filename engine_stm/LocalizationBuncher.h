@@ -26,21 +26,22 @@ class Source
 {
   public:
     typedef input::Source<InputType> Input;
-    typedef typename Input::iterator InputIterator;
     typedef input::Source<output::LocalizedImage> Base;
 
   private:
     std::auto_ptr< Input > base;
-    InputIterator current, base_end;
     frame_index first_image, current_image;
-    boost::optional<frame_index> last_image;
-    typedef boost::ptr_map<frame_index,output::LocalizedImage> Canned;
-    Canned canned;
+    std::map<frame_index, output::LocalizedImage> canned;
     bool in_sequence;
+    bool input_left_over;
+    InputType input;
 
     void attach_ui_( simparm::NodeHandle n ) { base->attach_ui(n); }
-    bool GetNext(output::LocalizedImage* target) override;
-    void set_number_of_threads(int threads) override;
+    bool GetNext(int thread, output::LocalizedImage* target) override;
+    void set_thread_count(int threads) override;
+
+    void ReadImage(output::LocalizedImage* target);
+    void CollectEntireImage(output::LocalizedImage* target);
 
   public:
     std::auto_ptr<output::LocalizedImage> read( frame_index );

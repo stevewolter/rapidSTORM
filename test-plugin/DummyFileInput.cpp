@@ -6,13 +6,14 @@
 #include <simparm/Entry.h>
 #include <dStorm/input/FileInput.h>
 #include <boost/signals2/connection.hpp>
+#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/mutex.hpp>
 #include <fstream>
 #include <iostream>
 #include <fstream>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/MetaInfo.h>
-#include <boost/iterator/iterator_facade.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/engine/InputTraits.h>
 
@@ -88,18 +89,31 @@ class OpenFile
 
 class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
 {
+    boost::mutex mutex;
+    int n;
     std::auto_ptr<OpenFile> of;
     dStorm::engine::ImageStack* load();
-    class _iterator;
-    typedef dStorm::input::Source<dStorm::engine::ImageStack>::iterator iterator;
     void dispatch(BaseSource::Messages m) { assert( !m.any() ); }
     void attach_ui_( simparm::NodeHandle ) {}
+    void set_thread_count(int num_threads) override {}
+
+    bool GetNext(int thread, dStorm::engine::ImageStack* output) {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        if (n >= of->image_number()) {
+            return false;
+        }
+
+        *output = dStorm::engine::ImageStack( n * boost::units::camera::frame);
+        dStorm::engine::Image2D rv(of->get_size(), n * boost::units::camera::frame);
+        rv.fill( 0 );
+        output->push_back( rv  ); 
+        ++n;
+    }
+
   public:
     Source(const Config&, std::auto_ptr<OpenFile> of);
     ~Source();
 
-    iterator begin();
-    iterator end();
     TraitsPtr get_traits( Wishes );
     Capabilities capabilities() const { return Capabilities(); }
 };
@@ -152,39 +166,6 @@ Source::get_traits( Wishes )
 {
     assert( of.get() );
     return TraitsPtr( dynamic_cast< Traits* >(of->getTraits().release()) );
-}
-
-class Source::_iterator 
-: public boost::iterator_facade<_iterator,dStorm::engine::ImageStack,std::input_iterator_tag>
-{
-    std::vector<dStorm::engine::Image2D::Size> sz;
-    mutable dStorm::engine::ImageStack image;
-    int n;
-
-    friend class boost::iterator_core_access;
-
-    dStorm::engine::ImageStack& dereference() const { DEBUG( "Image number " << n << " is accessed" ); return image; }
-    void increment() { 
-        n++; 
-        image = dStorm::engine::ImageStack( n * boost::units::camera::frame);
-        for (int p = 0; p < int(sz.size()); ++p) {
-            dStorm::engine::Image2D rv(sz[p], n * boost::units::camera::frame);
-            rv.fill( 0 );
-            image.push_back( rv  ); 
-        }
-    }
-    bool equal(const _iterator& o) const { return o.n == n; }
-
-  public:
-    _iterator(int pos, const OpenFile& of) 
-        : sz(1, of.get_size()), image(), n(pos) {}
-};
-
-Source::iterator Source::begin() {
-    return iterator( _iterator(0, *of) );
-}
-Source::iterator Source::end() {
-    return iterator( _iterator(of->image_number(), *of) );
 }
 
 Config::Config()
