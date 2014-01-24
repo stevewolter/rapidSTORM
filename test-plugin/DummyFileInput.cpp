@@ -108,6 +108,7 @@ class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
         rv.fill( 0 );
         output->push_back( rv  ); 
         ++n;
+        return true;
     }
 
   public:

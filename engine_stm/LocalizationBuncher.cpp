@@ -69,6 +69,8 @@ frame_index GetImageNumber(const dStorm::localization::Record& input) {
         return line->number;
     } else if (const Localization* localization = boost::get<dStorm::Localization>(&input)) {
         return localization->frame_number();
+    } else {
+        throw std::logic_error("Unhandled localization record type");
     }
 }
 
@@ -82,10 +84,12 @@ VisitResult AddInputToImage(output::LocalizedImage* target, const Localization& 
 }
 
 VisitResult AddInputToImage(output::LocalizedImage* target, const localization::Record& input) {
-    if (const localization::EmptyLine* line = boost::get<const localization::EmptyLine>(&input)) {
+    if (boost::get<const localization::EmptyLine>(&input)) {
         return IAmFinished;
     } else if (const Localization* localization = boost::get<const Localization>(&input)) {
         return AddInputToImage(target, *localization);
+    } else {
+        throw std::logic_error("Unhandled localization record type");
     }
 }
 

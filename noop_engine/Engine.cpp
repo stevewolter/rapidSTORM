@@ -49,6 +49,7 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
     target->clear();
     target->source = image; 
     target->candidates = NULL;
+    return true;
 }
 
 }

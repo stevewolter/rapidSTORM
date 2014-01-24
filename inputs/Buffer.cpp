@@ -86,6 +86,7 @@ bool Source<Type>::GetNext(int thread, Type* target) {
         if (!mayDiscard) {
             buffer.push_back(*target);
         }
+        return true;
     }
 }
 

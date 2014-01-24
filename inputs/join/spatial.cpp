@@ -1,4 +1,5 @@
-#include "spatial.hpp"
+#include "spatial.h"
+#include <boost/lexical_cast.hpp>
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/InputTraits.h>
@@ -20,8 +21,7 @@ class Source : public input::Source<engine::ImageStack> {
         for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i) {
             base_traits.push_back( (*i)->get_traits(r) );
         }
-        traits.reset(  merge_traits<Type,Tag>()(base_traits).release()  );
-        return traits;
+        return Base::TraitsPtr(merge_traits(base_traits, tag()));
     }
 
     void dispatch(BaseSource::Messages m) {
@@ -38,12 +38,18 @@ class Source : public input::Source<engine::ImageStack> {
         return rv;
     }
 
+    bool GetNext(int thread, engine::ImageStack* target) override;
+    void set_thread_count(int num_threads) {
+        for (const auto& source : sources) {
+            source->set_thread_count(num_threads);
+        }
+    }
+
   private:
-    typedef std::vector< std::shared_ptr<Base> > Sources;
+    typedef std::vector< std::unique_ptr<Base> > Sources;
 
     Sources sources;
-    std::vector< std::unique_ptr< const input::Traits<engine::ImageStack> > > base_traits;
-    Base::TraitsPtr traits;
+    std::vector< Base::ConstTraitsPtr > base_traits;
     std::vector<std::unique_ptr<simparm::Object>> connection_nodes;
 
     void attach_ui_( simparm::NodeHandle n ); 
@@ -51,52 +57,49 @@ class Source : public input::Source<engine::ImageStack> {
 
 void Source::attach_ui_( simparm::NodeHandle n ) {
     for (size_t i = 0; i < sources.size(); ++i) {
-        std::auto_ptr< simparm::Object > object( 
+        std::unique_ptr< simparm::Object > object( 
             new simparm::Object("Channel" + boost::lexical_cast<std::string>(i), "") );
         sources[i]->attach_ui( object->attach_ui( n ) ); 
-        connection_nodes.push_back( object );
+        connection_nodes.push_back( std::move(object) );
     }
 }
 
-bool merge_data< engine::ImageStack, spatial_tag<2> >::operator()( 
-    const input::Traits<engine::ImageStack>& traits,
-    const std::vector< input::Source<engine::ImageStack>::iterator >& s,
-    spatial_tag<2>,
-    engine::ImageStack* target) const
-{
-    assert( ! s.empty() );
-    if (!s[0]->GetNext(thread, target)) {
+bool Source::GetNext(int thread, engine::ImageStack* target) {
+    assert( ! sources.empty() );
+    if (!sources[0]->GetNext(thread, target)) {
         return false;
     }
 
-    for (size_t i = 1; i < s.size(); ++i) {
+    for (size_t i = 1; i < sources.size(); ++i) {
         engine::ImageStack next_plane;
-        if (!s[i]->GetNext(thread, &next_plane)) {
+        if (!sources[i]->GetNext(thread, &next_plane)) {
             return false;
         }
-        target->push_back(next_plane);
+        for (int plane = 0; plane < next_plane.plane_count(); ++plane) {
+            target->push_back(next_plane.plane(plane));
+        }
     }
 
     return true;
 }
 
-std::auto_ptr< Traits<engine::ImageStack> >
-merge_traits< engine::ImageStack, spatial_tag<2> >::operator()
-    ( const argument_type& images ) const
-{
-    std::auto_ptr< Traits<engine::ImageStack> > rv( new Traits<engine::ImageStack>(*images[0]) );
-    for (size_t i = 1; i < images.size(); ++i) {
-        std::copy( images[i]->begin(), images[i]->end(),
-            std::back_inserter( *rv ) );
-    }
-    return rv;
 }
 
+std::unique_ptr< input::Traits<engine::ImageStack> > merge_traits(
+        const std::vector< boost::shared_ptr< const input::Traits<engine::ImageStack> > >& base_traits,
+        tag t) {
+    typedef input::Traits<engine::ImageStack> Traits;
+    std::unique_ptr< Traits > traits( new Traits(*base_traits[0]) );
+    for (size_t i = 1; i < base_traits.size(); ++i) {
+        std::copy( base_traits[i]->begin(), base_traits[i]->end(),
+            std::back_inserter( *traits ) );
+    }
+    return std::move(traits);
 }
 
 std::unique_ptr<input::Source<engine::ImageStack>> Create(
         std::vector<std::unique_ptr<input::Source<engine::ImageStack>>> sources) {
-    return std::make_unique<Source>(sources);
+    return std::unique_ptr<input::Source<engine::ImageStack>>(new Source(std::move(sources)));
 }
 
 }

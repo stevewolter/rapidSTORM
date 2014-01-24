@@ -125,7 +125,7 @@ namespace input_simulation {
         typename Source::TraitsPtr get_traits( typename Source::Wishes );
         typename Source::Capabilities capabilities() const 
             { return typename Source::Capabilities(); }
-        void set_thread_count(int num_threads) override;
+        void set_thread_count(int num_threads) override {}
         bool GetNext(int thread, dStorm::engine::ImageStack* output) override;
     };
 

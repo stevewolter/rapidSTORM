@@ -101,6 +101,7 @@ bool Source::GetNext(int thread, engine::ImageStack* target) {
 
     *target = engine::ImageStack( all_planes.frame_number() );
     target->push_back( all_planes.plane( plane ) );
+    return true;
 }
 
 class ChainLink 

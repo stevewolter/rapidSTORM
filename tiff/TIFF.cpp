@@ -124,8 +124,8 @@ const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 
 Source::Source( std::auto_ptr<OpenFile> file )
 : count( "EntryCount", "Number of images in TIFF file", 0 ),
-  file(file),
-  directory(0)
+  directory(0),
+  file(file)
 {
 }
 

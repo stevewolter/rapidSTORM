@@ -179,6 +179,7 @@ bool Source::GetNext(int thread, engine::ImageStack* result) {
             }
         }
     }
+    return true;
 }
 
 std::auto_ptr<input::Link> makeLink() {
