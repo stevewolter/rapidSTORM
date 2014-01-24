@@ -685,14 +685,6 @@ rapidstorm_SOURCES += \
     ripley_k/fwd.h ripley_k/RipleyK.cpp
 
 rapidstorm_SOURCES += \
-    AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
-    AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
-    AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
-    AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
-    AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
-    AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
-
-rapidstorm_SOURCES += \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
