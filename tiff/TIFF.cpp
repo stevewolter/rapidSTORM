@@ -68,11 +68,11 @@ class Source : public input::Source< engine::ImageStack >
 
     void attach_ui_( simparm::NodeHandle n ) { current_ui = count.attach_ui( n ); }
 
-    void set_thread_count(int num_threads) override {
+    void set_thread_count(int num_threads) OVERRIDE {
         assert(num_threads == 1);
     }
 
-    bool GetNext(int thread, engine::ImageStack* output) override;
+    bool GetNext(int thread, engine::ImageStack* output) OVERRIDE;
 
 public:
     Source(std::auto_ptr<OpenFile> file);

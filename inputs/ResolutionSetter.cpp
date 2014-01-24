@@ -124,7 +124,7 @@ struct DummyImageSource : public input::Source<engine::ImageStack>
     void attach_ui_( simparm::NodeHandle ) {}
     void dispatch(Messages m) {}
     void set_thread_count(int num_threads) {}
-    bool GetNext(int thread, engine::ImageStack* target) override { return false; }
+    bool GetNext(int thread, engine::ImageStack* target) OVERRIDE { return false; }
     TraitsPtr get_traits( Wishes ) { 
         return TraitsPtr( 
             new TraitsPtr::element_type(

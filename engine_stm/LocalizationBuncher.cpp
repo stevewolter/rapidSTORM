@@ -132,7 +132,7 @@ void Source<InputType>::ReadImage(output::LocalizedImage* target) {
             CollectEntireImage(target);
             return;
         } else {
-            auto can = canned.emplace(input_image, input_image);
+            auto can = canned.insert(std::make_pair(input_image, output::LocalizedImage(input_image)));
             CollectEntireImage(&can.first->second);
         }
     }

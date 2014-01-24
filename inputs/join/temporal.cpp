@@ -38,11 +38,11 @@ class Source
         }
     }
 
-    void set_thread_count(int num_threads) override {
+    void set_thread_count(int num_threads) OVERRIDE {
         assert(num_threads == 1);
     }
 
-    bool GetNext(int thread, Type* output) override;
+    bool GetNext(int thread, Type* output) OVERRIDE;
 
   public:
     Source( Sources s ) : sources(std::move(s)), current_source(sources.begin()), offset(0 * camera::frame), current_source_max(0 * camera::frame) {}

@@ -41,8 +41,8 @@ namespace engine {
 
         void attach_ui_( simparm::NodeHandle );
         std::vector<float> make_plane_weight_vector() const;
-        bool GetNext(int thread, output::LocalizedImage* target) override;
-        void set_thread_count(int num_threads) override;
+        bool GetNext(int thread, output::LocalizedImage* target) OVERRIDE;
+        void set_thread_count(int num_threads) OVERRIDE;
 
       public:
         Engine(const Config& config, std::auto_ptr<Input> input);

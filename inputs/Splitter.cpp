@@ -57,7 +57,7 @@ class Source
   public:
     Source(bool vertical, std::auto_ptr< input::Source<engine::ImageStack> > base);
 
-    bool GetNext(int thread, engine::ImageStack* target) override;
+    bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;
 };
 
 struct NoSplit : public Split {

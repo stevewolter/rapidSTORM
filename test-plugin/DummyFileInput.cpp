@@ -6,7 +6,7 @@
 #include <simparm/Entry.h>
 #include <dStorm/input/FileInput.h>
 #include <boost/signals2/connection.hpp>
-#include <boost/thread/lock_guard.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <fstream>
 #include <iostream>
@@ -95,7 +95,7 @@ class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
     dStorm::engine::ImageStack* load();
     void dispatch(BaseSource::Messages m) { assert( !m.any() ); }
     void attach_ui_( simparm::NodeHandle ) {}
-    void set_thread_count(int num_threads) override {}
+    void set_thread_count(int num_threads) OVERRIDE {}
 
     bool GetNext(int thread, dStorm::engine::ImageStack* output) {
         boost::lock_guard<boost::mutex> lock(mutex);

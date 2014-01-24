@@ -21,7 +21,7 @@ class Source : public input::Source<engine::ImageStack> {
         for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i) {
             base_traits.push_back( (*i)->get_traits(r) );
         }
-        return Base::TraitsPtr(merge_traits(base_traits, tag()));
+        return Base::TraitsPtr(merge_traits(base_traits, tag()).release());
     }
 
     void dispatch(BaseSource::Messages m) {
@@ -38,7 +38,7 @@ class Source : public input::Source<engine::ImageStack> {
         return rv;
     }
 
-    bool GetNext(int thread, engine::ImageStack* target) override;
+    bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;
     void set_thread_count(int num_threads) {
         for (const auto& source : sources) {
             source->set_thread_count(num_threads);

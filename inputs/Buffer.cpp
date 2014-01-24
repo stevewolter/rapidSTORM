@@ -24,7 +24,7 @@ template <typename Ty>
 class Source : public AdapterSource<Ty>
 {
     void attach_local_ui_( simparm::NodeHandle ) {}
-    bool GetNext(int thread, Ty* target) override;
+    bool GetNext(int thread, Ty* target) OVERRIDE;
   public:
     Source(std::auto_ptr< input::Source<Ty> >);
     ~Source();
@@ -53,7 +53,7 @@ class Source : public AdapterSource<Ty>
     typename Slots::iterator next_output;
 
     void discard( typename Slots::iterator slot );
-    void set_thread_count(int num_threads) override {
+    void set_thread_count(int num_threads) OVERRIDE {
         if (is_transparent) {
             AdapterSource<Ty>::set_thread_count(num_threads);
         } else {

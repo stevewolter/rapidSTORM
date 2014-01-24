@@ -133,6 +133,17 @@ AS_IF(
     [])
 AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
 
+AC_ARG_ENABLE([override-check],
+    [AS_HELP_STRING([--enable-override-check],
+        [enable use of the C++11 override keyword])],
+        [],
+        [enable_override_check=yes])
+AS_IF(
+    [test "x$enable_override_check" = xyes],
+    [ CPPFLAGS="-DOVERRIDE=override $CPPFLAGS" ],
+    [ CPPFLAGS="-DOVERRIDE= $CPPFLAGS"]
+)
+
 AC_ARG_ENABLE([specialized-fitters],
     [AS_HELP_STRING([--enable-specialized-fitters],
         [enable use of specialized fitters for common array sizes @<:@default=no@:>@])],

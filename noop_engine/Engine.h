@@ -21,8 +21,8 @@ namespace noop_engine {
         std::auto_ptr<Input> input;
 
         void attach_ui_( simparm::NodeHandle n ) { input->attach_ui( n ); }
-        bool GetNext(int thread, output::LocalizedImage* target) override;
-        void set_thread_count(int num_threads) override {}
+        bool GetNext(int thread, output::LocalizedImage* target) OVERRIDE;
+        void set_thread_count(int num_threads) OVERRIDE {}
 
       public:
         Engine(std::auto_ptr<Input> input);

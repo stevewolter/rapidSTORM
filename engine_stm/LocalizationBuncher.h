@@ -37,8 +37,8 @@ class Source
     InputType input;
 
     void attach_ui_( simparm::NodeHandle n ) { base->attach_ui(n); }
-    bool GetNext(int thread, output::LocalizedImage* target) override;
-    void set_thread_count(int threads) override;
+    bool GetNext(int thread, output::LocalizedImage* target) OVERRIDE;
+    void set_thread_count(int threads) OVERRIDE;
 
     void ReadImage(output::LocalizedImage* target);
     void CollectEntireImage(output::LocalizedImage* target);
