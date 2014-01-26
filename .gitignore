@@ -1,4 +1,3 @@
-doc/ac-aux/missing
 aclocal.m4
 autom4te.cache
 compile
@@ -7,9 +6,11 @@ config.h.in~
 config.sub
 configure
 depcomp
+doc/ac-aux/missing
 install-sh
 ltmain.sh
 m4/*.m4
+Makefile.in
 Makefile.in
 missing
 test-driver
