@@ -1,6 +1,5 @@
 #include "debug.h"
 #include "Splitter.h"
-#include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/mpl/vector.hpp>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/constructors.h>
