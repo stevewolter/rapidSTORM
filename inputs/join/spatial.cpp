@@ -1,4 +1,6 @@
 #include "spatial.h"
+
+#include "debug.h"
 #include <boost/lexical_cast.hpp>
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/engine/Image.h>
@@ -69,6 +71,7 @@ bool Source::GetNext(int thread, engine::ImageStack* target) {
     if (!sources[0]->GetNext(thread, target)) {
         return false;
     }
+    DEBUG("Joining inputs for image " << target->frame_number().value());
 
     for (size_t i = 1; i < sources.size(); ++i) {
         engine::ImageStack next_plane;

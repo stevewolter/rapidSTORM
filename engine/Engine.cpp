@@ -169,6 +169,7 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
         return false;
     }
 
+    DEBUG("Pushing image " << image.frame_number() << " into engine");
     work_horses[thread]->compute(image, target);
     return true;
 }

@@ -153,12 +153,15 @@ bool Source<Type>::GetNext(int thread, Type* target) {
     }
 
     if (!(*current_source)->GetNext(thread, target)) {
-        ++current_source;
-        offset += current_source_max + 1 * camera::frame;
+        const input::Traits<Type>& traits = *base_traits[current_source - sources.begin()];
+        offset += traits.image_number().range().second.get_value_or(current_source_max)
+            + 1 * camera::frame;
         current_source_max = 0 * camera::frame;
+        ++current_source;
         return GetNext(thread, target);
     }
 
+    current_source_max = std::max(target->frame_number(), current_source_max);
     target->set_frame_number( target->frame_number() + offset );
     return true;
 }

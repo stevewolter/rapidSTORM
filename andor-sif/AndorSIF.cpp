@@ -68,7 +68,7 @@ bool Source::GetNext(int thread, engine::ImageStack* output) {
         *output = *i;
     else
         *output = Image( engine::Image2D() );
-    output->frame_number() = count * camera::frame;
+    output->frame_number() = count++ * camera::frame;
     return true;
 }
 

@@ -7,6 +7,7 @@ namespace dStorm {
 
 boost::mutex TIFFOperation::mutex;
 TIFFOperation* TIFFOperation::current = NULL;
+static bool suppress_TIFF_warnings = false;
 
 TIFFOperation::TIFFOperation( 
     std::string error_title,
@@ -17,9 +18,9 @@ TIFFOperation::TIFFOperation(
     error_title(error_title)
 {
     current = this;
-    old_warning_handler = TIFFSetWarningHandler(
-        (suppress_warnings) ? ignore : make_warning );
+    old_warning_handler = TIFFSetWarningHandler( make_warning );
     old_error_handler = TIFFSetErrorHandler( make_error );
+    suppress_TIFF_warnings = suppress_warnings;
 }
 
 TIFFOperation::~TIFFOperation() {
@@ -36,16 +37,24 @@ void TIFFOperation::make_warning(
     const char *module, const char *fmt, va_list ap)
 {
     assert( current );
-    char buffer[4096];
-    vsnprintf( buffer, 4095, fmt, ap );
-    simparm::Message m("Warning " + current->error_title,
-        buffer, simparm::Message::Warning );
-    m.send( current->message_handler );
+    if (!suppress_TIFF_warnings) {
+        char buffer[4096];
+        vsnprintf( buffer, 4095, fmt, ap );
+        simparm::Message m("Warning " + current->error_title,
+            buffer, simparm::Message::Warning );
+        m.send( current->message_handler );
+    }
 }
 
 void TIFFOperation::make_error(
     const char *module, const char *fmt, va_list ap)
 {
+    // Work around the broken libtiff 4.x, which tags a warning as an error.
+    if (strcmp("Incorrect count for \"%s\"; tag ignored", fmt) == 0) {
+        make_warning(module, fmt, ap);
+        return;
+    }
+
     assert( current );
     char buffer[4096];
     vsnprintf( buffer, 4095, fmt, ap );

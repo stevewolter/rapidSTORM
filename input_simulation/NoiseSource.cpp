@@ -182,6 +182,7 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
   fluorophore_configs( config.get_fluorophore_sets() ),
   noise_config( config ),
   t( new dStorm::engine::InputTraits() ),
+  current_image(0),
   name_object("NoiseSource", "Noise source status")
 {
 

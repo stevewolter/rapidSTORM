@@ -31,9 +31,10 @@ class Source
   private:
     std::auto_ptr< Input > base;
     frame_index first_image, current_image;
+    boost::optional<frame_index> last_image;
     std::map<frame_index, output::LocalizedImage> canned;
     bool in_sequence;
-    bool input_left_over;
+    bool input_left_over, input_exhausted;
     InputType input;
 
     void attach_ui_( simparm::NodeHandle n ) { base->attach_ui(n); }

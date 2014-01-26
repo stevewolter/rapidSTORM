@@ -3,6 +3,7 @@
 #include "LocalizationBuncher.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Output.h>
+#include <boost/lexical_cast.hpp>
 #include <boost/variant/get.hpp>
 #include <dStorm/localization/record.h>
 
@@ -26,6 +27,7 @@ Source<InputType>::get_traits( Wishes w )
     if ( ! r.first.is_initialized() )
         throw std::runtime_error("First image index in STM file must be known");
     first_image = *r.first;
+    last_image = r.second;
     traits->in_sequence = true;
 
     return TraitsPtr( new TraitsPtr::element_type( *traits, "Buncher", "Localizations" ) );
@@ -33,7 +35,7 @@ Source<InputType>::get_traits( Wishes w )
 
 template <class InputType>
 Source<InputType>::Source( std::auto_ptr<Input> base )
-    : base(base), input_left_over(false) {}
+    : base(base), input_left_over(false), input_exhausted(false) {}
 
 template <class InputType>
 Source<InputType>::~Source()
@@ -95,7 +97,10 @@ VisitResult AddInputToImage(output::LocalizedImage* target, const localization::
 
 template <typename InputType>
 void Source<InputType>::CollectEntireImage(output::LocalizedImage* target) {
+    assert(input_left_over);
     while (true) {
+        DEBUG("Trying to add localization from " << GetImageNumber(input)
+              << " to image " << target->forImage);
         switch (AddInputToImage(target, input)) {
             case KeepComing:
                 break;
@@ -108,6 +113,9 @@ void Source<InputType>::CollectEntireImage(output::LocalizedImage* target) {
         }
 
         if (!base->GetNext(0, &input)) {
+            DEBUG("Exhausted input while reading image " << target->forImage);
+            input_exhausted = true;
+            input_left_over = false;
             return;
         }
     }
@@ -118,20 +126,29 @@ void Source<InputType>::ReadImage(output::LocalizedImage* target) {
     while (true) {
         if (!input_left_over) {
             if (!base->GetNext(0, &input)) {
+                input_exhausted = true;
                 return;
+            } else {
+                input_left_over = true;
             }
         }
 
         frame_index input_image = GetImageNumber(input);
-        assert(target->forImage <= input_image);
         if (in_sequence && target->forImage < input_image) {
             return;
         }
+        if (target->forImage > input_image) {
+            throw std::runtime_error("Duplicate image " +
+                    boost::lexical_cast<std::string>(input_image) +
+                    " in input");
+        }
 
         if (target->forImage == input_image) {
+            DEBUG("Immediately delivering image " << input_image);
             CollectEntireImage(target);
             return;
         } else {
+            DEBUG("Putting image " << input_image << " into can");
             auto can = canned.insert(std::make_pair(input_image, output::LocalizedImage(input_image)));
             CollectEntireImage(&can.first->second);
         }
@@ -145,16 +162,25 @@ bool Source<InputType>::GetNext(int thread, output::LocalizedImage* target) {
     try {
         auto in_can = canned.find(current_image);
         if (in_can != canned.end()) {
+            DEBUG("Delivering image " << current_image << " from can");
             *target = in_can->second;
             canned.erase(in_can);
+            current_image += 1 * camera::frame;
             return true;
         }
 
-        *target = output::LocalizedImage(current_image);
-        ReadImage(target);
-        return true;
+        if (canned.empty() && input_exhausted &&
+            (!last_image || current_image > *last_image)) {
+            DEBUG("Can empty and input exhausted, not delivering an image");
+            return false;
+        }
 
+        *target = output::LocalizedImage(current_image);
+        if (!input_exhausted) {
+            ReadImage(target);
+        }
         current_image += 1 * camera::frame;
+        return true;
     } catch (...) {
         return false;
     }

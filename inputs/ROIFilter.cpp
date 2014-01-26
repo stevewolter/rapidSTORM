@@ -49,6 +49,7 @@ class Source
 {
     const frame_index from;
     const boost::optional<frame_index> to;
+    bool saw_last_image;
 
     inline bool is_in_range(const Ty& t) const;
     void attach_local_ui_( simparm::NodeHandle ) {}
@@ -57,7 +58,7 @@ class Source
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
             frame_index from, boost::optional<frame_index> to)
-        : input::AdapterSource<Ty>(upstream), from(from), to(to) {}
+        : input::AdapterSource<Ty>(upstream), from(from), to(to), saw_last_image(false) {}
     Source* clone() const { return new Source(*this); }
 
     void modify_traits( input::Traits<Ty>& p)
@@ -74,9 +75,17 @@ class Source
 
 template <typename Ty>
 bool Source<Ty>::GetNext(int thread, Ty* target) {
+    if (saw_last_image) {
+        return false;
+    }
+
     while (true) {
         if (!input::AdapterSource<Ty>::GetNext(thread, target)) {
             return false;
+        }
+
+        if (to && ImageNumber()(*target) == *to) {
+            saw_last_image = true;
         }
 
         if (is_in_range(*target)) {
