@@ -17,7 +17,6 @@ bin_PROGRAMS = rapidstorm
 check_PROGRAMS = rapidstorm
 applications_DATA=rapidstorm.desktop
 doc_DATA = $(srcdir)/README 
-dist_noinst_DATA = $(srcdir)/RELEASE
 pkgdata_DATA = dstorm-config.txt
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
@@ -34,69 +33,7 @@ DEJATOOL = $(THE_DEJATOOL)
 
 EXTRA_DIST = windows_resources.rc \
     Doxyfile.in gaussian_psf/make_psf.sh \
-    dstorm-config.txt license_note_for_user \
-    dstorm.input/dual-view.exp dstorm.input/01-txt-replay.exp \
-    dstorm.input/00-input-file-is-recognized.exp \
-    dstorm.input/new-stm-format.exp \
-    dstorm.input/mirror.exp dstorm.input/long-tif-file.exp \
-    dstorm.input/parallel-sif.exp \
-    dstorm.input/03-can-open-same-file-twice.exp \
-    dstorm.input/02-errors.exp dstorm.volker/fall_e.exp \
-    dstorm.volker/fall_c.exp dstorm.volker/fall_a.exp \
-    dstorm.volker/fall_d.exp dstorm.volker/fall_f.exp \
-    dstorm.volker/fall_b.exp dstorm.guf/negative-alignment.exp \
-    dstorm.guf/multi-plane-gui.exp dstorm.guf/precision.exp \
-    dstorm.guf/error-check.exp dstorm.guf/two-plane-form-fitter.exp \
-    dstorm.guf/andre-test-1.exp \
-    dstorm.guf/performance.exp dstorm.guf/fixed-settings.exp \
-    dstorm.00-pre/01-plugins-loaded.exp \
-    dstorm.00-pre/03-test-plugin-can-close-windows.exp \
-    dstorm.00-pre/02-run-can-succeed.exp dstorm.00-pre/00-dstorm.exp \
-    dstorm.00-pre/04-field-bounds-work.exp \
-    dstorm.bugs/197.exp dstorm.bugs/185.exp dstorm.bugs/48.exp \
-    dstorm.bugs/165.exp dstorm.bugs/139.exp dstorm.bugs/95.exp \
-    dstorm.bugs/132.exp dstorm.bugs/62.exp dstorm.bugs/96.exp \
-    dstorm.bugs/75.exp dstorm.bugs/178.exp dstorm.bugs/85.exp \
-    dstorm.bugs/110.exp dstorm.bugs/74.exp dstorm.bugs/179.exp \
-    dstorm.bugs/51.exp dstorm.bugs/3.exp dstorm.bugs/63.exp \
-    dstorm.bugs/99.exp dstorm.bugs/91.exp dstorm.bugs/66.exp \
-    dstorm.bugs/43.exp dstorm.bugs/84.exp dstorm.bugs/81.exp \
-    dstorm.bugs/80.exp dstorm.bugs/188.exp dstorm.bugs/186.exp \
-    dstorm.bugs/148.exp dstorm.bugs/133.exp \
-    dstorm.bugs/177-2.exp dstorm.bugs/111.exp dstorm.bugs/106.exp \
-    dstorm.bugs/75_stm.exp dstorm.bugs/206.exp \
-    dstorm.bugs/190.exp dstorm.bugs/202.exp dstorm.bugs/212.exp \
-    dstorm.bugs/218.exp dstorm.bugs/228.exp \
-    dstorm.outputs/save-image-to-nonexisting-location.exp \
-    dstorm.outputs/drift-estimator.exp \
-    dstorm.outputs/emission-tracker.exp \
-    dstorm.outputs/simple-filter.exp \
-    dstorm.outputs/localization-filter-can-remove-output.exp \
-    dstorm.outputs/viewer-closed-during-job.exp \
-    dstorm.outputs/expression-filter.exp \
-    dstorm.outputs/form-fitter.exp \
-    dstorm.outputs/localization-filter.exp \
-    dstorm.outputs/viewer-supports-key-range-changes.exp \
-    dstorm.outputs/repeater.exp dstorm.outputs/viewer.exp \
-    dstorm.outputs/segmenter.exp dstorm.outputs/linear-alignment.exp \
-    lib/dstorm.exp lib/no-integration-tests.exp \
-    dstorm.andorcam/two-successive-jobs.exp \
-    dstorm.andorcam/live-view.exp dstorm.andorcam/compute-job.exp \
-    dstorm.andorcam/infinite-acquisition.exp \
-    dstorm.andorcam/no-installed-cameras.exp \
-    dstorm.test/alignment-fitter.exp \
-    dstorm.test/sif-computation.exp \
-    dstorm.test/output_exception.exp \
-    dstorm.test/sif-shortjob.exp dstorm.test/autoname.exp \
-    dstorm.test/median.exp dstorm.test/load_tif_file.exp \
-    dstorm.test/empty_input_file.exp dstorm.test/nojob.exp \
-    dstorm.test/can-compute-txt-file.exp \
-    dstorm.test/filenames.exp dstorm.test/job-removal.exp \
-    dstorm.test/remove-job.exp boards/standard.exp boards/valgrind.exp \
-    dstorm.test/serialization.exp \
-    config/windows-telnet-and-netcat.exp config/unix.exp \
-    dstorm.test/config-reset.exp
-
+    dstorm-config.txt license_note_for_user
 
 CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
@@ -112,7 +49,7 @@ installation-directory.h : always-force-remake
 
 PROTO_SOURCE_FILES = tsf/TSFProto.proto
 PROTO_GENERATED = $(PROTO_SOURCE_FILES:.proto=.pb.cc) $(PROTO_SOURCE_FILES:.proto=.pb.h)
-dist_noinst_DATA += $(PROTO_SOURCE_FILES)
+dist_noinst_DATA = $(PROTO_SOURCE_FILES)
 BUILT_SOURCES = installation-directory.h
 CLEANFILES += $(PROTO_GENERATED)
 if HAVE_PROTOBUF
