@@ -1,0 +1,477 @@
+rapidstorm (1:3.3.0-2) testing; urgency=medium
+
+  * Added doc/spline-theory.pdf to distribution.
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 15 Jan 2014 21:01:58 +0100
+
+rapidstorm (1:3.3.0-1) testing; urgency=medium
+
+  * New upstream release
+  * Upstream integrated csunits and anyiterator directly into distribution,
+    dropped build dependencies
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 13 Jan 2014 23:19:31 +0100
+
+rapidstorm (1:3.2.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 16 Jul 2012 20:14:02 +0200
+
+rapidstorm (1:3.2.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 13 Jul 2012 16:24:10 +0200
+
+rapidstorm (1:3.1.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 17 Jun 2012 00:23:21 +0200
+
+rapidstorm (1:3.0.4-2) testing; urgency=low
+
+  * Made docbook PDF building optional to avoid breaking Ubuntu builds
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 15 Jun 2012 21:57:23 +0200
+
+rapidstorm (1:3.0.4-1) testing; urgency=low
+
+  * New upstream release
+  * Removed obsolete dh-crossinstall instructions
+  * Removed all packages but rapidstorm, -doc and -doc-dev because they were
+    removed in the upstream
+  * Re-enabled shlibs dependencies since Ubuntu packages are built separately
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 15 Jun 2012 13:30:42 +0200
+
+rapidstorm (1:2.21.9-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 11 May 2012 01:48:46 +0200
+
+rapidstorm (1:2.21.8-1) testing; urgency=low
+
+  * New upstream release
+  * Discontinued use of shlibs dependencies to ensure compatibility to Ubuntu
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 09 May 2012 12:23:07 +0200
+
+rapidstorm (1:2.21.7-4) testing; urgency=low
+
+  * Made inter-package library dependencies explicit
+  * Moved doxygen documentation into dev package
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 08 May 2012 16:08:13 +0200
+
+rapidstorm (1:2.21.7-3) testing; urgency=low
+
+  * Fixed menu and reduced boost version for compatibility with ubuntu
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 08 May 2012 14:07:17 +0200
+
+rapidstorm (1:2.21.7-2) testing; urgency=low
+
+  * Fixed installation instructions for windows builds
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 07 May 2012 19:43:11 +0200
+
+rapidstorm (1:2.21.7-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 07 May 2012 16:46:43 +0200
+
+rapidstorm (1:2.21.6-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 07 May 2012 09:11:51 +0200
+
+rapidstorm (1:2.21.5-2) testing; urgency=low
+
+  * Removed network-loaded references from doxygen build to stabilize
+    and quicken build
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 06 May 2012 15:50:44 +0200
+
+rapidstorm (1:2.21.5-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 06 May 2012 15:34:05 +0200
+
+rapidstorm (1:2.21.4-1) testing; urgency=low
+
+  * New upstream version
+  * Added missing build dependency on graphviz for full doxygen support
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 06 May 2012 14:41:06 +0200
+
+rapidstorm (1:2.21.3-3) testing; urgency=low
+
+  * Added doxygen documentation to Debian packages
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 06 May 2012 14:14:11 +0200
+
+rapidstorm (1:2.21.3-2) testing; urgency=low
+
+  * Added missing libreadsif build dependency
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 06 May 2012 12:22:34 +0200
+
+rapidstorm (1:2.21.3-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 06 May 2012 01:57:17 +0200
+
+rapidstorm (1:2.21.2-2) testing; urgency=low
+
+  * Made rapidstorm-doc architecture-dependent to ease building in our
+    broken build system
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 05 May 2012 18:22:14 +0200
+
+rapidstorm (1:2.21.2-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 05 May 2012 17:51:28 +0200
+
+rapidstorm (1:2.21.1-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 05 May 2012 15:19:17 +0200
+
+rapidstorm (1:2.21.0-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 05 May 2012 12:09:45 +0200
+
+rapidstorm (1:2.20.3-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 18 Apr 2012 16:40:21 +0200
+
+rapidstorm (1:2.20.1-1) testing; urgency=low
+
+  * New upstream version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 17 Apr 2012 18:23:26 +0200
+
+rapidstorm (1:2.20.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 12 Apr 2012 18:42:45 +0200
+
+rapidstorm (1:2.19.4-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 10 Apr 2012 10:31:31 +0200
+
+rapidstorm (1:2.19.3-2) testing; urgency=low
+
+  * Included tests into main package and built per-architecture to
+    enforce testing
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 10 Apr 2012 09:50:49 +0200
+
+rapidstorm (1:2.19.3-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 09 Apr 2012 19:30:05 +0200
+
+rapidstorm (1:2.19.2-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 09 Apr 2012 19:01:46 +0200
+
+rapidstorm (1:2.19.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 08 Apr 2012 11:31:21 +0200
+
+rapidstorm (1:2.19.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 06 Apr 2012 10:01:05 +0200
+
+rapidstorm (1:2.18.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 29 Mar 2012 10:30:39 +0200
+
+rapidstorm (1:2.17.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 26 Mar 2012 15:21:06 +0200
+
+rapidstorm (1:2.16.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 19 Mar 2012 21:02:48 +0100
+
+rapidstorm (1:2.16.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 16 Mar 2012 20:14:22 +0100
+
+rapidstorm (1:2.15.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 14 Mar 2012 20:14:10 +0100
+
+rapidstorm (1:2.15.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 14 Mar 2012 12:22:55 +0100
+
+>>>>>>> .r4043
+rapidstorm (1:2.14.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 08 Mar 2012 18:23:18 +0100
+
+rapidstorm (1:2.13.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 11 Feb 2012 12:28:25 +0100
+
+rapidstorm (1:2.12.1-3) testing; urgency=low
+
+  * Removed obsolete locprec recommendation
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 28 Jan 2012 13:37:34 +0100
+
+rapidstorm (1:2.12.1-2) testing; urgency=low
+
+  * Re-established camera package for andor camera daemon
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 27 Jan 2012 22:02:22 +0100
+
+rapidstorm (1:2.12.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 27 Jan 2012 17:02:05 +0100
+
+rapidstorm (1:2.12.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 26 Jan 2012 22:32:30 +0100
+
+rapidstorm (1:2.11.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 10 Jan 2012 14:55:39 +0100
+
+rapidstorm (1:2.10.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 04 Jan 2012 20:07:42 +0100
+
+rapidstorm (1:2.9.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 30 Nov 2011 22:54:44 +0100
+
+rapidstorm (1:2.9.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 30 Nov 2011 18:34:33 +0100
+
+rapidstorm (1:2.8.2-2) testing; urgency=low
+
+  * Fixed version fix for alignment-helper
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 28 Nov 2011 09:28:21 +0100
+
+rapidstorm (1:2.8.2-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 27 Nov 2011 13:41:05 +0100
+
+rapidstorm (1:2.8.1-2) testing; urgency=low
+
+  * Added rapidSTORM alignment helper
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 27 Nov 2011 13:29:01 +0100
+
+rapidstorm (1:2.8.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 25 Nov 2011 22:16:14 +0100
+
+rapidstorm (1:2.8.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 24 Nov 2011 22:47:16 +0100
+
+rapidstorm (1:2.7.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 15 Nov 2011 19:03:31 +0100
+
+rapidstorm (1:2.6.0-2) testing; urgency=low
+
+  * Fixed minor lintian errors
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 14 Nov 2011 15:07:55 +0100
+
+rapidstorm (1:2.6.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sun, 13 Nov 2011 22:11:01 +0100
+
+rapidstorm (1:2.5.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 11 Nov 2011 15:37:55 +0100
+
+rapidstorm (1:2.4.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 08 Nov 2011 20:04:57 +0100
+
+rapidstorm (1:2.4.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 07 Nov 2011 21:46:24 +0100
+
+rapidstorm (1:2.3.0-2) testing; urgency=low
+
+  * rapidSTORM 2 got stable. Incremented epoch to get rid of old
+    versions
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 02 Nov 2011 13:55:59 +0100
+
+rapidstorm (2.3.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 31 Oct 2011 17:57:32 +0100
+
+rapidstorm (2.2.2-3) testing; urgency=low
+
+  * Added rapidstorm-gui package to version-dependency generation script
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 25 Oct 2011 15:17:27 +0200
+
+rapidstorm (2.2.2-2) testing; urgency=low
+
+  * Added missing rapidstorm-gui package
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 25 Oct 2011 14:46:38 +0200
+
+rapidstorm (2.2.2-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 25 Oct 2011 08:52:49 +0200
+
+rapidstorm (2.2.1-4) testing; urgency=low
+
+  * Fixed build-time dependency on pkg-config
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 24 Oct 2011 22:50:18 +0200
+
+rapidstorm (2.2.1-3) testing; urgency=low
+
+  * Fixed build-time dependency on librapidstorm
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 24 Oct 2011 22:42:03 +0200
+
+rapidstorm (2.2.1-2) testing; urgency=low
+
+  * Fixed installation of rapidstorm config file
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 24 Oct 2011 22:11:38 +0200
+
+rapidstorm (2.2.1-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 24 Oct 2011 22:03:33 +0200
+
+rapidstorm (2.2.0-2) testing; urgency=low
+
+  * Reordered dependencies with upper bound first to satisfy apt
+    decision maker
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 24 Oct 2011 21:09:13 +0200
+
+rapidstorm (2.2.0-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 21 Oct 2011 13:04:03 +0200
+
+rapidstorm (2.1.2-13) testing; urgency=low
+
+  * Added convenience packages for windows installer options
+  * Froze versions of rapidSTORM component packages to install
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 20 Oct 2011 22:39:53 +0200
+
+rapidstorm (2.1.2-12) testing; urgency=low
+
+  * Removed files migrated into rapidstorm-bin from installation list
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 19 Oct 2011 17:49:25 +0200
+
+rapidstorm (2.1.2-11) testing; urgency=low
+
+  * Changed source format to quilt and normalized package names
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 19 Oct 2011 11:06:06 +0200
+
+rapidstorm (2.1.2-10) testing; urgency=low
+
+  * Made package work with distcheck
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 18 Oct 2011 18:29:29 +0200
+
+rapidstorm (2.1.2-9) testing; urgency=low
+
+  * Added dstorm config file
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 18 Oct 2011 17:45:56 +0200
+
+rapidstorm (2.1.2-8) testing; urgency=low
+
+  * Initial re-packaging from rapidstorm-gui
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 01 Oct 2011 12:02:55 +0200

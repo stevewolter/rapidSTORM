@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd /tmp/buildd
+if test -n "$CROSSARCH"; then
+    find -maxdepth 1 -name "*_$CROSSARCH.deb" -print0 | \
+        xargs -0 --no-run-if-empty dpkg-cross -a $CROSSARCH -b
+    find -maxdepth 1 -name "*-$CROSSARCH-cross_*_all.deb" -printf "%P\n" > crossfiles
+    CHANGES=`find -maxdepth 1 -name "*_$CROSSARCH.changes"`
+    xargs -a crossfiles perl /tmp/hooks/add-to-changes.pl \
+        < "$CHANGES" > crosschanges && mv crosschanges "$CHANGES"
+    rm -f crossfiles
+fi
+true

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+declare -r SRCDIR=@abs_top_srcdir@
+declare -r VERSION=@VERSION@
+
+make dist
+test -e rapidstorm_$VERSION.orig.tar.gz || ln -s rapidstorm-$VERSION.tar.gz rapidstorm_$VERSION.orig.tar.gz
+tar xfz rapidstorm-$VERSION.tar.gz
+cp -a "${SRCDIR}"/release/debian rapidstorm-$VERSION
+cd rapidstorm-$VERSION
+dpkg-buildpackage -S -us -uc
+declare -r DEBIAN_VERSION="$(dpkg-parsechangelog | sed -n -e 's/^Version: //p' | sed -e 's/^[0-9]*://')"
+cd ..
+
+for arch in i386 amd64; do
+    for distribution in wheezy precise; do
+        sudo pbuilder --build --distribution ${distribution} --architecture ${arch} --configfile release/pbuilder/pbuilderrc rapidstorm_${DEBIAN_VERSION}.dsc
+    done
+done
+
+for arch in mingw-i686 mingw-amd64; do
+    sudo CROSSARCH=${arch} pbuilder --build --distribution wheezy --architecture amd64 --configfile release/pbuilder/pbuilderrc rapidstorm_${DEBIAN_VERSION}.dsc
+done
