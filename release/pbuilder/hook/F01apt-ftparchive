@@ -1,0 +1,25 @@
+#!/bin/sh
+
+if false; then 
+
+DIST=`sed -n -e 's/^deb [^ ]* \([^ ]*\) .*/\1/p' /etc/apt/sources.list | head -n 1`
+mkdir /tmp/local-distribution
+DISTS=$DIST
+
+BASE=/projects/www/debian
+SECTIONS="main contrib non-free $EXTRASECTIONS"
+
+echo "Using sections $SECTIONS of $DIST"
+cat<<EOF >>/etc/apt/sources.list
+deb file://$BASE $DIST $SECTIONS
+deb-src file://$BASE $DIST $SECTIONS
+EOF
+for sec in $SECTIONS; do
+        FILE=$BASE/dists/$DIST/$sec/binary-`dpkg --print-architecture`/Packages
+        cp $FILE /var/lib/apt/lists/`echo $FILE | tr '/' '_'`
+done
+cp $BASE/dists/$DIST/Release /var/lib/apt/lists/`echo $BASE/dists/$DIST/Release | tr '/' '_'`
+
+fi
+
+true

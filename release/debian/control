@@ -1,0 +1,32 @@
+Source: rapidstorm
+Section: science
+Priority: optional
+Maintainer: Steve Wolter <debian@swolter.sdf1.org>
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, automake, pkg-config, 
+    libeigen3-dev, libgraphicsmagick++1-dev, libb64-dev, 
+    libtiff4-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, 
+    libboost-system-dev, libboost-thread-dev, libboost-test-dev, libboost-dev,
+    libboost-filesystem-dev, libgsl0-dev, libreadsif-dev, libtinyxml-dev,
+    dejagnu, devscripts, gsfonts | windows-fonts, imagemagick
+Build-Depends-Indep:
+    xsltproc, texlive-latex-base, ghostscript, fop, openjdk-6-jre,
+    doxygen, doxygen-latex, graphviz, docbook-xsl-ns, bibutils, zip,
+    sgml-data, texlive-fonts-extra
+Standards-Version: 3.8.4
+Homepage: http://www.super-resolution.de/
+
+Package: rapidstorm-doc
+Architecture: all
+Description: Documentation for rapidSTORM program
+
+Package: rapidstorm-dev-doc
+Architecture: all
+Description: Doxygen documentation for rapidSTORM code
+
+Package: rapidstorm
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Recommends: rapidstorm-doc, gsfonts | windows-fonts
+Suggests: rapidstorm-camera (= ${binary:Version})
+Description: Localization microscopy analysis software
+Replaces: rapidstorm-minimal, rapidstorm-gui

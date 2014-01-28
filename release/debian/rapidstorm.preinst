@@ -1,0 +1,8 @@
+#!/bin/sh
+
+update-alternatives --remove-all dstorm rapidstorm
+rm -f /usr/bin/dstorm /usr/bin/rapidstorm
+
+#DEBHELPER#
+
+exit 0
