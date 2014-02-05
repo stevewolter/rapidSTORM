@@ -1,10 +1,10 @@
 #ifndef DSTORM_BASIC_INPUTS_H
 #define DSTORM_BASIC_INPUTS_H
 
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/Link.h>
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include "inputs/Splitter.h"
 #include "inputs/YMirror.h"
 #include "inputs/SampleInfo.h"

@@ -1,7 +1,7 @@
 #ifndef DSTORM_CARCONFIG_H
 #define DSTORM_CARCONFIG_H
 
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include <dStorm/output/Config.h>
 #include <dStorm/input/Link.h>
 #include <memory>

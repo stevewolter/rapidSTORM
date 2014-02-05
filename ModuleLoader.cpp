@@ -6,7 +6,7 @@
 #include "inputs/WarnAboutLocalizationFile.h"
 #include "spotFinders/spotFinders.h"
 #include "outputs/BasicTransmissions.h"
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include "engine/ChainLink_decl.h"
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"

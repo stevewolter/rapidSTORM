@@ -7,7 +7,7 @@
 #include "CommandLine.h"
 #include <vector>
 #include <string>
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include <fstream>
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/FilterSource.h>

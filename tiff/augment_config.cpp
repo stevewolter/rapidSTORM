@@ -1,4 +1,4 @@
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include "tiff/RawImageFile.h"
 #include "tiff/TIFF.h"
 #ifdef HAVE_CONFIG_H

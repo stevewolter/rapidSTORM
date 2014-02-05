@@ -3,7 +3,7 @@
 #endif
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include <dStorm/output/OutputSource.h>
 #include "guf/Factory.h"
 

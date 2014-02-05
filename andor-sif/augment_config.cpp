@@ -1,4 +1,4 @@
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

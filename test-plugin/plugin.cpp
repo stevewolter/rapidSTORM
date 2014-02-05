@@ -1,6 +1,6 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include "test-plugin/Exception.h"
 #include "test-plugin/Verbose.h"
 #include "test-plugin/Delayer.h"

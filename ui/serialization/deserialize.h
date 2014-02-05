@@ -1,4 +1,4 @@
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include <simparm/NodeHandle.h>
 
 namespace simparm {

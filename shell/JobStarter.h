@@ -2,7 +2,7 @@
 #define DSTORM_JOBSTARTER_H
 
 #include <simparm/TriggerEntry.h>
-#include <dStorm/Config.h>
+#include "core/Config.h"
 #include <dStorm/stack_realign.h>
 
 namespace dStorm {
