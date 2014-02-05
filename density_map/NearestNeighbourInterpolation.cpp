@@ -1,4 +1,4 @@
-#include "NearestNeighbourInterpolation.hpp"
+#include "density_map/NearestNeighbourInterpolation.hpp"
 
 namespace dStorm {
 namespace density_map {

@@ -1,9 +1,9 @@
 #ifndef SIMPARM_WX_UI_WINDOWNODE_H
 #define SIMPARM_WX_UI_WINDOWNODE_H
 
-#include "Node.h"
-#include "GUIHandle.h"
-#include "Sizer.h"
+#include "simparm/wx_ui/Node.h"
+#include "simparm/wx_ui/GUIHandle.h"
+#include "simparm/wx_ui/Sizer.h"
 
 namespace simparm {
 namespace wx_ui {

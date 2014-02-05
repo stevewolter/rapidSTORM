@@ -1,8 +1,8 @@
 #ifndef SIMPARM_CMDLINE_UI_NODE_H
 #define SIMPARM_CMDLINE_UI_NODE_H
 
-#include "../Node.h"
-#include "../BaseAttribute.h"
+#include "simparm/Node.h"
+#include "simparm/BaseAttribute.h"
 #include <map>
 #include <boost/enable_shared_from_this.hpp>
 #include "dStorm/Job.h"

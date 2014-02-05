@@ -1,8 +1,8 @@
 /** \cond */
 #include <cassert>
 #include <nonlinfit/Terminator.h>
-#include "RelativeChange.h"
-#include "StepLimit.h"
+#include "nonlinfit/terminators/RelativeChange.h"
+#include "nonlinfit/terminators/StepLimit.h"
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/vector.hpp>
 

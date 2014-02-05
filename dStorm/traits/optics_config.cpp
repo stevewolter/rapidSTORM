@@ -1,9 +1,9 @@
 #include <simparm/Node.h>
 #include "debug.h"
-#include "optics_config.h"
+#include "dStorm/traits/optics_config.h"
 #include <boost/lexical_cast.hpp>
 #include <dStorm/localization/Traits.h>
-#include "ProjectionFactory.h"
+#include "dStorm/traits/ProjectionFactory.h"
 
 namespace dStorm {
 namespace traits {

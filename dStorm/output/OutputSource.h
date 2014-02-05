@@ -1,13 +1,13 @@
 #ifndef TRANSMISSIONFACTORY_H
 #define TRANSMISSIONFACTORY_H
 
-#include "Output.h"
-#include "Basename.h"
+#include "dStorm/output/Output.h"
+#include "dStorm/output/Basename.h"
 #include <memory>
 #include <simparm/Choice.h>
 #include <simparm/TriggerEntry.h>
-#include "SourceFactory_decl.h"
-#include "BasenameAdjustedFileEntry_decl.h"
+#include "dStorm/output/SourceFactory_decl.h"
+#include "dStorm/output/BasenameAdjustedFileEntry_decl.h"
 #include <dStorm/make_clone_allocator.hpp>
 
 namespace simparm { class FileEntry; }

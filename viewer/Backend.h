@@ -3,7 +3,7 @@
 
 #include <dStorm/output/Output.h>
 #include <memory>
-#include "ColourScheme.h"
+#include "viewer/ColourScheme.h"
 
 namespace dStorm {
 namespace viewer {

@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "GUI.h"
+#include "estimate_psf_form/GUI.h"
 #include <simparm/Node.h>
 #include <dStorm/display/Manager.h>
 #include <dStorm/display/display_normalized.hpp>

@@ -1,6 +1,6 @@
 #include "debug.h"
-#include "optics.h"
-#include "optics_config.h"
+#include "dStorm/traits/optics.h"
+#include "dStorm/traits/optics_config.h"
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <Eigen/Geometry>

@@ -1,4 +1,4 @@
-#include "Output.h"
+#include "dStorm/output/Output.h"
 
 namespace dStorm {
 namespace output {

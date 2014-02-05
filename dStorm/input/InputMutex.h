@@ -1,4 +1,4 @@
-#include "fwd.h"
+#include "dStorm/input/fwd.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 

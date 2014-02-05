@@ -1,4 +1,4 @@
-#include "Optics.h"
+#include "fit_window/Optics.h"
 #include <dStorm/engine/InputPlane.h>
 
 #include <boost/accumulators/accumulators.hpp>

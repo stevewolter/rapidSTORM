@@ -1,6 +1,6 @@
 #include "debug.h"
-#include "NaiveFitter.h"
-#include "ModelledFitter.h"
+#include "guf/NaiveFitter.h"
+#include "guf/ModelledFitter.h"
 #include "guf/MultiKernelLambda.h"
 #include "gaussian_psf/free_form.h"
 #include "gaussian_psf/fixed_form.h"

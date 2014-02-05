@@ -1,8 +1,8 @@
 #ifndef NONLINFIT_IMAGE_PLANE_EVALUATOR_JOINT_DATA_IMPL_H
 #define NONLINFIT_IMAGE_PLANE_EVALUATOR_JOINT_DATA_IMPL_H
 
-#include "JointData.h"
-#include "DataFacade.hpp"
+#include "nonlinfit/plane/JointData.h"
+#include "nonlinfit/plane/DataFacade.hpp"
 
 namespace nonlinfit {
 namespace plane {

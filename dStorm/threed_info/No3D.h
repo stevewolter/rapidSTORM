@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRAITS_NO3D_H
 #define DSTORM_TRAITS_NO3D_H
 
-#include "DepthInfo.h"
+#include "dStorm/threed_info/DepthInfo.h"
 
 namespace dStorm {
 namespace threed_info {

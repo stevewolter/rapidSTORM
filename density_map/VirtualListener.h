@@ -2,7 +2,7 @@
 #define DSTORM_DENSITY_MAP_VIRTUALLISTENER_H
 
 #include <dStorm/image/fwd.h>
-#include "Listener.h"
+#include "density_map/Listener.h"
 
 namespace dStorm {
 namespace density_map {

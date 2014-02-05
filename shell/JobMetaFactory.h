@@ -4,7 +4,7 @@
 #include <string>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <dStorm/Config.h>
-#include "JobFactory.h"
+#include "shell/JobFactory.h"
 
 namespace dStorm {
 namespace shell {

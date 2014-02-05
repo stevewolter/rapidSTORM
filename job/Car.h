@@ -1,11 +1,11 @@
 #ifndef DSTORM_CAR_H
 #define DSTORM_CAR_H
 
-#include "Queue.h"
+#include "job/Queue.h"
 
 #include <dStorm/stack_realign.h>
 #include <dStorm/Job.h>
-#include "Config.h"
+#include "job/Config.h"
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
 #include <simparm/TriggerEntry.h>
@@ -18,7 +18,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include "Control.h"
+#include "job/Control.h"
 
 namespace dStorm {
 namespace output { class Output; }

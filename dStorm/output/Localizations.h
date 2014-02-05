@@ -1,11 +1,11 @@
 #ifndef DSTORM_LOCALIZATIONS_H
 #define DSTORM_LOCALIZATIONS_H
 
-#include "../Localization.h"
-#include "../output/LocalizedImage.h"
+#include "dStorm/Localization.h"
+#include "dStorm/output/LocalizedImage.h"
 #include <vector>
 #include <list>
-#include "../localization/Traits.h"
+#include "dStorm/localization/Traits.h"
 
 namespace dStorm {
 namespace output {

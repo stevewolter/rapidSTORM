@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_BOX_HPP
 #define DSTORM_IMAGE_BOX_HPP
 
-#include "Box.h"
+#include "dStorm/image/Box.h"
 #include <boost/units/io.hpp>
 
 namespace dStorm {

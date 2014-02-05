@@ -2,7 +2,7 @@
 #define DSTORM_LOCFILE_FIELDS_IMPL_H
 
 #include "debug.h"
-#include "localization_field.h"
+#include "dStorm/localization_file/localization_field.h"
 #include <dStorm/localization/Traits.h>
 #include <dStorm/output/Traits.h>
 #include <boost/units/io.hpp>

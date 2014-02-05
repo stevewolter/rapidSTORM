@@ -1,7 +1,7 @@
 #ifndef DSTORM_INPUT_FORWARDER_H
 #define DSTORM_INPUT_FORWARDER_H
 
-#include "Link.h"
+#include "dStorm/input/Link.h"
 
 namespace dStorm {
 namespace input {

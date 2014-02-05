@@ -14,7 +14,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/signals2/connection.hpp>
 
-#include "field_decl.h"
+#include "dStorm/localization_file/field_decl.h"
 #include <dStorm/localization/record.h>
 
 namespace dStorm {

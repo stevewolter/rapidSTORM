@@ -1,4 +1,4 @@
-#include "dilation_impl.h"
+#include "dStorm/image/dilation_impl.h"
 #include <dStorm/engine/Image.h>
 
 namespace dStorm {

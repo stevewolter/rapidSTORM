@@ -2,16 +2,16 @@
 #define DSTORM_IMAGE_H
 
 #include <dStorm/image/fwd.h>
-#include "units/frame_count.h"
+#include "dStorm/units/frame_count.h"
 #include <boost/shared_array.hpp>
 #include <boost/units/pow.hpp>
 #include <boost/units/systems/camera/length.hpp>
 #include <boost/units/systems/camera/area.hpp>
-#include "units/camera_response.h"
+#include "dStorm/units/camera_response.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
 #include <boost/units/Eigen/Array>
-#include "units/camera_response.h"
+#include "dStorm/units/camera_response.h"
 #include <boost/static_assert.hpp>
 
 namespace dStorm {

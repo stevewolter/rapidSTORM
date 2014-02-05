@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_OUTPUTBUILDER_IMPL_H
 #define DSTORM_ENGINE_OUTPUTBUILDER_IMPL_H
 
-#include "OutputBuilder.h"
+#include "dStorm/output/OutputBuilder.h"
 
 namespace dStorm {
 namespace output {

@@ -1,4 +1,4 @@
-#include "SourceFactory.h"
+#include "dStorm/output/SourceFactory.h"
 #include <stdexcept>
 
 #include "debug.h"

@@ -1,8 +1,8 @@
 #ifndef DSTORM_ENGINE_CANDIDATE_H
 #define DSTORM_ENGINE_CANDIDATE_H
 
-#include "Candidate_decl.h"
-#include "Spot.h"
+#include "dStorm/engine/Candidate_decl.h"
+#include "dStorm/engine/Spot.h"
 #include <memory>
 
 namespace dStorm {

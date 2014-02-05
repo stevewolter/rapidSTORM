@@ -1,4 +1,4 @@
-#include "fwd.h"
+#include "viewer/fwd.h"
 #include <dStorm/Config.h>
 
 namespace dStorm {

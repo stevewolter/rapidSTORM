@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_SCHEDULE_INDEX_FINDER_H
 #define DSTORM_GUF_SCHEDULE_INDEX_FINDER_H
 
-#include "Optics.h"
+#include "fit_window/Optics.h"
 
 namespace dStorm {
 namespace engine { class InputPlane; }

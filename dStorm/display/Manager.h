@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <bitset>
-#include "DataSource.h"
+#include "dStorm/display/DataSource.h"
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
 #include <simparm/NodeHandle.h>

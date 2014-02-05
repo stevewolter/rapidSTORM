@@ -1,7 +1,7 @@
 #ifndef DSTORM_INPUT_CHAIN_DEFAULTFILTERTYPES_H
 #define DSTORM_INPUT_CHAIN_DEFAULTFILTERTYPES_H
 
-#include "fwd.h"
+#include "dStorm/input/fwd.h"
 #include <boost/mpl/vector.hpp>
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/output/LocalizedImage.h>

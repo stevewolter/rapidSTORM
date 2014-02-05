@@ -1,10 +1,10 @@
-#include "decl.h"
+#include "estimate_psf_form/decl.h"
 #include <Eigen/StdVector>
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include "Fitter.h"
-#include "Config.h"
+#include "estimate_psf_form/Fitter.h"
+#include "estimate_psf_form/Config.h"
 #include <dStorm/image/slice.h>
 #include <dStorm/Localization.h>
 #include <dStorm/engine/JobInfo.h>
@@ -40,7 +40,7 @@
 #include <dStorm/threed_info/No3D.h>
 #include <dStorm/threed_info/Spline3D.h>
 
-#include "LocalizationValueFinder.h"
+#include "estimate_psf_form/LocalizationValueFinder.h"
 #include "calibrate_3d/constant_parameter.hpp"
 #include <nonlinfit/sum/Lambda.h>
 #include "constant_background/model.hpp"

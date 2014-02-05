@@ -3,10 +3,10 @@
 
 #include "dStorm/localization/Fields.h"
 
-#include "../engine/Image_decl.h"
-#include "../input/Traits.h"
-#include "../Localization_decl.h"
-#include "../DataSetTraits.h"
+#include "dStorm/engine/Image_decl.h"
+#include "dStorm/input/Traits.h"
+#include "dStorm/Localization_decl.h"
+#include "dStorm/DataSetTraits.h"
 
 #include <vector>
 #include <boost/smart_ptr/shared_ptr.hpp>

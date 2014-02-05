@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_PSF_BASEEVALUATOR_H
 #define DSTORM_GUF_PSF_BASEEVALUATOR_H
 
-#include "fwd.h"
+#include "gaussian_psf/fwd.h"
 #include <Eigen/Core>
 #include <nonlinfit/plane/fwd.h>
 #include <dStorm/polynomial_3d.h>

@@ -17,7 +17,7 @@
 #include <dStorm/Direction.h>
 #include <dStorm/types/samplepos.h>
 
-#include "../units/camera_response.h"
+#include "dStorm/units/camera_response.h"
 
 namespace dStorm {
 namespace threed_info { class DepthInfo; }

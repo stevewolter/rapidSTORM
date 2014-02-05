@@ -3,14 +3,14 @@
 #ifndef DSTORM_INPUT_SOURCE_H
 #define DSTORM_INPUT_SOURCE_H
 
-#include "fwd.h"
+#include "dStorm/input/fwd.h"
 #include <stdexcept>
 #include <memory>
 #include <limits>
 #include <bitset>
 #include <simparm/Object.h>
 
-#include "Traits.h"
+#include "dStorm/input/Traits.h"
 
 #include <boost/smart_ptr/shared_ptr.hpp>
 

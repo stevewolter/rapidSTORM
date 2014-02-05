@@ -1,8 +1,8 @@
 #ifndef DSTORM_FITTER_PSF_MODEL_H
 #define DSTORM_FITTER_PSF_MODEL_H
 
-#include "fwd.h"
-#include "parameters.h"
+#include "gaussian_psf/fwd.h"
+#include "gaussian_psf/parameters.h"
 
 #include <Eigen/Core>
 #include <boost/mpl/vector.hpp>

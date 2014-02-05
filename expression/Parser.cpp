@@ -1,15 +1,15 @@
-#include "Parser.h"
+#include "expression/Parser.h"
 #include <string>
 #include <boost/fusion/include/vector.hpp>
-#include "localization_variable_decl.h"
+#include "expression/localization_variable_decl.h"
 #include <dStorm/localization/Traits.h>
-#include "UnitChecker.h"
-#include "Evaluator.h"
-#include "Simplifier.h"
+#include "expression/UnitChecker.h"
+#include "expression/Evaluator.h"
+#include "expression/Simplifier.h"
 #include <dStorm/Localization.h>
 #include "dejagnu.h"
-#include "tokens.h"
-#include "UnitTable.h"
+#include "expression/tokens.h"
+#include "expression/UnitTable.h"
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/begin.hpp>

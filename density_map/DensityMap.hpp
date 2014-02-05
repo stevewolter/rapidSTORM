@@ -9,8 +9,8 @@
 #include <dStorm/image/constructors.h>
 #include <dStorm/units/amplitude.h>
 
-#include "DensityMap.h"
-#include "Coordinates.h"
+#include "density_map/DensityMap.h"
+#include "density_map/Coordinates.h"
 
 namespace dStorm {
 namespace density_map {

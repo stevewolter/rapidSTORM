@@ -1,4 +1,4 @@
-#include "InputBase.h"
+#include "inputs/InputBase.h"
 #include <simparm/Group.h>
 #include <dStorm/input/Forwarder.h>
 

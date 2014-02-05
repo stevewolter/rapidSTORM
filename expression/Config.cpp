@@ -1,7 +1,7 @@
-#include "types.h"
-#include "Config.h"
-#include "LValue.h"
-#include "Parser.h"
+#include "expression/types.h"
+#include "expression/Config.h"
+#include "expression/LValue.h"
+#include "expression/Parser.h"
 #include "CommandLine.h"
 #include <dStorm/Localization.h>
 #include <dStorm/localization/Traits.h>

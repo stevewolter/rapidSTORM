@@ -1,4 +1,4 @@
-#include "SharedDataSource.h"
+#include "dStorm/display/SharedDataSource.h"
 
 #include <boost/thread/locks.hpp>
 

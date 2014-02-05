@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_ITERATOR_H
 #define DSTORM_IMAGE_ITERATOR_H
 
-#include "Image.h"
+#include "dStorm/Image.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/Eigen/Array>
 

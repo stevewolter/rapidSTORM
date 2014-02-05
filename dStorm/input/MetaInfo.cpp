@@ -1,4 +1,4 @@
-#include "MetaInfo.h"
+#include "dStorm/input/MetaInfo.h"
 #include <dStorm/signals/InputFileNameChange.h>
 #include <dStorm/signals/ResolutionChange.h>
 #include <dStorm/signals/BasenameChange.h>

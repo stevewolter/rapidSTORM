@@ -1,4 +1,4 @@
-#include "ScheduleIndexFinder.hpp"
+#include "fit_window/ScheduleIndexFinder.hpp"
 #include <boost/test/unit_test.hpp>
 #include <dStorm/engine/InputPlane.h>
 #include <dStorm/traits/ScaledProjection.h>

@@ -1,4 +1,4 @@
-#include "DriftRemover.h"
+#include "outputs/DriftRemover.h"
 
 #include <simparm/Object.h>
 #include <simparm/FileEntry.h>

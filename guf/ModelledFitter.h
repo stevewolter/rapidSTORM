@@ -2,19 +2,19 @@
 #define DSTORM_FITTER_GUF_NAIVEFITTER_H
 
 #include <Eigen/StdVector>
-#include "NaiveFitter.h"
+#include "guf/NaiveFitter.h"
 #include <dStorm/engine/JobInfo_decl.h>
-#include "Config_decl.h"
+#include "guf/Config_decl.h"
 #include <dStorm/Localization_decl.h>
 #include <nonlinfit/sum/AbstractFunction.h>
-#include "FitTerminator.h"
+#include "guf/FitTerminator.h"
 #include <nonlinfit/terminators/All.h>
 #include <nonlinfit/terminators/StepLimit.h>
-#include "FunctionRepository.h"
+#include "guf/FunctionRepository.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <nonlinfit/levmar/Fitter.h>
 #include <nonlinfit/AbstractFunction.h>
-#include "MultiKernelModel.h"
+#include "guf/MultiKernelModel.h"
 
 namespace dStorm {
 namespace guf {

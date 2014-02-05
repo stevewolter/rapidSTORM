@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_FITPOSITION_HPP
 #define DSTORM_GUF_FITPOSITION_HPP
 
-#include "MultiKernelModel.h"
+#include "guf/MultiKernelModel.h"
 #include <vector>
 #include <boost/bind/bind.hpp>
 

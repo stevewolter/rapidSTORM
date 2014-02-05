@@ -28,10 +28,10 @@
 #include <dStorm/Image.h>
 #include <dStorm/UnitEntries/PixelSize.h>
 
-#include "optics.h"
-#include "ProjectionConfig.h"
-#include "ProjectionFactory.h"
-#include "Projection.h"
+#include "dStorm/traits/optics.h"
+#include "dStorm/traits/ProjectionConfig.h"
+#include "dStorm/traits/ProjectionFactory.h"
+#include "dStorm/traits/Projection.h"
 
 #include "debug.h"
 #include "dejagnu.h"

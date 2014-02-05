@@ -1,11 +1,11 @@
 #include "debug.h"
-#include "Output.h"
+#include "calibrate_3d/Output.h"
 #include <boost/variant/get.hpp>
 #include <dStorm/polynomial_3d.h>
 #include <gsl/gsl_multimin.h>
 #include <dStorm/output/OutputBuilder_impl.h>
 #include <boost/foreach.hpp>
-#include "ZTruth.h"
+#include "calibrate_3d/ZTruth.h"
 #include <dStorm/threed_info/Polynomial3D.h>
 #include <boost/units/cmath.hpp>
 

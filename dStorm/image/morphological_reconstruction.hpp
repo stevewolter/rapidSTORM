@@ -1,4 +1,4 @@
-#include "morphological_reconstruction.h"
+#include "dStorm/image/morphological_reconstruction.h"
 #include <math.h>
 #include <float.h>
 

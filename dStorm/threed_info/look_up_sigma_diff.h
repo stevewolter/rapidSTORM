@@ -1,12 +1,12 @@
 #ifndef DSTORM_THREED_INFO_LOOK_UP_SIGMA_DIFF_H
 #define DSTORM_THREED_INFO_LOOK_UP_SIGMA_DIFF_H
 
-#include "DepthInfo.h"
+#include "dStorm/threed_info/DepthInfo.h"
 #include <boost/icl/continuous_interval.hpp>
 #include <dStorm/types/samplepos.h>
 #include <dStorm/Direction.h>
 #include <boost/optional/optional.hpp>
-#include "types.h"
+#include "dStorm/threed_info/types.h"
 #include <vector>
 
 namespace dStorm {

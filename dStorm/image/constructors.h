@@ -1,8 +1,8 @@
 #ifndef DSTORM_IMAGE_CONSTRUCTORS_H
 #define DSTORM_IMAGE_CONSTRUCTORS_H
 
-#include "../Image.h"
-#include "iterator.h"
+#include "dStorm/Image.h"
+#include "dStorm/image/iterator.h"
 #include <boost/type_traits/has_trivial_copy.hpp>
 
 namespace dStorm {

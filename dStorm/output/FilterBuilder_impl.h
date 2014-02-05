@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_CONFIGURED_SOURCE_IMPL_H
 #define DSTORM_ENGINE_CONFIGURED_SOURCE_IMPL_H
 
-#include "FilterBuilder.h"
+#include "dStorm/output/FilterBuilder.h"
 
 namespace dStorm {
 namespace output {

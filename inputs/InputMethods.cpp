@@ -1,4 +1,4 @@
-#include "InputMethods.h"
+#include "inputs/InputMethods.h"
 #include <dStorm/input/Choice.h>
 
 namespace dStorm {

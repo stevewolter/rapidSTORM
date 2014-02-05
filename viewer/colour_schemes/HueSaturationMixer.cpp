@@ -1,7 +1,7 @@
 #include <boost/math/constants/constants.hpp>
 
 #include "debug.h"
-#include "HueSaturationMixer.h"
+#include "viewer/colour_schemes/HueSaturationMixer.h"
 #include <cassert>
 
 #include <dStorm/image/constructors.h>

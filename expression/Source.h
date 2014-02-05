@@ -1,15 +1,15 @@
 #ifndef DSTORM_EXPRESSION_SOURCE_H
 #define DSTORM_EXPRESSION_SOURCE_H
 
-#include "SimpleFilters.h"
-#include "Config_decl.h"
+#include "expression/SimpleFilters.h"
+#include "expression/Config_decl.h"
 #include "CommandLine.h"
-#include "Source_decl.h"
+#include "expression/Source_decl.h"
 #include <dStorm/output/Filter.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/utility.hpp>
 #include <boost/thread/mutex.hpp>
-#include "types.h"
+#include "expression/types.h"
 
 namespace dStorm {
 namespace expression {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_LOCALIZATION_FILE_CHILDREN_FIELD_H
 #define DSTORM_LOCALIZATION_FILE_CHILDREN_FIELD_H
 
-#include "field.h"
+#include "dStorm/localization_file/field.h"
 
 namespace dStorm {
 namespace localization_file {

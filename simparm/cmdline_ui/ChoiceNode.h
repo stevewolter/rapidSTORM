@@ -1,8 +1,8 @@
 #ifndef SIMPARM_CMDLINE_UI_CHOICENODE_H
 #define SIMPARM_CMDLINE_UI_CHOICENODE_H
 
-#include "EntryNode.h"
-#include "OptionTable.h"
+#include "simparm/cmdline_ui/EntryNode.h"
+#include "simparm/cmdline_ui/OptionTable.h"
 
 namespace simparm {
 namespace cmdline_ui {

@@ -1,9 +1,9 @@
 #ifndef DSTORM_SPOTFITTER_H
 #define DSTORM_SPOTFITTER_H
 
-#include "Image_decl.h"
-#include "FitPosition.h"
-#include "../Localization_decl.h"
+#include "dStorm/engine/Image_decl.h"
+#include "dStorm/engine/FitPosition.h"
+#include "dStorm/Localization_decl.h"
 #include <memory>
 #include <iterator>
 #include <any_iterator.hpp>

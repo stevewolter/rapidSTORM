@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "PlaneFilter.h"
+#include "inputs/PlaneFilter.h"
 
 #include <simparm/BoostUnits.h>
 #include <simparm/ObjectChoice.h>

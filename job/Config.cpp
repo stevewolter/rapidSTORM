@@ -25,8 +25,8 @@
 #include <simparm/TreeEntry.h>
 #include <ui/serialization/Node.h>
 
-#include "Car.h"
-#include "Config.h"
+#include "job/Car.h"
+#include "job/Config.h"
 #include "debug.h"
 #include "ModuleLoader.h"
 

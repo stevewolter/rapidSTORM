@@ -1,5 +1,5 @@
-#include "CandidateTree.h"
-#include "Image.h"
+#include "dStorm/engine/CandidateTree.h"
+#include "dStorm/engine/Image.h"
 #include <iostream>
 #include <cassert>
 

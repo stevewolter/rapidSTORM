@@ -1,8 +1,8 @@
 #ifndef DSTORM_ENGINE_IMAGE_H
 #define DSTORM_ENGINE_IMAGE_H
 
-#include "Image_decl.h"
-#include "../Image.h"
+#include "dStorm/engine/Image_decl.h"
+#include "dStorm/Image.h"
 #include <vector>
 #include <dStorm/units/frame_count.h>
 

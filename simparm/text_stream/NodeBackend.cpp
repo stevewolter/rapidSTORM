@@ -1,8 +1,8 @@
-#include "NodeBackend.h"
+#include "simparm/text_stream/NodeBackend.h"
 
 #include <boost/thread/locks.hpp>
 
-#include "InnerBackendNode.h"
+#include "simparm/text_stream/InnerBackendNode.h"
 
 namespace simparm {
 namespace text_stream {

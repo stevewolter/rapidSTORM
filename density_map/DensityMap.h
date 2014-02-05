@@ -1,7 +1,7 @@
 #ifndef DSTORM_DENSITY_MAP_DENSITY_MAP_H
 #define DSTORM_DENSITY_MAP_DENSITY_MAP_H
 
-#include "Interpolator.h"
+#include "density_map/Interpolator.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
 #include <dStorm/Image.h>

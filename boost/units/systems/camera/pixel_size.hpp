@@ -1,8 +1,8 @@
 #ifndef CSUNITS_CAMERA_PIXEL_SIZE2_HPP
 #define CSUNITS_CAMERA_PIXEL_SIZE2_HPP
 
-#include "base.hpp"
-#include "length.hpp"
+#include "boost/units/systems/camera/base.hpp"
+#include "boost/units/systems/camera/length.hpp"
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/static_constant.hpp>
 

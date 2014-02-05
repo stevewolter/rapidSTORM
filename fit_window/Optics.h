@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_OPTICS_H
 #define DSTORM_GUF_OPTICS_H
 
-#include "Spot.h"
+#include "fit_window/Spot.h"
 #include <dStorm/traits/Projection.h>
 #include <dStorm/engine/Image_decl.h>
 #include <boost/smart_ptr/shared_ptr.hpp>

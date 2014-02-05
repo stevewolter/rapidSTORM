@@ -4,8 +4,8 @@
 #include <dStorm/input/fwd.h>
 #include <dStorm/engine/SpotFinder_decl.h>
 #include <dStorm/engine/SpotFitterFactory_decl.h>
-#include "InsertionPlace.h"
-#include "Job.h"
+#include "dStorm/InsertionPlace.h"
+#include "dStorm/Job.h"
 #include <memory>
 #include <simparm/NodeHandle.h>
 

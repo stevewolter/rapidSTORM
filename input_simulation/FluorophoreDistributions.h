@@ -4,7 +4,7 @@
 #include <simparm/Eigen_decl.h>
 #include <simparm/BoostUnits.h>
 #include <simparm/Eigen.h>
-#include "FluorophoreDistribution.h"
+#include "input_simulation/FluorophoreDistribution.h"
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
 #include <dStorm/UnitEntries.h>

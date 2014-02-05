@@ -1,4 +1,4 @@
-#include "Traits.h"
+#include "dStorm/localization/Traits.h"
 
 #include <dStorm/unit_interval.h>
 #include <dStorm/engine/InputTraits.h>

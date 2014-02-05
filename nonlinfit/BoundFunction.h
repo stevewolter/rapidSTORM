@@ -3,7 +3,7 @@
 
 #include <boost/utility.hpp>
 #include <Eigen/Core>
-#include "VectorPosition.hpp"
+#include "nonlinfit/VectorPosition.hpp"
 
 namespace nonlinfit {
 

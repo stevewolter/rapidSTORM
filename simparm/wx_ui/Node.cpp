@@ -4,23 +4,23 @@
 #include <wx/string.h>
 #include <wx/stattext.h>
 
-#include "TextfieldNode.h"
-#include "Node.h"
-#include "TabNode.h"
-#include "ChoiceNode.h"
-#include "OutputChoiceNode.h"
-#include "TriggerNode.h"
-#include "ProgressNode.h"
-#include "CheckboxNode.h"
-#include "GroupNode.h"
-#include "TreeRoot.h"
-#include "TreePage.h"
+#include "simparm/wx_ui/TextfieldNode.h"
+#include "simparm/wx_ui/Node.h"
+#include "simparm/wx_ui/TabNode.h"
+#include "simparm/wx_ui/ChoiceNode.h"
+#include "simparm/wx_ui/OutputChoiceNode.h"
+#include "simparm/wx_ui/TriggerNode.h"
+#include "simparm/wx_ui/ProgressNode.h"
+#include "simparm/wx_ui/CheckboxNode.h"
+#include "simparm/wx_ui/GroupNode.h"
+#include "simparm/wx_ui/TreeRoot.h"
+#include "simparm/wx_ui/TreePage.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include "VisibilityControl.h"
-#include "image_window/create.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/VisibilityControl.h"
+#include "simparm/wx_ui/image_window/create.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

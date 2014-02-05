@@ -1,8 +1,8 @@
 #ifndef DSTORM_FILEOUTPUTBUILDER_H
 #define DSTORM_FILEOUTPUTBUILDER_H
 
-#include "OutputBuilder.h"
-#include "BasenameAdjustedFileEntry.h"
+#include "dStorm/output/OutputBuilder.h"
+#include "dStorm/output/BasenameAdjustedFileEntry.h"
 
 namespace dStorm {
 namespace output {

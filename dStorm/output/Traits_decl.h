@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_TRAITS_H
 #define DSTORM_OUTPUT_TRAITS_H
 
-#include "LocalizedImage_decl.h"
+#include "dStorm/output/LocalizedImage_decl.h"
 
 namespace dStorm {
 namespace output {

@@ -3,8 +3,8 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <dStorm/engine/Image_decl.h>
-#include "Spot.h"
-#include "Optics.h"
+#include "fit_window/Spot.h"
+#include "fit_window/Optics.h"
 
 namespace dStorm {
 namespace fit_window {

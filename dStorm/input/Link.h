@@ -1,7 +1,7 @@
 #ifndef DSTORM_INPUT_MANAGER_H
 #define DSTORM_INPUT_MANAGER_H
 
-#include "fwd.h"
+#include "dStorm/input/fwd.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>

@@ -1,6 +1,6 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/BoostOptional.h>
-#include "SampleInfo.h"
+#include "inputs/SampleInfo.h"
 
 #include "debug.h"
 #include <simparm/FileEntry.h>

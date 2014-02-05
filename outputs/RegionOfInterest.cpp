@@ -1,6 +1,6 @@
 #include <simparm/BoostUnits.h>
 
-#include "RegionOfInterest.h"
+#include "outputs/RegionOfInterest.h"
 #include <boost/multi_array.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>

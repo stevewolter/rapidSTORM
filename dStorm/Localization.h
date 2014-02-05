@@ -6,10 +6,10 @@
 #include <stdexcept>
 #include <Eigen/Core>
 
-#include "units/nanolength.h"
-#include "input/Traits.h"
+#include "dStorm/units/nanolength.h"
+#include "dStorm/input/Traits.h"
 
-#include "localization/Field.h"
+#include "dStorm/localization/Field.h"
 #include "dStorm/localization/Fields.h"
 
 #include <boost/fusion/include/adapt_struct.hpp>

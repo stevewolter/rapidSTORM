@@ -2,7 +2,7 @@
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/constructors.h>
 #include <boost/units/io.hpp>
-#include "morphological_reconstruction.hpp"
+#include "dStorm/image/morphological_reconstruction.hpp"
 
 #include <iostream>
 #include <iomanip>

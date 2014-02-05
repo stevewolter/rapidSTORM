@@ -10,7 +10,7 @@
 
 #include <dStorm/image/dilation.h>
 #include <dStorm/image/morphological_reconstruction.hpp>
-#include "Fillhole.h"
+#include "spotFinders/Fillhole.h"
 #include <dStorm/Image_iterator.h>
 
 #include <dStorm/image/convert.h>

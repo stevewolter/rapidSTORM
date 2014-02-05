@@ -1,13 +1,13 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/Config.h>
-#include "Exception.h"
-#include "Verbose.h"
-#include "Delayer.h"
-#include "BasenamePrinter.h"
-#include "DummyFileInput.h"
-#include "RepeatTrigger.h"
-#include "SmoothedImageSave.h"
+#include "test-plugin/Exception.h"
+#include "test-plugin/Verbose.h"
+#include "test-plugin/Delayer.h"
+#include "test-plugin/BasenamePrinter.h"
+#include "test-plugin/DummyFileInput.h"
+#include "test-plugin/RepeatTrigger.h"
+#include "test-plugin/SmoothedImageSave.h"
 
 using namespace dStorm::output;
 

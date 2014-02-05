@@ -1,5 +1,5 @@
 #include <boost/units/Eigen/Core>
-#include "look_up_sigma_diff.h"
+#include "dStorm/threed_info/look_up_sigma_diff.h"
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>

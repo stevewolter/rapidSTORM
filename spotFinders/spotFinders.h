@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <dStorm/engine/SpotFinder_decl.h>
-#include "Fillhole.h"
+#include "spotFinders/Fillhole.h"
 
 namespace dStorm {
 namespace erosion_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }

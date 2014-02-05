@@ -1,8 +1,8 @@
 #include "debug.h"
 
-#include "Output.h"
-#include "Config.h"
-#include "Fitter.h"
+#include "estimate_psf_form/Output.h"
+#include "estimate_psf_form/Config.h"
+#include "estimate_psf_form/Fitter.h"
 
 #include <simparm/Node.h>
 

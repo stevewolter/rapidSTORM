@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
-#include "slice.h"
-#include "constructors.h"
-#include "iterator.h"
+#include "dStorm/image/slice.h"
+#include "dStorm/image/constructors.h"
+#include "dStorm/image/iterator.h"
 
 using namespace boost::units;
 

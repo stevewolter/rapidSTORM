@@ -1,4 +1,4 @@
-#include "InputTraits.h"
+#include "dStorm/engine/InputTraits.h"
 #include <dStorm/traits/Projection.h>
 #include <boost/variant/get.hpp>
 #include <dStorm/units/microlength.h>

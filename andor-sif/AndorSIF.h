@@ -17,7 +17,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 
-#include "AndorSIF_OpenFile.h"
+#include "andor-sif/AndorSIF_OpenFile.h"
 
 namespace dStorm {
 class BasenameWatcher;

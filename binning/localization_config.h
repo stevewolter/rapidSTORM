@@ -1,8 +1,8 @@
 #ifndef DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_H
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_H
 
-#include "config.h"
-#include "localization.h"
+#include "binning/config.h"
+#include "binning/localization.h"
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
 #include <simparm/BoostUnits.h>

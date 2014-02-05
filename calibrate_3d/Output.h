@@ -23,8 +23,8 @@
 #include <dStorm/units/nanolength.h>
 #include <dStorm/stack_realign.h>
 
-#include "Config.h"
-#include "ParameterLinearizer.h"
+#include "calibrate_3d/Config.h"
+#include "calibrate_3d/ParameterLinearizer.h"
 
 #include "expression/Parser.h"
 #include "expression/LValue.h"

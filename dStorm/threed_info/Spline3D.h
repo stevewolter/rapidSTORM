@@ -13,8 +13,8 @@
 #include <Eigen/Core>
 
 #include <dStorm/Localization_decl.h>
-#include "types.h"
-#include "DepthInfo.h"
+#include "dStorm/threed_info/types.h"
+#include "dStorm/threed_info/DepthInfo.h"
 
 namespace dStorm {
 namespace threed_info {

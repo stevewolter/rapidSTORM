@@ -2,8 +2,8 @@
 #define DSTORM_LOCALIZATIONFILE_RECORD_DECL_H
 
 #include <boost/variant/variant.hpp>
-#include "../Localization_decl.h"
-#include "../input/Traits.h"
+#include "dStorm/Localization_decl.h"
+#include "dStorm/input/Traits.h"
 
 namespace dStorm {
 namespace localization {

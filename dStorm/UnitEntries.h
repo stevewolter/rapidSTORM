@@ -1,13 +1,13 @@
 #ifndef DSTORM_UNIT_ENTRIES_H
 #define DSTORM_UNIT_ENTRIES_H
 
-#include "namespaces.h"
+#include "dStorm/namespaces.h"
 #include <simparm/Entry.h>
-#include "units/nanolength.h"
+#include "dStorm/units/nanolength.h"
 #include <boost/units/systems/camera/length.hpp>
 
-#include "UnitEntries/PixelEntry.h"
-#include "UnitEntries/ADC.h"
+#include "dStorm/UnitEntries/PixelEntry.h"
+#include "dStorm/UnitEntries/ADC.h"
 
 namespace dStorm {
     typedef simparm::Entry< quantity< si::nanolength, double > > 

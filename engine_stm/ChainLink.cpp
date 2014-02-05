@@ -1,7 +1,7 @@
 #include "debug.h"
 
-#include "ChainLink.h"
-#include "LocalizationBuncher.h"
+#include "engine_stm/ChainLink.h"
+#include "engine_stm/LocalizationBuncher.h"
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/output/LocalizedImage_traits.h>

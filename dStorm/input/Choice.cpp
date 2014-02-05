@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "Choice.h"
+#include "dStorm/input/Choice.h"
 #include <simparm/ChoiceEntry.h>
 #include <simparm/Message.h>
 #include <dStorm/input/InputMutex.h>

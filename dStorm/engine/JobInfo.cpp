@@ -1,7 +1,7 @@
 #include "debug.h"
-#include "JobInfo.h"
-#include "InputTraits.h"
-#include "FitJudgerFactory.h"
+#include "dStorm/engine/JobInfo.h"
+#include "dStorm/engine/InputTraits.h"
+#include "dStorm/engine/FitJudgerFactory.h"
 
 namespace dStorm {
 namespace engine {

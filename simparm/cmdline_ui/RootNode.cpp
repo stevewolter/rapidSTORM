@@ -1,6 +1,6 @@
-#include "RootNode.h"
-#include "OptionTable.h"
-#include "../wx_ui/no_main_window.h"
+#include "simparm/cmdline_ui/RootNode.h"
+#include "simparm/cmdline_ui/OptionTable.h"
+#include "simparm/wx_ui/no_main_window.h"
 
 namespace simparm {
 namespace cmdline_ui {

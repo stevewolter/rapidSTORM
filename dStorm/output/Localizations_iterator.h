@@ -1,8 +1,8 @@
 #ifndef DSTORM_LOCALIZATIONS_ITERATOR_H
 #define DSTORM_LOCALIZATIONS_ITERATOR_H
 
-#include "Localizations.h"
-#include "LocalizedImage.h"
+#include "dStorm/output/Localizations.h"
+#include "dStorm/output/LocalizedImage.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <iterator>
 

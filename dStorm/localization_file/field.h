@@ -16,7 +16,7 @@
 #include <dStorm/output/Traits_decl.h>
 #include <dStorm/Localization.h>
 
-#include "field_decl.h"
+#include "dStorm/localization_file/field_decl.h"
 
 namespace dStorm {
 namespace localization_file {

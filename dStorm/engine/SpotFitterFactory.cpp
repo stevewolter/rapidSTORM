@@ -1,6 +1,6 @@
-#include "SpotFitterFactory.h"
-#include "JobInfo.h"
-#include "SpotFitter.h"
+#include "dStorm/engine/SpotFitterFactory.h"
+#include "dStorm/engine/JobInfo.h"
+#include "dStorm/engine/SpotFitter.h"
 
 namespace dStorm {
 namespace engine {

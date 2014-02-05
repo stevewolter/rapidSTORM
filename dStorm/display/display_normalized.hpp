@@ -1,7 +1,7 @@
 #ifndef DSTORM_DISPLAYDATASOURCE_H
 #define DSTORM_DISPLAYDATASOURCE_H
 
-#include "DataSource.h"
+#include "dStorm/display/DataSource.h"
 
 namespace dStorm {
 namespace display {

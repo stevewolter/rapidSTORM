@@ -1,7 +1,7 @@
 #include <simparm/Eigen_decl.h>
 #include <simparm/BoostUnits.h>
 
-#include "ResolutionSetter.h"
+#include "inputs/ResolutionSetter.h"
 #include "debug.h"
 
 #include <boost/lexical_cast.hpp>

@@ -1,11 +1,11 @@
 #ifndef DSTORM_VIEWER_TERMINALBACKEND_H
 #define DSTORM_VIEWER_TERMINALBACKEND_H
 
-#include "ImageDiscretizer.h"
-#include "Display.h"
-#include "Backend.h"
-#include "TerminalCache.h"
-#include "ColourScheme.h"
+#include "viewer/ImageDiscretizer.h"
+#include "viewer/Display.h"
+#include "viewer/Backend.h"
+#include "viewer/TerminalCache.h"
+#include "viewer/ColourScheme.h"
 
 #include "density_map/DensityMap.h"
 #include <dStorm/display/Manager.h>

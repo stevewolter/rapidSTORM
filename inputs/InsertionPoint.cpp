@@ -1,4 +1,4 @@
-#include "InsertionPoint.h"
+#include "inputs/InsertionPoint.h"
 #include <dStorm/input/Forwarder.h>
 
 namespace dStorm {

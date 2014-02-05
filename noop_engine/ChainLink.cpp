@@ -1,7 +1,7 @@
 #include "debug.h"
 
-#include "ChainLink.h"
-#include "Engine.h"
+#include "noop_engine/ChainLink.h"
+#include "noop_engine/Engine.h"
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/output/LocalizedImage_traits.h>

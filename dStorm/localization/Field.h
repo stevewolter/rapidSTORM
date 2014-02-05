@@ -2,7 +2,7 @@
 #define DSTORM_LOCALIZATION_FIELD_H
 
 #include <cassert>
-#include "../namespaces.h"
+#include "dStorm/namespaces.h"
 #include <boost/units/systems/camera/length.hpp>
 #include <boost/units/systems/camera/resolution.hpp>
 #include <boost/utility/enable_if.hpp>

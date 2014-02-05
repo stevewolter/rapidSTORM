@@ -1,4 +1,4 @@
-#include "Pixel.h"
+#include "dStorm/Pixel.h"
 #include <iostream>
 #include <cassert>
 #include <boost/test/unit_test.hpp>

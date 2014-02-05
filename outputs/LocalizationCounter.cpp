@@ -8,7 +8,7 @@
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/units/frame_count.h>
 
-#include "LocalizationCounter.h"
+#include "outputs/LocalizationCounter.h"
 
 namespace dStorm {
 namespace output {

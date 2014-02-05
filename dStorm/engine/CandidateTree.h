@@ -1,8 +1,8 @@
 #ifndef DSTORM_ENGINE_MAXIMUMLIST_H
 #define DSTORM_ENGINE_MAXIMUMLIST_H
 
-#include "Candidate.h"
-#include "Image_decl.h"
+#include "dStorm/engine/Candidate.h"
+#include "dStorm/engine/Image_decl.h"
 #include <vector>
 
 namespace dStorm {

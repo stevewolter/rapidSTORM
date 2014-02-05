@@ -1,10 +1,10 @@
 #ifndef DSTORM_TRACE_REDUCER
 #define DSTORM_TRACE_REDUCER
 
-#include "../Localization.h"
+#include "dStorm/Localization.h"
 #include <simparm/Object.h>
 #include <Eigen/Core>
-#include "../helpers/make_boost_clone.h"
+#include "dStorm/helpers/make_boost_clone.h"
 #include <vector>
 #include <any_iterator.hpp>
 

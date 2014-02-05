@@ -1,7 +1,7 @@
 #ifndef LOCPREC_FLUOROPHORE_DISTRIBUTION_H
 #define LOCPREC_FLUOROPHORE_DISTRIBUTION_H
 
-#include "Fluorophore.h"
+#include "input_simulation/Fluorophore.h"
 #include <simparm/ObjectChoice.h>
 #include <gsl/gsl_rng.h>
 #include <Eigen/Core>

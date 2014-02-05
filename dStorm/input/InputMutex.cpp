@@ -1,4 +1,4 @@
-#include "InputMutex.h"
+#include "dStorm/input/InputMutex.h"
 
 namespace dStorm {
 namespace input {

@@ -1,4 +1,4 @@
-#include "LocalizedImage.h"
+#include "dStorm/output/LocalizedImage.h"
 #include <iostream>
 
 namespace dStorm {

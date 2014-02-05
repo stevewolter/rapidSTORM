@@ -1,6 +1,6 @@
 #include "debug.h"
-#include "expressions.h"
-#include "BaseEvaluator.h"
+#include "gaussian_psf/expressions.h"
+#include "gaussian_psf/BaseEvaluator.h"
 
 namespace dStorm {
 namespace gaussian_psf {

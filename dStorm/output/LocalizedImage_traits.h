@@ -2,10 +2,10 @@
 #define DSTORM_OUTPUT_LOCALIZED_IMAGE_TRAITS_H
 
 #include "dStorm/engine/InputTraits.h"
-#include "../input/Traits.h"
-#include "../output/LocalizedImage_decl.h"
-#include "../localization/Traits.h"
-#include "../engine/Input_decl.h"
+#include "dStorm/input/Traits.h"
+#include "dStorm/output/LocalizedImage_decl.h"
+#include "dStorm/localization/Traits.h"
+#include "dStorm/engine/Input_decl.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <vector>
 #include <dStorm/Engine.h>

@@ -1,7 +1,7 @@
 #ifndef DSTORM_UNITS_FRAME_COUNT_H
 #define DSTORM_UNITS_FRAME_COUNT_H
 
-#include "../namespaces.h"
+#include "dStorm/namespaces.h"
 #include <boost/units/systems/camera/time.hpp>
 #include <boost/units/quantity.hpp>
 

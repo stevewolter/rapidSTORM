@@ -1,8 +1,8 @@
 #ifndef DSTORM_IMAGE_CONVERT_H
 #define DSTORM_IMAGE_CONVERT_H
 
-#include "../Image.h"
-#include "iterator.h"
+#include "dStorm/Image.h"
+#include "dStorm/image/iterator.h"
 #include <limits>
 
 namespace dStorm {

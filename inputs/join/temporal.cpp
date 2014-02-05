@@ -1,4 +1,4 @@
-#include "temporal.h"
+#include "inputs/join/temporal.h"
 #include <deque>
 #include <dStorm/image/MetaInfo.h>
 #include <Eigen/Core>

@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_RECTANGLE_H
 #define DSTORM_IMAGE_RECTANGLE_H
 
-#include "Image.h"
+#include "dStorm/image/Image.h"
 #include <dStorm/units/icl.h>
 #include <boost/icl/interval.hpp>
 #include <boost/icl/closed_interval.hpp>

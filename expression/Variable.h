@@ -1,7 +1,7 @@
 #ifndef DSTORM_EXPRESSION_VARIABLE_H
 #define DSTORM_EXPRESSION_VARIABLE_H
 
-#include "DynamicQuantity.h"
+#include "expression/DynamicQuantity.h"
 #include <dStorm/localization/Traits_decl.h>
 #include <dStorm/Localization_decl.h>
 

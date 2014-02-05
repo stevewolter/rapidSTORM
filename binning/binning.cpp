@@ -1,4 +1,4 @@
-#include "binning.h"
+#include "binning/binning.h"
 
 namespace dStorm {
 namespace binning {

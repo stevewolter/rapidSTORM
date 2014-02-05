@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "store_image.h"
+#include "dStorm/display/store_image.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

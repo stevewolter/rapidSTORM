@@ -1,7 +1,7 @@
 #ifndef SIMPARM_TEXT_STREAM_NOOP_NODE_H
 #define SIMPARM_TEXT_STREAM_NOOP_NODE_H
 
-#include "Node.h"
+#include "simparm/text_stream/Node.h"
 
 namespace simparm {
 namespace text_stream {

@@ -1,4 +1,4 @@
-#include "../Image.h"
+#include "dStorm/Image.h"
 
 namespace dStorm {
     /** Perform a dilation on image \c i and write the result into

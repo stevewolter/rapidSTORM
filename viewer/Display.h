@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_DISPLAY_H
 #define DSTORM_VIEWER_DISPLAY_H
 
-#include "ImageDiscretizer.h"
+#include "viewer/ImageDiscretizer.h"
 #include <vector>
 #include <dStorm/display/Manager.h>
 #include <dStorm/Engine.h>

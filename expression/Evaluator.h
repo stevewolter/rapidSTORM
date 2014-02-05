@@ -1,8 +1,8 @@
 #ifndef DSTORM_EXPRESSION_EVALUATOR_H
 #define DSTORM_EXPRESSION_EVALUATOR_H
 
-#include "tokens.h"
-#include "types.h"
+#include "expression/tokens.h"
+#include "expression/types.h"
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/variant/apply_visitor.hpp>

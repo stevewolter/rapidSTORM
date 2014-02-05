@@ -1,8 +1,8 @@
 #ifndef NONLINFIT_PLANE_JACOBIANCOMPUTER_H
 #define NONLINFIT_PLANE_JACOBIANCOMPUTER_H
 
-#include "Joint.h"
-#include "Disjoint.hpp"
+#include "nonlinfit/plane/Joint.h"
+#include "nonlinfit/plane/Disjoint.hpp"
 #include <nonlinfit/derive_by.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>

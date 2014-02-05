@@ -1,6 +1,6 @@
 #define BOOST_DISABLE_ASSERTS
 #include <dStorm/namespaces.h>
-#include "DummyFileInput.h"
+#include "test-plugin/DummyFileInput.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <simparm/Entry.h>

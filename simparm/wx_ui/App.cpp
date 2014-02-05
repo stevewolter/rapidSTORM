@@ -1,5 +1,5 @@
-#include "App.h"
-#include "Window.h"
+#include "simparm/wx_ui/App.h"
+#include "simparm/wx_ui/Window.h"
 
 #include "debug.h"
 #include <dStorm/GUIThread.h>

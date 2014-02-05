@@ -1,9 +1,9 @@
 #ifndef LOCPREC_NOISESOURCE_H
 #define LOCPREC_NOISESOURCE_H
 
-#include "Fluorophore.h"
-#include "FluorophoreDistribution.h"
-#include "NoiseGenerator.h"
+#include "input_simulation/Fluorophore.h"
+#include "input_simulation/FluorophoreDistribution.h"
+#include "input_simulation/NoiseGenerator.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Link.h>
 #include <dStorm/engine/InputTraits.h>

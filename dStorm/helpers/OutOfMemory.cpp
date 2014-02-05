@@ -1,4 +1,4 @@
-#include "OutOfMemory.h"
+#include "dStorm/helpers/OutOfMemory.h"
 
 namespace dStorm {
 

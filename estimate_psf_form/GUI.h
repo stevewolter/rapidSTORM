@@ -5,8 +5,8 @@
 #include <dStorm/Engine.h>
 #include <boost/thread/future.hpp>
 
-#include "Tile.h"
-#include "Input.h"
+#include "estimate_psf_form/Tile.h"
+#include "estimate_psf_form/Input.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

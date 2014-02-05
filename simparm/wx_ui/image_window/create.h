@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <dStorm/display/Manager.h>
-#include "../ProtocolNode.h"
+#include "simparm/wx_ui/ProtocolNode.h"
 
 namespace simparm {
 namespace wx_ui {

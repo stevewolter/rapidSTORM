@@ -10,8 +10,8 @@
 
 #include <dStorm/LengthUnit.h>
 #include <dStorm/units/nanolength.h>
-#include "No3D.h"
-#include "Config.h"
+#include "dStorm/threed_info/No3D.h"
+#include "dStorm/threed_info/Config.h"
 
 namespace dStorm {
 namespace threed_info {

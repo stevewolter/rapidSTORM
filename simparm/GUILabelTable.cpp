@@ -1,4 +1,4 @@
-#include "GUILabelTable.h"
+#include "simparm/GUILabelTable.h"
 #include "doc/guilabels.h"
 #include <boost/tokenizer.hpp>
 

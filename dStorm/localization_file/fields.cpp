@@ -6,9 +6,9 @@
 #include <dStorm/output/Traits.h>
 
 #include "dStorm/localization/Fields.h"
-#include "localization_field_impl.h"
-#include "unknown_field.h"
-#include "children_field.h"
+#include "dStorm/localization_file/localization_field_impl.h"
+#include "dStorm/localization_file/unknown_field.h"
+#include "dStorm/localization_file/children_field.h"
 
 namespace dStorm {
 namespace localization_file {

@@ -1,9 +1,9 @@
 #ifndef DSTORM_ENIGNE_INPUTTRAITS_H
 #define DSTORM_ENIGNE_INPUTTRAITS_H
 
-#include "InputPlane.h"
+#include "dStorm/engine/InputPlane.h"
 #include <dStorm/input/Traits.h>
-#include "Image_decl.h"
+#include "dStorm/engine/Image_decl.h"
 #include <dStorm/localization/Traits.h>
 #include <dStorm/DataSetTraits.h>
 #include <boost/units/systems/camera/frame_rate.hpp>

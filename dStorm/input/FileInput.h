@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_FILEINPUT_H
 
 #include "debug.h"
-#include "Link.h"
+#include "dStorm/input/Link.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/exception_ptr.hpp>
 #include <dStorm/input/MetaInfo.h>

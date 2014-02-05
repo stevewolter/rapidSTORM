@@ -1,5 +1,5 @@
-#include "../Image.h"
-#include "constructors.h"
+#include "dStorm/Image.h"
+#include "dStorm/image/constructors.h"
 
 namespace dStorm {
 

@@ -1,6 +1,6 @@
 #include "dejagnu.h"
-#include "Spline3D.h"
-#include "Config.h"
+#include "dStorm/threed_info/Spline3D.h"
+#include "dStorm/threed_info/Config.h"
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_errno.h>
@@ -13,7 +13,7 @@
 #include <boost/units/io.hpp>
 
 #include <dStorm/Localization.h>
-#include "look_up_sigma_diff.h"
+#include "dStorm/threed_info/look_up_sigma_diff.h"
 #include <Eigen/Dense>
 
 namespace dStorm {

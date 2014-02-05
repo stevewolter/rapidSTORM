@@ -1,7 +1,7 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/Entry.h>
-#include "Lens3D.h"
-#include "Config.h"
+#include "dStorm/threed_info/Lens3D.h"
+#include "dStorm/threed_info/Config.h"
 #include <dStorm/units/nanolength.h>
 #include <dStorm/LengthUnit.h>
 #include <boost/units/io.hpp>

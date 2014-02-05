@@ -2,12 +2,12 @@
  * handling of windows.h. */
 #include <wx/sizer.h>
 
-#include "ScrolledWindowNode.h"
+#include "simparm/wx_ui/ScrolledWindowNode.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/bind/bind.hpp>
-#include "gui_thread.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

@@ -1,9 +1,9 @@
-#include "Node.h"
+#include "simparm/cmdline_ui/Node.h"
 #include <sstream>
-#include "ChoiceNode.h"
-#include "EntryNode.h"
-#include "ProgressNode.h"
-#include "OptionTable.h"
+#include "simparm/cmdline_ui/ChoiceNode.h"
+#include "simparm/cmdline_ui/EntryNode.h"
+#include "simparm/cmdline_ui/ProgressNode.h"
+#include "simparm/cmdline_ui/OptionTable.h"
 
 namespace simparm {
 namespace cmdline_ui {

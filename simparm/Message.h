@@ -2,7 +2,7 @@
 #define SIMPARM_ERROR_HH
 
 #include <iostream>
-#include "NodeHandle.h"
+#include "simparm/NodeHandle.h"
 
 namespace simparm {
 

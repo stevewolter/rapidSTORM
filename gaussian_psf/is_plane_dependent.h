@@ -3,7 +3,7 @@
 
 #include <nonlinfit/TermParameter.h>
 #include "constant_background/model.hpp"
-#include "parameters.h"
+#include "gaussian_psf/parameters.h"
 
 namespace dStorm {
 namespace gaussian_psf {

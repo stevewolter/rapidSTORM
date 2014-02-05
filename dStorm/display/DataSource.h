@@ -1,7 +1,7 @@
 #ifndef DSTORM_DISPLAY_DATASOURCE_H
 #define DSTORM_DISPLAY_DATASOURCE_H
 
-#include "fwd.h"
+#include "dStorm/display/fwd.h"
 
 #include <memory>
 #include <vector>

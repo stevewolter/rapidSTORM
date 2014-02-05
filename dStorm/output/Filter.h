@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_FILTER_H
 #define DSTORM_OUTPUT_FILTER_H
 
-#include "Output.h"
+#include "dStorm/output/Output.h"
 
 namespace dStorm {
 namespace output {

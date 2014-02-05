@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "Config.h"
+#include "engine/Config.h"
 #include <math.h>
 #include <limits>
 #include <dStorm/engine/SpotFinder.h>

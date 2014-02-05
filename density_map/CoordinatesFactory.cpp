@@ -1,5 +1,5 @@
-#include "CoordinatesFactory.h"
-#include "Coordinates.h"
+#include "density_map/CoordinatesFactory.h"
+#include "density_map/Coordinates.h"
 
 #include <dStorm/image/MetaInfo.h>
 

@@ -1,4 +1,4 @@
-#include "YMirror.h"
+#include "inputs/YMirror.h"
 
 #include <boost/smart_ptr/shared_array.hpp>
 #include <boost/variant/apply_visitor.hpp>

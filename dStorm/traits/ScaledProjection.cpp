@@ -1,6 +1,6 @@
-#include "ScaledProjection.h"
-#include "ProjectionConfig.h"
-#include "ProjectionFactory.h"
+#include "dStorm/traits/ScaledProjection.h"
+#include "dStorm/traits/ProjectionConfig.h"
+#include "dStorm/traits/ProjectionFactory.h"
 #include <simparm/Object.h>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>

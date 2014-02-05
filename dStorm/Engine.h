@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_H
 #define DSTORM_ENGINE_H
 
-#include "input/Traits.h"
+#include "dStorm/input/Traits.h"
 #include <memory>
 
 namespace dStorm {

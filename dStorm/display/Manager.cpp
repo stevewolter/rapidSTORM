@@ -1,5 +1,5 @@
-#include "Manager.h"
-#include "DataSource.h"
+#include "dStorm/display/Manager.h"
+#include "dStorm/display/DataSource.h"
 #include <dStorm/Image_impl.h>
 #include <limits>
 

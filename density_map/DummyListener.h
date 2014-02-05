@@ -1,7 +1,7 @@
 #ifndef DSTORM_DENSITY_MAP_DUMMYLISTENER_H
 #define DSTORM_DENSITY_MAP_DUMMYLISTENER_H
 
-#include "Listener.h"
+#include "density_map/Listener.h"
 
 namespace dStorm {
 namespace density_map {

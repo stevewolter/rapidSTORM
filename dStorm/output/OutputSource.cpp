@@ -1,6 +1,6 @@
-#include "Output.h"
-#include "OutputSource.h"
-#include "BasenameAdjustedFileEntry.h"
+#include "dStorm/output/Output.h"
+#include "dStorm/output/OutputSource.h"
+#include "dStorm/output/BasenameAdjustedFileEntry.h"
 #include <cassert>
 #include <sstream>
 #include <list>

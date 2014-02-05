@@ -1,5 +1,5 @@
 #include <wx/app.h>
-#include "GUIThread.h"
+#include "dStorm/GUIThread.h"
 #include <iostream>
 #include <boost/optional/optional.hpp>
 

@@ -1,8 +1,8 @@
 #ifndef SIMPARM_INNER_BACKEND_NODE_H
 #define SIMPARM_INNER_BACKEND_NODE_H
 
-#include "NodeBackend.h"
-#include "ChildrenList.h"
+#include "simparm/text_stream/NodeBackend.h"
+#include "simparm/text_stream/ChildrenList.h"
 
 #include <boost/bind/bind.hpp>
 

@@ -14,9 +14,9 @@
 #include <dStorm/units/microlength.h>
 #include <dStorm/units/permicrolength.h>
 
-#include "Config.h"
-#include "DepthInfo.h"
-#include "Polynomial3D.h"
+#include "dStorm/threed_info/Config.h"
+#include "dStorm/threed_info/DepthInfo.h"
+#include "dStorm/threed_info/Polynomial3D.h"
 
 namespace dStorm {
 namespace threed_info {

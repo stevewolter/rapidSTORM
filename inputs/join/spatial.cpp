@@ -1,4 +1,4 @@
-#include "spatial.h"
+#include "inputs/join/spatial.h"
 
 #include "debug.h"
 #include <boost/lexical_cast.hpp>

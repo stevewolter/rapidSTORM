@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "LocalizationFile.h"
+#include "outputs/LocalizationFile.h"
 
 #include <memory>
 #include <iostream>

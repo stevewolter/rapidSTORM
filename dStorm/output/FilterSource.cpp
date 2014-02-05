@@ -1,10 +1,10 @@
 #include "debug.h"
 
-#include "FilterSource.h"
+#include "dStorm/output/FilterSource.h"
 #include <simparm/ChoiceEntry.h>
 #include "outputs/Crankshaft.h"
-#include "OutputSource.h"
-#include "SourceFactory.h"
+#include "dStorm/output/OutputSource.h"
+#include "dStorm/output/SourceFactory.h"
 #include <dStorm/helpers/clone_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/lambda/lambda.hpp>

@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGETRAITS_IMPL_H
 #define DSTORM_IMAGETRAITS_IMPL_H
 
-#include "MetaInfo.h"
+#include "dStorm/image/MetaInfo.h"
 #include <stdint.h>
 #include <boost/units/systems/si/io.hpp>
 #include <boost/units/io.hpp>

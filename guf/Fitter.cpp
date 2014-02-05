@@ -1,7 +1,7 @@
 #include <Eigen/StdVector>
 #include "debug.h"
-#include "Fitter.h"
-#include "Config.h"
+#include "guf/Fitter.h"
+#include "guf/Config.h"
 #include <boost/static_assert.hpp>
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <dStorm/image/crop.h>
@@ -16,7 +16,7 @@
 #include <dStorm/engine/Image.h>
 #include "fit_window/Stack.hpp"
 
-#include "EvaluationTags.h"
+#include "guf/EvaluationTags.h"
 #include <nonlinfit/plane/DisjointData.hpp>
 #include <nonlinfit/plane/JointData.hpp>
 

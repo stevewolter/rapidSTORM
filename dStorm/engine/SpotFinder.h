@@ -5,12 +5,12 @@
 #include <simparm/Choice.h>
 #include <memory>
 
-#include "Image.h"
-#include "CandidateTree.h"
-#include "InputTraits.h"
-#include "../output/Basename_decl.h"
-#include "../output/Traits_decl.h"
-#include "JobInfo_decl.h"
+#include "dStorm/engine/Image.h"
+#include "dStorm/engine/CandidateTree.h"
+#include "dStorm/engine/InputTraits.h"
+#include "dStorm/output/Basename_decl.h"
+#include "dStorm/output/Traits_decl.h"
+#include "dStorm/engine/JobInfo_decl.h"
 
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/camera/length.hpp>

@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "PlaneFlattener.h"
+#include "engine/PlaneFlattener.h"
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/slice.h>
 #include <dStorm/image/constructors.h>

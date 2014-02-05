@@ -1,4 +1,4 @@
-#include "BasenamePrinter.h"
+#include "test-plugin/BasenamePrinter.h"
 
 #include <simparm/Entry.h>
 #include <dStorm/output/Output.h>

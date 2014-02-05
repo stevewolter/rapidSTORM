@@ -1,9 +1,9 @@
 #ifndef DSTORM_VIEWER_H
 #define DSTORM_VIEWER_H
 
-#include "Backend.h"
-#include "Config.h"
-#include "Status.h"
+#include "viewer/Backend.h"
+#include "viewer/Config.h"
+#include "viewer/Status.h"
 
 
 #include <dStorm/Localization.h>

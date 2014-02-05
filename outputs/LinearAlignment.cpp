@@ -1,4 +1,4 @@
-#include "LinearAlignment.h"
+#include "outputs/LinearAlignment.h"
 
 #include <simparm/Object.h>
 #include <simparm/FileEntry.h>

@@ -1,4 +1,4 @@
-#include "Basename.h"
+#include "inputs/Basename.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/signals/BasenameChange.h>

@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_PLANEFUNCTION_HPP
 #define DSTORM_GUF_PLANEFUNCTION_HPP
 
-#include "PlaneFunction.h"
+#include "guf/PlaneFunction.h"
 #include <nonlinfit/plane/Distance.hpp>
 #include <nonlinfit/AbstractFunctionAdapter.h>
 #include <nonlinfit/FunctionConverter.h>

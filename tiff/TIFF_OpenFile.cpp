@@ -1,14 +1,14 @@
 #define DSTORM_TIFFLOADER_CPP
 #include <tiffio.h>
-#include "OpenFile.h"
-#include "TIFFOperation.h"
+#include "tiff/OpenFile.h"
+#include "tiff/TIFFOperation.h"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/image/convert.h>
 #include <boost/units/io.hpp>
 #include <boost/smart_ptr/scoped_array.hpp>
-#include "TIFF.h"
+#include "tiff/TIFF.h"
 
 #undef DEBUG
 #include "debug.h"

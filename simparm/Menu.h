@@ -1,7 +1,7 @@
 #ifndef SIMPARM_MENU
 #define SIMPARM_MENU
 
-#include "Object.h"
+#include "simparm/Object.h"
 
 namespace simparm {
 

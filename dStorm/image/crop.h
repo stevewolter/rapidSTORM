@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_CROP_H
 #define DSTORM_IMAGE_CROP_H
 
-#include "../Image.h"
+#include "dStorm/Image.h"
 
 namespace dStorm {
 

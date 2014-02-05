@@ -1,4 +1,4 @@
-#include "TraceReducer.h"
+#include "dStorm/output/TraceReducer.h"
 #include <boost/units/Eigen/Array>
 #include <dStorm/units/amplitude.h>
 #include <dStorm/units/frame_count.h>

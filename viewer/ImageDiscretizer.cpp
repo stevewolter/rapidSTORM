@@ -1,6 +1,6 @@
-#include "ImageDiscretizer.hpp"
-#include "LiveCache.h"
-#include "TerminalCache.h"
+#include "viewer/ImageDiscretizer.hpp"
+#include "viewer/LiveCache.h"
+#include "viewer/TerminalCache.h"
 
 namespace dStorm {
 namespace viewer {

@@ -1,10 +1,10 @@
 #ifndef DSTORM_OUTPUT_LOCALIZED_IMAGE_H
 #define DSTORM_OUTPUT_LOCALIZED_IMAGE_H
 
-#include "../Localization.h"
-#include "../units/frame_count.h"
-#include "../engine/Image.h"
-#include "../engine/CandidateTree_decl.h"
+#include "dStorm/Localization.h"
+#include "dStorm/units/frame_count.h"
+#include "dStorm/engine/Image.h"
+#include "dStorm/engine/CandidateTree_decl.h"
 
 namespace dStorm {
 namespace output {

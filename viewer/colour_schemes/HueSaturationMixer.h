@@ -3,7 +3,7 @@
 
 #include <dStorm/Pixel.h>
 #include "viewer/Image.h"
-#include "base.h"
+#include "viewer/colour_schemes/base.h"
 
 namespace dStorm {
 namespace viewer {

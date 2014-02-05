@@ -1,7 +1,7 @@
 #include "debug.h"
 
-#include "ChainLink.h"
-#include "Engine.h"
+#include "engine/ChainLink.h"
+#include "engine/Engine.h"
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <boost/units/io.hpp>

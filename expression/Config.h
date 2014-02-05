@@ -1,11 +1,11 @@
 #ifndef DSTORM_EXPRESSION_CONFIG_H
 #define DSTORM_EXPRESSION_CONFIG_H
 
-#include "SimpleFilters.h"
+#include "expression/SimpleFilters.h"
 #include <simparm/TriggerEntry.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/units/systems/camera/intensity.hpp>
-#include "Config_decl.h"
+#include "expression/Config_decl.h"
 #include "CommandLine.h"
 #include <dStorm/output/Capabilities.h>
 #include <boost/smart_ptr/shared_ptr.hpp>

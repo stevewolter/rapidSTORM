@@ -1,4 +1,4 @@
-#include "DistanceHistogram.h"
+#include "ripley_k/DistanceHistogram.h"
 #include <Eigen/Core>
 #include <limits>
 #include <boost/units/cmath.hpp>

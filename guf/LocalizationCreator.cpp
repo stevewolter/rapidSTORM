@@ -5,16 +5,16 @@
 #include <dStorm/engine/InputTraits.h>
 #include "fit_window/Stack.h"
 #include "fit_window/Plane.h"
-#include "LocalizationCreator.h"
+#include "guf/LocalizationCreator.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/Localization.h>
-#include "Config.h"
+#include "guf/Config.h"
 #include "gaussian_psf/BaseExpression.h"
 #include "gaussian_psf/Base3D.h"
 #include "constant_background/model.hpp"
 #include <boost/variant/get.hpp>
 #include "fit_window/Optics.h"
-#include "MultiKernelModel.h"
+#include "guf/MultiKernelModel.h"
 
 namespace dStorm {
 namespace guf {

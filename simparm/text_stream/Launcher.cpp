@@ -1,4 +1,4 @@
-#include "Launcher.h"
+#include "simparm/text_stream/Launcher.h"
 #include "InputStream.h"
 #include <dStorm/GUIThread.h>
 #include <boost/thread/thread.hpp>

@@ -1,7 +1,7 @@
-#include "Node.h"
-#include "TabNode.h"
-#include "EntryNode.h"
-#include "NoOpNode.h"
+#include "simparm/text_stream/Node.h"
+#include "simparm/text_stream/TabNode.h"
+#include "simparm/text_stream/EntryNode.h"
+#include "simparm/text_stream/NoOpNode.h"
 #include <sstream>
 
 namespace simparm {

@@ -1,5 +1,5 @@
-#include "Group.h"
-#include "Node.h"
+#include "simparm/Group.h"
+#include "simparm/Node.h"
 
 namespace simparm {
 

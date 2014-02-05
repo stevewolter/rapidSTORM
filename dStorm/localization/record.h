@@ -1,10 +1,10 @@
 #ifndef DSTORM_LOCALIZATION_FILE_RECORD_H
 #define DSTORM_LOCALIZATION_FILE_RECORD_H
 
-#include "record_decl.h"
-#include "../Localization.h"
-#include "Traits.h"
-#include "../units/frame_count.h"
+#include "dStorm/localization/record_decl.h"
+#include "dStorm/Localization.h"
+#include "dStorm/localization/Traits.h"
+#include "dStorm/units/frame_count.h"
 #include <iostream>
 
 namespace dStorm {

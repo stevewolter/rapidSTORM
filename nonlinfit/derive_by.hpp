@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_IMAGE_PLANE_EVALUATOR_DERIVER_H
 #define NONLINFIT_IMAGE_PLANE_EVALUATOR_DERIVER_H
 
-#include "fwd.h"
+#include "nonlinfit/fwd.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/size.hpp>
 #include <nonlinfit/index_of.h>

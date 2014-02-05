@@ -5,7 +5,7 @@
 #include <boost/units/systems/camera/length.hpp>
 #include <boost/units/quantity.hpp>
 #include <boost/units/Eigen/Core>
-#include "fwd.h"
+#include "dStorm/image/fwd.h"
 #include <boost/array.hpp>
 #include <dStorm/traits/image_resolution.h>
 

@@ -2,7 +2,7 @@
 #define LOCPREC_NOISESOURCE_CPP
 
 #include "debug.h"
-#include "NoiseSource.h"
+#include "input_simulation/NoiseSource.h"
 
 #include <boost/thread/locks.hpp>
 
@@ -24,7 +24,7 @@
 #include <dStorm/threed_info/Config.h>
 #include <fstream>
 
-#include "FluorophoreDistributions.h"
+#include "input_simulation/FluorophoreDistributions.h"
 
 using namespace boost::units;
 

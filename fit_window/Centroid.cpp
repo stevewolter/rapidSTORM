@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_IMAGE_CENTROID_IMPL_H
 #define NONLINFIT_IMAGE_CENTROID_IMPL_H
 
-#include "Centroid.h"
+#include "fit_window/Centroid.h"
 
 namespace dStorm {
 namespace fit_window {

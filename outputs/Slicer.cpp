@@ -10,11 +10,11 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <stdexcept>
 
-#include "Slicer.h"
+#include "outputs/Slicer.h"
 #include <sstream>
 #include <stdio.h>
 
-#include "NullOutput.h"
+#include "outputs/NullOutput.h"
 
 namespace dStorm {
 namespace slicer {

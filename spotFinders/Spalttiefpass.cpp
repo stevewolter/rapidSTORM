@@ -2,7 +2,7 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>
 #include <dStorm/engine/Image.h>
-#include "averageSmooth.h"
+#include "spotFinders/averageSmooth.h"
 
 #include <simparm/Object.h>
 #include <simparm/Entry.h>

@@ -1,4 +1,4 @@
-#include "DepthInfo3D.h"
+#include "gaussian_psf/DepthInfo3D.h"
 #include "gaussian_psf/check_evaluator.hpp"
 #include "nonlinfit/InvalidPositionError.h"
 

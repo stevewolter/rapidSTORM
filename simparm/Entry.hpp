@@ -1,12 +1,12 @@
 #ifndef SIMPARM_EntryTypeImpl
 #define SIMPARM_EntryTypeImpl
 
-#include "Entry.h"
-#include "iostream.h"
-#include "typeName.h"
-#include "is_numerical.hpp"
-#include "falls_below.hpp"
-#include "exceeds.hpp"
+#include "simparm/Entry.h"
+#include "simparm/iostream.h"
+#include "simparm/typeName.h"
+#include "simparm/is_numerical.hpp"
+#include "simparm/falls_below.hpp"
+#include "simparm/exceeds.hpp"
 
 namespace simparm {
 

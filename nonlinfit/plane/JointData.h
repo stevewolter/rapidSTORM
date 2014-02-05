@@ -3,12 +3,12 @@
 
 #include <Eigen/Core>
 #include <Eigen/StdVector>
-#include "GenericData.h"
-#include "fwd.h"
+#include "nonlinfit/plane/GenericData.h"
+#include "nonlinfit/plane/fwd.h"
 #include <vector>
 #include <boost/static_assert.hpp>
-#include "DataPoint.h"
-#include "DataFacade.h"
+#include "nonlinfit/plane/DataPoint.h"
+#include "nonlinfit/plane/DataFacade.h"
 
 namespace nonlinfit {
 namespace plane {

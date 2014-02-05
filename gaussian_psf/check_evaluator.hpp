@@ -9,8 +9,8 @@
 #include "gaussian_psf/JointEvaluator.h"
 #include "gaussian_psf/DisjointEvaluator.h"
 #include <nonlinfit/plane/check_evaluator.hpp>
-#include "ReferenceEvaluation.h"
-#include "mock_model.h"
+#include "gaussian_psf/ReferenceEvaluation.h"
+#include "gaussian_psf/mock_model.h"
 
 namespace dStorm {
 namespace gaussian_psf {

@@ -6,7 +6,7 @@
 #include <simparm/ManagedChoiceEntry.h>
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include "binning_decl.h"
+#include "binning/binning_decl.h"
 #include <dStorm/localization/Traits.h>
 #include <dStorm/make_clone_allocator.hpp>
 #include <dStorm/helpers/default_on_copy.h>

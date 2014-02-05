@@ -1,10 +1,10 @@
 #ifndef DSTORM_GUF_DATACUBE_HPP
 #define DSTORM_GUF_DATACUBE_HPP
 
-#include "Stack.h"
-#include "Optics.h"
-#include "PlaneCreator.hpp"
-#include "ScheduleIndexFinder.hpp"
+#include "fit_window/Stack.h"
+#include "fit_window/Optics.h"
+#include "fit_window/PlaneCreator.hpp"
+#include "fit_window/ScheduleIndexFinder.hpp"
 #include <dStorm/engine/InputTraits.h>
 
 namespace dStorm {

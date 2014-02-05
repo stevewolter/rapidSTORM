@@ -2,7 +2,7 @@
 #define DSTORM_GUF_FITTERMINATOR_H
 
 #include "debug.h"
-#include "Config.h"
+#include "guf/Config.h"
 #include "gaussian_psf/parameters.h"
 #include <nonlinfit/index_of.h>
 #include <nonlinfit/TermParameter.h>

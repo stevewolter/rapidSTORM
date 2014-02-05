@@ -6,7 +6,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/lexical_cast.hpp>
-#include "ProtocolNode.h"
+#include "simparm/wx_ui/ProtocolNode.h"
 
 namespace simparm {
 namespace wx_ui {

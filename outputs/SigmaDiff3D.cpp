@@ -1,4 +1,4 @@
-#include "SigmaDiff3D.h"
+#include "outputs/SigmaDiff3D.h"
 
 #include <simparm/Object.h>
 #include <simparm/FileEntry.h>

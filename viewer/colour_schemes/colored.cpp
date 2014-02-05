@@ -1,6 +1,6 @@
 #include "viewer/ColourScheme.h"
 #include "viewer/ColourSchemeFactory.h"
-#include "base.h"
+#include "viewer/colour_schemes/base.h"
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
 #include <dStorm/helpers/default_on_copy.h>

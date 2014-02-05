@@ -6,7 +6,7 @@
 #include <boost/signals2/connection.hpp>
 #include <dStorm/helpers/nocopy_ptr.hpp>
 #include <memory>
-#include "NodeHandle.h"
+#include "simparm/NodeHandle.h"
 
 namespace simparm {
 

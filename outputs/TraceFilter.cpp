@@ -1,4 +1,4 @@
-#include "TraceFilter.h"
+#include "outputs/TraceFilter.h"
 #include <dStorm/output/Filter.h>
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/Engine.h>

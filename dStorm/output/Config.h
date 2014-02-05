@@ -1,13 +1,13 @@
 #ifndef DSTORM_OUTPUT_CONFIG_H
 #define DSTORM_OUTPUT_CONFIG_H
 
-#include "SourceFactory.h"
+#include "dStorm/output/SourceFactory.h"
 #include <simparm/Object.h>
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include "OutputSource.h"
+#include "dStorm/output/OutputSource.h"
 #include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {

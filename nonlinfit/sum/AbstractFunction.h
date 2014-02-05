@@ -3,7 +3,7 @@
 
 #include <nonlinfit/AbstractFunction.h>
 #include <boost/static_assert.hpp>
-#include "AbstractMap.h"
+#include "nonlinfit/sum/AbstractMap.h"
 
 namespace nonlinfit {
 namespace sum {

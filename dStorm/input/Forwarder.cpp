@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "Forwarder.h"
+#include "dStorm/input/Forwarder.h"
 #include <simparm/NodeHandle.h>
 #include <dStorm/input/Source.h>
 

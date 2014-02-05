@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "Link.h"
+#include "dStorm/input/Link.h"
 
 #ifdef VERBOSE
 #include "dStorm/engine/Image.h"
@@ -7,11 +7,11 @@
 #include "dStorm/output/LocalizedImage_traits.h"
 #include "dStorm/localization/Traits.h"
 #include "dStorm/Localization.h"
-#include "MetaInfo.h"
+#include "dStorm/input/MetaInfo.h"
 #endif
 
 #include <dStorm/engine/InputTraits.h>
-#include "MetaInfo.h"
+#include "dStorm/input/MetaInfo.h"
 
 namespace dStorm {
 namespace input {

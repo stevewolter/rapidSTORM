@@ -9,8 +9,8 @@
 #include <simparm/Entry.h>
 #include <string>
 #include <dStorm/output/Capabilities.h>
-#include "FormCalibrationConfig.h"
-#include "ZTruthConfig.h"
+#include "calibrate_3d/FormCalibrationConfig.h"
+#include "calibrate_3d/ZTruthConfig.h"
 #include <dStorm/units/microlength.h>
 #include <boost/units/quantity.hpp>
 

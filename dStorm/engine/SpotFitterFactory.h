@@ -1,13 +1,13 @@
 #ifndef DSTORM_ENGINE_SPOTFITTERFACTORY_H
 #define DSTORM_ENGINE_SPOTFITTERFACTORY_H
 
-#include "JobInfo_decl.h"
-#include "SpotFitter_decl.h"
-#include "Image.h"
+#include "dStorm/engine/JobInfo_decl.h"
+#include "dStorm/engine/SpotFitter_decl.h"
+#include "dStorm/engine/Image.h"
 #include <simparm/NodeHandle.h>
 #include <memory>
-#include "../output/Traits_decl.h"
-#include "../output/Basename_decl.h"
+#include "dStorm/output/Traits_decl.h"
+#include "dStorm/output/Basename_decl.h"
 #include <simparm/BaseAttribute.h>
 #include <simparm/Choice.h>
 

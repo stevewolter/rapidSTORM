@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_SLICE_H
 #define DSTORM_IMAGE_SLICE_H
 
-#include "../Image.h"
+#include "dStorm/Image.h"
 #include <cassert>
 
 namespace dStorm {

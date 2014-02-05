@@ -1,4 +1,4 @@
-#include "VarianceEstimator.h"
+#include "outputs/VarianceEstimator.h"
 #include <dStorm/output/OutputBuilder.h>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>

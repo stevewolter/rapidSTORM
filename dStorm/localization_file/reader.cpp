@@ -1,7 +1,7 @@
 #include <dStorm/unit_interval.h>
-#include "reader.h"
-#include "field.h"
-#include "unknown_field.h"
+#include "dStorm/localization_file/reader.h"
+#include "dStorm/localization_file/field.h"
+#include "dStorm/localization_file/unknown_field.h"
 
 #include <fstream>
 #include <ctype.h>

@@ -1,4 +1,4 @@
-#include "../Image.h"
+#include "dStorm/Image.h"
 #include <limits>
 
 namespace dStorm {

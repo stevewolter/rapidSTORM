@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRAITS_SCALED_PROJECTION_H
 #define DSTORM_TRAITS_SCALED_PROJECTION_H
 
-#include "Projection.h"
+#include "dStorm/traits/Projection.h"
 #include <Eigen/Geometry>
 #include <boost/array.hpp>
 #include <boost/units/systems/camera/resolution.hpp>

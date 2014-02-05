@@ -1,4 +1,4 @@
-#include "Box.hpp"
+#include "dStorm/image/Box.hpp"
 #include <boost/test/unit_test.hpp>
 
 namespace dStorm {

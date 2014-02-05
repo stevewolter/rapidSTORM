@@ -2,7 +2,7 @@
 #include <simparm/Message.h>
 #include <simparm/NodeHandle.h>
 #include <read_sif.h>
-#include "AndorSIF_OpenFile.h"
+#include "andor-sif/AndorSIF_OpenFile.h"
 #include <stdexcept>
 #include <sstream>
 #include <errno.h>

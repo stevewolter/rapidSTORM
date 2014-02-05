@@ -2,7 +2,7 @@
 
 #include "debug.h"
 
-#include "EngineDebug.h"
+#include "engine/EngineDebug.h"
 #include "engine/Engine.h"
 
 #include <cassert>
@@ -22,8 +22,8 @@
 #include <dStorm/image/slice.h>
 #include <dStorm/helpers/back_inserter.h>
 #include <dStorm/traits/Projection.h>
-#include "PlaneFlattener.h"
-#include "Config.h"
+#include "engine/PlaneFlattener.h"
+#include "engine/Config.h"
 #include <simparm/dummy_ui/fwd.h>
 
 #ifdef DSTORM_MEASURE_TIMES

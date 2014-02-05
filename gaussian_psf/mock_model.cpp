@@ -1,11 +1,11 @@
 #include <boost/math/constants/constants.hpp>
 
-#include "mock_model.h"
+#include "gaussian_psf/mock_model.h"
 #include <boost/mpl/for_each.hpp>
 #include <Eigen/StdVector>
-#include "parameters.h"
-#include "No3D.h"
-#include "DepthInfo3D.h"
+#include "gaussian_psf/parameters.h"
+#include "gaussian_psf/No3D.h"
+#include "gaussian_psf/DepthInfo3D.h"
 #include <boost/smart_ptr/make_shared.hpp>
 #include <dStorm/threed_info/Spline3D.h>
 

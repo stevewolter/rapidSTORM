@@ -1,8 +1,8 @@
 #ifndef DSTORM_UNITS_NANORES_H
 #define DSTORM_UNITS_NANORES_H
 
-#include "../namespaces.h"
-#include "nanolength.h"
+#include "dStorm/namespaces.h"
+#include "dStorm/units/nanolength.h"
 #include <boost/units/systems/camera/length.hpp>
 
 namespace dStorm {

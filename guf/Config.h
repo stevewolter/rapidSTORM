@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_CONFIG_H
 #define DSTORM_GUF_CONFIG_H
 
-#include "Config_decl.h"
+#include "guf/Config_decl.h"
 
 #include <dStorm/UnitEntries/Nanometre.h>
 #include <simparm/Group.h>

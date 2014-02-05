@@ -3,7 +3,7 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <simparm/ProgressEntry.h>
 
-#include "ProgressMeter.h"
+#include "outputs/ProgressMeter.h"
 
 namespace dStorm {
 namespace output {

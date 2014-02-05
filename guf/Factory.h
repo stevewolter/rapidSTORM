@@ -1,7 +1,7 @@
 #ifndef DSTORM_FITTER_GUF_FACTORY_H
 #define DSTORM_FITTER_GUF_FACTORY_H
 
-#include "Config.h"
+#include "guf/Config.h"
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/output/Traits.h>
 #include <dStorm/helpers/default_on_copy.h>

@@ -6,11 +6,11 @@
 #include <boost/units/systems/camera/intensity.hpp>
 #include <simparm/Choice.h>
 
-#include "JobInfo_decl.h"
-#include "Image.h"
-#include "FitJudger.h"
-#include "../output/Basename.h"
-#include "../output/Traits_decl.h"
+#include "dStorm/engine/JobInfo_decl.h"
+#include "dStorm/engine/Image.h"
+#include "dStorm/engine/FitJudger.h"
+#include "dStorm/output/Basename.h"
+#include "dStorm/output/Traits_decl.h"
 
 namespace dStorm {
 namespace engine {

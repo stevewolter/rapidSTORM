@@ -1,4 +1,4 @@
-#include "MemoryCache.h"
+#include "outputs/MemoryCache.h"
 #include <dStorm/Engine.h>
 
 #include "debug.h"
@@ -18,7 +18,7 @@
 #include <dStorm/stack_realign.h>
 #include <dStorm/output/Localizations_iterator.h>
 #include <boost/thread/locks.hpp>
-#include "MemoryCache_Cache.h"
+#include "outputs/MemoryCache_Cache.h"
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/bind/bind.hpp>

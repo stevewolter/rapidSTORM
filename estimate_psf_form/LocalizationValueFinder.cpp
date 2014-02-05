@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "LocalizationValueFinder.h"
+#include "estimate_psf_form/LocalizationValueFinder.h"
 #include "guf/TraitValueFinder.h"
 #include <dStorm/Localization.h>
 #include "fit_window/Optics.h"

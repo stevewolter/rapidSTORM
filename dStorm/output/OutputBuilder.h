@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_OUTPUTBUILDER_H
 #define DSTORM_ENGINE_OUTPUTBUILDER_H
 
-#include "OutputSource.h"
+#include "dStorm/output/OutputSource.h"
 #include <simparm/Entry.h>
 #include <simparm/TreeEntry.h>
 
@@ -48,6 +48,6 @@ public:
 }
 }
 
-#include "OutputBuilder_impl.h"
+#include "dStorm/output/OutputBuilder_impl.h"
 
 #endif

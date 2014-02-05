@@ -1,4 +1,4 @@
-#include "TIFF.h"
+#include "tiff/TIFF.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -36,8 +36,8 @@
 #include <dStorm/signals/InputFileNameChange.h>
 
 #include <boost/test/unit_test.hpp>
-#include "TIFFOperation.h"
-#include "OpenFile.h"
+#include "tiff/TIFFOperation.h"
+#include "tiff/OpenFile.h"
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 #include "debug.h"
 
-#include "Config.h"
-#include "OutputSource.h"
+#include "dStorm/output/Config.h"
+#include "dStorm/output/OutputSource.h"
 #include <simparm/ChoiceEntry.h>
 
 namespace dStorm {

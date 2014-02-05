@@ -4,7 +4,7 @@
 #include <boost/optional/optional.hpp>
 #include <dStorm/engine/JobInfo_decl.h>
 #include <dStorm/Localization_decl.h>
-#include "Config_decl.h"
+#include "guf/Config_decl.h"
 
 namespace dStorm {
 namespace fit_window {

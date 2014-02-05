@@ -1,7 +1,7 @@
 #include <Eigen/StdVector>
-#include "Factory.h"
-#include "Fitter.h"
-#include "Config.h"
+#include "guf/Factory.h"
+#include "guf/Fitter.h"
+#include "guf/Config.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/output/Traits.h>
 #include <boost/variant/get.hpp>

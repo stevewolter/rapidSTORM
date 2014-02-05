@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "dejagnu.h"
-#include "iterator.h"
-#include "constructors.h"
+#include "dStorm/image/iterator.h"
+#include "dStorm/image/constructors.h"
 
 using boost::units::camera::pixel;
 

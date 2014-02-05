@@ -1,11 +1,11 @@
 #ifndef DSTORM_EXPRESSION_COMMANDLINE_H
 #define DSTORM_EXPRESSION_COMMANDLINE_H
 
-#include "Source_decl.h"
+#include "expression/Source_decl.h"
 #include <simparm/Object.h>
 #include <simparm/ManagedChoiceEntry.h>
-#include "Parser.h"
-#include "localization_variable_decl.h"
+#include "expression/Parser.h"
+#include "expression/localization_variable_decl.h"
 #include <dStorm/localization/Traits.h>
 #include <dStorm/Localization.h>
 #include <simparm/ObjectChoice.h>

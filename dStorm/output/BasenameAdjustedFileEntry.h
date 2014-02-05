@@ -2,8 +2,8 @@
 #define DSTORM_OUTPUT_BASENAMEADJUSTED_H
 
 #include <simparm/FileEntry.h>
-#include "BasenameAdjustedFileEntry_decl.h"
-#include "Basename.h"
+#include "dStorm/output/BasenameAdjustedFileEntry_decl.h"
+#include "dStorm/output/Basename.h"
 
 namespace dStorm {
 namespace output {

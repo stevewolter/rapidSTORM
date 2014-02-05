@@ -4,12 +4,12 @@
 #include <Eigen/StdVector>
 #include <nonlinfit/TermParameter.h>
 
-#include "Config.h"
+#include "guf/Config.h"
 
 #undef DEBUG
 
-#include "ModelledFitter.h"
-#include "MultiKernelModel.hpp"
+#include "guf/ModelledFitter.h"
+#include "guf/MultiKernelModel.hpp"
 #include "gaussian_psf/is_plane_dependent.h"
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/sum/AbstractMap.hpp>

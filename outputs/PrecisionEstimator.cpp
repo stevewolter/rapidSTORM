@@ -12,7 +12,7 @@
 #include <Eigen/Core>
 
 
-#include "PrecisionEstimator.h"
+#include "outputs/PrecisionEstimator.h"
 
 #include <iomanip>
 #include <sstream>

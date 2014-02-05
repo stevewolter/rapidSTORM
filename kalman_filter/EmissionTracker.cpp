@@ -1,4 +1,4 @@
-#include "fwd.h"
+#include "kalman_filter/fwd.h"
 
 #include <simparm/BoostUnits.h>
 #include <simparm/Entry.h>
@@ -8,7 +8,7 @@
 #include <cassert>
 #include <Eigen/Core>
 #include <vector>
-#include "KalmanTrace.h"
+#include "kalman_filter/KalmanTrace.h"
 #include <dStorm/output/FilterBuilder.h>
 #include "binning/binning.h"
 #include "binning/binning.hpp"

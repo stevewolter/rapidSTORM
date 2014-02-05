@@ -2,7 +2,7 @@
 
 #include <Eigen/StdVector>
 #include <simparm/BoostUnits.h>
-#include "DistanceHistogram.h"
+#include "ripley_k/DistanceHistogram.h"
 #include <simparm/FileEntry.h>
 #include <dStorm/units/nanolength.h>
 #include "binning/binning.hpp"

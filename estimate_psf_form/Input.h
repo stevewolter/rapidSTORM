@@ -1,7 +1,7 @@
 #ifndef DSTORM_FORM_FITTER_INPUT_H
 #define DSTORM_FORM_FITTER_INPUT_H
 
-#include "Config.h"
+#include "estimate_psf_form/Config.h"
 #include <dStorm/output/Output.h>
 #include "dStorm/types/samplepos.h"
 #include "guf/Spot.h"

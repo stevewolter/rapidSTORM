@@ -1,5 +1,5 @@
-#include "base.h"
-#include "HueSaturationMixer.h"
+#include "viewer/colour_schemes/base.h"
+#include "viewer/colour_schemes/HueSaturationMixer.h"
 #include <dStorm/helpers/clone_ptr.hpp>
 #include "binning/config.h"
 #include "binning/binning.h"

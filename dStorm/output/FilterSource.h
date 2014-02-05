@@ -3,7 +3,7 @@
 
 #include <simparm/TriggerEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
-#include "OutputSource.h"
+#include "dStorm/output/OutputSource.h"
 #include <map>
 #include <boost/utility.hpp>
 #include <boost/ptr_container/ptr_map.hpp>

@@ -1,6 +1,6 @@
 #include "debug.h"
 
-#include "Buffer.h"
+#include "inputs/Buffer.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>

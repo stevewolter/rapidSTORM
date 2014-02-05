@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_CONFIGURED_SOURCE_H
 #define DSTORM_ENGINE_CONFIGURED_SOURCE_H
 
-#include "FilterSource.h"
+#include "dStorm/output/FilterSource.h"
 #include <stdexcept>
 #include <simparm/Object.h>
 #include <simparm/TreeEntry.h>
@@ -41,6 +41,6 @@ namespace output {
 }
 }
 
-#include "FilterBuilder_impl.h"
+#include "dStorm/output/FilterBuilder_impl.h"
 
 #endif

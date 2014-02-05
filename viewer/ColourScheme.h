@@ -5,7 +5,7 @@
 #include <memory>
 #include <dStorm/Pixel.h>
 #include <dStorm/display/DataSource.h>
-#include "Image.h"
+#include "viewer/Image.h"
 
 namespace dStorm {
 namespace viewer {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BINNING_BINNING_H
 #define DSTORM_OUTPUT_BINNING_BINNING_H
 
-#include "binning_decl.h"
+#include "binning/binning_decl.h"
 
 #include <dStorm/output/Output.h>
 #include <dStorm/traits/image_resolution.h>

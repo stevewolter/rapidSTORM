@@ -1,4 +1,4 @@
-#include "pixelatedBessel.h"
+#include "input_simulation/pixelatedBessel.h"
 
 #include <boost/math/constants/constants.hpp>
 

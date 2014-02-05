@@ -1,7 +1,7 @@
 #ifndef DSTORM_PSF_ZHUANG_H
 #define DSTORM_PSF_ZHUANG_H
 
-#include "Base3D.h"
+#include "gaussian_psf/Base3D.h"
 #include <nonlinfit/append.h>
 #include <nonlinfit/access_parameters.hpp>
 #include <nonlinfit/DerivationSummand.h>

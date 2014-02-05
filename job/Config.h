@@ -14,7 +14,7 @@
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
 #include <boost/function/function1.hpp>
 
-#include "OutputTreeRoot.h"
+#include "job/OutputTreeRoot.h"
 
 namespace dStorm {
 namespace output { class OutputSource; }

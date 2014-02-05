@@ -9,12 +9,12 @@
 #include <simparm/TabGroup.h>
 #include <simparm/Group.h>
 #include <simparm/BoostOptional.h>
-#include "../UnitEntries/PixelSize.h"
+#include "dStorm/UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/ManagedChoiceEntry.h>
 
 #include "dStorm/localization/Fields.h"
-#include "ProjectionConfig.h"
+#include "dStorm/traits/ProjectionConfig.h"
 #include <dStorm/threed_info/Config.h>
 #include <dStorm/Localization_decl.h>
 #include <dStorm/Direction.h>

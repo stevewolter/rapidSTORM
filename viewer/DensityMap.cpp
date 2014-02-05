@@ -1,5 +1,5 @@
-#include "fwd.h"
-#include "DensityMapConfig.h"
+#include "viewer/fwd.h"
+#include "viewer/DensityMapConfig.h"
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FileOutputBuilder.h>

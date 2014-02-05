@@ -1,6 +1,6 @@
 #define cimg_use_magick
 #define DSTORM_AVERAGEIMAGE_CPP
-#include "AverageImage.h"
+#include "outputs/AverageImage.h"
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>

@@ -12,7 +12,7 @@
 #include <simparm/FileEntry.h>
 #include <simparm/Group.h>
 
-#include "FileMethod.h"
+#include "inputs/FileMethod.h"
 #include <dStorm/signals/InputFileNameChange.h>
 
 namespace dStorm {

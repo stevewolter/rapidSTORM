@@ -1,4 +1,4 @@
-#include "gui_thread.h"
+#include "simparm/wx_ui/gui_thread.h"
 #include <dStorm/GUIThread.h>
 
 namespace simparm {

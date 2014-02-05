@@ -1,7 +1,7 @@
 #ifndef DSTORM_JOB_RUN_H
 #define DSTORM_JOB_RUN_H
 
-#include "Queue.h"
+#include "job/Queue.h"
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>

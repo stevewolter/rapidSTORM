@@ -1,4 +1,4 @@
-#include "MemoryCache_Cache.h"
+#include "outputs/MemoryCache_Cache.h"
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <dStorm/localization/Fields.h>
 #include <boost/fusion/include/at.hpp>

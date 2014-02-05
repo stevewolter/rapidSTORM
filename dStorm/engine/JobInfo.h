@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_JOBINFO_H
 #define DSTORM_ENGINE_JOBINFO_H
 
-#include "Image_decl.h"
+#include "dStorm/engine/Image_decl.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 

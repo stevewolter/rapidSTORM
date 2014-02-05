@@ -1,4 +1,4 @@
-#include "Image.h"
+#include "dStorm/engine/Image.h"
 #include <dStorm/image/Image.hpp>
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/engine/InputTraits.h>

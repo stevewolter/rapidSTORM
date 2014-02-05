@@ -4,10 +4,10 @@
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include "InitialValueFinder.h"
+#include "guf/InitialValueFinder.h"
 #include "gaussian_psf/expressions.h"
 #include "constant_background/model.hpp"
-#include "TraitValueFinder.h"
+#include "guf/TraitValueFinder.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/threed_info/look_up_sigma_diff.h>

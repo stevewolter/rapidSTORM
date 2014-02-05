@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "Splitter.h"
+#include "inputs/Splitter.h"
 #include <boost/mpl/vector.hpp>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/constructors.h>

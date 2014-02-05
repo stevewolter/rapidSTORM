@@ -3,7 +3,7 @@
 
 #include <boost/units/make_scaled_unit.hpp>
 #include <simparm/Entry.h>
-#include "../units/megafrequency.h"
+#include "dStorm/units/megafrequency.h"
 
 namespace dStorm {
 

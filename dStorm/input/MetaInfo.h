@@ -1,8 +1,8 @@
 #ifndef DSTORM_INPUT_METAINFO_H
 #define DSTORM_INPUT_METAINFO_H
 
-#include "fwd.h"
-#include "Traits.h"
+#include "dStorm/input/fwd.h"
+#include "dStorm/input/Traits.h"
 #include <dStorm/output/Basename.h>
 #include <set>
 #include <boost/smart_ptr/shared_ptr.hpp>

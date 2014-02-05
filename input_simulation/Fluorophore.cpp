@@ -1,8 +1,8 @@
 #define LOCPREC_FLUOROPHORE_CPP
 #include "debug.h"
-#include "Fluorophore.h"
+#include "input_simulation/Fluorophore.h"
 
-#include "pixelatedBessel.h"
+#include "input_simulation/pixelatedBessel.h"
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf.h>
 

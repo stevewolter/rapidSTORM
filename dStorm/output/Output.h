@@ -1,23 +1,23 @@
 #ifndef DSTORM_TRANSMISSION_H
 #define DSTORM_TRANSMISSION_H
 
-#include "Output_decl.h"
+#include "dStorm/output/Output_decl.h"
 
-#include "../engine/Image_decl.h"
-#include "../Localization.h"
-#include "../engine/Input_decl.h"
-#include "../engine/CandidateTree_decl.h"
+#include "dStorm/engine/Image_decl.h"
+#include "dStorm/Localization.h"
+#include "dStorm/engine/Input_decl.h"
+#include "dStorm/engine/CandidateTree_decl.h"
 #include <stdexcept>
 #include <simparm/NodeHandle.h>
 #include <iostream>
 #include <set>
 #include <bitset>
 
-#include "Traits.h"
-#include "Capabilities.h"
-#include "../units/frame_count.h"
-#include "LocalizedImage.h"
-#include "LocalizedImage_traits.h"
+#include "dStorm/output/Traits.h"
+#include "dStorm/output/Capabilities.h"
+#include "dStorm/units/frame_count.h"
+#include "dStorm/output/LocalizedImage.h"
+#include "dStorm/output/LocalizedImage_traits.h"
 
 namespace dStorm {
 namespace display { class Manager; }

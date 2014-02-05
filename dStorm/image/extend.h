@@ -1,7 +1,7 @@
 #ifndef LIBDSTORM_IMAGE_EXTEND_H
 #define LIBDSTORM_IMAGE_EXTEND_H
 
-#include "constructors.h"
+#include "dStorm/image/constructors.h"
 
 namespace dStorm {
 

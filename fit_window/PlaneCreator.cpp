@@ -1,4 +1,4 @@
-#include "PlaneCreator.hpp"
+#include "fit_window/PlaneCreator.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <dStorm/engine/InputPlane.h>

@@ -1,8 +1,8 @@
 #ifndef SIMPARM_TEXT_STREAM_BACKENDNODE_H
 #define SIMPARM_TEXT_STREAM_BACKENDNODE_H
 
-#include "FrontendNode.h"
-#include "../Message.h"
+#include "simparm/text_stream/FrontendNode.h"
+#include "simparm/Message.h"
 #include <boost/thread/recursive_mutex.hpp>
 #include <dStorm/display/Manager.h>
 

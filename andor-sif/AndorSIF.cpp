@@ -10,7 +10,7 @@
 
 #include <simparm/Message.h>
 
-#include "AndorSIF.h"
+#include "andor-sif/AndorSIF.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <stdexcept>

@@ -1,8 +1,8 @@
 #ifndef DSTORM_FITTER_GUF_TRAIT_VALUE_FINDER_H
 #define DSTORM_FITTER_GUF_TRAIT_VALUE_FINDER_H
 
-#include "MultiKernelModel.h"
-#include "Config.h"
+#include "guf/MultiKernelModel.h"
+#include "guf/Config.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/traits/optics.h>
 #include <dStorm/engine/InputTraits.h>

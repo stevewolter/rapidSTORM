@@ -7,7 +7,7 @@
 #include <dStorm/Image_impl.h>
 #include <algorithm>
 
-#include "ImageDiscretizer.h"
+#include "viewer/ImageDiscretizer.h"
 
 namespace dStorm {
 namespace viewer {

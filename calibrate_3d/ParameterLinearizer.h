@@ -3,7 +3,7 @@
 
 #include <dStorm/engine/InputTraits.h>
 #include <gsl/gsl_vector.h>
-#include "Config.h"
+#include "calibrate_3d/Config.h"
 
 namespace dStorm {
 namespace calibrate_3d {
