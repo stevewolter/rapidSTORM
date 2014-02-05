@@ -1,6 +1,5 @@
 #include "debug.h"
 #include "dStorm/engine/SpotFinder.h"
-#include <dStorm/Config.h>
 #include <boost/units/cmath.hpp>
 
 using namespace std;
