@@ -6,10 +6,10 @@
 
 #include <cassert>
 
-#include <dStorm/input/Source.h>
-#include <dStorm/output/Traits.h>
-#include <dStorm/output/LocalizedImage_traits.h>
-#include <dStorm/output/LocalizedImage.h>
+#include "input/Source.h"
+#include "output/Traits.h"
+#include "output/LocalizedImage_traits.h"
+#include "output/LocalizedImage.h"
 
 namespace dStorm {
 namespace noop_engine {

@@ -2,9 +2,9 @@
 #define DSTORM_NOOP_ENGINE_ENGINE_H
 
 #include <memory>
-#include <dStorm/output/LocalizedImage_decl.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/engine/Image.h>
+#include "output/LocalizedImage_decl.h"
+#include "input/Source.h"
+#include "engine/Image.h"
 
 namespace dStorm {
 namespace noop_engine {

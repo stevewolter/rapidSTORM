@@ -10,7 +10,7 @@
 #include <nonlinfit/Evaluator.h>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include <dStorm/threed_info/DepthInfo.h>
+#include "threed_info/DepthInfo.h"
 
 namespace dStorm {
 namespace gaussian_psf {

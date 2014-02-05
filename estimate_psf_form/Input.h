@@ -2,8 +2,8 @@
 #define DSTORM_FORM_FITTER_INPUT_H
 
 #include "estimate_psf_form/Config.h"
-#include <dStorm/output/Output.h>
-#include "dStorm/types/samplepos.h"
+#include "output/Output.h"
+#include "types/samplepos.h"
 #include "guf/Spot.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 

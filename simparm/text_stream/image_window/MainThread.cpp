@@ -11,7 +11,7 @@
 #include <boost/foreach.hpp>
 #include <simparm/Message.h>
 #include "simparm/text_stream/image_window/Window.h"
-#include <dStorm/display/SharedDataSource.h>
+#include "display/SharedDataSource.h"
 
 namespace Eigen {
 

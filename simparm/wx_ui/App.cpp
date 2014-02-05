@@ -2,7 +2,7 @@
 #include "simparm/wx_ui/Window.h"
 
 #include "debug.h"
-#include <dStorm/GUIThread.h>
+#include "GUIThread.h"
 
 namespace simparm {
 namespace wx_ui {

@@ -3,18 +3,18 @@
 
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
 #include <iostream>
 #include <stdexcept>
 #include <boost/units/io.hpp>
 
 #include <boost/lexical_cast.hpp>
-#include <dStorm/display/store_image.h>
-#include <dStorm/display/display_normalized.hpp>
-#include <dStorm/image/minmax.h>
-#include <dStorm/image/convert.h>
-#include <dStorm/image/extend.h>
+#include "display/store_image.h"
+#include "display/display_normalized.hpp"
+#include "image/minmax.h"
+#include "image/convert.h"
+#include "image/extend.h"
 
 struct SmoothedImageSave
 : public dStorm::output::Output

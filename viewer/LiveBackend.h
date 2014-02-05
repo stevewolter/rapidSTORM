@@ -8,7 +8,7 @@
 
 #include "density_map/DensityMap.h"
 #include "density_map/VirtualListener.h"
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 #include <boost/thread/recursive_mutex.hpp>
 
 namespace dStorm {

@@ -8,9 +8,9 @@
 #include <nonlinfit/DerivationSummand.h>
 #include <boost/mpl/iter_fold.hpp>
 #include <boost/mpl/range_c.hpp>
-#include <dStorm/polynomial_3d.h>
-#include <dStorm/Direction.h>
-#include <dStorm/threed_info/DepthInfo.h>
+#include "polynomial_3d.h"
+#include "Direction.h"
+#include "threed_info/DepthInfo.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {

@@ -2,16 +2,16 @@
 
 #include "engine_stm/ChainLink.h"
 #include "engine_stm/LocalizationBuncher.h"
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/output/LocalizedImage_traits.h>
+#include "input/MetaInfo.h"
+#include "input/Method.hpp"
+#include "output/LocalizedImage_traits.h"
 
 #include <boost/mpl/vector.hpp>
-#include <dStorm/output/LocalizedImage_decl.h>
-#include <dStorm/localization/record.h>
-#include <dStorm/Localization_decl.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/output/LocalizedImage.h>
+#include "output/LocalizedImage_decl.h"
+#include "localization/record.h"
+#include "Localization_decl.h"
+#include "input/Source.h"
+#include "output/LocalizedImage.h"
 
 namespace dStorm {
 namespace engine_stm {

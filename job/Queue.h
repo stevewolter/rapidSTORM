@@ -1,7 +1,7 @@
 #ifndef DSTORM_JOB_QUEUE_H
 #define DSTORM_JOB_QUEUE_H
 
-#include <dStorm/output/LocalizedImage.h>
+#include "output/LocalizedImage.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/array.hpp>

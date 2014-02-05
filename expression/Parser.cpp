@@ -2,11 +2,11 @@
 #include <string>
 #include <boost/fusion/include/vector.hpp>
 #include "expression/localization_variable_decl.h"
-#include <dStorm/localization/Traits.h>
+#include "localization/Traits.h"
 #include "expression/UnitChecker.h"
 #include "expression/Evaluator.h"
 #include "expression/Simplifier.h"
-#include <dStorm/Localization.h>
+#include "Localization.h"
 #include "dejagnu.h"
 #include "expression/tokens.h"
 #include "expression/UnitTable.h"

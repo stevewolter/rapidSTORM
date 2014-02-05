@@ -5,7 +5,7 @@
 #include "fit_window/Optics.h"
 #include "fit_window/PlaneCreator.hpp"
 #include "fit_window/ScheduleIndexFinder.hpp"
-#include <dStorm/engine/InputTraits.h>
+#include "engine/InputTraits.h"
 
 namespace dStorm {
 namespace fit_window {

@@ -3,12 +3,12 @@
 #include "expression/LValue.h"
 #include "expression/Parser.h"
 #include "CommandLine.h"
-#include <dStorm/Localization.h>
-#include <dStorm/localization/Traits.h>
+#include "Localization.h"
+#include "localization/Traits.h"
 #include <simparm/Entry.h>
 #include <boost/mpl/for_each.hpp>
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Capabilities.h>
+#include "output/FilterBuilder.h"
+#include "output/Capabilities.h"
 #include <boost/lexical_cast.hpp>
 
 namespace dStorm {

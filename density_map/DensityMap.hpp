@@ -4,10 +4,10 @@
 #include <boost/units/io.hpp>
 
 #include "core/Engine.h"
-#include <dStorm/image/iterator.h>
-#include <dStorm/image/contains.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/units/amplitude.h>
+#include "image/iterator.h"
+#include "image/contains.h"
+#include "image/constructors.h"
+#include "units/amplitude.h"
 
 #include "density_map/DensityMap.h"
 #include "density_map/Coordinates.h"

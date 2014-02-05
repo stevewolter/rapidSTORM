@@ -4,10 +4,10 @@
 #include "viewer/Viewer.h"
 #include <limits>
 #include <cassert>
-#include <dStorm/engine/Image.h>
+#include "engine/Image.h"
 
 #include <simparm/Message.h>
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 

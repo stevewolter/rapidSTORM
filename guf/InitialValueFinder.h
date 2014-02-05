@@ -3,11 +3,11 @@
 
 #include "guf/Spot.h"
 #include "guf/Config.h"
-#include <dStorm/engine/Input_decl.h>
-#include <dStorm/engine/JobInfo_decl.h>
+#include "engine/Input_decl.h"
+#include "engine/JobInfo_decl.h"
 #include "fit_window/Stack.h"
 #include <vector>
-#include <dStorm/Direction.h>
+#include "Direction.h"
 #include <boost/smart_ptr/scoped_ptr.hpp>
 
 namespace dStorm {

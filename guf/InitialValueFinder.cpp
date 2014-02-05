@@ -1,6 +1,6 @@
 #include "debug.h"
 #include <Eigen/StdVector>
-#include <dStorm/engine/JobInfo.h>
+#include "engine/JobInfo.h"
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
@@ -10,13 +10,13 @@
 #include "guf/TraitValueFinder.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/threed_info/look_up_sigma_diff.h>
+#include "threed_info/look_up_sigma_diff.h"
 #include <boost/accumulators/statistics/covariance.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/variates/covariate.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/framework/accumulator_set.hpp>
-#include <dStorm/threed_info/look_up_sigma_diff.h>
+#include "threed_info/look_up_sigma_diff.h"
 
 using namespace boost::accumulators;
 

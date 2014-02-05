@@ -3,10 +3,10 @@
 #include <boost/mpl/bind.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/fusion/include/value_at.hpp>
-#include "dStorm/localization/Fields.h"
+#include "localization/Fields.h"
 #include "expression/QuantityDynamizer.hpp"
-#include "dStorm/Localization.h"
-#include "dStorm/localization/Traits.h"
+#include "Localization.h"
+#include "localization/Traits.h"
 #include "dejagnu.h"
 
 namespace dStorm {

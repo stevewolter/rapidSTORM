@@ -11,14 +11,14 @@
 
 #include <boost/smart_ptr/make_shared.hpp>
 #include "core/Engine.h"
-#include <dStorm/input/Forwarder.h>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/output/Basename.h>
-#include <dStorm/output/FilterSource.h>
-#include <dStorm/output/SourceFactory.h>
-#include <dStorm/signals/UseSpotFinder.h>
-#include <dStorm/signals/UseSpotFitter.h>
+#include "input/Forwarder.h"
+#include "input/InputMutex.h"
+#include "input/MetaInfo.h"
+#include "output/Basename.h"
+#include "output/FilterSource.h"
+#include "output/SourceFactory.h"
+#include "signals/UseSpotFinder.h"
+#include "signals/UseSpotFitter.h"
 #include <simparm/Menu.h>
 #include <simparm/text_stream/RootNode.h>
 #include <simparm/TreeRoot.h>

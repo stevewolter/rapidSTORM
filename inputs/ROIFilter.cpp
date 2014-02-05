@@ -6,18 +6,18 @@
 #include <boost/units/io.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant.hpp>
-#include <dStorm/image/extend.h>
-#include "dStorm/image/Image.h"
-#include <dStorm/image/slice.h>
-#include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/localization/Traits.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/output/LocalizedImage.h>
-#include <dStorm/output/LocalizedImage_traits.h>
-#include <dStorm/UnitEntries/FrameEntry.h>
-#include <dStorm/units/frame_count.h>
+#include "image/extend.h"
+#include "image/Image.h"
+#include "image/slice.h"
+#include "input/AdapterSource.h"
+#include "input/MetaInfo.h"
+#include "input/InputMutex.h"
+#include "localization/Traits.h"
+#include "input/Method.hpp"
+#include "output/LocalizedImage.h"
+#include "output/LocalizedImage_traits.h"
+#include "UnitEntries/FrameEntry.h"
+#include "units/frame_count.h"
 
 namespace dStorm {
 namespace ROIFilter {

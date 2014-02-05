@@ -1,10 +1,10 @@
 #include "inputs/Basename.h"
-#include <dStorm/input/Source.h>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/signals/BasenameChange.h>
-#include <dStorm/input/Forwarder.h>
+#include "input/Source.h"
+#include "input/InputMutex.h"
+#include "signals/BasenameChange.h"
+#include "input/Forwarder.h"
 #include <simparm/Entry.h>
-#include <dStorm/input/MetaInfo.h>
+#include "input/MetaInfo.h"
 
 namespace dStorm {
 namespace basename_input_field {

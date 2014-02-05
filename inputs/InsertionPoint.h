@@ -1,8 +1,8 @@
 #ifndef DSTORM_CONFIG_INSERTIONPOINT_H
 #define DSTORM_CONFIG_INSERTIONPOINT_H
 
-#include <dStorm/input/fwd.h>
-#include <dStorm/InsertionPlace.h>
+#include "input/fwd.h"
+#include "InsertionPlace.h"
 #include <memory>
 
 namespace dStorm {

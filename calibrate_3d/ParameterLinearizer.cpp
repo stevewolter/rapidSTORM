@@ -9,9 +9,9 @@
 #include "calibrate_3d/Config.h"
 #include "gaussian_psf/is_plane_dependent.h"
 #include "guf/TraitValueFinder.h"
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/threed_info/DepthInfo.h>
-#include <dStorm/threed_info/Polynomial3D.h>
+#include "engine/JobInfo.h"
+#include "threed_info/DepthInfo.h"
+#include "threed_info/Polynomial3D.h"
 #include <boost/variant/get.hpp>
 #include "calibrate_3d/constant_parameter.hpp"
 

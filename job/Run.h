@@ -6,8 +6,8 @@
 #include <boost/thread/condition.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "core/Engine.h"
-#include <dStorm/output/Output.h>
-#include <dStorm/stack_realign.h>
+#include "output/Output.h"
+#include "stack_realign.h"
 
 namespace dStorm {
 namespace job {

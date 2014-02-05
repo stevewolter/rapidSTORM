@@ -1,6 +1,6 @@
 #include "inputs/InputBase.h"
 #include <simparm/Group.h>
-#include <dStorm/input/Forwarder.h>
+#include "input/Forwarder.h"
 
 namespace dStorm {
 

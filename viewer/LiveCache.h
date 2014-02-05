@@ -4,10 +4,10 @@
 #include <vector>
 #include "viewer/Publisher.h"
 #include "viewer/HighDepth.h"
-#include <dStorm/Pixel.h>
+#include "Pixel.h"
 #include "viewer/Image.h"
 #include "viewer/Display.h"
-#include <dStorm/image/find_by_offset.hpp>
+#include "image/find_by_offset.hpp"
 
 namespace dStorm {
 namespace viewer {

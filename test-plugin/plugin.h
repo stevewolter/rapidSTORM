@@ -2,7 +2,7 @@
 #define TESTPLUGIN_PLUGIN_H
 
 #include "core/Config.h"
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 
 namespace dStorm {
 namespace test {

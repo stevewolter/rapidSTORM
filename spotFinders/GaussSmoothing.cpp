@@ -6,9 +6,9 @@
 #include <simparm/Eigen.h>
 #include <simparm/Entry.h>
 
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFinderBuilder.h>
-#include <dStorm/Direction.h>
+#include "engine/SpotFinder.h"
+#include "engine/SpotFinderBuilder.h"
+#include "Direction.h"
 #include <simparm/GUILabelTable.h>
 
 using namespace std;

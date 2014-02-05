@@ -2,11 +2,11 @@
 #define DSTORM_DISPLAY_APPWINDOW_H
 
 #include <wx/wx.h>
-#include "dStorm/display/DataSource.h"
-#include "dStorm/display/Manager.h"
+#include "display/DataSource.h"
+#include "display/Manager.h"
 #include "simparm/wx_ui/image_window/Canvas.h"
 #include <boost/thread/recursive_mutex.hpp>
-#include <dStorm/display/SharedDataSource.h>
+#include "display/SharedDataSource.h"
 #include <wx/timer.h>
 
 namespace simparm {

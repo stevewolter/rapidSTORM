@@ -4,8 +4,8 @@
 #include "viewer/colour_schemes/HueSaturationMixer.h"
 #include <cassert>
 
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/contains.h>
+#include "image/constructors.h"
+#include "image/contains.h"
 
 using namespace boost::units;
 

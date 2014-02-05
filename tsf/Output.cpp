@@ -1,6 +1,6 @@
 #include <boost/math/constants/constants.hpp>
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 #include <endian.h>
 #include <fcntl.h>
@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <dStorm/output/FileOutputBuilder.h>
+#include "output/FileOutputBuilder.h"
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #include "tsf/TSFProto.pb.h"

@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_TERMINALCACHE_H
 #define DSTORM_VIEWER_TERMINALCACHE_H
 
-#include <dStorm/display/DataSource.h>
+#include "display/DataSource.h"
 #include "viewer/ImageDiscretizer.h"
 
 namespace dStorm {

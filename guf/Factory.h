@@ -2,9 +2,9 @@
 #define DSTORM_FITTER_GUF_FACTORY_H
 
 #include "guf/Config.h"
-#include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/output/Traits.h>
-#include <dStorm/helpers/default_on_copy.h>
+#include "engine/SpotFitterFactory.h"
+#include "output/Traits.h"
+#include "helpers/default_on_copy.h"
 
 namespace dStorm {
 namespace guf {

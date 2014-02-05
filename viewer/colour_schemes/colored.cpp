@@ -3,7 +3,7 @@
 #include "viewer/colour_schemes/base.h"
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
-#include <dStorm/helpers/default_on_copy.h>
+#include "helpers/default_on_copy.h"
 
 namespace dStorm {
 namespace viewer {

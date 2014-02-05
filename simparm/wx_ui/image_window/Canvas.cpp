@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <wx/dcbuffer.h>
 #include "simparm/wx_ui/image_window/SizeConvert.h"
-#include "dStorm/image/iterator.h"
+#include "image/iterator.h"
 
 #include "debug.h"
 

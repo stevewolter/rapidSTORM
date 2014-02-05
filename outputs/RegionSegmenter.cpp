@@ -6,14 +6,14 @@
 #include <boost/ptr_container/ptr_array.hpp>
 
 #include "binning/config.h"
-#include <dStorm/output/OutputSource.h>
-#include <dStorm/output/Localizations.h>
+#include "output/OutputSource.h"
+#include "output/Localizations.h"
 #include "density_map/DensityMap.h"
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/DummyListener.h"
-#include <dStorm/engine/Image.h>
-#include <dStorm/output/TraceReducer.h>
-#include <dStorm/display/Manager.h>
+#include "engine/Image.h"
+#include "output/TraceReducer.h"
+#include "display/Manager.h"
 #include <boost/thread/mutex.hpp>
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
@@ -26,27 +26,27 @@
 #include "outputs/RegionSegmenter.h"
 #include <limits>
 #include <stdio.h>
-#include "dStorm/image/iterator.h"
-#include <dStorm/engine/Spot.h>
-#include <dStorm/image/dilation.h>
-#include <dStorm/image/extend.h>
-#include <dStorm/helpers/back_inserter.h>
-#include <dStorm/engine/CandidateTree.h>
+#include "image/iterator.h"
+#include "engine/Spot.h"
+#include "image/dilation.h"
+#include "image/extend.h"
+#include "helpers/back_inserter.h"
+#include "engine/CandidateTree.h"
 #include <boost/units/quantity.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
 #include <boost/ptr_container/ptr_map.hpp>
-#include <dStorm/output/Localizations_iterator.h>
+#include "output/Localizations_iterator.h"
 #include <boost/foreach.hpp>
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Filter.h>
+#include "output/FilterBuilder.h"
+#include "output/Filter.h"
 #include "density_map/LinearInterpolation.h"
 
-#include "dStorm/image/Image.hpp"
-#include <dStorm/image/dilation_impl.h>
+#include "image/Image.hpp"
+#include "image/dilation_impl.h"
 #include "binning/binning.h"
 
-#include <dStorm/make_clone_allocator.hpp>
+#include "make_clone_allocator.hpp"
 
 namespace dStorm { 
 namespace outputs {

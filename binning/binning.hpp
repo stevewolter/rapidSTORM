@@ -2,7 +2,7 @@
 #define DSTORM_OUTPUT_BINNING_BINNING_HPP
 
 #include "binning/binning.h"
-#include "dStorm/display/DataSource.h"
+#include "display/DataSource.h"
 
 namespace dStorm {
 namespace binning {

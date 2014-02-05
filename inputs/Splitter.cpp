@@ -1,19 +1,19 @@
 #include "debug.h"
 #include "inputs/Splitter.h"
 #include <boost/mpl/vector.hpp>
-#include <dStorm/engine/Image.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/iterator.h>
-#include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/input/Source.h>
+#include "engine/Image.h"
+#include "image/constructors.h"
+#include "image/iterator.h"
+#include "input/AdapterSource.h"
+#include "input/Method.hpp"
+#include "input/Source.h"
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/Entry.h>
 #include <simparm/Message.h>
 #include <simparm/Object.h>
 #include <simparm/ObjectChoice.h>
-#include <dStorm/make_clone_allocator.hpp>
+#include "make_clone_allocator.hpp"
 
 using namespace dStorm::engine;
 

@@ -1,7 +1,7 @@
 #include "fit_window/ScheduleIndexFinder.hpp"
 #include <boost/test/unit_test.hpp>
-#include <dStorm/engine/InputPlane.h>
-#include <dStorm/traits/ScaledProjection.h>
+#include "engine/InputPlane.h"
+#include "traits/ScaledProjection.h"
 #include <boost/mpl/vector.hpp>
 #include <nonlinfit/plane/Disjoint.h>
 #include <nonlinfit/plane/Joint.h>

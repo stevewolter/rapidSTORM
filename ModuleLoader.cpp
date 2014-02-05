@@ -1,5 +1,5 @@
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFitterFactory.h>
+#include "engine/SpotFinder.h"
+#include "engine/SpotFitterFactory.h"
 #include "ModuleLoader.h"
 
 #include "inputs/inputs.h"

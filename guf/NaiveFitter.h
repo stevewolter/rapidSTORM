@@ -2,7 +2,7 @@
 #define DSTORM_FITTER_GUF_NAIVEFITTER_INTERFACE_H
 
 #include "guf/Config_decl.h"
-#include <dStorm/engine/JobInfo_decl.h>
+#include "engine/JobInfo_decl.h"
 #include <memory>
 
 namespace dStorm {

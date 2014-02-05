@@ -1,20 +1,20 @@
 #include <simparm/Object.h>
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFinderBuilder.h>
+#include "engine/SpotFinder.h"
+#include "engine/SpotFinderBuilder.h"
 #include <simparm/FileEntry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
-#include <dStorm/output/FileOutputBuilder.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/engine/Input.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
+#include "output/FileOutputBuilder.h"
+#include "engine/Image.h"
+#include "engine/Input.h"
 
-#include <dStorm/image/dilation.h>
-#include <dStorm/image/morphological_reconstruction.hpp>
+#include "image/dilation.h"
+#include "image/morphological_reconstruction.hpp"
 #include "spotFinders/Fillhole.h"
-#include "dStorm/image/iterator.h"
+#include "image/iterator.h"
 
-#include <dStorm/image/convert.h>
-#include <dStorm/image/constructors.h>
+#include "image/convert.h"
+#include "image/constructors.h"
 #include <simparm/GUILabelTable.h>
 
 namespace dStorm {

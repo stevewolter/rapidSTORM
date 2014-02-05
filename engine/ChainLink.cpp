@@ -2,13 +2,13 @@
 
 #include "engine/ChainLink.h"
 #include "engine/Engine.h"
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/output/LocalizedImage_traits.h>
+#include "input/MetaInfo.h"
+#include "output/LocalizedImage_traits.h"
 #include <boost/units/io.hpp>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/signals/UseSpotFinder.h>
-#include <dStorm/signals/UseSpotFitter.h>
+#include "input/InputMutex.h"
+#include "input/Method.hpp"
+#include "signals/UseSpotFinder.h"
+#include "signals/UseSpotFitter.h"
 #include <boost/lexical_cast.hpp>
 #include "dejagnu.h"
 

@@ -1,11 +1,11 @@
 #ifndef DSTORM_CONFIG_H
 #define DSTORM_CONFIG_H
 
-#include <dStorm/input/fwd.h>
-#include <dStorm/engine/SpotFinder_decl.h>
-#include <dStorm/engine/SpotFitterFactory_decl.h>
-#include "dStorm/InsertionPlace.h"
-#include "dStorm/Job.h"
+#include "input/fwd.h"
+#include "engine/SpotFinder_decl.h"
+#include "engine/SpotFitterFactory_decl.h"
+#include "InsertionPlace.h"
+#include "Job.h"
 #include <memory>
 #include <simparm/NodeHandle.h>
 

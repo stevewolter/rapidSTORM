@@ -1,7 +1,7 @@
 #include "job/Run.h"
 #include "debug.h"
 #include <boost/thread/thread.hpp>
-#include <dStorm/engine/Input.h>
+#include "engine/Input.h"
 #include <boost/version.hpp>
 
 namespace dStorm {

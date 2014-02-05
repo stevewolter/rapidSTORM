@@ -3,9 +3,9 @@
 
 #include <Eigen/StdVector>
 #include "guf/NaiveFitter.h"
-#include <dStorm/engine/JobInfo_decl.h>
+#include "engine/JobInfo_decl.h"
 #include "guf/Config_decl.h"
-#include <dStorm/Localization_decl.h>
+#include "Localization_decl.h"
 #include <nonlinfit/sum/AbstractFunction.h>
 #include "guf/FitTerminator.h"
 #include <nonlinfit/terminators/All.h>

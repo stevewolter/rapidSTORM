@@ -8,11 +8,11 @@
 #include <boost/range/algorithm_ext/erase.hpp>
 #include <Eigen/Core>
 
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Filter.h>
+#include "output/FilterBuilder.h"
+#include "output/Filter.h"
 #include <simparm/Entry.h>
 #include "core/Engine.h"
-#include <dStorm/units/microlength.h>
+#include "units/microlength.h"
 
 namespace dStorm {
 namespace outputs {

@@ -16,9 +16,9 @@
 
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-#include <dStorm/traits/Projection.h>
-#include <dStorm/engine/InputTraits.h>
-#include <dStorm/threed_info/DepthInfo.h>
+#include "traits/Projection.h"
+#include "engine/InputTraits.h"
+#include "threed_info/DepthInfo.h"
 
 using namespace std;
 

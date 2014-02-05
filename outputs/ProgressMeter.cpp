@@ -1,6 +1,6 @@
 #include "debug.h"
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
 #include <simparm/ProgressEntry.h>
 
 #include "outputs/ProgressMeter.h"

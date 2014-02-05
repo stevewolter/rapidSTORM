@@ -3,8 +3,8 @@
 #include "expression/Evaluator.h"
 #include "expression/Simplifier.h"
 #include "expression/UnitChecker.h"
-#include <dStorm/localization/Traits.h>
-#include <dStorm/Localization.h>
+#include "localization/Traits.h"
+#include "Localization.h"
 
 using namespace dStorm::expression;
 

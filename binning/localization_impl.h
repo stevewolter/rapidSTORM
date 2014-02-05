@@ -3,7 +3,7 @@
 
 #include "debug.h"
 #include "binning/localization.h"
-#include <dStorm/display/DataSource.h>
+#include "display/DataSource.h"
 #include <boost/units/cmath.hpp>
 
 namespace dStorm {

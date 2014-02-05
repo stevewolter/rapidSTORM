@@ -7,9 +7,9 @@
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "binning/binning_decl.h"
-#include <dStorm/localization/Traits.h>
-#include <dStorm/make_clone_allocator.hpp>
-#include <dStorm/helpers/default_on_copy.h>
+#include "localization/Traits.h"
+#include "make_clone_allocator.hpp"
+#include "helpers/default_on_copy.h"
 
 namespace dStorm {
 namespace binning {

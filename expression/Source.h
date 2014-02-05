@@ -5,7 +5,7 @@
 #include "expression/Config_decl.h"
 #include "CommandLine.h"
 #include "expression/Source_decl.h"
-#include <dStorm/output/Filter.h>
+#include "output/Filter.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/utility.hpp>
 #include <boost/thread/mutex.hpp>

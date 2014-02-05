@@ -5,11 +5,11 @@
 #include <memory>
 #include <boost/thread/mutex.hpp>
 #include "engine/Config_decl.h"
-#include <dStorm/engine/Input_decl.h>
-#include <dStorm/output/Traits_decl.h>
+#include "engine/Input_decl.h"
+#include "output/Traits_decl.h"
 #include <boost/utility.hpp>
-#include <dStorm/output/LocalizedImage_decl.h>
-#include <dStorm/input/Source.h>
+#include "output/LocalizedImage_decl.h"
+#include "input/Source.h"
 #include "core/Engine.h"
 #include "engine/Config.h"
 

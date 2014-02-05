@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "estimate_psf_form/LocalizationValueFinder.h"
 #include "guf/TraitValueFinder.h"
-#include <dStorm/Localization.h>
+#include "Localization.h"
 #include "fit_window/Optics.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>

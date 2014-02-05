@@ -3,14 +3,14 @@
 
 #include "guf/MultiKernelModel.h"
 #include "guf/Config.h"
-#include <dStorm/engine/Input.h>
-#include <dStorm/traits/optics.h>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/Input.h"
+#include "traits/optics.h"
+#include "engine/InputTraits.h"
 #include <boost/variant/get.hpp>
 #include "gaussian_psf/parameters.h"
 #include <limits>
-#include <dStorm/threed_info/No3D.h>
-#include <dStorm/threed_info/Polynomial3D.h>
+#include "threed_info/No3D.h"
+#include "threed_info/Polynomial3D.h"
 
 namespace dStorm {
 namespace gaussian_psf { class Polynomial3D; }

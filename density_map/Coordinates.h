@@ -5,7 +5,7 @@
 
 #include "binning/binning.h"
 #include <boost/ptr_container/ptr_array.hpp>
-#include <dStorm/helpers/clone_ptr.hpp>
+#include "helpers/clone_ptr.hpp"
 
 namespace dStorm {
 namespace density_map {

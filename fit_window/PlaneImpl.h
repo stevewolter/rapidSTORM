@@ -3,7 +3,7 @@
 
 #include "fit_window/Plane.h"
 #include <memory>
-#include <dStorm/engine/Image_decl.h>
+#include "engine/Image_decl.h"
 
 namespace dStorm {
 namespace fit_window {

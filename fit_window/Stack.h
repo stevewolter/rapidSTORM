@@ -4,7 +4,7 @@
 #include "fit_window/Plane.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <nonlinfit/plane/fwd.h>
-#include <dStorm/engine/JobInfo.h>
+#include "engine/JobInfo.h"
 #include "fit_window/Config.h"
 
 namespace dStorm {

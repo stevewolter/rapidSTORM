@@ -2,12 +2,12 @@
 
 #include "debug.h"
 #include <Eigen/StdVector>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/InputTraits.h"
 #include "fit_window/Stack.h"
 #include "fit_window/Plane.h"
 #include "guf/LocalizationCreator.h"
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/Localization.h>
+#include "engine/JobInfo.h"
+#include "Localization.h"
 #include "guf/Config.h"
 #include "gaussian_psf/BaseExpression.h"
 #include "gaussian_psf/Base3D.h"

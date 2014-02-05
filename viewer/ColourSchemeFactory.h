@@ -5,7 +5,7 @@
 #include <simparm/BaseAttribute.h>
 #include <memory>
 #include "viewer/Backend.h"
-#include <dStorm/make_clone_allocator.hpp>
+#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace viewer {

@@ -15,10 +15,10 @@
 #include <simparm/FileEntry.h>
 #include <simparm/Message.h>
 
-#include <dStorm/localization/Traits.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FileOutputBuilder.h>
-#include <dStorm/localization_file/field.h>
+#include "localization/Traits.h"
+#include "output/Output.h"
+#include "output/FileOutputBuilder.h"
+#include "localization_file/field.h"
 
 using namespace std;
 

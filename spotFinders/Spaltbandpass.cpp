@@ -1,9 +1,9 @@
 #include <simparm/BoostUnits.h>
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFinderBuilder.h>
-#include <dStorm/engine/Image.h>
+#include "engine/SpotFinder.h"
+#include "engine/SpotFinderBuilder.h"
+#include "engine/Image.h"
 #include "spotFinders/averageSmooth.h"
-#include <dStorm/image/iterator.h>
+#include "image/iterator.h"
 
 #include <simparm/Object.h>
 #include <simparm/Entry.h>

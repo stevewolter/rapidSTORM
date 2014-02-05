@@ -2,12 +2,12 @@
 
 #include "debug.h"
 #include <boost/lexical_cast.hpp>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/engine/InputTraits.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/crop.h>
-#include <dStorm/image/iterator.h>
+#include "image/MetaInfo.h"
+#include "engine/Image.h"
+#include "engine/InputTraits.h"
+#include "image/constructors.h"
+#include "image/crop.h"
+#include "image/iterator.h"
 
 namespace dStorm {
 namespace spatial_join {

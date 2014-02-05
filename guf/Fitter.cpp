@@ -4,16 +4,16 @@
 #include "guf/Config.h"
 #include <boost/static_assert.hpp>
 #include <boost/smart_ptr/scoped_ptr.hpp>
-#include <dStorm/image/crop.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/engine/Spot.h>
-#include <dStorm/Localization.h>
+#include "image/crop.h"
+#include "image/constructors.h"
+#include "engine/Spot.h"
+#include "Localization.h"
 #include <boost/bind/bind.hpp>
 #include <nonlinfit/levmar/exceptions.h>
 #include "fit_window/fit_position_out_of_range.h"
 #include "fit_window/Centroid.h"
-#include <dStorm/engine/InputTraits.h>
-#include <dStorm/engine/Image.h>
+#include "engine/InputTraits.h"
+#include "engine/Image.h"
 #include "fit_window/Stack.hpp"
 
 #include "guf/EvaluationTags.h"

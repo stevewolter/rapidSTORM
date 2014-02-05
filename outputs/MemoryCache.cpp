@@ -4,19 +4,19 @@
 #include "debug.h"
 #include <string>
 
-#include <dStorm/output/Filter.h>
-#include <dStorm/output/FilterSource.h>
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Localizations.h>
-#include <dStorm/localization/Traits.h>
+#include "output/Filter.h"
+#include "output/FilterSource.h"
+#include "output/FilterBuilder.h"
+#include "output/Localizations.h"
+#include "localization/Traits.h"
 #include "core/Engine.h"
-#include <dStorm/stack_realign.h>
+#include "stack_realign.h"
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/thread.hpp>
 
-#include <dStorm/stack_realign.h>
-#include <dStorm/output/Localizations_iterator.h>
+#include "stack_realign.h"
+#include "output/Localizations_iterator.h"
 #include <boost/thread/locks.hpp>
 #include "outputs/MemoryCache_Cache.h"
 #include <boost/lambda/lambda.hpp>

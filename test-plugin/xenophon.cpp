@@ -1,8 +1,8 @@
 #include <boost/math/constants/constants.hpp>
 
 #include "test-plugin/xenophon.h"
-#include <dStorm/output/LocalizedImage.h>
-#include <dStorm/Localization.h>
+#include "output/LocalizedImage.h"
+#include "Localization.h"
 
 namespace dStorm {
 namespace test {

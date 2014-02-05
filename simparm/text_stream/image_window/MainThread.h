@@ -1,11 +1,11 @@
 #ifndef TEST_PLUGIN_DISPLAY_MANAGER_H
 #define TEST_PLUGIN_DISPLAY_MANAGER_H
 
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/thread.hpp>
-#include <dStorm/stack_realign.h>
+#include "stack_realign.h"
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
 

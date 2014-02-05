@@ -6,8 +6,8 @@
 #include <simparm/ManagedChoiceEntry.h>
 #include "expression/Parser.h"
 #include "expression/localization_variable_decl.h"
-#include <dStorm/localization/Traits.h>
-#include <dStorm/Localization.h>
+#include "localization/Traits.h"
+#include "Localization.h"
 #include <simparm/ObjectChoice.h>
 
 namespace dStorm {

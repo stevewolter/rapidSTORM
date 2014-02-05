@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_BACKEND_H
 #define DSTORM_VIEWER_BACKEND_H
 
-#include <dStorm/output/Output.h>
+#include "output/Output.h"
 #include <memory>
 #include "viewer/ColourScheme.h"
 

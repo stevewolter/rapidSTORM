@@ -3,7 +3,7 @@
 
 #include <wx/wx.h>
 #include <boost/units/quantity.hpp>
-#include <dStorm/display/DataSource.h>
+#include "display/DataSource.h"
 
 namespace simparm {
 namespace wx_ui {

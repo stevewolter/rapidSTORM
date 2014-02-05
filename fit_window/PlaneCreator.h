@@ -2,7 +2,7 @@
 #define DSTORM_GUF_DATAEXTRACTOR_H
 
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <dStorm/engine/Image_decl.h>
+#include "engine/Image_decl.h"
 #include "fit_window/Spot.h"
 #include "fit_window/Optics.h"
 

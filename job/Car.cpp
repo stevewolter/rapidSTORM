@@ -2,17 +2,17 @@
 
 #include "job/Car.h"
 #include "job/Run.h"
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/output/Localizations.h>
-#include <dStorm/engine/Image.h>
+#include "image/MetaInfo.h"
+#include "input/Source.h"
+#include "output/Localizations.h"
+#include "engine/Image.h"
 #include <fstream>
 #include <queue>
-#include <dStorm/output/Output.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/helpers/OutOfMemory.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/display/Manager.h>
+#include "output/Output.h"
+#include "engine/Image.h"
+#include "helpers/OutOfMemory.h"
+#include "input/MetaInfo.h"
+#include "display/Manager.h"
 #include <boost/smart_ptr/make_shared.hpp>
 #include <ui/serialization/serialize.h>
 

@@ -4,7 +4,7 @@
 #include "simparm/text_stream/FrontendNode.h"
 #include "simparm/Message.h"
 #include <boost/thread/recursive_mutex.hpp>
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 
 namespace simparm {
 namespace text_stream {

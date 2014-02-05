@@ -7,7 +7,7 @@
 #include "gaussian_psf/No3D.h"
 #include "gaussian_psf/DepthInfo3D.h"
 #include <boost/smart_ptr/make_shared.hpp>
-#include <dStorm/threed_info/Spline3D.h>
+#include "threed_info/Spline3D.h"
 
 namespace dStorm {
 namespace gaussian_psf {

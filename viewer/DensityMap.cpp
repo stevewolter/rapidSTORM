@@ -1,8 +1,8 @@
 #include "viewer/fwd.h"
 #include "viewer/DensityMapConfig.h"
-#include <dStorm/output/BasenameAdjustedFileEntry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FileOutputBuilder.h>
+#include "output/BasenameAdjustedFileEntry.h"
+#include "output/Output.h"
+#include "output/FileOutputBuilder.h"
 #include "density_map/DensityMap.h"
 #include "density_map/DummyListener.h"
 #include <fstream>

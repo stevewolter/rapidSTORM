@@ -8,7 +8,7 @@
 #include <nonlinfit/TermParameter.h>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include "dStorm/LengthUnit.h"
+#include "LengthUnit.h"
 
 namespace dStorm {
 namespace guf {

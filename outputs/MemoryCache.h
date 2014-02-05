@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUTS_MEMORY_CACHE_H
 #define DSTORM_OUTPUTS_MEMORY_CACHE_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 namespace dStorm {
 namespace memory_cache {

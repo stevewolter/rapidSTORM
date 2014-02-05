@@ -2,7 +2,7 @@
 #define SIMPARM_WX_UI_IMAGE_WINDOW_H
 
 #include <memory>
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 #include "simparm/wx_ui/ProtocolNode.h"
 
 namespace simparm {

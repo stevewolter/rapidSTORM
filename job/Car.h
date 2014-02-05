@@ -3,14 +3,14 @@
 
 #include "job/Queue.h"
 
-#include <dStorm/stack_realign.h>
-#include <dStorm/Job.h>
+#include "stack_realign.h"
+#include "Job.h"
 #include "job/Config.h"
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 #include <cassert>
 #include <simparm/TriggerEntry.h>
-#include <dStorm/engine/Input_decl.h>
-#include <dStorm/input/fwd.h>
+#include "engine/Input_decl.h"
+#include "input/fwd.h"
 #include <boost/utility.hpp>
 #include <set>
 #include <setjmp.h>

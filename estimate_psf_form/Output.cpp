@@ -6,13 +6,13 @@
 
 #include <simparm/Node.h>
 
-#include <dStorm/output/OutputSource.h>
-#include <dStorm/output/OutputBuilder.h>
+#include "output/OutputSource.h"
+#include "output/OutputBuilder.h"
 #include "core/Engine.h"
-#include <dStorm/image/slice.h>
-#include <dStorm/image/crop.h>
-#include <dStorm/image/convert.h>
-#include <dStorm/image/constructors.h>
+#include "image/slice.h"
+#include "image/crop.h"
+#include "image/convert.h"
+#include "image/constructors.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/condition.hpp>

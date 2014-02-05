@@ -4,9 +4,9 @@
 #include "gaussian_psf/No3D.h"
 #include "constant_background/model.hpp"
 #include <memory>
-#include <dStorm/engine/JobInfo_decl.h>
-#include <dStorm/traits/optics.h>
-#include <dStorm/Localization_decl.h>
+#include "engine/JobInfo_decl.h"
+#include "traits/optics.h"
+#include "Localization_decl.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

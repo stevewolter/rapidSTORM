@@ -1,5 +1,5 @@
 #include "simparm/wx_ui/gui_thread.h"
-#include <dStorm/GUIThread.h>
+#include "GUIThread.h"
 
 namespace simparm {
 namespace wx_ui {

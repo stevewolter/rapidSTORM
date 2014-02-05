@@ -9,11 +9,11 @@
 #include <string>
 #include "core/Config.h"
 #include <fstream>
-#include <dStorm/output/OutputSource.h>
-#include <dStorm/output/FilterSource.h>
+#include "output/OutputSource.h"
+#include "output/FilterSource.h"
 #include "InputStream.h"
 #include <simparm/cmdline_ui/RootNode.h>
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/thread.hpp>

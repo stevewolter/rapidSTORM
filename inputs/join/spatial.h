@@ -1,9 +1,9 @@
 #ifndef DSTORM_INPUT_JOIN_SPATIAL_H
 #define DSTORM_INPUT_JOIN_SPATIAL_H
 
-#include <dStorm/input/Source.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/output/LocalizedImage.h>
+#include "input/Source.h"
+#include "engine/Image.h"
+#include "output/LocalizedImage.h"
 
 namespace dStorm {
 namespace spatial_join {

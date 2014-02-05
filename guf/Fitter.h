@@ -1,7 +1,7 @@
 #include "guf/Config.h"
 #include "guf/NaiveFitter.h"
-#include <dStorm/engine/SpotFitter.h>
-#include <dStorm/traits/optics.h>
+#include "engine/SpotFitter.h"
+#include "traits/optics.h"
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/optional/optional.hpp>
 #include "guf/InitialValueFinder.h"

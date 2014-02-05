@@ -1,5 +1,5 @@
 #include "outputs/VarianceEstimator.h"
-#include <dStorm/output/OutputBuilder.h>
+#include "output/OutputBuilder.h"
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/mean.hpp>

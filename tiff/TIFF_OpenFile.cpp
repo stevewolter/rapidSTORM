@@ -2,10 +2,10 @@
 #include <tiffio.h>
 #include "tiff/OpenFile.h"
 #include "tiff/TIFFOperation.h"
-#include <dStorm/engine/InputTraits.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/image/convert.h>
+#include "engine/InputTraits.h"
+#include "engine/Image.h"
+#include "image/MetaInfo.h"
+#include "image/convert.h"
 #include <boost/units/io.hpp>
 #include <boost/smart_ptr/scoped_array.hpp>
 #include "tiff/TIFF.h"

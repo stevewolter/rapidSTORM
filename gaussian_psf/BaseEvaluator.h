@@ -4,7 +4,7 @@
 #include "gaussian_psf/fwd.h"
 #include <Eigen/Core>
 #include <nonlinfit/plane/fwd.h>
-#include <dStorm/polynomial_3d.h>
+#include "polynomial_3d.h"
 
 namespace dStorm {
 namespace gaussian_psf {

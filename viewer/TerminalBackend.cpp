@@ -8,8 +8,8 @@
 #include "viewer/Display.h"
 #include "density_map/LinearInterpolation.h"
 
-#include <dStorm/display/store_image.h>
-#include <dStorm/image/iterator.h>
+#include "display/store_image.h"
+#include "image/iterator.h"
 
 #include "viewer/Config.h"
 #include "viewer/Status.h"

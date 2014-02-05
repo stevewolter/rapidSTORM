@@ -7,7 +7,7 @@
 #include <boost/units/systems/camera/intensity.hpp>
 #include "expression/Config_decl.h"
 #include "CommandLine.h"
-#include <dStorm/output/Capabilities.h>
+#include "output/Capabilities.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {

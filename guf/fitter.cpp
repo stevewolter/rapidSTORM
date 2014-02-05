@@ -1,10 +1,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFitterFactory.h>
+#include "engine/SpotFinder.h"
+#include "engine/SpotFitterFactory.h"
 #include "core/Config.h"
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 #include "guf/Factory.h"
 
 namespace dStorm {

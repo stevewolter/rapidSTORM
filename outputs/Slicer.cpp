@@ -1,10 +1,10 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/TabGroup.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FilterSource.h>
-#include <dStorm/output/FileOutputBuilder.h>
-#include <dStorm/output/BasenameAdjustedFileEntry.h>
-#include <dStorm/UnitEntries/FrameEntry.h>
+#include "output/Output.h"
+#include "output/FilterSource.h"
+#include "output/FileOutputBuilder.h"
+#include "output/BasenameAdjustedFileEntry.h"
+#include "UnitEntries/FrameEntry.h"
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
 #include <boost/ptr_container/ptr_vector.hpp>

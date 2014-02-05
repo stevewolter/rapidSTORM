@@ -8,7 +8,7 @@
 #include "viewer/ColourScheme.h"
 
 #include "density_map/DensityMap.h"
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 
 namespace dStorm {
 namespace viewer {

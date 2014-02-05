@@ -1,12 +1,12 @@
 #ifndef DSTORM_FORMFITTER_H
 #define DSTORM_FORMFITTER_H
 
-#include <dStorm/traits/optics_config.h>
+#include "traits/optics_config.h"
 #include "estimate_psf_form/decl.h"
 #include <simparm/ProgressEntry.h>
 #include "estimate_psf_form/Config.h"
-#include <dStorm/engine/Input.h>
-#include <dStorm/output/Output.h>
+#include "engine/Input.h"
+#include "output/Output.h"
 #include <memory>
 #include <boost/thread/mutex.hpp>
 #include "estimate_psf_form/GUI.h"

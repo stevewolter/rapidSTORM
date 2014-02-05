@@ -5,9 +5,9 @@
 #include <boost/variant/apply_visitor.hpp>
 #include "estimate_psf_form/Fitter.h"
 #include "estimate_psf_form/Config.h"
-#include <dStorm/image/slice.h>
-#include <dStorm/Localization.h>
-#include <dStorm/engine/JobInfo.h>
+#include "image/slice.h"
+#include "Localization.h"
+#include "engine/JobInfo.h"
 #include "guf/Spot.h"
 #include <nonlinfit/plane/Distance.hpp>
 #include <nonlinfit/plane/JointData.hpp>
@@ -28,7 +28,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/variant/get.hpp>
 #include <nonlinfit/BoundFunction.hpp>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/InputTraits.h"
 #include <fstream>
 
 #include "fit_window/Optics.h"
@@ -37,8 +37,8 @@
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
 #include <nonlinfit/terminators/All.h>
-#include <dStorm/threed_info/No3D.h>
-#include <dStorm/threed_info/Spline3D.h>
+#include "threed_info/No3D.h"
+#include "threed_info/Spline3D.h"
 
 #include "estimate_psf_form/LocalizationValueFinder.h"
 #include "calibrate_3d/constant_parameter.hpp"

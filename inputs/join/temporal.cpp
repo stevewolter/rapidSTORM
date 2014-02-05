@@ -1,15 +1,15 @@
 #include "inputs/join/temporal.h"
 #include <deque>
-#include <dStorm/image/MetaInfo.h>
+#include "image/MetaInfo.h"
 #include <Eigen/Core>
-#include <dStorm/output/LocalizedImage.h>
-#include <dStorm/output/LocalizedImage_traits.h>
+#include "output/LocalizedImage.h"
+#include "output/LocalizedImage_traits.h"
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <dStorm/localization/Fields.h>
+#include "localization/Fields.h"
 
 namespace dStorm {
 namespace temporal_join {

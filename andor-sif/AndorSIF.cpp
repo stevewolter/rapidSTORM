@@ -11,8 +11,8 @@
 #include <simparm/Message.h>
 
 #include "andor-sif/AndorSIF.h"
-#include <dStorm/input/Source.h>
-#include <dStorm/engine/Image.h>
+#include "input/Source.h"
+#include "engine/Image.h"
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>

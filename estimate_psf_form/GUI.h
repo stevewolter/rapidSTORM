@@ -1,7 +1,7 @@
 #ifndef DSTORM_FORMFITTER_GUI_H
 #define DSTORM_FORMFITTER_GUI_H
 
-#include <dStorm/display/DataSource.h>
+#include "display/DataSource.h"
 #include "core/Engine.h"
 #include <boost/thread/future.hpp>
 

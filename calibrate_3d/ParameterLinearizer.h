@@ -1,7 +1,7 @@
 #ifndef DSTORM_CALIBRATE_3D_PARAMETER_LINEARIZER_H
 #define DSTORM_CALIBRATE_3D_PARAMETER_LINEARIZER_H
 
-#include <dStorm/engine/InputTraits.h>
+#include "engine/InputTraits.h"
 #include <gsl/gsl_vector.h>
 #include "calibrate_3d/Config.h"
 

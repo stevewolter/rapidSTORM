@@ -1,21 +1,21 @@
 #define BOOST_DISABLE_ASSERTS
-#include <dStorm/namespaces.h>
+#include "namespaces.h"
 #include "test-plugin/DummyFileInput.h"
-#include <dStorm/input/Source.h>
-#include <dStorm/engine/Image.h>
+#include "input/Source.h"
+#include "engine/Image.h"
 #include <simparm/Entry.h>
-#include <dStorm/input/FileInput.h>
+#include "input/FileInput.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <fstream>
 #include <iostream>
 #include <fstream>
-#include <dStorm/engine/Image.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/Image.h"
+#include "image/constructors.h"
+#include "image/MetaInfo.h"
+#include "input/InputMutex.h"
+#include "engine/InputTraits.h"
 
 using namespace dStorm::input;
 using namespace boost::units;

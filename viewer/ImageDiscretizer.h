@@ -1,8 +1,8 @@
 #ifndef DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 
-#include <dStorm/input/Traits.h>
-#include <dStorm/Pixel.h>
+#include "input/Traits.h"
+#include "Pixel.h"
 #include "viewer/Publisher.h"
 #include "viewer/HighDepth.h"
 #include <vector>

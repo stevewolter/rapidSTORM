@@ -2,8 +2,8 @@
 #define DSTORM_CARCONFIG_H
 
 #include "core/Config.h"
-#include <dStorm/output/Config.h>
-#include <dStorm/input/Link.h>
+#include "output/Config.h"
+#include "input/Link.h"
 #include <memory>
 #include <list>
 #include <simparm/Group.h>
@@ -11,7 +11,7 @@
 #include <simparm/FileEntry.h>
 #include <simparm/Entry.h>
 #include <simparm/Message.h>
-#include <dStorm/output/BasenameAdjustedFileEntry.h>
+#include "output/BasenameAdjustedFileEntry.h"
 #include <boost/function/function1.hpp>
 
 #include "job/OutputTreeRoot.h"

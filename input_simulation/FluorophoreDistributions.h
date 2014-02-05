@@ -7,7 +7,7 @@
 #include "input_simulation/FluorophoreDistribution.h"
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
-#include <dStorm/UnitEntries.h>
+#include "UnitEntries.h"
 
 namespace input_simulation {
 namespace FluorophoreDistributions {

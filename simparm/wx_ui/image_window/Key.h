@@ -4,7 +4,7 @@
 #include <wx/wx.h>
 #include <memory>
 #include <vector>
-#include "dStorm/display/DataSource.h"
+#include "display/DataSource.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace simparm {

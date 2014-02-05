@@ -6,8 +6,8 @@
 #include <boost/units/systems/si/wavenumber.hpp>
 #include <boost/units/io.hpp>
 #include <boost/units/Eigen/Array>
-#include <dStorm/image/iterator.h>
-#include <dStorm/image/constructors.h>
+#include "image/iterator.h"
+#include "image/constructors.h"
 #include <boost/bind/bind.hpp>
 
 namespace dStorm {

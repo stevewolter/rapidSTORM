@@ -3,7 +3,7 @@
 
 #include <simparm/TriggerEntry.h>
 #include "core/Config.h"
-#include <dStorm/stack_realign.h>
+#include "stack_realign.h"
 
 namespace dStorm {
 

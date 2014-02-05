@@ -4,7 +4,7 @@
 #include <simparm/text_stream/Node.h>
 #include <simparm/text_stream/InnerBackendNode.h>
 #include <boost/lexical_cast.hpp>
-#include <dStorm/display/store_image.h>
+#include "display/store_image.h"
 #include "simparm/text_stream/image_window/md5.h"
 
 namespace simparm {

@@ -6,7 +6,7 @@
 #include <gsl/gsl_rng.h>
 #include <Eigen/Core>
 #include <queue>
-#include <dStorm/make_clone_allocator.hpp>
+#include "make_clone_allocator.hpp"
 
 namespace input_simulation {
 

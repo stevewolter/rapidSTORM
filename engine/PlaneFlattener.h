@@ -1,9 +1,9 @@
 #ifndef DSTORM_ENGINE_PLANE_JOINER_H
 #define DSTORM_ENGINE_PLANE_JOINER_H
 
-#include <dStorm/engine/Image.h>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/traits/Projection.h>
+#include "engine/Image.h"
+#include "image/MetaInfo.h"
+#include "traits/Projection.h"
 
 namespace dStorm {
 namespace engine {

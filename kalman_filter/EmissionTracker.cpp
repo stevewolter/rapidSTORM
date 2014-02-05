@@ -4,15 +4,15 @@
 #include <simparm/Entry.h>
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
-#include <dStorm/output/TraceReducer.h>
+#include "output/TraceReducer.h"
 #include <cassert>
 #include <Eigen/Core>
 #include <vector>
 #include "kalman_filter/KalmanTrace.h"
-#include <dStorm/output/FilterBuilder.h>
+#include "output/FilterBuilder.h"
 #include "binning/binning.h"
 #include "binning/binning.hpp"
-#include <dStorm/UnitEntries/Nanometre.h>
+#include "UnitEntries/Nanometre.h"
 #include <boost/ptr_container/ptr_set.hpp>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -20,10 +20,10 @@
 #include <algorithm>
 #include <numeric>
 #include <boost/units/Eigen/Array>
-#include <dStorm/helpers/back_inserter.h>
+#include "helpers/back_inserter.h"
 #include "binning/localization_impl.h"
-#include <dStorm/output/Filter.h>
-#include <dStorm/image/iterator.h>
+#include "output/Filter.h"
+#include "image/iterator.h"
 #include <boost/units/Eigen/Array>
 #include <boost/utility/in_place_factory.hpp>
 

@@ -6,7 +6,7 @@
 
 #include <boost/units/io.hpp>
 #include <bitset>
-#include <dStorm/display/DataSource.h>
+#include "display/DataSource.h"
 
 namespace dStorm {
 namespace binning {

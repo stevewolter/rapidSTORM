@@ -6,11 +6,11 @@
 #include "viewer/Status.h"
 
 
-#include <dStorm/Localization.h>
+#include "Localization.h"
 #include <boost/thread/mutex.hpp>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
-#include <dStorm/output/FileOutputBuilder.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
+#include "output/FileOutputBuilder.h"
 #include <Eigen/Core>
 
 namespace dStorm {

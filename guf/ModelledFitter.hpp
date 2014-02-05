@@ -16,8 +16,8 @@
 #include <nonlinfit/AbstractFunctionAdapter.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/JobInfo.h"
+#include "engine/InputTraits.h"
 #include "fit_window/Stack.h"
 #include <nonlinfit/AbstractTerminator.h>
 
