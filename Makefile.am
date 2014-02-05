@@ -97,7 +97,7 @@ rapidstorm_SOURCES = \
     dStorm/Engine.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
     dStorm/namespaces.h \
     dStorm/unit_interval.h \
-    dStorm/stack_realign.h dStorm/dimension_names.h \
+    dStorm/stack_realign.h \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
@@ -781,7 +781,6 @@ rapidstorm_SOURCES += \
     boost/units/systems/camera/area.hpp \
     boost/units/systems/camera/intensity.hpp \
     boost/units/systems/camera/intensity_dimension.hpp \
-    boost/units/systems/camera/pixel_size.hpp \
     boost/units/systems/camera/base.hpp \
     boost/units/systems/base_units/frame.hpp \
     boost/units/systems/base_units/pixel.hpp \
