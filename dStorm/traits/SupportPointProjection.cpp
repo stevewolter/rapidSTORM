@@ -25,7 +25,7 @@
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/corners.h>
 #include <dStorm/image/MetaInfo.h>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <dStorm/UnitEntries/PixelSize.h>
 
 #include "dStorm/traits/optics.h"

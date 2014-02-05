@@ -7,7 +7,7 @@
 #include <dStorm/Localization.h>
 #include <boost/units/systems/si/length.hpp>
 #include <boost/icl/continuous_interval.hpp>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 
 namespace dStorm {
 namespace ripley_k {

@@ -11,7 +11,7 @@
 #include <dStorm/image/dilation.h>
 #include <dStorm/image/morphological_reconstruction.hpp>
 #include "spotFinders/Fillhole.h"
-#include <dStorm/Image_iterator.h>
+#include "dStorm/image/iterator.h"
 
 #include <dStorm/image/convert.h>
 #include <dStorm/image/constructors.h>

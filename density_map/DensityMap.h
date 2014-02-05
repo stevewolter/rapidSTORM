@@ -4,7 +4,7 @@
 #include "density_map/Interpolator.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/output/Output.h>
 

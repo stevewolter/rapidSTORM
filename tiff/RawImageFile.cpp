@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "tiff/RawImageFile.h"
 #include <cassert>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <boost/units/io.hpp>
 #include <stdint.h>
 #include "tiff/TIFFOperation.h"

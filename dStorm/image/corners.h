@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_CORNERS_H
 #define DSTORM_IMAGE_CORNERS_H
 
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 
 namespace dStorm {
 

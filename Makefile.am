@@ -151,7 +151,6 @@ rapidstorm_SOURCES = \
     dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
-    dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
     dStorm/image/Image.h dStorm/image/Image.hpp \
     dStorm/image/fwd.h dStorm/image/MetaInfo.h dStorm/image/MetaInfo.hpp \
     dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \

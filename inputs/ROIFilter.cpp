@@ -7,7 +7,7 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant.hpp>
 #include <dStorm/image/extend.h>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <dStorm/image/slice.h>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/MetaInfo.h>

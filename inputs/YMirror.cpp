@@ -2,7 +2,7 @@
 
 #include <boost/smart_ptr/shared_array.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <dStorm/image/mirror.h>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/Method.hpp>

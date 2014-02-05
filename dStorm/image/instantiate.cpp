@@ -1,4 +1,4 @@
-#include "dStorm/Image.h"
+#include "dStorm/image/Image.h"
 #include "dStorm/image/constructors.h"
 
 namespace dStorm {

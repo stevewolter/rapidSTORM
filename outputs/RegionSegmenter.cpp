@@ -26,7 +26,7 @@
 #include "outputs/RegionSegmenter.h"
 #include <limits>
 #include <stdio.h>
-#include <dStorm/Image_iterator.h>
+#include "dStorm/image/iterator.h"
 #include <dStorm/engine/Spot.h>
 #include <dStorm/image/dilation.h>
 #include <dStorm/image/extend.h>
@@ -42,7 +42,7 @@
 #include <dStorm/output/Filter.h>
 #include "density_map/LinearInterpolation.h"
 
-#include <dStorm/Image_impl.h>
+#include "dStorm/image/Image.hpp"
 #include <dStorm/image/dilation_impl.h>
 #include "binning/binning.h"
 

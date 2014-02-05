@@ -1,6 +1,6 @@
 #include "dStorm/display/Manager.h"
 #include "dStorm/display/DataSource.h"
-#include <dStorm/Image_impl.h>
+#include "dStorm/image/Image.hpp"
 #include <limits>
 
 namespace dStorm {

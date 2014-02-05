@@ -6,7 +6,7 @@
 #include <boost/shared_ptr.hpp> 
 #include <dStorm/input/Traits.h>
 #include <boost/utility.hpp>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <dStorm/engine/InputTraits.h>
 #include <read_sif.h>
 

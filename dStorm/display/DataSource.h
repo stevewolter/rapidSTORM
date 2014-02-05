@@ -7,7 +7,7 @@
 #include <vector>
 #include <list>
 #include <dStorm/Pixel.h>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <boost/units/systems/camera/resolution.hpp>
 #include <boost/units/systems/camera/length.hpp>
 #include <dStorm/image/MetaInfo.h>

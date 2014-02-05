@@ -28,7 +28,7 @@
 #include <simparm/text_stream/RootNode.h>
 
 #include <dStorm/engine/Image.h>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/image/slice.h>
 #include <dStorm/input/InputMutex.h>

@@ -3,8 +3,8 @@
 
 #include <boost/units/io.hpp>
 #include <dStorm/image/MetaInfo.h>
-#include <dStorm/Image_iterator.h>
-#include <dStorm/Image_impl.h>
+#include "dStorm/image/iterator.h"
+#include "dStorm/image/Image.hpp"
 #include <algorithm>
 
 #include "viewer/ImageDiscretizer.h"

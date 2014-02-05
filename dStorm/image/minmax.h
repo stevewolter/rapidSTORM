@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_MINMAX_H
 #define DSTORM_IMAGE_MINMAX_H
 
-#include "dStorm/Image.h"
+#include "dStorm/image/Image.h"
 #include "dStorm/image/iterator.h"
 #include <algorithm>
 

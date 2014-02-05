@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <simparm/FileEntry.h>
 #include <dStorm/helpers/thread.h>
-#include <dStorm/Image.h>
+#include "dStorm/image/Image.h"
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>

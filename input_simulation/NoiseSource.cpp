@@ -14,7 +14,7 @@
 #include <fstream>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-#include <dStorm/Image_impl.h>
+#include "dStorm/image/Image.hpp"
 #include <dStorm/input/Source.h>
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/engine/InputTraits.h>

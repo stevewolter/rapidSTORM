@@ -10,11 +10,11 @@
 #include <memory>
 
 #include <iostream>
-#include <dStorm/Image_iterator.h>
+#include "dStorm/image/iterator.h"
 #include <dStorm/display/Manager.h>
 #include <dStorm/display/store_image.h>
 #include <dStorm/display/display_normalized.hpp>
-#include <dStorm/Image_impl.h>
+#include "dStorm/image/Image.hpp"
 #include <dStorm/image/extend.h>
 
 using namespace std;

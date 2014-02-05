@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_MIRROR_H
 #define DSTORM_IMAGE_MIRROR_H
 
-#include "dStorm/Image.h"
+#include "dStorm/image/Image.h"
 #include "dStorm/image/constructors.h"
 
 namespace dStorm {
