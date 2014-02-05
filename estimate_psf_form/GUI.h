@@ -2,7 +2,7 @@
 #define DSTORM_FORMFITTER_GUI_H
 
 #include <dStorm/display/DataSource.h>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <boost/thread/future.hpp>
 
 #include "estimate_psf_form/Tile.h"

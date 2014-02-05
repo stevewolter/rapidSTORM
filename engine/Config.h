@@ -14,7 +14,7 @@
 #include <boost/units/cmath.hpp>
 #include <dStorm/output/Basename_decl.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <dStorm/output/LocalizedImage_decl.h>
 #include <dStorm/input/Source.h>
 

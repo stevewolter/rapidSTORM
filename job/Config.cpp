@@ -10,7 +10,7 @@
 #include <sstream>
 
 #include <boost/smart_ptr/make_shared.hpp>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <dStorm/input/Forwarder.h>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/input/MetaInfo.h>

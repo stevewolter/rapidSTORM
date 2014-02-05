@@ -8,7 +8,7 @@
 
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/OutputBuilder.h>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <dStorm/image/slice.h>
 #include <dStorm/image/crop.h>
 #include <dStorm/image/convert.h>

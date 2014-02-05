@@ -11,7 +11,7 @@
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/output/Filter.h>
 #include <simparm/Entry.h>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <dStorm/units/microlength.h>
 
 namespace dStorm {

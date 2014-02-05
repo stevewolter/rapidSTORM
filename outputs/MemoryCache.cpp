@@ -1,5 +1,5 @@
 #include "outputs/MemoryCache.h"
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 
 #include "debug.h"
 #include <string>
@@ -9,7 +9,7 @@
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/localization/Traits.h>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <dStorm/stack_realign.h>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/thread/condition.hpp>

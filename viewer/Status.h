@@ -6,7 +6,7 @@
 #include <simparm/FileEntry.h>
 #include <simparm/TriggerEntry.h>
 #include <boost/thread/mutex.hpp>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 
 namespace dStorm {
 namespace display { class Manager; }

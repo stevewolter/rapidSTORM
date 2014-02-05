@@ -8,7 +8,7 @@
 #include "dStorm/engine/Input_decl.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <vector>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 
 namespace boost { struct recursive_mutex; }
 

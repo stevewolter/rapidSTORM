@@ -1,7 +1,7 @@
 #include "outputs/TraceFilter.h"
 #include <dStorm/output/Filter.h>
 #include <dStorm/output/FilterBuilder.h>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <simparm/Entry.h>
 #include <vector>
 #include <numeric>

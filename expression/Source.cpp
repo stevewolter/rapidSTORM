@@ -6,7 +6,7 @@
 #include "expression/Simplifier.h"
 #include "expression/Evaluator.h"
 
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <boost/bind/bind.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/utility/in_place_factory.hpp>

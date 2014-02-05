@@ -5,7 +5,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <dStorm/output/Output.h>
 #include <dStorm/stack_realign.h>
 

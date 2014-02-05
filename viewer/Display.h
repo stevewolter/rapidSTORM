@@ -4,7 +4,7 @@
 #include "viewer/ImageDiscretizer.h"
 #include <vector>
 #include <dStorm/display/Manager.h>
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 
 namespace dStorm {
 namespace viewer {

@@ -3,7 +3,7 @@
 #include <boost/units/Eigen/Array>
 #include <boost/units/io.hpp>
 
-#include <dStorm/Engine.h>
+#include "core/Engine.h"
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/contains.h>
 #include <dStorm/image/constructors.h>
