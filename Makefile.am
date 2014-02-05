@@ -93,7 +93,7 @@ rapidstorm_SOURCES = \
     dStorm/Pixel.h \
     dStorm/DataSetTraits.h \
     dStorm/Job.h dStorm/UnitEntries.h \
-    dStorm/Config_decl.h dStorm/Config.h \
+    dStorm/Config.h \
     dStorm/Engine.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
     dStorm/namespaces.h \
     dStorm/unit_interval.h \
