@@ -95,7 +95,7 @@ rapidstorm_SOURCES = \
     dStorm/Job.h dStorm/UnitEntries.h \
     dStorm/Config_decl.h dStorm/Config.h \
     dStorm/Engine.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
-    dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
+    dStorm/namespaces.h \
     dStorm/unit_interval.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
