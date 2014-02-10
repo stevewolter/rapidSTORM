@@ -8,7 +8,6 @@
 #include "expression/Source_decl.h"
 #include "outputs/Slicer.h"
 #include "outputs/MemoryCache.h"
-#include "outputs/LocalizationFile.h"
 #include "outputs/SigmaDiff3D.h"
 #include "outputs/LinearAlignment.h"
 #include "outputs/DriftRemover.h"
@@ -25,7 +24,6 @@ namespace dStorm {
 namespace output {
 
 void basic_outputs( dStorm::Config* o ) {
-    o->add_output( localization_file::writer::create() );
     o->add_output( make_progress_meter_source().release() );
     o->add_output( make_localization_counter_source().release() );
     o->add_output( make_average_image_source().release() );

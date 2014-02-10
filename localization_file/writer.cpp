@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "outputs/LocalizationFile.h"
+#include "localization_file/writer.h"
 
 #include <memory>
 #include <iostream>
@@ -24,7 +24,6 @@ using namespace std;
 
 namespace dStorm {
 namespace localization_file {
-namespace writer {
 
 class Config {
   public:
@@ -169,10 +168,9 @@ Output::Output(const Config &c)
 
 Output::~Output() {}
 
-std::auto_ptr<output::OutputSource> create() {
+std::auto_ptr<output::OutputSource> make_output_source() {
     return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Config,Output>() );
 }
 
-}
 }
 }

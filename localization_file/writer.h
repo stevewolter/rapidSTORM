@@ -2,10 +2,8 @@
 
 namespace dStorm {
 namespace localization_file {
-namespace writer {
 
-std::auto_ptr< output::OutputSource > create();
+std::auto_ptr< output::OutputSource > make_output_source();
 
-}
 }
 }

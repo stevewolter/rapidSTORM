@@ -12,6 +12,7 @@
 #include "noop_engine/ChainLink_decl.h"
 #include "guf/fitter.h"
 #include "estimate_psf_form/decl.h"
+#include "localization_file/writer.h"
 
 #include "test-plugin/plugin.h"
 #include "kalman_filter/fwd.h"
@@ -94,6 +95,7 @@ void add_output_modules( dStorm::Config& car_config )
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     car_config.add_output( kalman_filter::create() );
     car_config.add_output( kalman_filter::create_drift_correction() );
+    car_config.add_output( localization_file::make_output_source() );
     car_config.add_output( ripley_k::make_output_source().release() );
     test::output_modules( &car_config );
 

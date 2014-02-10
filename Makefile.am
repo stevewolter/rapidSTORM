@@ -194,8 +194,8 @@ rapidstorm_SOURCES += \
     localization_file/fields.cpp \
     localization_file/localization_field.h \
     localization_file/localization_field_impl.h \
-    localization_file/reader.cpp \
-    localization_file/reader.h \
+    localization_file/reader.cpp localization_file/reader.h \
+    localization_file/writer.h localization_file/writer.cpp  \
     localization_file/unknown_field.h 
 
 rapidstorm_SOURCES += \
@@ -292,7 +292,7 @@ rapidstorm_SOURCES += \
     inputs/PlaneFilter.h inputs/PlaneFilter.cpp \
     inputs/Basename.h inputs/Basename.cpp \
     inputs/Buffer.h inputs/Buffer.cpp \
-    inputs/LocalizationFile.h inputs/LocalizationFile.cpp  \
+    inputs/LocalizationFile.h inputs/LocalizationFile.cpp \
     inputs/WarnAboutLocalizationFile.h inputs/WarnAboutLocalizationFile.cpp
 
 rapidstorm_SOURCES += \
@@ -342,7 +342,6 @@ rapidstorm_SOURCES += \
     outputs/BasicTransmissions.h \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
-    outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
     outputs/LinearAlignment.h outputs/LinearAlignment.cpp \
     outputs/Crankshaft.h outputs/Crankshaft.cpp \
