@@ -40,7 +40,7 @@ class Run
     Output& output;
     int piston_count;
 
-    DSTORM_REALIGN_STACK void compute_input();
+    DSTORM_REALIGN_STACK void compute_input(int thread);
     void stop_computation();
 };
 

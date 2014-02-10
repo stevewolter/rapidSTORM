@@ -14,15 +14,14 @@
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/make_clone_allocator.hpp>
 
-#include "join/spatial.hpp"
-#include "join/temporal.hpp"
-#include "join/iterator_generic.hpp"
+#include "join/spatial.h"
+#include "join/temporal.h"
 
 namespace dStorm {
 namespace input {
 namespace join {
 
-typedef std::vector< boost::shared_ptr<BaseSource> > Sources;
+typedef std::vector<std::unique_ptr<BaseSource>> Sources;
 
 struct fluorophore_tag {
     static std::string get_name() { return "Fluorophore"; }
@@ -36,7 +35,7 @@ struct Strategist
     virtual Strategist* clone() const = 0;
     virtual boost::shared_ptr< const MetaInfo > make_traits(
         const std::vector< boost::shared_ptr< const MetaInfo > >& v ) = 0;
-    virtual std::auto_ptr<BaseSource> make_source( const Sources& sources ) = 0;
+    virtual std::auto_ptr<BaseSource> make_source( Sources sources ) = 0;
     void attach_ui( simparm::NodeHandle to ) { attach_parent(to); }
 };
 
@@ -50,83 +49,25 @@ namespace dStorm {
 namespace input {
 namespace join {
 
-
-template <typename Type, typename Tag>
-class Source
-: public input::Source<Type>
-{
-    typedef input::Source<Type> Base;
-    typedef std::vector< boost::shared_ptr<Base> > Sources;
-    Sources sources;
-    std::vector< boost::shared_ptr< const input::Traits<Type> > > base_traits;
-    typename Base::TraitsPtr traits;
-    boost::ptr_vector< simparm::Object > connection_nodes;
-
-    void attach_ui_( simparm::NodeHandle n ) { 
-        for (size_t i = 0; i < sources.size(); ++i) {
-            std::auto_ptr< simparm::Object > object( 
-                new simparm::Object("Channel" + boost::lexical_cast<std::string>(i), "") );
-            sources[i]->attach_ui( object->attach_ui( n ) ); 
-            connection_nodes.push_back( object );
-        }
-    }
-
-  public:
-    Source( const Sources& s ) : sources(s) {}
-    void dispatch(BaseSource::Messages m) {
-        for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i)
-            (*i)->dispatch(m);
-    }
-    typename Base::iterator begin();
-    typename Base::iterator end();
-    typename Base::TraitsPtr get_traits( input::BaseSource::Wishes r ) {
-        for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i) {
-            base_traits.push_back( (*i)->get_traits(r) );
-        }
-        traits.reset(  merge_traits<Type,Tag>()(base_traits).release()  );
-        return traits;
-    }
-
-    BaseSource::Capabilities capabilities() const {
-        BaseSource::Capabilities rv;
-        rv.set();
-        for (typename Sources::const_iterator i = sources.begin(); i != sources.end(); ++i)
-            rv = rv.to_ulong() & (*i)->capabilities().to_ulong();
-        return rv;
-    }
-};
-
-template <typename Type, typename Tag>
-typename input::Source<Type>::iterator
-    Source<Type,Tag>::begin() 
-{ 
-    return typename Base::iterator( iterator<Type,Tag>(traits, base_traits, sources, false) );  
-}
-template <typename Type, typename Tag>
-typename input::Source<Type>::iterator
-Source<Type,Tag>::end()  {
-    return typename Base::iterator( iterator<Type,Tag>(traits, base_traits, sources, true) );
-}
-
 std::auto_ptr< BaseSource > make_specialized_source( 
-        const std::vector< boost::shared_ptr< input::Source<engine::ImageStack> > >& v ,
-        spatial_tag<2>
+        std::vector<std::unique_ptr<input::Source<engine::ImageStack>>> v,
+        spatial_join::tag
 ) { 
-    return std::auto_ptr< BaseSource >( new Source<engine::ImageStack, spatial_tag<2> >(v) ); 
+    return std::auto_ptr< BaseSource >(spatial_join::Create(std::move(v)).release()); 
 }
 
 template <typename Type>
 std::auto_ptr< BaseSource > make_specialized_source( 
-        const std::vector< boost::shared_ptr< input::Source<Type> > >& v ,
-        temporal_tag
+        std::vector<std::unique_ptr<input::Source<Type>>> v,
+        temporal_join::tag
 ) { 
-    std::auto_ptr< BaseSource > rv( new Source<Type, temporal_tag >(v) ); 
+    std::auto_ptr< BaseSource > rv(temporal_join::Create(std::move(v)).release()); 
     return rv;
 }
 
 template <typename Type, typename Tag>
 std::auto_ptr< BaseSource > make_specialized_source( 
-        const std::vector< boost::shared_ptr< input::Source<Type> > >& v ,
+        std::vector<std::unique_ptr<input::Source<Type>>> v,
         Tag
 ) { 
     throw std::runtime_error("Sorry, joining input files with these types not implemented yet.");
@@ -148,14 +89,14 @@ class StrategistImplementation
         boost::shared_ptr< const MetaInfo >& result
     ) {
         if ( result.get() ) return;
-        typename traits_merger<Type>::argument_type traits;
+        std::vector< boost::shared_ptr< const input::Traits<Type> > > traits;
         for (size_t i = 0; i < v.size(); ++i)
             if ( v[i] && v[i]->provides< Type >() ) {
                 traits.push_back( v[i]->traits<Type>() );
                 assert( traits.back() );
             } else
                 return;
-        std::auto_ptr<BaseTraits> base( merge_traits<Type,Tag>()( traits ).release() );
+        std::auto_ptr<BaseTraits> base( merge_traits( traits, Tag() ).release() );
         if ( ! base.get() ) return;
         std::auto_ptr< MetaInfo > rv(new MetaInfo(*v[0]) );
         rv->set_traits( base );
@@ -164,17 +105,22 @@ class StrategistImplementation
 
     template <typename Type>
     void operator()( 
-        const Sources& sources, const Type&,
+        Sources* sources, const Type&,
         std::auto_ptr<BaseSource>& result
     ) {
         if ( result.get() ) return;
-        std::vector< boost::shared_ptr< input::Source<Type> > > typed;
-        for (size_t i = 0; i < sources.size(); ++i) {
-            typed.push_back( 
-                boost::dynamic_pointer_cast< input::Source<Type>, BaseSource >( sources[i] ) );
-            if ( ! typed.back().get() ) return;
+        if ( sources->size() == 0 ) return;
+        if (dynamic_cast<input::Source<Type>*>(sources->at(0).get()) == nullptr) {
+            return;
         }
-        result = make_specialized_source( typed, Tag() );
+
+        std::vector<std::unique_ptr<input::Source<Type>>> typed;
+        for (size_t i = 0; i < sources->size(); ++i) {
+            typed.emplace_back(
+                dynamic_cast<input::Source<Type>*>(sources->at(i).release()));
+            assert(typed.back().get());
+        }
+        result = make_specialized_source( std::move(typed), Tag() );
     }
 
     boost::shared_ptr< const MetaInfo > make_traits(
@@ -186,10 +132,10 @@ class StrategistImplementation
         if ( ! result ) result.reset( new MetaInfo() );
         return result;
     }
-    std::auto_ptr<BaseSource> make_source( const Sources& sources ) { 
+    std::auto_ptr<BaseSource> make_source( Sources sources ) { 
         std::auto_ptr<BaseSource> result;
         boost::mpl::for_each< DefaultTypes >(
-            boost::bind( boost::ref(*this), boost::ref(sources), _1, boost::ref(result) ) );
+            boost::bind( boost::ref(*this), &sources, _1, boost::ref(result) ) );
         return result;
     }
 };
@@ -276,10 +222,9 @@ Link::Link()
 {
     channel_count.min = 1;
 
-    join_type.addChoice( new StrategistImplementation< spatial_tag<2> >() );
-    join_type.addChoice( new StrategistImplementation< temporal_tag >() );
-    // TODO: Implement join_type.addChoice( new StrategistImplementation< fluorophore_tag >() );
-    join_type.choose( spatial_tag<2>::get_name() );
+    join_type.addChoice( new StrategistImplementation< spatial_join::tag >() );
+    join_type.addChoice( new StrategistImplementation< temporal_join::tag >() );
+    join_type.choose( spatial_join::tag::get_name() );
     join_type.set_visibility( false );
 }
 
@@ -316,9 +261,8 @@ BaseSource* Link::makeSource() {
     } else {
         Sources sources;
         for (size_t i = 0; i < children.size(); ++i)
-            sources.push_back( boost::shared_ptr<BaseSource>( 
-                children[i].make_source() ) );
-        return join_type().make_source( sources ).release();
+            sources.emplace_back(children[i].make_source());
+        return join_type().make_source( std::move(sources) ).release();
     }
 }
 

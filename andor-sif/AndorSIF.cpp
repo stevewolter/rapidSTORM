@@ -15,7 +15,6 @@
 #include <dStorm/engine/Image.h>
 #include <stdexcept>
 
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
@@ -25,7 +24,8 @@ namespace andor_sif {
 
 Source::Source(std::auto_ptr<OpenFile> file)
 : file(file),
-  has_been_iterated(false)
+  has_been_iterated(false),
+  count(0)
 {
 }
 
@@ -58,46 +58,18 @@ void Config::modify_meta_info( dStorm::input::MetaInfo& i )
     i.accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
 }
 
-class Source::iterator
-: public boost::iterator_facade<iterator,Image,std::input_iterator_tag>
-{
-    mutable boost::optional<Image> img;
-    OpenFile* src;
-    mutable simparm::NodeHandle msg;
-    int count;
-    mutable bool did_load;
-
-    friend class boost::iterator_core_access;
-
-    Image& dereference() const { 
-        if ( ! img ) {
-            std::auto_ptr<engine::ImageStack> i = src->load_image(count, msg);
-            if ( i.get() != NULL )
-                img = *i;
-            else
-                img = Image( engine::Image2D() );
-            img->frame_number() = count * camera::frame;
-        }
-        return *img; 
-    }
-    bool equal(const iterator& i) const { 
-        return count == i.count || (src && src->did_have_errors()); 
+bool Source::GetNext(int thread, engine::ImageStack* output) { 
+    if (count >= file->number_of_images()) {
+        return false;
     }
 
-    void increment() { ++count; img.reset(); }
-  public:
-    iterator() : src(NULL), count(0) {}
-    iterator(Source& s, int c = 0) : src(s.file.get()), msg( s.current_ui ), count(c)
-    {}
-};
-
-Source::base_iterator 
-Source::begin() {
-    return base_iterator( iterator(*this, 0) );
-}
-Source::base_iterator 
-Source::end() {
-    return base_iterator( iterator(*this, file->number_of_images()) );
+    std::auto_ptr<engine::ImageStack> i = file->load_image(count, current_ui);
+    if ( i.get() != NULL )
+        *output = *i;
+    else
+        *output = Image( engine::Image2D() );
+    output->frame_number() = count++ * camera::frame;
+    return true;
 }
 
 std::auto_ptr< input::Link > make_input() {

@@ -76,10 +76,8 @@ class Source
 : public input::AdapterSource< engine::ImageStack >
 {
     const int plane;
-    typedef input::Source< engine::ImageStack >::iterator base_iterator;
     void attach_local_ui_( simparm::NodeHandle ) {}
-
-    struct _iterator;
+    bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;
 
   public:
     Source( std::auto_ptr< input::Source<engine::ImageStack> > upstream,
@@ -87,8 +85,6 @@ class Source
         : input::AdapterSource<engine::ImageStack>(upstream), plane(plane) {}
     Source* clone() const { throw std::logic_error("Not implemented"); }
 
-    base_iterator begin();
-    base_iterator end();
     void modify_traits( input::Traits<engine::ImageStack>& p)
     {
         engine::InputPlane only = p.plane(plane);
@@ -97,42 +93,15 @@ class Source
     }
 };
 
-class Source::_iterator 
-  : public boost::iterator_adaptor< _iterator, base_iterator >
-{
-    int plane;
-    mutable bool is_initialized;
-    mutable engine::ImageStack i;
-
-    friend class boost::iterator_core_access;
-    void increment() { 
-        ++this->base_reference(); 
-        is_initialized = false;
+bool Source::GetNext(int thread, engine::ImageStack* target) {
+    engine::ImageStack all_planes;
+    if (!input::AdapterSource< engine::ImageStack >::GetNext(thread, &all_planes)) {
+        return false;
     }
 
-    void select_plane();
-
-    engine::ImageStack& dereference() const { 
-        if ( ! is_initialized ) {
-            const engine::ImageStack& all_planes = *this->base();
-            i = engine::ImageStack( all_planes.frame_number() );
-            i.push_back( all_planes.plane( plane ) );
-            is_initialized = true;
-        }
-        return i; 
-    }
-    
-  public:
-    explicit _iterator(int plane, const base_iterator base)
-      : _iterator::iterator_adaptor_(base), plane(plane), is_initialized(false) {}
-};
-
-Source::base_iterator Source::begin() { 
-    return base_iterator( _iterator( plane, this->base().begin() ) ); 
-}
-
-Source::base_iterator Source::end() {
-    return base_iterator( _iterator( plane, this->base().end() ) ); 
+    *target = engine::ImageStack( all_planes.frame_number() );
+    target->push_back( all_planes.plane( plane ) );
+    return true;
 }
 
 class ChainLink 

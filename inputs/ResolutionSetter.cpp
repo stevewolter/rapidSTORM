@@ -122,10 +122,9 @@ struct DummyImageSource : public input::Source<engine::ImageStack>
 {
     DummyImageSource() {}
     void attach_ui_( simparm::NodeHandle ) {}
-    typedef Source<engine::ImageStack>::iterator iterator;
     void dispatch(Messages m) {}
-    iterator begin() { return iterator(); }
-    iterator end() { return iterator(); }
+    void set_thread_count(int num_threads) {}
+    bool GetNext(int thread, engine::ImageStack* target) OVERRIDE { return false; }
     TraitsPtr get_traits( Wishes ) { 
         return TraitsPtr( 
             new TraitsPtr::element_type(

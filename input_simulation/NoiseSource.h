@@ -97,6 +97,7 @@ namespace input_simulation {
         typedef dStorm::engine::ImageStack Image;
         typedef dStorm::input::Source<Image> Source;
         boost::shared_ptr< dStorm::input::Traits< Image > > t;
+        int current_image;
         int imN;
         boost::units::quantity<boost::units::si::time> integration_time;
         typedef boost::ptr_list<Fluorophore> FluorophoreList;
@@ -109,7 +110,6 @@ namespace input_simulation {
         std::auto_ptr<std::ostream> output;
         void dispatch(dStorm::input::BaseSource::Messages m) { assert( !m.any() ); }
 
-        class iterator;
         void attach_ui_( simparm::NodeHandle n ) { current_ui = name_object.attach_ui(n); }
 
       protected:
@@ -119,17 +119,14 @@ namespace input_simulation {
         NoiseSource(const NoiseConfig &config);
         ~NoiseSource();
 
-        dStorm::engine::ImageStack* fetch(int index);
-
         const boost::ptr_list<Fluorophore>& getFluorophores() const
             { return fluorophores; }
 
-        typedef typename Source::iterator base_iterator;
-        base_iterator begin();
-        base_iterator end();
         typename Source::TraitsPtr get_traits( typename Source::Wishes );
         typename Source::Capabilities capabilities() const 
             { return typename Source::Capabilities(); }
+        void set_thread_count(int num_threads) OVERRIDE {}
+        bool GetNext(int thread, dStorm::engine::ImageStack* output) OVERRIDE;
     };
 
 }

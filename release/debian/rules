@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+CPPFLAGS+=-DNDEBUG
+CXXFLAGS+=-O3 -msse -msse2 -mfpmath=sse -g0 
+CFLAGS+=-O3 -msse -msse2 -mfpmath=sse -g0
+CPPFLAGS+=$(if $(filter w64,$(DEB_HOST_ARCH_OS)),-DBOOST_USE_WINDOWS_H,)
+
+# Link-time optimization breaks with GCC 4.7
+# CXXFLAGS+=$(if $(filter w64,$(DEB_HOST_ARCH_OS)),,-flto)
+# CFLAGS+=$(if $(filter w64,$(DEB_HOST_ARCH_OS)),,-flto)
+
+XSLT_FLAGS += --nonet
+
+export CPPFLAGS CFLAGS CXXFLAGS XSLT_FLAGS
+
+%:
+	dh $@ 
+
+define build_documentation
+	make -C doc all
+	make doxygen-run
+	if pdflatex --version 2>&1 | grep -q "TeX Live 201[0-9]"; then \
+	    make -C doxygen-doc/latex; \
+	else \
+	    touch doxygen-doc/latex/refman.pdf; \
+	fi
+endef
+
+build :
+	dh_testdir -Nrapidstorm
+	dh_auto_configure -- --enable-specialized-fitters --disable-override-check
+	$(build_documentation)
+	make all 
+	dh_auto_test
+
+override_dh_auto_configure :
+	dh_auto_configure -- --enable-specialized-fitters --disable-override-check
+
+override_dh_auto_build-indep :
+	$(build_documentation)
+
+override_dh_auto_test-indep :
+override_dh_auto_install-indep :
+	DESTDIR=../debian/tmp make -C doc install
+

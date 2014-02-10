@@ -16,7 +16,6 @@
 #include "test-plugin/plugin.h"
 #include "kalman_filter/fwd.h"
 #include "input_simulation/plugin.h"
-#include "AndorCamera/plugin.h"
 #include "viewer/plugin.h"
 #include "tiff/augment_config.h"
 #include "andor-sif/augment_config.h"
@@ -61,7 +60,6 @@ void add_image_input_modules( dStorm::Config& car_config )
     dStorm::tiff::input_driver( car_config );
     dStorm::andor_sif::augment_config( car_config );
     car_config.add_input( inputs::make_warn_about_localization_file(), FileReader );
-    AndorCamera::augment_config( car_config );
 
     car_config.add_spot_finder( spalttiefpass_smoother::make_spot_finder_factory() );
     car_config.add_spot_finder( median_smoother::make_spot_finder_factory() );

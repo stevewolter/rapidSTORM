@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# The cputable needs its own entry since the cross compiler is called i686-...
+echo "i686 i686 i686 32 little" >> /usr/share/dpkg/cputable
+echo 'mingw-w64 w64-mingw32 w64-mingw32[^-]*' >> /usr/share/dpkg/ostable
+echo 'mingw-w64-<cpu> mingw-<cpu>' >> /usr/share/dpkg/triplettable

@@ -133,6 +133,17 @@ AS_IF(
     [])
 AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
 
+AC_ARG_ENABLE([override-check],
+    [AS_HELP_STRING([--enable-override-check],
+        [enable use of the C++11 override keyword])],
+        [],
+        [enable_override_check=yes])
+AS_IF(
+    [test "x$enable_override_check" = xyes],
+    [ CPPFLAGS="-DOVERRIDE=override $CPPFLAGS" ],
+    [ CPPFLAGS="-DOVERRIDE= $CPPFLAGS"]
+)
+
 AC_ARG_ENABLE([specialized-fitters],
     [AS_HELP_STRING([--enable-specialized-fitters],
         [enable use of specialized fitters for common array sizes @<:@default=no@:>@])],
@@ -200,6 +211,6 @@ AC_SUBST([test_camera], "$enable_camera_testing")
 AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
 AM_CONDITIONAL([INTEGRATION_TESTING], [test -n "$with_rapidstorm_test_cases"])
 
-AC_CONFIG_FILES([Makefile rapidstorm.desktop install-dirs.exp])
+AC_CONFIG_FILES([Makefile rapidstorm.desktop install-dirs.exp release/create-release.sh release/pbuilder/pbuilderrc])
 
 AC_OUTPUT

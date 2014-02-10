@@ -34,27 +34,29 @@ namespace andor_sif {
       public:
         typedef dStorm::engine::ImageStack Image;
         typedef input::Source<Image> BaseSource;
-        typedef typename BaseSource::iterator base_iterator;
         typedef typename BaseSource::TraitsPtr TraitsPtr;
 
         Source(std::auto_ptr<OpenFile> file);
         virtual ~Source();
 
-        base_iterator begin();
-        base_iterator end();
         TraitsPtr get_traits( typename BaseSource::Wishes );
 
         void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
         typename BaseSource::Capabilities capabilities() const
             { return typename BaseSource::Capabilities(); }
+        void set_thread_count(int num_threads) OVERRIDE {
+            assert(num_threads == 1);
+        }
+
+        bool GetNext(int thread, engine::ImageStack* output) OVERRIDE;
+
 
       private:
         simparm::NodeHandle current_ui;
         void attach_ui_( simparm::NodeHandle n ) { current_ui = n; }
         std::auto_ptr<OpenFile> file;
         bool has_been_iterated;
-
-        class iterator;
+        int count;
     };
 
     /** Config class for Source. Simple config that adds
