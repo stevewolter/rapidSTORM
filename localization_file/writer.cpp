@@ -52,15 +52,16 @@ class Output : public output::Output {
     std::ostream *file;
     input::Traits<Localization> traits;
 
-    std::auto_ptr< Field > field;
+    std::vector<std::unique_ptr<Field>> fields;
     bool xyztI_format;
     simparm::NodeHandle current_ui;
 
     void open();
-    template <int Field> void make_fields();
     void output( const Localization& );
     void store_results_( bool success );
     void attach_ui_( simparm::NodeHandle at ) { current_ui = at; }
+
+    std::unique_ptr<TiXmlNode> MakeHeader(const input::Traits<Localization>& traits);
 
   public:
     Output(const Config&);
@@ -105,13 +106,24 @@ void Output::open() {
         file = &cout;
 
     if ( xyztI_format )
-        field = Field::construct_xyztI(traits);
+        fields = Field::construct_xyztI(traits);
     else
-        field = Field::construct(traits);
+        fields = Field::construct(traits);
+
     /** Write XML header for localization file */
-    std::auto_ptr<TiXmlNode> node = field->makeNode( traits );
+    std::unique_ptr<TiXmlNode> node = MakeHeader(traits);
 
     *file << "# " << *node << "\n";
+}
+
+std::unique_ptr<TiXmlNode> Output::MakeHeader(const input::Traits<Localization>& traits) {
+    std::unique_ptr<TiXmlElement> rv( new TiXmlElement("localizations") );
+    rv->SetAttribute("insequence", (traits.in_sequence) ? "true" : "false");
+    rv->SetAttribute("repetitions", "variable");
+    for (const auto& field : fields) {
+        rv->LinkEndChild( field->makeNode( traits ).release() );
+    }
+    return std::move(rv);
 }
 
 Output::AdditionalData
@@ -121,7 +133,15 @@ Output::announceStormSize(const Announcement &a) {
 }
 
 void Output::output( const Localization& l ) {
-    field->write( *file, l );
+    bool initial_space = true;
+    for (const auto& field : fields) {
+        if (initial_space) {
+            initial_space = false;
+        } else {
+            *file << " ";
+        }
+        field->write( *file, l );
+    }
     *file << "\n";
 }
 

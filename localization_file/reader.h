@@ -31,7 +31,6 @@ namespace Reader {
         std::string filename;
         boost::shared_ptr<std::istream> stream_store;
         std::istream& input;
-        int level;
         Traits traits;
 
         File(std::string filename, const Traits& );
@@ -65,7 +64,7 @@ namespace Reader {
         File file;
         std::unique_ptr<output::TraceReducer> reducer;
 
-        localization::Record read_localization( int level ); 
+        localization::Record read_localization(); 
 
         void dispatch(Messages m) { assert( ! m.any() ); }
         void attach_ui_(simparm::NodeHandle ) {}

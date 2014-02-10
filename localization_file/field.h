@@ -41,8 +41,8 @@ class Field {
 
     typedef std::auto_ptr<Field> Ptr;
     static Ptr parse(const TiXmlNode& node, Traits& traits);
-    static std::auto_ptr<Field> construct( const Traits& traits );
-    static std::auto_ptr<Field> construct_xyztI( const Traits& traits );
+    static std::vector<std::unique_ptr<Field>> construct( const Traits& traits );
+    static std::vector<std::unique_ptr<Field>> construct_xyztI( const Traits& traits );
 
     virtual ~Field() {}
     virtual void set_input_unit( const std::string&, const Field::Traits& ) {}

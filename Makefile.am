@@ -188,7 +188,6 @@ rapidstorm_SOURCES = \
     threed_info/fwd.h
 
 rapidstorm_SOURCES += \
-    localization_file/children_field.h localization_file/children_field.cpp \
     localization_file/converter.h \
     localization_file/field.h localization_file/field_decl.h \
     localization_file/fields.cpp \

@@ -8,7 +8,6 @@
 #include "localization/Fields.h"
 #include "localization_file/localization_field_impl.h"
 #include "localization_file/unknown_field.h"
-#include "localization_file/children_field.h"
 
 namespace dStorm {
 namespace localization_file {
@@ -129,7 +128,7 @@ Field::parse(const TiXmlNode& node, input::Traits<Localization>& traits)
     else if ( element->Value() == std::string("field") )
         return FieldCreator( *element, traits ).get_result();
     else if ( element->Value() == std::string("localizations") )
-        return Ptr( new ChildrenField( *element, traits ) );
+        throw std::runtime_error("Support for nested localizations was discontinued. Only rapidSTORM versions up to 3.3 can read them. Sorry.");
     else
         return Ptr(NULL);
 }
@@ -138,37 +137,33 @@ struct LocalizationFieldCreator {
     typedef void result_type;
 
     template <typename Tag>
-    void operator()( const Field::Traits& traits, Field::Fields& result, Tag tag ) {
+    void operator()( const Field::Traits& traits, std::vector<std::unique_ptr<Field>>& result, Tag tag ) {
         if (traits.field(tag).is_given) {
-            result.push_back(new LocalizationField<Tag>());
+            result.emplace_back(new LocalizationField<Tag>());
         }
     }
 };
 
-void create_localization_fields( const Field::Traits& traits, Field::Fields& result )
+std::vector<std::unique_ptr<Field>> Field::construct_xyztI( const Field::Traits& traits )
 {
+    std::vector<std::unique_ptr<Field>> rv;
+    rv.emplace_back( new LocalizationField< localization::PositionX >() );
+    rv.emplace_back( new LocalizationField< localization::PositionY >() );
+    if ( traits.position_z().is_given )
+        rv.emplace_back( new LocalizationField< localization::PositionZ >() );
+    rv.emplace_back( new LocalizationField< localization::ImageNumber >() );
+    rv.emplace_back( new LocalizationField< localization::Amplitude >() );
+    return std::move(rv);
+}
+
+std::vector<std::unique_ptr<Field>> Field::construct( const Field::Traits& traits ) {
+    std::vector<std::unique_ptr<Field>> result;
     boost::mpl::for_each<localization::Fields>(boost::bind(
         LocalizationFieldCreator(),
         boost::ref(traits),
         boost::ref(result),
         _1));
-}
-
-std::auto_ptr<Field> Field::construct_xyztI( const Field::Traits& traits )
-{
-    std::auto_ptr<ChildrenField> rv( new ChildrenField(traits) );
-    rv->add_field( new LocalizationField< localization::PositionX >() );
-    rv->add_field( new LocalizationField< localization::PositionY >() );
-    if ( traits.position_z().is_given )
-        rv->add_field( new LocalizationField< localization::PositionZ >() );
-    rv->add_field( new LocalizationField< localization::ImageNumber >() );
-    rv->add_field( new LocalizationField< localization::Amplitude >() );
-    return std::auto_ptr<Field>(rv.release());
-}
-
-std::auto_ptr<Field> Field::construct( const Field::Traits& traits )
-{
-    return std::auto_ptr<Field>( new ChildrenField(traits, 0) );
+    return result;
 }
 
 }

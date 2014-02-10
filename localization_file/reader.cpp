@@ -30,7 +30,7 @@ bool Source::GetNext(int thread, localization::Record* output) {
         return false;
     }
     trace_buffer.clear();
-    *output = read_localization( file.level );
+    *output = read_localization();
     return file.input;
 }
 
@@ -45,50 +45,29 @@ int File::number_of_newlines() {
     return lines;
 }
 
-localization::Record Source::read_localization( int level )
+localization::Record Source::read_localization()
 {
-    static const samplepos no_shift = samplepos::Zero();
-
     static std::string missing_image_line("# No localizations in image ");
 
-    if ( level == 0 ) {
-        while (true ) {
-            char peek;
-            while ( true ) {
-                peek = file.input.peek();
-                if ( isspace(peek) ) file.input.get(); else break;
-            }
-            if ( peek == '#' ) {
-                std::string line;
-                std::getline( file.input, line );
-                if ( line.find_first_of( missing_image_line ) == 0 ) {
-                    std::stringstream s( line.substr(missing_image_line.length()) );
-                    int n;
-                    s >> n;
-                    return localization::EmptyLine(n * camera::frame);
-                }
-            } else
-                break;
+    while (true ) {
+        char peek;
+        while ( true ) {
+            peek = file.input.peek();
+            if ( isspace(peek) ) file.input.get(); else break;
         }
-        return file.read_next();
-    } else {
-        TraceBuffer::iterator my_buffer = 
-            trace_buffer.insert( trace_buffer.end(), std::vector<Localization>() );
-
-        do {
-            localization::Record r = read_localization(level-1);
-            if ( Localization *l = boost::get<Localization>(&r) )
-                my_buffer->push_back( *l );
-            else
-                return r;
-        } while ( file.input && file.number_of_newlines() <= level );
-
-        localization::Record rv;
-        reducer->reduce_trace_to_localization( 
-            my_buffer->begin(), my_buffer->end(),
-            &boost::get<Localization>(rv), no_shift );
-        return rv;
+        if ( peek == '#' ) {
+            std::string line;
+            std::getline( file.input, line );
+            if ( line.find_first_of( missing_image_line ) == 0 ) {
+                std::stringstream s( line.substr(missing_image_line.length()) );
+                int n;
+                s >> n;
+                return localization::EmptyLine(n * camera::frame);
+            }
+        } else
+            break;
     }
+    return file.read_next();
 }
 
 Config::Config() 
@@ -129,8 +108,6 @@ File::File(std::string filename, const File::Traits& traits )
         read_XML(line.substr(1), this->traits);
     else
         throw std::runtime_error("Localization file format not recognized");
-
-    level = std::max<int>(number_of_newlines() - 1, 0);
 }
 
 File::~File() {}
