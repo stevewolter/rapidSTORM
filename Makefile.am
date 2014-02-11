@@ -228,7 +228,7 @@ rapidstorm_SOURCES += \
     output/BasenameAdjustedFileEntry.cpp \
     output/Config.cpp \
     output/FilterSource.cpp \
-    output/OutputSource.cpp output/Trace.cpp \
+    output/OutputSource.cpp \
     output/Traits.cpp \
     output/Localizations.cpp \
     output/TraceReducers.cpp \
