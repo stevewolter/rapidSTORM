@@ -4,10 +4,13 @@
 #include <dStorm/input/fwd.h>
 #include <memory>
 
+class TestState;
+
 namespace dStorm {
-namespace MedianFilter {
+namespace median_filter {
 
 std::auto_ptr<input::Link> make_link();
+void unit_test( TestState& );
 
 }
 }

@@ -39,28 +39,20 @@ struct Config {
 };
 
 class Source
-: public input::AdapterSource<engine::ImageStack>
+: public input::Source<engine::ImageStack>
 {
-    const int width, stride;
+    std::unique_ptr<input::Source<engine::ImageStack>> upstream;
+    const int half_width, width, stride;
+    int remaining_stride;
+    bool initial_median_computed, upstream_is_empty;
+
     std::queue<engine::ImageStack> outgoing;
     std::vector<dStorm::Image<engine::StormPixel, 3>> median_values;
 
     typedef engine::StormPixel StormPixel;
     typedef input::Source<engine::ImageStack>::iterator base_iterator;
 
-    struct _iterator;
-
     void attach_local_ui_( simparm::NodeHandle ) {}
-
-    void InsertValue(const engine::ImageStack& images, int nth_value) {
-        assert(images.plane_count() == int(median_values.size()));
-
-        outgoing.push(images);
-        for (int i = 0; i < images.plane_count(); ++i) {
-            std::copy(images.plane(i).begin(), images.plane(i).end(),
-                      median_values[i].slice(0, nth_value * camera::pixel).begin());
-        }
-    }
 
     template <class UpdateFunction>
     void ComputeMedian(const UpdateFunction& update) {
@@ -70,12 +62,6 @@ class Source
                 UpdateFunction(&*i, (&*i) + width, plane_index, i.position());
             }
         }
-    }
-
-    void ComputeInitialMedian() {
-        ComputeMedian([](StormPixel* begin, StormPixel* end, int plane, const engine::Image2D::Position& position) {
-                std::sort(begin, end);
-        });
     }
 
     void UpdateMedian(const engine::ImageStack& incoming, const engine::ImageStack& outgoing) {
@@ -98,16 +84,81 @@ class Source
         });
     }
 
-    void StoreMedian(engine::ImageStack& target) {
-        for (const auto& median : median_values) {
-            target.push_back_background(median.slice(0, width/2 * camera::pixel));
-        }
+    bool GetKeyImage(engine::ImageStack& input) {
+	for (int j = 0; j < stride; ++j) {
+	    if (!upstream->GetNext(0, &input)) {
+		upstream_is_empty = true;
+		return false;
+	    }
+
+	    outgoing.push_back(input);
+	}
+	return true;
+    }
+
+    bool ComputeInitialMedian() {
+	engine::ImageStack input;
+	if (!GetKeyImage(input)) { return false; }
+	std::vector<engine::ImageStack> inputs(half_width + 2, input);
+
+	for (int i = 0; i < half_width - 1; ++i) {
+	    if (!GetKeyImage(input)) { return false; }
+	    inputs.push_back(input);
+	}
+
+	for (int i = 0; i < width; ++i) {
+	    for (int plane = 0; plane < images.plane_count(); ++plane) {
+		engine::Image2D image = inputs[i].plane(plane);
+		std::copy(image.begin(), image.end(),
+			  median_values[plane].slice(0, i * camera::pixel).begin());
+	    }
+	}
+
+	remaining_stride = stride;
+	return true;
+    }
+
+    bool GetNext(int thread, engine::ImageStack* output) OVERRIDE {
+	assert(thread == 0);
+
+	if (!initial_median_computed) {
+	    if (!ComputeInitialMedian()) {
+		throw std::runtime_error("Too few images in input to compute "
+		    "background median. At least width * stride images are "
+		    "needed.");
+	    }
+	    initial_median_computed = true;
+	}
+
+	engine::ImageStack image;
+	if (!upstream_is_empty && upstream->GetNext(0, &image)) {
+	    outgoing.push_back(image);
+	    if (--remaining_stride == 0) {
+		UpdateMedian(image, outgoing.front());
+		remaining_stride = stride;
+	    }
+	}
+
+	if (outgoing.empty()) {
+	    return false;
+	} else {
+	    *output = outgoing.front();
+	    for (const auto& median : median_values) {
+		target.push_back_background(median.slice(0, half_width * camera::pixel));
+	    }
+	    outgoing.pop_front();
+	    return true;
+	}
     }
 
   public:
     Source( std::auto_ptr< input::Source<engine::ImageStack> > upstream,
             frame_index width, frame_index stride)
-        : input::AdapterSource<engine::ImageStack>(upstream), width(width.value()), stride(stride.value()) {}
+        : upstream(upstream.release()), half_width(width.value() / 2), width(width.value()), stride(stride.value()) {
+	if (this->width % 2 == 0) {
+	    throw std::runtime_error("Median width must be an odd number");
+	}
+    }
     Source* clone() const { throw std::logic_error("clone() for MedianFilter::Source not implemented"); }
 
     base_iterator begin();
@@ -124,100 +175,10 @@ class Source
     }
 };
 
-class Source::_iterator 
-  : public boost::iterator_adaptor< 
-        Source::_iterator,
-        typename input::Source<engine::ImageStack>::iterator >
-{
-    Source& s;
-    typedef typename input::Source<engine::ImageStack>::iterator Base;
-    const Base end;
-    Base lookahead;
-    bool has_median;
-    mutable engine::ImageStack i;
-
-    friend class boost::iterator_core_access;
-    void increment() { 
-        ++this->base_reference();
-        lookahead += s.stride;
-
-        UpdateMedian();
-    }
-
-        if ( this->base() != end ) {
-            i = *this->base();
-            if (lookahead != end) {
-                s.UpdateMedian(*lookahead, *this->base());
-            }
-            s.StoreMedian(i);
-        }
-
-    engine::ImageStack& dereference() const { return i; }
-    
-  public:
-    explicit _iterator(Source& s, const Base& from, const Base& end)
-      : _iterator::iterator_adaptor_(from), s(s), end(end), lookahead(from), has_median(true)
-    {
-        for (frame_index i = 0; i < s.width; ++i) {
-            lookahead += s.stride;
-            if ( lookahead != end ) {
-                s.InsertValue(*this->base(), i);
-            } else {
-                has_median = false;
-            }
-        }
-        if (has_median) {
-            s.ComputeInitialMedian();
-        if (this->base() != end) {
-            i = *this->base();
-        } else if (!delay.empty()) {
-            i = delay.front();
-        }
-        s.StoreMedian(i);
-    }
-};
-
-Source::base_iterator Source::begin() { 
-    return Source::base_iterator( 
-        _iterator( *this, this->base().begin(), this->base().end() ) ); 
-}
-
-Source<Ty>::base_iterator Source<Ty>::end() {
-    return Source::base_iterator( 
-        _iterator( *this, this->base().end(), this->base().end() ) );
-}
-
-class ChainLink 
-: public input::Method<ChainLink>
-{
-    friend class input::Method<ChainLink>;
-
-    Config config;
-
-    void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& traits ) {}
-
-    void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {}
-
-    template <typename Type>
-    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
-        if ( config.apply_filter() ) {
-            return new Source<Type>( p, config.width(), config.stride() );
-        } else
-            return p.release();
-        }
-    }
-
-  public:
-    static std::string getName() { return "TemporalMedianFilter"; }
-    void attach_ui( simparm::NodeHandle at ) { 
-        config.attach_ui( at ); 
-    }
-};
-
 Config::Config() 
 : name_object(ChainLink::getName(), "Temporal median filter"),
   apply_filter("ApplyFilter", false),
-  width("Number of images in median", 20 * camera::frame),
+  width("Number of images in median", 21 * camera::frame),
   stride( "Stride between key images", 10 * camera::frame )
 {
     apply_filter.set_user_level( simparm::Intermediate ),

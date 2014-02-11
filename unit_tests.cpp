@@ -60,6 +60,7 @@ int run_unit_tests(int argc, char* argv[]) {
     TestState state;
     dStorm::engine::unit_test(state);
     dStorm::input::file_method::unit_test( state );
+    dStorm::input::median_filter::unit_test( state );
     dStorm::input::resolution::unit_test(state);
     dStorm::expression::unit_test( state );
     dStorm::traits::run_unit_tests( state );
