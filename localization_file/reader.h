@@ -9,7 +9,6 @@
 #include <simparm/FileEntry.h>
 #include "input/Source.h"
 #include "engine/Image.h"
-#include "output/TraceReducer.h"
 #include "localization/Traits.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/signals2/connection.hpp>
@@ -51,7 +50,7 @@ namespace Reader {
     : public input::Source<localization::Record>
     {
       public:
-        Source(const File& file, std::auto_ptr<output::TraceReducer>);
+        Source(const File& file);
 
         bool GetNext(int thread, localization::Record* output) OVERRIDE;
         TraitsPtr get_traits(BaseSource::Wishes);
@@ -62,7 +61,6 @@ namespace Reader {
 
         TraceBuffer trace_buffer;
         File file;
-        std::unique_ptr<output::TraceReducer> reducer;
 
         localization::Record read_localization(); 
 
@@ -74,14 +72,9 @@ namespace Reader {
     class Config 
     {
         simparm::Object name_object;
-        output::TraceReducer::Config trace_reducer;
     public:
         Config();
-        void attach_ui( simparm::NodeHandle at ) { 
-            trace_reducer.attach_ui( name_object.attach_ui( at ) );
-        }
-        std::auto_ptr<output::TraceReducer> make_trace_reducer()
-            { return trace_reducer.make_trace_reducer(); }
+        void attach_ui( simparm::NodeHandle at ) {}
     };
 
     class ChainLink
