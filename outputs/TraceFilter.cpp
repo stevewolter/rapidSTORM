@@ -1,30 +1,24 @@
 #include "outputs/TraceFilter.h"
+
+#include <vector>
+
+#include "binning/binning.h"
+#include "binning/config.h"
 #include "output/Filter.h"
 #include "output/FilterBuilder.h"
-#include "core/Engine.h"
-#include <simparm/Entry.h>
-#include <vector>
-#include <numeric>
-#include <boost/bind/bind.hpp>
-#include <boost/iterator/transform_iterator.hpp>
+#include "simparm/ChoiceEntry.h"
 
 namespace dStorm {
 using namespace output;
 namespace outputs {
+namespace {
 
-class TraceCountConfig 
+class TraceCountConfig
 {
   public:
     simparm::Entry<unsigned long> min_count;
-    simparm::Entry<bool> disassemble;
-    simparm::Entry<bool> selectSpecific;
-    simparm::Entry<unsigned long> whichSpecific;
+    binning::FieldChoice field;
 
-  private:
-    void set_which_viewability() { whichSpecific.set_visibility( selectSpecific() ); }
-    simparm::BaseAttribute::ConnectionStore listening;
-
-  public:
     TraceCountConfig();
 
     void attach_ui( simparm::NodeHandle at );
@@ -33,174 +27,86 @@ class TraceCountConfig
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
 
     bool determine_output_capabilities( output::Capabilities& cap ) {
-        if ( ! cap.test( output::Capabilities::ClustersWithSources ) )
-            return false;
         return true;
     }
 };
 
-std::auto_ptr< output::Output > make_trace_count_filter( const TraceCountConfig&, std::auto_ptr< output::Output > );
+TraceCountConfig::TraceCountConfig()
+: min_count("MinEmissionCount",
+            "Minimum number of emissions per trace", 0),
+  field("Field", "Filtered field", binning::IsUnscaled, "") {}
+
+void TraceCountConfig::attach_ui( simparm::NodeHandle at )
+{
+    min_count.attach_ui(at);
+    field.attach_ui(at);
+}
+
 class TraceCountFilter : public output::Filter
 {
   private:
-    EngineResult localizations;
-    int minCount;
-    bool disassemble;
+    const int min_count;
+    std::unique_ptr<binning::Unscaled> binner;
 
-    simparm::BoolEntry selectSpecific;
-    simparm::Entry<unsigned long> whichSpecific;
-    dStorm::Engine *engine;
-    int processed_locs;
-    simparm::BaseAttribute::ConnectionStore listening[3];
+    LocalizedImage current_run;
+    int current_group;
 
-    int count_localizations_in( const Localization &l );
-    void processLocalization( const Localization& l);
+    AdditionalData announceStormSize(const Announcement &a) {
+        binner->announce(a);
+        return output::Filter::announceStormSize(a);
+    }
 
-    /** As of yet, the copy constructor is not implemented. */
-    TraceCountFilter(const TraceCountFilter&);
-    TraceCountFilter& operator=(const TraceCountFilter&);
+    void receiveLocalizations(const EngineResult& e) {
+        for (const Localization& l : e) {
+            boost::optional<float> value = binner->bin_point(l);
+            long group = std::lround(*value);
 
-    void store_results_( bool success );
-    void attach_ui_( simparm::NodeHandle );
+            if (!current_run.empty() && current_group != group) {
+                if (group < current_group) {
+                    throw std::runtime_error("Input for trace filter is not "
+                        "sorted on the filtered field");
+                }
 
-    void set_which_viewability() { whichSpecific.set_visibility( selectSpecific() ); }
-    void repeat_results() { engine->repeat_results(); }
+                if (int(current_run.size()) >= min_count) {
+                    output::Filter::receiveLocalizations(current_run);
+                }
+                current_run.clear();
+            }
+
+            current_group = group;
+            current_run.push_back(l);
+        }
+    }
+
+    void store_results( bool job_successful ) {
+        if (!current_run.empty()) {
+            if (int(current_run.size()) >= min_count) {
+                receiveLocalizations(current_run);
+            }
+            current_run.clear();
+        }
+        output::Filter::store_results(job_successful);
+    }
 
   public:
     TraceCountFilter(const TraceCountConfig& config,
                      std::auto_ptr<output::Output> output);
-    ~TraceCountFilter() {}
-
-    AdditionalData announceStormSize(const Announcement &a) ;
-    RunRequirements announce_run(const RunAnnouncement& a) 
-        { processed_locs = 0; return Filter::announce_run(a); }
-
-    void receiveLocalizations(const EngineResult& e);
 };
 
 TraceCountFilter::TraceCountFilter(
     const TraceCountConfig& c,
     std::auto_ptr<output::Output> output
-) 
+)
 : Filter(output),
-  minCount(c.min_count()), 
-    disassemble(c.disassemble()), 
-    selectSpecific(c.selectSpecific),
-    whichSpecific(c.whichSpecific),
-    engine(NULL)
-{  
-}
+  min_count(c.min_count()),
+  binner(c.field().make_unscaled_binner()) {}
 
-void TraceCountFilter::attach_ui_( simparm::NodeHandle at ) {
-    listening[0] = selectSpecific.value.notify_on_value_change(
-        boost::bind( &TraceCountFilter::set_which_viewability, this ) );
-    listening[1] = selectSpecific.value.notify_on_value_change(
-        boost::bind( &TraceCountFilter::repeat_results, this ) );
-    listening[2] = whichSpecific.value.notify_on_value_change(
-        boost::bind( &TraceCountFilter::repeat_results, this ) );
-
-    this->selectSpecific.attach_ui( at );
-    this->whichSpecific.attach_ui( at );
-    Filter::attach_children_ui( at ); 
-}
-
-int TraceCountFilter::count_localizations_in
-    ( const Localization &l ) 
-{
-    int accum = 1;
-    if ( l.children.is_initialized() )
-        for ( Localization::Children::const_iterator i = l.children->begin(); i != l.children->end(); ++i )
-            accum += count_localizations_in(*i);
-    return accum;
-}
-
-void TraceCountFilter::processLocalization( const Localization& l)
-{
-    if ( count_localizations_in( l ) >= minCount ) {
-        if (disassemble && l.children.is_initialized() ) {
-            std::copy( l.children->begin(), l.children->end(), std::back_inserter( localizations ) );
-        } else {
-            localizations.push_back( l );
-        }
-    }
-}
-
-Output::AdditionalData 
-TraceCountFilter::announceStormSize(const Announcement &a) 
- 
-{ 
-    if ( a.engine != NULL && a.engine->can_repeat_results() ) {
-        engine = a.engine;
-        selectSpecific.show();
-        selectSpecific.thaw();
-    }
-    processed_locs = 0;
-    AdditionalData rv;
-    if ( disassemble ) {
-        Announcement announcement( a );
-        boost::shared_ptr< input::Traits<Localization> > children = a.source_traits[0];
-        static_cast< input::Traits<Localization>& >( announcement ) = *children;
-        rv = Filter::announceStormSize(announcement);
-    } else {
-        rv = Filter::announceStormSize(a);
-    }
-    return rv.set_cluster_sources();
-}
-
-void TraceCountFilter::store_results_( bool success ) { 
-    if ( selectSpecific() )
-        whichSpecific.max = processed_locs;
-    Filter::store_children_results( success ); 
-}
-
-void TraceCountFilter::receiveLocalizations(const EngineResult& e)
-{
-    localizations.clear();
-    if ( selectSpecific() ) {
-        int offset = whichSpecific()-1-processed_locs;
-        if ( 0 <= offset && offset < int(e.size()) )
-           processLocalization (e[ offset ]);
-        processed_locs += e.size();
-    } else
-        std::for_each( e.begin(), e.end(), 
-            boost::bind( &TraceCountFilter::processLocalization, this, _1 ) );
-            
-    EngineResult eo(e);
-    std::swap( eo, localizations );
-    Filter::receiveLocalizations(eo);
-}
-
-TraceCountConfig::TraceCountConfig()
-: min_count("MinEmissionCount", 
-            "Minimum number of emissions per trace", 0),
-  disassemble("Disassemble", "Delete trace information", false),
-  selectSpecific("SelectSpecific", "Select trace by number", false),
-  whichSpecific("WhichTrace", "Trace to select", 1)
-{
-    whichSpecific.min = 1;
-    whichSpecific.hide();
-}
-
-std::auto_ptr< output::Output > make_trace_count_filter( const TraceCountConfig& c, std::auto_ptr< output::Output > s )
-{
-    return std::auto_ptr< output::Output >( new TraceCountFilter( c, s ) );
 }
 
 std::auto_ptr< output::OutputSource > make_trace_count_source() {
     return std::auto_ptr< output::OutputSource >( new FilterBuilder< TraceCountConfig, TraceCountFilter >() );
 }
 
-void TraceCountConfig::attach_ui( simparm::NodeHandle at )
-{
-    min_count.attach_ui(at);
-    disassemble.attach_ui(at);
-    selectSpecific.attach_ui(at);
-    whichSpecific.attach_ui(at);
-
-    listening = selectSpecific.value.notify_on_value_change(
-        boost::bind( &TraceCountConfig::set_which_viewability, this )
-    );
-}
 
 }
 }
