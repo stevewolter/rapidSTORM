@@ -7,7 +7,6 @@
 #include "output/Filter.h"
 #include "output/FilterSource.h"
 #include "output/FilterBuilder.h"
-#include "output/Localizations.h"
 #include "localization/Traits.h"
 #include "core/Engine.h"
 #include "stack_realign.h"
@@ -16,7 +15,6 @@
 #include <boost/thread/thread.hpp>
 
 #include "stack_realign.h"
-#include "output/Localizations_iterator.h"
 #include <boost/thread/locks.hpp>
 #include "outputs/MemoryCache_Cache.h"
 #include <boost/lambda/lambda.hpp>

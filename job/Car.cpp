@@ -4,7 +4,6 @@
 #include "job/Run.h"
 #include "image/MetaInfo.h"
 #include "input/Source.h"
-#include "output/Localizations.h"
 #include "engine/Image.h"
 #include <fstream>
 #include <queue>

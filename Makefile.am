@@ -114,7 +114,6 @@ rapidstorm_SOURCES = \
     output/FileOutputBuilder.h \
     output/FilterBuilder.h output/FilterBuilder_impl.h \
     output/FilterSource.h \
-    output/Localizations.h output/Localizations_iterator.h \
     output/OutputBuilder.h output/OutputBuilder_impl.h \
     output/SourceFactory_decl.h output/SourceFactory.h \
     output/Output_decl.h output/Output.h output/Filter.h \
@@ -230,7 +229,6 @@ rapidstorm_SOURCES += \
     output/FilterSource.cpp \
     output/OutputSource.cpp \
     output/Traits.cpp \
-    output/Localizations.cpp \
     output/TraceReducers.cpp \
     output/SourceFactory.cpp  \
     output/LocalizedImage_traits.cpp \

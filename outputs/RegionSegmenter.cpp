@@ -7,7 +7,6 @@
 
 #include "binning/config.h"
 #include "output/OutputSource.h"
-#include "output/Localizations.h"
 #include "density_map/DensityMap.h"
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/DummyListener.h"
@@ -36,7 +35,6 @@
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
 #include <boost/ptr_container/ptr_map.hpp>
-#include "output/Localizations_iterator.h"
 #include <boost/foreach.hpp>
 #include "output/FilterBuilder.h"
 #include "output/Filter.h"
@@ -69,7 +67,7 @@ class Segmenter : public dStorm::output::Filter,
     boost::ptr_array< binning::Unscaled, 2 > binners;
     simparm::Entry<double> threshold;
     simparm::Entry<unsigned long> dilation;
-    dStorm::output::Localizations points;
+    std::vector<Localization> points;
 
     dStorm::density_map::DummyListener<2> dummy_binning_listener;
     dStorm::density_map::DensityMap< dStorm::density_map::DummyListener<2>, 2 > bins;
@@ -110,7 +108,7 @@ public:
 
     AdditionalData announceStormSize(const Announcement &a) ;
     void receiveLocalizations(const EngineResult& er) {
-        points.insert(er);
+        points.push_back(er);
         bins.receiveLocalizations(er);
     }
 
@@ -385,13 +383,12 @@ void Segmenter::segment()
                                       (Trace*)NULL);
     std::list<Trace> regions;
 
-    for ( Localizations::const_iterator fit = points.begin(); 
-             fit != points.end(); fit++)
+    for ( const Localization& point : points ) {
     {
         int bins[2];
         bool good = true;
         for (int i = 0; i < 2; ++i) {
-            boost::optional<float> v = binners[i].bin_point(*fit);
+            boost::optional<float> v = binners[i].bin_point(point);
             if ( ! v ) 
                 good = false;
             else
@@ -401,11 +398,11 @@ void Segmenter::segment()
         int region = segmentation(bins[0], bins[1]);
         if (srMap[region] == NULL) {
             regions.push_back( Trace() );
-            regions.back().push_back( *fit );
+            regions.back().push_back( point );
             srMap[region] = &regions.back();
         } else {
             Trace &sr = *srMap[region];
-            sr.push_back(*fit);
+            sr.push_back(point);
         }
     }
 
@@ -483,11 +480,10 @@ void Segmenter::maximums() {
         foundSpots.push_back( Spot( it->spot() ) );
     }
 
-    Localizations& locs = points;
     Mapper mapper(foundSpots, binners);
-    for (Localizations::const_iterator i= locs.begin(); 
-                                               i!= locs.end(); i++)
-        mapper(*i);
+    for (const Localization& localization : points) {
+        mapper(localization);
+    }
 
     EngineResult engineResult;
     engineResult.forImage = frame_count::from_value(0);
