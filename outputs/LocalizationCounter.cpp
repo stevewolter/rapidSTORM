@@ -16,7 +16,7 @@ namespace output {
 class LocalizationCounter : public Output {
 private:
     int count;
-    frame_count last_config_update, config_increment;
+    int index, last_config_update, config_increment;
     simparm::Entry<unsigned long> update;
     simparm::NodeHandle current_ui;
     std::auto_ptr< std::ofstream > print_count;
@@ -52,6 +52,7 @@ public:
         count = 0; 
         update = 0; 
         last_config_update = 0;
+        index = 0;
 
         return RunRequirements();
     }
@@ -60,17 +61,19 @@ public:
         config_increment = 10 * camera::frame;
 
         count = 0; 
+        index = 0;
         return AdditionalData();
     }
     void receiveLocalizations(const EngineResult& er) {
         count += er.size(); 
         if ( print_count.get() ) {
-            *print_count << er.forImage.value() << " " << er.size() << std::endl;
+            *print_count << index << " " << er.size() << std::endl;
         }
-        if ( last_config_update + config_increment < er.forImage )
+        ++index;
+        if ( last_config_update + config_increment < index )
         {
             update = count;
-            last_config_update = er.forImage;
+            last_config_update = index;
         }
     }
 
@@ -85,6 +88,7 @@ LocalizationCounter::Config::Config()
 LocalizationCounter::LocalizationCounter(const Config &c)
 : count(0),
   last_config_update(0),
+  index(0),
   update("LocalizationCount", 
          "Number of localizations found", 0)
 {

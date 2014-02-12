@@ -72,8 +72,13 @@ ProgressMeter::announceStormSize(const Announcement &a) {
 
 void ProgressMeter::receiveLocalizations(const EngineResult& er) 
 {
-    if ( er.forImage+1*camera::frame > max ) {
-        max = er.forImage+1*camera::frame;
+    if (er.empty()) {
+        return;
+    }
+
+    frame_index image = er[0].frame_number();
+    if ( image+1*camera::frame > max ) {
+        max = image+1*camera::frame;
         DEBUG("Progress at " << max);
         if ( length.is_initialized() ) {
             boost::units::quantity<camera::time,float>
@@ -83,7 +88,7 @@ void ProgressMeter::receiveLocalizations(const EngineResult& er)
             DEBUG("Ratio is " << ratio << " at progress " << progress());
             progress.setValue( std::min( round(ratio / 0.01), 99.0 ) * 0.01 );
         } else {
-            progress.setValue( (er.forImage / (10*camera::frame)) % 100 / 100.0 );
+            progress.setValue( (image / (10*camera::frame)) % 100 / 100.0 );
         }
     }
 }

@@ -408,7 +408,6 @@ void Segmenter::segment()
 
     std::list<Trace>::iterator i;
     EngineResult engineResult;
-    engineResult.forImage = frame_count::from_value(-1);
     for ( i = regions.begin(); i != regions.end(); i++) {
         reducer->reduce_trace_to_localization( i->begin(), i->end(), boost::back_inserter(engineResult),
             dStorm::samplepos::Constant( 0 * si::meter ) );
@@ -486,7 +485,6 @@ void Segmenter::maximums() {
     }
 
     EngineResult engineResult;
-    engineResult.forImage = frame_count::from_value(0);
 
     for ( Mapper::Map::const_iterator i = mapper.getMapping().begin();
           i != mapper.getMapping().end(); i++)
