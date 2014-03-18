@@ -1,7 +1,7 @@
 #ifndef DSTORM_SHELL_REPLAY_JOB_H
 #define DSTORM_SHELL_REPLAY_JOB_H
 
-#include "core/Config.h"
+#include "base/Config.h"
 
 namespace dStorm {
 namespace shell {

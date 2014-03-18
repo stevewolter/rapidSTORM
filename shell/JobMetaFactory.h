@@ -3,7 +3,7 @@
 
 #include <string>
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include "core/Config.h"
+#include "base/Config.h"
 #include "shell/JobFactory.h"
 
 namespace dStorm {

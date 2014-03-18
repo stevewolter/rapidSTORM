@@ -1,4 +1,4 @@
-#include "core/Config.h"
+#include "base/Config.h"
 
 namespace simparm {
 namespace serialization_ui {

@@ -3,7 +3,7 @@
 #include <boost/units/Eigen/Array>
 #include <boost/units/io.hpp>
 
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "image/iterator.h"
 #include "image/contains.h"
 #include "image/constructors.h"

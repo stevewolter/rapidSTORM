@@ -4,7 +4,7 @@
 #include <simparm/TriggerEntry.h>
 #include "output/Output.h"
 #include "output/OutputBuilder.h"
-#include "core/Engine.h"
+#include "base/Engine.h"
 
 struct Repeat
 : public dStorm::output::Output

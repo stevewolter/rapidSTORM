@@ -1,5 +1,5 @@
 #include "outputs/MemoryCache.h"
-#include "core/Engine.h"
+#include "base/Engine.h"
 
 #include "debug.h"
 #include <string>
@@ -9,7 +9,7 @@
 #include "output/FilterBuilder.h"
 #include "output/Localizations.h"
 #include "localization/Traits.h"
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "stack_realign.h"
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/thread/condition.hpp>

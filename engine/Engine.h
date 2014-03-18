@@ -10,7 +10,7 @@
 #include <boost/utility.hpp>
 #include "output/LocalizedImage_decl.h"
 #include "input/Source.h"
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "engine/Config.h"
 
 namespace dStorm {

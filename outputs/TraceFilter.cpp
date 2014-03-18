@@ -1,7 +1,7 @@
 #include "outputs/TraceFilter.h"
 #include "output/Filter.h"
 #include "output/FilterBuilder.h"
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include <simparm/Entry.h>
 #include <vector>
 #include <numeric>

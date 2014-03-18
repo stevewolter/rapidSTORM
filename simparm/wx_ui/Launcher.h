@@ -2,7 +2,7 @@
 #define DSTORM_WX_UI_LAUNCHER_H
 
 #include <simparm/TriggerEntry.h>
-#include "core/Config.h"
+#include "base/Config.h"
 
 namespace simparm {
 namespace wx_ui {

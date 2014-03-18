@@ -5,7 +5,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "output/Output.h"
 #include "stack_realign.h"
 

@@ -3,7 +3,7 @@
 #endif
 #include "engine/SpotFinder.h"
 #include "engine/SpotFitterFactory.h"
-#include "core/Config.h"
+#include "base/Config.h"
 #include "output/OutputSource.h"
 #include "guf/Factory.h"
 

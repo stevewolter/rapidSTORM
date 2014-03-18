@@ -10,7 +10,7 @@
 #include <sstream>
 
 #include <boost/smart_ptr/make_shared.hpp>
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "input/Forwarder.h"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"

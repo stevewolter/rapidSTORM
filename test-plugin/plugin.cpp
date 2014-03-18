@@ -1,6 +1,6 @@
 #include "engine/SpotFinder.h"
 #include "engine/SpotFitterFactory.h"
-#include "core/Config.h"
+#include "base/Config.h"
 #include "test-plugin/Exception.h"
 #include "test-plugin/Verbose.h"
 #include "test-plugin/Delayer.h"

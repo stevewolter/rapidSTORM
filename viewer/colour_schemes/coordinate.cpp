@@ -3,7 +3,7 @@
 #include "helpers/clone_ptr.hpp"
 #include "binning/config.h"
 #include "binning/binning.h"
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "viewer/ColourScheme.h"
 #include "viewer/ColourSchemeFactory.h"
 #include <simparm/Object.h>

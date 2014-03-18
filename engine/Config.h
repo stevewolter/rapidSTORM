@@ -14,7 +14,7 @@
 #include <boost/units/cmath.hpp>
 #include "output/Basename_decl.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "output/LocalizedImage_decl.h"
 #include "input/Source.h"
 

@@ -3,7 +3,7 @@
 
 #include <wx/wx.h>
 #include "simparm/wx_ui/Node.h"
-#include "core/Config.h"
+#include "base/Config.h"
 #include "simparm/wx_ui/WindowNode.h"
 #include "simparm/wx_ui/TabNode.h"
 #include <fstream>
