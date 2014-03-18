@@ -37,7 +37,7 @@ fi
 
 NAME="$DISTRIBUTION-$ARCHITECTURE"
 
-APTCACHE="/var/cache/pbuilder/$NAME/aptcache/"
+APTCACHE="/var/cache/pbuilder/aptcache/$MAJOR_DISTRIBUTION"
 APTKEYRINGS=("/usr/share/keyrings/super-resolution-de-keyring.gpg")
 BASETGZ="/var/cache/pbuilder/$NAME-base.tgz"
 BUILDPLACE="/var/cache/pbuilder/build/"
