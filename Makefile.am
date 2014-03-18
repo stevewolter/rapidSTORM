@@ -37,7 +37,7 @@ EXTRA_DIST = windows_resources.rc \
 
 CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
-	dstorm-config.txt installation-directory.h
+	installation-directory.h
 
 always-force-remake :
 
