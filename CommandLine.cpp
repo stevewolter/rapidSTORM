@@ -7,7 +7,7 @@
 #include "CommandLine.h"
 #include <vector>
 #include <string>
-#include "core/Config.h"
+#include "base/Config.h"
 #include <fstream>
 #include "output/OutputSource.h"
 #include "output/FilterSource.h"

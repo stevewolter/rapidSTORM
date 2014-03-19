@@ -1,4 +1,4 @@
-#include "core/Config.h"
+#include "base/Config.h"
 #include "tiff/RawImageFile.h"
 #include "tiff/TIFF.h"
 #ifdef HAVE_CONFIG_H

@@ -9,9 +9,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "output/FileOutputBuilder.h"
+#include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include "output/FileOutputBuilder.h"
 #include "tsf/TSFProto.pb.h"
 
 namespace dStorm {

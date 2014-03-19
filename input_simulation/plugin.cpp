@@ -2,7 +2,7 @@
 #include "config.h"
 #endif
 #include "input_simulation/NoiseSource.h"
-#include "core/Config.h"
+#include "base/Config.h"
 
 using namespace dStorm::output;
 

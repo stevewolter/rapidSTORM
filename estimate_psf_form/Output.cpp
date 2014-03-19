@@ -8,7 +8,7 @@
 
 #include "output/OutputSource.h"
 #include "output/OutputBuilder.h"
-#include "core/Engine.h"
+#include "base/Engine.h"
 #include "image/slice.h"
 #include "image/crop.h"
 #include "image/convert.h"

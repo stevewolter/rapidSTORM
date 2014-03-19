@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <simparm/NodeHandle.h>
-#include "core/Config.h"
+#include "base/Config.h"
 #include "shell/JobStarter.h"
 
 namespace dStorm {

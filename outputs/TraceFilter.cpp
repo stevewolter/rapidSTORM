@@ -1,12 +1,17 @@
 #include "outputs/TraceFilter.h"
 
 #include <vector>
+#include <numeric>
+#include <boost/bind/bind.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 
+#include "base/Engine.h"
 #include "binning/binning.h"
 #include "binning/config.h"
 #include "output/Filter.h"
 #include "output/FilterBuilder.h"
 #include "simparm/ChoiceEntry.h"
+#include "simparm/Entry.h"
 
 namespace dStorm {
 using namespace output;

@@ -1,4 +1,4 @@
-#include "core/Config.h"
+#include "base/Config.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
