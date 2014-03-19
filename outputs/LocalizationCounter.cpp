@@ -58,7 +58,7 @@ public:
     }
     AdditionalData announceStormSize(const Announcement &a) {
         update.set_user_level(simparm::Beginner);
-        config_increment = 10 * camera::frame;
+        config_increment = 10;
 
         count = 0; 
         index = 0;
@@ -87,8 +87,8 @@ LocalizationCounter::Config::Config()
 
 LocalizationCounter::LocalizationCounter(const Config &c)
 : count(0),
-  last_config_update(0),
   index(0),
+  last_config_update(0),
   update("LocalizationCount", 
          "Number of localizations found", 0)
 {

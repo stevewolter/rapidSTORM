@@ -108,7 +108,7 @@ public:
 
     AdditionalData announceStormSize(const Announcement &a) ;
     void receiveLocalizations(const EngineResult& er) {
-        points.push_back(er);
+        std::copy(er.begin(), er.end(), back_inserter(points));
         bins.receiveLocalizations(er);
     }
 
@@ -384,7 +384,6 @@ void Segmenter::segment()
     std::list<Trace> regions;
 
     for ( const Localization& point : points ) {
-    {
         int bins[2];
         bool good = true;
         for (int i = 0; i < 2; ++i) {
