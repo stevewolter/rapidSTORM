@@ -22,14 +22,14 @@ set test "Number of tracked localizations for fixed localization precision is co
 send "in Car in Run in value set 1\n"
 set job [get_job_number]
 set count [get_localization_count $job]
-pass_if [expr $count == 206006] "$test";
+pass_if [expr $count == 206062] "$test";
 
 set test "Number of tracked localizations for variable localization precision is consistent"
 send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in Expression in value set 2000 nm/ADC * amp\n"
 send "in Car in Run in value set 1\n"
 set job [get_job_number]
 set count [get_localization_count $job]
-pass_if [expr $count == 180211] "$test";
+pass_if [expr $count == 180256] "$test";
 
 set test "Error is thrown when localization precision is not set"
 send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in Expression in value set\n"
