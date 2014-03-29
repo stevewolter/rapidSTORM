@@ -17,7 +17,6 @@ bin_PROGRAMS = rapidstorm
 check_PROGRAMS = rapidstorm
 applications_DATA=rapidstorm.desktop
 doc_DATA = $(srcdir)/README 
-dist_noinst_DATA = $(srcdir)/RELEASE
 pkgdata_DATA = dstorm-config.txt
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
@@ -112,7 +111,7 @@ installation-directory.h : always-force-remake
 
 PROTO_SOURCE_FILES = tsf/TSFProto.proto
 PROTO_GENERATED = $(PROTO_SOURCE_FILES:.proto=.pb.cc) $(PROTO_SOURCE_FILES:.proto=.pb.h)
-dist_noinst_DATA += $(PROTO_SOURCE_FILES)
+dist_noinst_DATA = $(PROTO_SOURCE_FILES)
 BUILT_SOURCES = installation-directory.h
 CLEANFILES += $(PROTO_GENERATED)
 if HAVE_PROTOBUF
