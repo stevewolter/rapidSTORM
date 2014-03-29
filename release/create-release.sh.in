@@ -15,7 +15,7 @@ declare -r DEBIAN_VERSION="$(dpkg-parsechangelog | sed -n -e 's/^Version: //p' |
 cd ..
 
 for arch in i386 amd64; do
-    for distribution in wheezy precise; do
+    for distribution in wheezy precise saucy; do
         sudo pbuilder --build --distribution ${distribution} --architecture ${arch} --configfile release/pbuilder/pbuilderrc rapidstorm_${DEBIAN_VERSION}.dsc
     done
 done
