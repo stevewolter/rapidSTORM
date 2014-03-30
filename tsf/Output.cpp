@@ -160,7 +160,8 @@ void Output::receiveLocalizations(const EngineResult& er) {
 void Output::store_results_(bool) {
   int64_t spot_list_offset = file->ByteCount() - 12;
   TSF::SpotList spot_list;
-  spot_list.set_application_id(1);
+  // ID was allocated by Nico Stuurman on 2014-03-07 for rapidSTORM
+  spot_list.set_application_id(3);
   {
     google::protobuf::io::CodedOutputStream coded_output(file.get());
     coded_output.WriteVarint32(spot_list.ByteSize());
