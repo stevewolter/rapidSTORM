@@ -29,16 +29,17 @@ case "$DISTRIBUTION" in
         ;;
 esac
 
-if test -n "${CROSSARCH}"; then
+if echo "${ARCHITECTURE}" | grep -q "^mingw-"; then
     # Cross-compile to mingw
     # CROSSARCH is used in the pbuilder-satisfydepends-cross script to rewrite dependencies
-    export DPKGCROSSARCH="${CROSSARCH}"
+    export DPKGCROSSARCH="${ARCHITECTURE}"
     # Hardening includes compiler switches that the mingw doesn't understand
     export DEB_BUILD_HARDENING=0
     # In a cross compilation, most checks won't work since no programs can run
     export DEB_BUILD_OPTIONS=nocheck
-    DEBBUILDOPTS="$DEBBUILDOPTS -a$CROSSARCH -d -b"
+    DEBBUILDOPTS="$DEBBUILDOPTS -a$ARCHITECTURE -d -b"
     PBUILDERSATISFYDEPENDSCMD="@abs_srcdir@/pbuilder-satisfydepends-i586"
+    ARCHITECTURE=amd64
 fi
 
 NAME="$DISTRIBUTION-$ARCHITECTURE"

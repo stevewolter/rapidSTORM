@@ -201,6 +201,6 @@ AC_SUBST([test_camera], "$enable_camera_testing")
 AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
 AM_CONDITIONAL([INTEGRATION_TESTING], [test -n "$with_rapidstorm_test_cases"])
 
-AC_CONFIG_FILES([Makefile rapidstorm.desktop install-dirs.exp release/create-release.sh release/pbuilder/pbuilderrc])
+AC_CONFIG_FILES([Makefile rapidstorm.desktop install-dirs.exp release/create-release.sh release/pbuilder/pbuilderrc release/Makefile])
 
 AC_OUTPUT
