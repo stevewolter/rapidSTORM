@@ -17,12 +17,16 @@ cd ..
 backportpackage -d precise -s saucy rapidstorm_${DEBIAN_VERSION}.dsc -w .
 
 for arch in i386 amd64; do
+    EXTRAFLAGS=""
+    if [[ "$arch" = i386 ]]; then
+        EXTRAFLAGS="--debbuildopts -B"
+    fi
     for distribution in wheezy saucy; do
-        sudo pbuilder --build --distribution ${distribution} --architecture ${arch} --configfile release/pbuilder/pbuilderrc rapidstorm_${DEBIAN_VERSION}.dsc
+        sudo pbuilder --build --distribution ${distribution} --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS rapidstorm_${DEBIAN_VERSION}.dsc
     done
-    sudo pbuilder --build --distribution precise --architecture ${arch} --configfile release/pbuilder/pbuilderrc "rapidstorm_${DEBIAN_VERSION}~ubuntu12.04.1.dsc"
+    sudo pbuilder --build --distribution precise --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS "rapidstorm_${DEBIAN_VERSION}~ubuntu12.04.1.dsc"
 done
 
 for arch in mingw-i686 mingw-amd64; do
-    sudo CROSSARCH=${arch} pbuilder --build --distribution wheezy --architecture amd64 --configfile release/pbuilder/pbuilderrc rapidstorm_${DEBIAN_VERSION}.dsc
+    sudo CROSSARCH=${arch} pbuilder --build --distribution wheezy --architecture amd64 --configfile release/pbuilder/pbuilderrc --debbuildopts -B rapidstorm_${DEBIAN_VERSION}.dsc
 done
