@@ -40,6 +40,7 @@ expect {
         "\nremove dStormJob" { pass "$test" }
         "\nin dStormJob" { exp_continue }
 }
+sleep 1
 set test "Written output file exists"
 if { [file exists "$host_target.txt"] == 1 } {
     pass "$test"
