@@ -11,7 +11,7 @@ PBUILDER_BUILD=
 
 all :
 
--include : release/dependencies
+-include : release/dependencies-$(DEBIAN_VERSION)
 
 release/dependencies-$(DEBIAN_VERSION) : release/$(srcdir)/create-dependencies.sh
 	sh $< $(DEBIAN_VERSION) > $@
@@ -22,8 +22,10 @@ release/dependencies-$(DEBIAN_VERSION) : release/$(srcdir)/create-dependencies.s
 %_mingw-amd64.changes : ARCH_FLAGS=--architecture mingw-amd64 --debbuildopts -B
 
 %.changes :
-	sudo pbuilder --build \
-	    $(ARCH_FLAGS) --distribution $(DIST) --configfile release/pbuilder/pbuilderrc $<
+	@mkdir -p $(dir $@)
+	sudo pbuilder --build $(ARCH_FLAGS) --distribution $(DIST) \
+	    --configfile release/pbuilder/pbuilderrc --logfile $(@:.changes=.log) $<
+	gzip $(@:.changes=.log)
 
 %~ubuntu12.04.1.dsc : %.dsc
-	backportpackage -d precise -s saucy $< -w .
+	backportpackage --dont-sign -d precise -s saucy $< -w .

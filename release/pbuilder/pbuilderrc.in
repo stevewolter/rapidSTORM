@@ -26,23 +26,24 @@ esac
 if echo "${ARCHITECTURE}" | grep -q "^mingw-"; then
     # Cross-compile to mingw
     # CROSSARCH is used in the pbuilder-satisfydepends-cross script to rewrite dependencies
+    export CROSSARCH="${ARCHITECTURE}"
     export DPKGCROSSARCH="${ARCHITECTURE}"
     # Hardening includes compiler switches that the mingw doesn't understand
     export DEB_BUILD_HARDENING=0
     # In a cross compilation, most checks won't work since no programs can run
     export DEB_BUILD_OPTIONS=nocheck
-    DEBBUILDOPTS="$DEBBUILDOPTS -a$ARCHITECTURE -d -b"
+    DEBBUILDOPTS="$DEBBUILDOPTS -a$ARCHITECTURE -d"
     PBUILDERSATISFYDEPENDSCMD="@abs_srcdir@/pbuilder-satisfydepends-i586"
     ARCHITECTURE=amd64
 fi
 
 NAME="$DISTRIBUTION-$ARCHITECTURE"
 
-APTCACHE="/var/cache/pbuilder/aptcache/$MAJOR_DISTRIBUTION/"
+APTCACHE="@abs_builddir@/aptcache/$MAJOR_DISTRIBUTION/"
 APTKEYRINGS=("/usr/share/keyrings/super-resolution-de-keyring.gpg")
-BASETGZ="/var/cache/pbuilder/$NAME-base.tgz"
-BUILDPLACE="/var/cache/pbuilder/build/"
-BUILDRESULT="@abs_builddir@/release/buildresult/$MAJOR_DISTRIBUTION/dists/$DISTRIBUTION/main"
+BASETGZ="@abs_builddir@/$NAME-base.tgz"
+BUILDPLACE="@abs_builddir@/build/"
+BUILDRESULT="@abs_builddir@/buildresult/$MAJOR_DISTRIBUTION/dists/$DISTRIBUTION/main"
 DEBOOTSTRAPOPTS+=("--include=apt-transport-https,ca-certificates,apt")
 EXTRAPACKAGES="aptitude apt-transport-https ca-certificates"
 OTHERMIRROR="deb https://idefix.biozentrum.uni-wuerzburg.de/$MAJOR_DISTRIBUTION $DISTRIBUTION $COMPONENTS $STAGE_COMPONENTS"

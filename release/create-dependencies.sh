@@ -1,7 +1,7 @@
 #!/bin/sh
 
 while read system distribution suffix archs; do \
-    path="release/pbuilder/release/buildresult/$system/dists/$distribution/main"; \
+    path="release/pbuilder/buildresult/$system/dists/$distribution/main"; \
     basename="rapidstorm_$suffix"; \
     for arch in $archs; do \
         echo "all : $path/${basename}_$arch.changes"; \
