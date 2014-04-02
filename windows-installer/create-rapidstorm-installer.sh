@@ -35,8 +35,7 @@ EOF
 
     mkdir --parents ${APT_DIR}/etc/apt/preferences.d ${APT_DIR}/etc/apt/apt.conf.d
     cat > ${APT_DIR}/etc/apt/sources.list <<EOF
-deb ${REPOSITORY} ${DIST} main non-free contrib
-deb ${REPOSITORY} ${DIST}-stage main non-free contrib mingw
+deb ${REPOSITORY} ${DIST} main non-free contrib mingw
 EOF
 
     mkdir --parents ${APT_DIR}/var/{cache/apt/archives,lib/{apt/{lists,mirrors},dpkg}}
@@ -54,11 +53,11 @@ EOF
     {
         sed -e "s/[@]VERSION[@]/${MARKETING_VERSION}/g" \
             -e "s/[@]MAJOR_VERSION[@]/${MAJOR_VERSION}/g" \
-            -e "s:[@]srcdir[@]:Z\:$(pwd):g" \
+            -e "s:[@]srcdir[@]:Z\:$(dirname $0):g" \
             -e "s:[@]README[@]:Z\:$(pwd)/${STAGE_DIR}/usr/share/doc/rapidstorm/README:g" \
-            < rapidstorm-setup.iss.in;
+            < $(dirname $0)/rapidstorm-setup.iss.in;
 
-        cat ${ARCH}.iss
+        cat $(dirname $0)/${ARCH}.iss
 
         echo "[Files]"; echo;
         find /usr/lib/gcc/${HOST_TYPE} -name '*.dll' -printf "Source: \"Z:%p\"; DestDir: \"{app}/bin\"\n"
