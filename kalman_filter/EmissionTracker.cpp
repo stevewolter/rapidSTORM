@@ -149,14 +149,11 @@ Output::TracedObject::~TracedObject() {
 }
 
 Output::Config::Config() 
-: allowBlinking("AllowBlinking", "Allowed blinking interval", 0 * camera::frame),
-  diffusion("DiffusionConstant", "Diffusion constant", boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit>::from_value(0) ),
-  mobility("Mobility", "Mobility constant", boost::units::quantity<KalmanMetaInfo<2>::mobility_unit>::from_value(0) ),
-  distance_threshold("DistanceThreshold", "Distance threshold", 2)
+: allowBlinking("AllowBlinking", 0 * camera::frame),
+  diffusion("DiffusionConstant", boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit>::from_value(0) ),
+  mobility("Mobility", boost::units::quantity<KalmanMetaInfo<2>::mobility_unit>::from_value(0) ),
+  distance_threshold("DistanceThreshold", 2)
 {
-    allowBlinking.setHelpID( "EmissionTracker.Allow_Blinking" );
-    diffusion.setHelpID( "EmissionTracker.Diffusion_Constant" );
-    mobility.setHelpID( "EmissionTracker.Mobility_Constant" );
 }
 
 void Output::Config::attach_ui( simparm::NodeHandle at )
