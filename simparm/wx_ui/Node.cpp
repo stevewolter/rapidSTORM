@@ -111,9 +111,10 @@ void InnerNode::create_static_text( boost::shared_ptr<Window> into, std::string 
 void InnerNode::attach_help( boost::shared_ptr<Window> to ) {
     attach_context_help( to, help_id );
     void (wxWindow::* set_tool_tip)(const wxString&) = &wxWindow::SetToolTip;
-    if ( help_message != "" )
+    if ( help_message != "" ) {
         run_in_GUI_thread( 
             bl::bind( set_tool_tip, * bl::constant(to), wxString( help_message.c_str(), wxConvUTF8 ) ) );
+    }
 }
 
 }
