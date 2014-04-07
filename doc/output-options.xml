@@ -440,6 +440,71 @@
       </refsection>
    </refentry>
 
+   <refentry id="track_emissions"> 
+      <refnamediv><refname>Track emissions</refname></refnamediv>
+        <refsection><title>Synopsis</title>
+         <para>This output uses <ulink url="http://en.wikipedia.org/wiki/Kalman_filter">Kalman filtering</ulink>
+               to track and link spatially and temporally close localizations into a single localization.
+               Most commonly, it's used when your camera frame rate is much higher than your switching rate,
+               so that every fluorophore is on for many images and you want only a single, very precise position.
+               It is also useful for drift correction.</para>
+         <para>For every frame, the Kalman model computes the expected position and the position uncertainty for
+             all known traces. Every localization that is within <et:elemref linkend="EmissionTracker_Distance_Threshold"/>
+             confidence intervals of an active trace is appended to the active trace. All other localizations start
+             new traces, with an initial expected position and uncertainty identical to the creating localization and an initial
+             velocity of 0. The module uses a simple movement model consisting of position and velocity.</para>
+         <para>When no localizations were added to a trace after more than <et:elemref linkend="EmissionTracker_Allow_Blinking"/>
+             frames, the trace is considered inactive, and no further localizations are added to it.</para>
+         <para>The module uses the localization fields for position uncertainty. Therefore, you don't give explicit distance
+             thresholds, but rather the threshold in confidence intervals.</para>
+         <para>As a simple example for the algorithm's operation, consider a case where both the mobility constant and the
+             diffusion constant are zero, and all localizations have an uncertainty of 10 nm standard deviation. When the first
+             localization is found at point 0, there is no active trace, so the localization creates a trace at point 0 with
+             an uncertainty of 10 nm. When the second localization arrives, it also has an uncertainty of 10 nm, so their distance
+             has an uncertainty of 14 nm. At a distance threshold of 2, this means that the two localizations are considered to
+             belong to the same trace if they are closer than 28 nm. Suppose that the new localization belongs to the same trace.
+             Now the position estimate for the trace is the average of the two localizations, and its uncertainty is 7 nm.
+             When the third localization arrives, the localization has an uncertainty of 10 nm, the trace has 7 nm, so their distance
+             has an uncertainty of 12 nm, and they are considered to belong to the same trace when they are closer than 24 nm.
+             Over time, the uncertainty of the trace converges to 0, so the radius in which new localizations are added converges
+             to the distance threshold times the localization uncertainty.</para>
+         <para>As you have seen in the example, this module doesn't use a fixed radius for determining whether two localizations
+             belong together. This is because we have a much better idea where the underlying fluorophore of a longer trace really is.
+             Therefore, we can choose smaller radii for longer traces.</para>
+         <para>If you want to use the localization tracker for very long traces, e.g. for tracking beads, it is advisable to add a
+             diffusion constant. The diffusion constant allows small, temporarily uncorrelated movements for the particle or the
+             microscope stage.</para>
+        </refsection>
+        <refsection>
+            <title>Configuration items</title>
+            <et:elemtable>
+               <et:elem desc="Allowed blinking interval" topic="AllowBlinking">
+                  <para>Time for which traces stay active even when they don't receive localizations. A value of 0 implies
+                      that every active trace must receive one localization every frame, or go inactive. Setting this value
+                      too high carries the danger of tracing unrelated localizations. 1 or 2 is usually a good
+                      value.</para></et:elem>
+               <et:elem desc="Distance threshold" topic="DistanceThreshold">
+                  <para>Linking threshold in confidence intervals. If a new localization is at least this close to an established
+                      trace, it's considered part of the trace. A value of 2 corresponds to a 95% confidence interval, i.e., 95%
+                      of the localizations that actually are part of the trace are added to it.</para></et:elem>
+               <et:elem desc="Diffusion constant" topic="DiffusionConstant">
+                  <para>Magnitude of random displacement. If this parameter is non-zero, we assume that fluorophores are shifted
+                      randomly between frames. This causes the model to give newer localizations more weight in the estimate
+                      of the current position, and to always assume a minimum position uncertainty of the localization.
+                      This parameter is useful for tracking beads, which almost always move a little.</para>
+                  <para>In the model, the movement is assumed to be temporarily uncorrelated: Just because a fluorophore moved
+                      to the left in the last frame, it doesn't mean that it will move to the left again.</para></et:elem>
+               <et:elem desc="Mobility constant" topic="Mobility">
+                  <para>Magnitude of random acceleration. If this parameter is non-zero, we assume that fluorophores experience
+                      random velocity shifts between frames. If a fluorophore is observed to be moving to the right, the model
+                      will assume that it will continue to do so.</para>
+                  <para>This parameter is scarcely used, and its effects are unknown. It's there because it was trivial to
+                      implement and shows the power of the Kalman model. Please send your success stories to the
+                      mailing list.</para></et:elem>
+            </et:elemtable>
+        </refsection>
+   </refentry>
+
    <refentry id="ExpressionFilter">
       <refnamediv><refname>Expression filter</refname></refnamediv>
       <refsection>
