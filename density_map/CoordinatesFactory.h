@@ -6,8 +6,8 @@
 #include "binning/config.h"
 #include "binning/binning_decl.h"
 #include <boost/ptr_container/ptr_array.hpp>
-#include <dStorm/Localization.h>
-#include <dStorm/helpers/default_on_copy.h>
+#include "Localization.h"
+#include "helpers/default_on_copy.h"
 
 namespace dStorm {
 namespace density_map {

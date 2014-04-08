@@ -2,7 +2,7 @@
 #define SIMPARM_TEXT_STREAM_ROOT_NODE_HH
 
 #include <iostream>
-#include "Node.h"
+#include "simparm/text_stream/Node.h"
 
 namespace simparm {
 namespace text_stream {

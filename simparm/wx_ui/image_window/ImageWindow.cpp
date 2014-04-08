@@ -1,11 +1,11 @@
 #include <stdlib.h>
-#include "ImageWindow.h"
-#include "Canvas.h"
-#include "ZoomSlider.h"
-#include "Key.h"
-#include "ScaleBar.h"
+#include "simparm/wx_ui/image_window/ImageWindow.h"
+#include "simparm/wx_ui/image_window/Canvas.h"
+#include "simparm/wx_ui/image_window/ZoomSlider.h"
+#include "simparm/wx_ui/image_window/Key.h"
+#include "simparm/wx_ui/image_window/ScaleBar.h"
 #include <sstream>
-#include "SizeConvert.h"
+#include "simparm/wx_ui/image_window/SizeConvert.h"
 
 #include "debug.h"
 

@@ -5,8 +5,8 @@
 #include <simparm/Entry.h>
 #include <simparm/TriggerEntry.h>
 #include <boost/thread/recursive_mutex.hpp>
-#include <dStorm/display/DataSource.h>
-#include <dStorm/display/Manager.h>
+#include "display/DataSource.h"
+#include "display/Manager.h"
 
 namespace simparm {
 namespace text_stream {

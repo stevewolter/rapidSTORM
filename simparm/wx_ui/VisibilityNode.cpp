@@ -1,7 +1,7 @@
-#include "VisibilityNode.h"
+#include "simparm/wx_ui/VisibilityNode.h"
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include "lambda.h"
+#include "simparm/wx_ui/lambda.h"
 
 namespace simparm {
 namespace wx_ui {

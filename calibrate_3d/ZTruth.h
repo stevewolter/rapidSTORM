@@ -2,8 +2,8 @@
 #define DSTORM_CALIBRATE3D_ZTRUTH_H
 
 #include "expression/Parser.h"
-#include <dStorm/localization/Traits.h>
-#include <dStorm/output/LocalizedImage.h>
+#include "localization/Traits.h"
+#include "output/LocalizedImage.h"
 
 namespace dStorm {
 namespace expression { namespace source { class LValue; } }

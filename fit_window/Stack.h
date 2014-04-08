@@ -1,11 +1,11 @@
 #ifndef DSTORM_GUF_DATACUBE_H
 #define DSTORM_GUF_DATACUBE_H
 
-#include "Plane.h"
+#include "fit_window/Plane.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <nonlinfit/plane/fwd.h>
-#include <dStorm/engine/JobInfo.h>
-#include "Config.h"
+#include "engine/JobInfo.h"
+#include "fit_window/Config.h"
 
 namespace dStorm {
 namespace fit_window {

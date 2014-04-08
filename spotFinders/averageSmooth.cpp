@@ -1,5 +1,5 @@
 #include "spotFinders/averageSmooth.h"
-#include <dStorm/engine/Image.h>
+#include "engine/Image.h"
 
 using namespace dStorm::engine;
 

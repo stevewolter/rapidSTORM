@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <simparm/NodeHandle.h>
-#include <dStorm/Config.h>
-#include "JobStarter.h"
+#include "base/Config.h"
+#include "shell/JobStarter.h"
 
 namespace dStorm {
 namespace shell {

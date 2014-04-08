@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "ui/serialization/Node.h"
 #include <boost/lexical_cast.hpp>
 
 namespace simparm {

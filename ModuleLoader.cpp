@@ -1,17 +1,18 @@
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFitterFactory.h>
+#include "engine/SpotFinder.h"
+#include "engine/SpotFitterFactory.h"
 #include "ModuleLoader.h"
 
 #include "inputs/inputs.h"
 #include "inputs/WarnAboutLocalizationFile.h"
 #include "spotFinders/spotFinders.h"
 #include "outputs/BasicTransmissions.h"
-#include <dStorm/Config.h>
+#include "base/Config.h"
 #include "engine/ChainLink_decl.h"
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
 #include "guf/fitter.h"
 #include "estimate_psf_form/decl.h"
+#include "localization_file/writer.h"
 
 #include "test-plugin/plugin.h"
 #include "kalman_filter/fwd.h"
@@ -94,6 +95,7 @@ void add_output_modules( dStorm::Config& car_config )
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     car_config.add_output( kalman_filter::create() );
     car_config.add_output( kalman_filter::create_drift_correction() );
+    car_config.add_output( localization_file::make_output_source() );
     car_config.add_output( ripley_k::make_output_source().release() );
     test::output_modules( &car_config );
 

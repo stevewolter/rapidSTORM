@@ -1,8 +1,8 @@
-#include "JobStarter.h"
+#include "shell/JobStarter.h"
 #include "job/Car.h"
 #include <simparm/Message.h>
 #include <simparm/Node.h>
-#include <dStorm/GUIThread.h>
+#include "GUIThread.h"
 
 namespace dStorm {
 

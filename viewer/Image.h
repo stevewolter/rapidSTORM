@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_IMAGE_H
 #define DSTORM_VIEWER_IMAGE_H
 
-#include <dStorm/Image.h>
+#include "image/Image.h"
 
 namespace dStorm {
 namespace viewer {

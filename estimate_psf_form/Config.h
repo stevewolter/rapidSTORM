@@ -9,11 +9,11 @@
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
 #include <simparm/Group.h>
-#include <dStorm/output/Capabilities.h>
+#include "output/Capabilities.h"
 #include <boost/array.hpp>
 #include <boost/optional/optional.hpp>
-#include <dStorm/Direction.h>
-#include <dStorm/units/nanolength.h>
+#include "Direction.h"
+#include "units/nanolength.h"
 #include <memory>
 
 #include "calibrate_3d/FormCalibrationConfig.h"

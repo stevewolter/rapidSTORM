@@ -1,8 +1,8 @@
 #ifndef DSTORM_PSF_MODELS_H
 #define DSTORM_PSF_MODELS_H
 
-#include "DepthInfo3D.h"
-#include "No3D.h"
+#include "gaussian_psf/DepthInfo3D.h"
+#include "gaussian_psf/No3D.h"
 #include <boost/mpl/vector.hpp>
 
 namespace dStorm {

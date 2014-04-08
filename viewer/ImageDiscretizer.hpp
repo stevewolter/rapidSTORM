@@ -2,12 +2,12 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 
 #include <boost/units/io.hpp>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/Image_iterator.h>
-#include <dStorm/Image_impl.h>
+#include "image/MetaInfo.h"
+#include "image/iterator.h"
+#include "image/Image.hpp"
 #include <algorithm>
 
-#include "ImageDiscretizer.h"
+#include "viewer/ImageDiscretizer.h"
 
 namespace dStorm {
 namespace viewer {

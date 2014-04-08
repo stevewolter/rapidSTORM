@@ -2,8 +2,8 @@
 #define SIMPARM_OBJECT_HH
 
 #include <string>
-#include "NodeHandle.h"
-#include "UserLevel.h"
+#include "simparm/NodeHandle.h"
+#include "simparm/UserLevel.h"
 #include <memory>
 
 namespace simparm {

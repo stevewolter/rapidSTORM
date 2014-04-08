@@ -1,5 +1,5 @@
-#include "constant_binner.h"
-#include "binning.h"
+#include "binning/constant_binner.h"
+#include "binning/binning.h"
 
 namespace dStorm {
 namespace binning {

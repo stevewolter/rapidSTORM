@@ -1,7 +1,7 @@
 #ifndef SIMPARM_TABGROUP_H
 #define ndef SIMPARM_TABGROUP_H
 
-#include "Object.h"
+#include "simparm/Object.h"
 
 namespace simparm {
 class TabGroup : public Object {

@@ -1,12 +1,12 @@
 #ifndef DSTORM_FORMFITTER_GUI_H
 #define DSTORM_FORMFITTER_GUI_H
 
-#include <dStorm/display/DataSource.h>
-#include <dStorm/Engine.h>
+#include "display/DataSource.h"
+#include "base/Engine.h"
 #include <boost/thread/future.hpp>
 
-#include "Tile.h"
-#include "Input.h"
+#include "estimate_psf_form/Tile.h"
+#include "estimate_psf_form/Input.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

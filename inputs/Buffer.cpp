@@ -1,17 +1,17 @@
 #include "debug.h"
 
-#include "Buffer.h"
+#include "inputs/Buffer.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <cassert>
-#include <dStorm/engine/Image_decl.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/input/Source.h>
-#include <dStorm/input/Traits.h>
-#include <dStorm/Localization.h>
+#include "engine/Image_decl.h"
+#include "engine/Image.h"
+#include "input/AdapterSource.h"
+#include "input/Method.hpp"
+#include "input/Source.h"
+#include "input/Traits.h"
+#include "Localization.h"
 #include <limits>
 #include <stdexcept>
 

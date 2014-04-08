@@ -1,10 +1,10 @@
 #ifndef DSTORM_FORM_FITTER_FITTER_H
 #define DSTORM_FORM_FITTER_FITTER_H
 
-#include "decl.h"
+#include "estimate_psf_form/decl.h"
 #include <memory>
-#include <dStorm/engine/Image.h>
-#include <dStorm/Localization_decl.h>
+#include "engine/Image.h"
+#include "Localization_decl.h"
 #include <simparm/ProgressEntry.h>
 
 namespace dStorm {

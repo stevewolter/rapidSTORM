@@ -1,7 +1,7 @@
 #ifndef DSTORM_EXPRESSION_QUANTITY_READER_H
 #define DSTORM_EXPRESSION_QUANTITY_READER_H
 
-#include "DynamicQuantity.h"
+#include "expression/DynamicQuantity.h"
 
 namespace dStorm {
 namespace expression {

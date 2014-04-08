@@ -4,14 +4,14 @@
 #include <simparm/BoostUnits.h>
 #include <memory>
 #include <boost/thread/mutex.hpp>
-#include "Config_decl.h"
-#include <dStorm/engine/Input_decl.h>
-#include <dStorm/output/Traits_decl.h>
+#include "engine/Config_decl.h"
+#include "engine/Input_decl.h"
+#include "output/Traits_decl.h"
 #include <boost/utility.hpp>
-#include <dStorm/output/LocalizedImage_decl.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/Engine.h>
-#include "Config.h"
+#include "output/LocalizedImage_decl.h"
+#include "input/Source.h"
+#include "base/Engine.h"
+#include "engine/Config.h"
 
 namespace dStorm {
 namespace engine {

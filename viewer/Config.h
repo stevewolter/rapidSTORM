@@ -1,18 +1,18 @@
 #ifndef DSTORM_VIEWER_CONFIG_H
 #define DSTORM_VIEWER_CONFIG_H
 
-#include "DensityMapConfig.h"
+#include "viewer/DensityMapConfig.h"
 
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
-#include <dStorm/output/BasenameAdjustedFileEntry.h>
+#include "output/BasenameAdjustedFileEntry.h"
 #include <simparm/Entry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/units/microlength.h>
+#include "output/Output.h"
+#include "units/microlength.h"
 
-#include <dStorm/UnitEntries/PixelEntry.h>
-#include "ColourSchemeFactory.h"
-#include "Image.h"
+#include "UnitEntries/PixelEntry.h"
+#include "viewer/ColourSchemeFactory.h"
+#include "viewer/Image.h"
 
 namespace dStorm {
 namespace viewer {

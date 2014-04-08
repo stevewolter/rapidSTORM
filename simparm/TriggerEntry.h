@@ -1,7 +1,7 @@
 #ifndef SIMPARM_TRIGGER_ENTRY
 #define SIMPARM_TRIGGER_ENTRY
 
-#include "Entry.h"
+#include "simparm/Entry.h"
 
 namespace simparm {
 

@@ -1,7 +1,7 @@
-#include "TreeRepresentation.h"
-#include "TreeRoot.h"
-#include "lambda.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/TreeRepresentation.h"
+#include "simparm/wx_ui/TreeRoot.h"
+#include "simparm/wx_ui/lambda.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

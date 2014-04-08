@@ -1,7 +1,7 @@
 #ifndef SIMPARM_WX_UI_IMAGE_WINDOW_HANDLE_H
 #define SIMPARM_WX_UI_IMAGE_WINDOW_HANDLE_H
 
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 
 namespace simparm {
 namespace wx_ui {

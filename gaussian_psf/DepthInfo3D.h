@@ -1,16 +1,16 @@
 #ifndef DSTORM_PSF_SPLINE3D_H
 #define DSTORM_PSF_SPLINE3D_H
 
-#include "Base3D.h"
+#include "gaussian_psf/Base3D.h"
 #include <nonlinfit/append.h>
 #include <nonlinfit/access_parameters.hpp>
 #include <nonlinfit/DerivationSummand.h>
 #include <nonlinfit/DerivationSummand.h>
 #include <boost/mpl/iter_fold.hpp>
 #include <boost/mpl/range_c.hpp>
-#include <dStorm/polynomial_3d.h>
-#include <dStorm/Direction.h>
-#include <dStorm/threed_info/DepthInfo.h>
+#include "polynomial_3d.h"
+#include "Direction.h"
+#include "threed_info/DepthInfo.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {

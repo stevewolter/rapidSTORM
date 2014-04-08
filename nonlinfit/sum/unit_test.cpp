@@ -1,8 +1,8 @@
-#include "AbstractMap.hpp"
+#include "nonlinfit/sum/AbstractMap.hpp"
 #include <boost/mpl/vector.hpp>
 #include <cassert>
 #include <Eigen/Core>
-#include "Evaluator.hpp"
+#include "nonlinfit/sum/Evaluator.hpp"
 #include <nonlinfit/functions/Constant.h>
 #include <nonlinfit/functions/Polynom.h>
 #include <nonlinfit/functions/Zero.h>

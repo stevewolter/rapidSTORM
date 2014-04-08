@@ -1,9 +1,9 @@
 #include "debug.h"
-#include "PlaneFlattener.h"
-#include <dStorm/image/iterator.h>
-#include <dStorm/image/slice.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/PlaneFlattener.h"
+#include "image/iterator.h"
+#include "image/slice.h"
+#include "image/constructors.h"
+#include "engine/InputTraits.h"
 
 namespace dStorm {
 namespace engine {
@@ -73,8 +73,8 @@ PlaneFlattener::flatten_image( const engine::ImageStack& multiplane )
 }
 
 #include "dejagnu.h"
-#include <dStorm/traits/AffineProjection.h>
-#include <dStorm/traits/ScaledProjection.h>
+#include "traits/AffineProjection.h"
+#include "traits/ScaledProjection.h"
 
 namespace dStorm {
 namespace engine {

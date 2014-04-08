@@ -1,6 +1,6 @@
 #include "debug.h"
-#include "Control.h"
-#include "Run.h"
+#include "job/Control.h"
+#include "job/Run.h"
 
 namespace dStorm {
 namespace job {

@@ -1,5 +1,5 @@
-#include "InputMethods.h"
-#include <dStorm/input/Choice.h>
+#include "inputs/InputMethods.h"
+#include "input/Choice.h"
 
 namespace dStorm {
 namespace inputs {

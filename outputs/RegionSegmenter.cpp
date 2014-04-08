@@ -6,14 +6,13 @@
 #include <boost/ptr_container/ptr_array.hpp>
 
 #include "binning/config.h"
-#include <dStorm/output/OutputSource.h>
-#include <dStorm/output/Localizations.h>
+#include "output/OutputSource.h"
 #include "density_map/DensityMap.h"
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/DummyListener.h"
-#include <dStorm/engine/Image.h>
-#include <dStorm/output/TraceReducer.h>
-#include <dStorm/display/Manager.h>
+#include "engine/Image.h"
+#include "output/TraceReducer.h"
+#include "display/Manager.h"
 #include <boost/thread/mutex.hpp>
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
@@ -23,30 +22,29 @@
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/Node.h>
 
-#include "RegionSegmenter.h"
+#include "outputs/RegionSegmenter.h"
 #include <limits>
 #include <stdio.h>
-#include <dStorm/Image_iterator.h>
-#include <dStorm/engine/Spot.h>
-#include <dStorm/image/dilation.h>
-#include <dStorm/image/extend.h>
-#include <dStorm/helpers/back_inserter.h>
-#include <dStorm/engine/CandidateTree.h>
+#include "image/iterator.h"
+#include "engine/Spot.h"
+#include "image/dilation.h"
+#include "image/extend.h"
+#include "helpers/back_inserter.h"
+#include "engine/CandidateTree.h"
 #include <boost/units/quantity.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
 #include <boost/ptr_container/ptr_map.hpp>
-#include <dStorm/output/Localizations_iterator.h>
 #include <boost/foreach.hpp>
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Filter.h>
+#include "output/FilterBuilder.h"
+#include "output/Filter.h"
 #include "density_map/LinearInterpolation.h"
 
-#include <dStorm/Image_impl.h>
-#include <dStorm/image/dilation_impl.h>
+#include "image/Image.hpp"
+#include "image/dilation_impl.h"
 #include "binning/binning.h"
 
-#include <dStorm/make_clone_allocator.hpp>
+#include "make_clone_allocator.hpp"
 
 namespace dStorm { 
 namespace outputs {
@@ -69,7 +67,7 @@ class Segmenter : public dStorm::output::Filter,
     boost::ptr_array< binning::Unscaled, 2 > binners;
     simparm::Entry<double> threshold;
     simparm::Entry<unsigned long> dilation;
-    dStorm::output::Localizations points;
+    std::vector<Localization> points;
 
     dStorm::density_map::DummyListener<2> dummy_binning_listener;
     dStorm::density_map::DensityMap< dStorm::density_map::DummyListener<2>, 2 > bins;
@@ -110,7 +108,7 @@ public:
 
     AdditionalData announceStormSize(const Announcement &a) ;
     void receiveLocalizations(const EngineResult& er) {
-        points.insert(er);
+        std::copy(er.begin(), er.end(), back_inserter(points));
         bins.receiveLocalizations(er);
     }
 
@@ -385,13 +383,11 @@ void Segmenter::segment()
                                       (Trace*)NULL);
     std::list<Trace> regions;
 
-    for ( Localizations::const_iterator fit = points.begin(); 
-             fit != points.end(); fit++)
-    {
+    for ( const Localization& point : points ) {
         int bins[2];
         bool good = true;
         for (int i = 0; i < 2; ++i) {
-            boost::optional<float> v = binners[i].bin_point(*fit);
+            boost::optional<float> v = binners[i].bin_point(point);
             if ( ! v ) 
                 good = false;
             else
@@ -401,17 +397,16 @@ void Segmenter::segment()
         int region = segmentation(bins[0], bins[1]);
         if (srMap[region] == NULL) {
             regions.push_back( Trace() );
-            regions.back().push_back( *fit );
+            regions.back().push_back( point );
             srMap[region] = &regions.back();
         } else {
             Trace &sr = *srMap[region];
-            sr.push_back(*fit);
+            sr.push_back(point);
         }
     }
 
     std::list<Trace>::iterator i;
     EngineResult engineResult;
-    engineResult.forImage = frame_count::from_value(-1);
     for ( i = regions.begin(); i != regions.end(); i++) {
         reducer->reduce_trace_to_localization( i->begin(), i->end(), boost::back_inserter(engineResult),
             dStorm::samplepos::Constant( 0 * si::meter ) );
@@ -483,14 +478,12 @@ void Segmenter::maximums() {
         foundSpots.push_back( Spot( it->spot() ) );
     }
 
-    Localizations& locs = points;
     Mapper mapper(foundSpots, binners);
-    for (Localizations::const_iterator i= locs.begin(); 
-                                               i!= locs.end(); i++)
-        mapper(*i);
+    for (const Localization& localization : points) {
+        mapper(localization);
+    }
 
     EngineResult engineResult;
-    engineResult.forImage = frame_count::from_value(0);
 
     for ( Mapper::Map::const_iterator i = mapper.getMapping().begin();
           i != mapper.getMapping().end(); i++)

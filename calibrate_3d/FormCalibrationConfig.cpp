@@ -1,4 +1,4 @@
-#include "FormCalibrationConfig.h"
+#include "calibrate_3d/FormCalibrationConfig.h"
 #include <boost/static_assert.hpp>
 
 namespace dStorm {

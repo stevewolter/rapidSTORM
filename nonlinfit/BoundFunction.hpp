@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_BOUNDFUNCTION_HPP
 #define NONLINFIT_BOUNDFUNCTION_HPP
 
-#include "BoundFunction.h"
+#include "nonlinfit/BoundFunction.h"
 
 namespace nonlinfit {
 

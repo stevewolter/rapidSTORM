@@ -1,7 +1,7 @@
 #ifndef DSTORM_CALIBRATE3D_CONSTANT_PARAMETER_HPP
 #define DSTORM_CALIBRATE3D_CONSTANT_PARAMETER_HPP
 
-#include "FormCalibrationConfig.h"
+#include "calibrate_3d/FormCalibrationConfig.h"
 #include "gaussian_psf/parameters.h"
 #include "constant_background/fwd.hpp"
 

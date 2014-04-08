@@ -1,7 +1,7 @@
 #ifndef DSTORM_CRANKSHAFT_H
 #define DSTORM_CRANKSHAFT_H
 
-#include <dStorm/output/Output.h>
+#include "output/Output.h"
 #include <list>
 #include <boost/noncopyable.hpp>
 

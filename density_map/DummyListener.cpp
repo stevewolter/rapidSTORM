@@ -1,5 +1,5 @@
-#include "DensityMap.hpp"
-#include "DummyListener.h"
+#include "density_map/DensityMap.hpp"
+#include "density_map/DummyListener.h"
 
 namespace dStorm {
 namespace density_map {

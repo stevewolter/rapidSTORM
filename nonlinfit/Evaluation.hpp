@@ -2,7 +2,7 @@
 #define NONLINFIT_EVALUATION_HPP
 
 #include <stdexcept>
-#include "Evaluation.h"
+#include "nonlinfit/Evaluation.h"
 
 namespace nonlinfit {
 

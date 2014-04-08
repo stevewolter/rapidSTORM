@@ -1,5 +1,5 @@
-#include "LocalizationFile.h"
-#include <dStorm/localization_file/reader.h>
+#include "inputs/LocalizationFile.h"
+#include "localization_file/reader.h"
 
 namespace dStorm {
 namespace inputs {

@@ -1,8 +1,8 @@
 #ifndef DSTORM_EXPRESSION_TOKENS_H
 #define DSTORM_EXPRESSION_TOKENS_H
 
-#include "tokens_decl.h"
-#include "types.h"
+#include "expression/tokens_decl.h"
+#include "expression/types.h"
 #include <boost/fusion/include/at_c.hpp>
 #include <boost/fusion/include/io.hpp>
 #include <boost/array.hpp>

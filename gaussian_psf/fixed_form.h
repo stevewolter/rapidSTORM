@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_PSF_FIXED_FORM_H
 #define DSTORM_GUF_PSF_FIXED_FORM_H
 
-#include "parameters.h"
+#include "gaussian_psf/parameters.h"
 
 namespace dStorm {
 namespace gaussian_psf {

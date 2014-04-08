@@ -4,10 +4,10 @@
 #include <Eigen/Core>
 #include <Eigen/StdVector>
 #include <vector>
-#include "GenericData.h"
-#include "fwd.h"
+#include "nonlinfit/plane/GenericData.h"
+#include "nonlinfit/plane/fwd.h"
 #include <boost/static_assert.hpp>
-#include "DataFacade.h"
+#include "nonlinfit/plane/DataFacade.h"
 
 namespace nonlinfit {
 namespace plane {

@@ -1,8 +1,8 @@
 #ifndef DSTORM_EXPRESSION_SIMPLIFIER_H
 #define DSTORM_EXPRESSION_SIMPLIFIER_H
 
-#include "tokens.h"
-#include "types.h"
+#include "expression/tokens.h"
+#include "expression/types.h"
 #include <boost/utility/enable_if.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/get.hpp>

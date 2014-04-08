@@ -1,4 +1,4 @@
-#include "ScheduleIndexFinder.h"
+#include "fit_window/ScheduleIndexFinder.h"
 #include <nonlinfit/plane/fwd.h>
 #include <nonlinfit/index_of.h>
 #include <boost/mpl/for_each.hpp>

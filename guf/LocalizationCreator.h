@@ -2,9 +2,9 @@
 #define DSTORM_FITTER_GUF_LOCALIZATION_CREATOR_H
 
 #include <boost/optional/optional.hpp>
-#include <dStorm/engine/JobInfo_decl.h>
-#include <dStorm/Localization_decl.h>
-#include "Config_decl.h"
+#include "engine/JobInfo_decl.h"
+#include "Localization_decl.h"
+#include "guf/Config_decl.h"
 
 namespace dStorm {
 namespace fit_window {

@@ -1,11 +1,11 @@
 #include <boost/units/io.hpp>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/output/Traits.h>
+#include "image/MetaInfo.h"
+#include "output/Traits.h"
 #include <simparm/Node.h>
-#include "ColourScheme.h"
-#include "Config.h"
-#include "Display.h"
-#include "Status.h"
+#include "viewer/ColourScheme.h"
+#include "viewer/Config.h"
+#include "viewer/Display.h"
+#include "viewer/Status.h"
 
 namespace dStorm {
 namespace viewer {

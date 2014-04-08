@@ -1,6 +1,6 @@
 #include <boost/math/constants/constants.hpp>
 
-#include "base.h"
+#include "viewer/colour_schemes/base.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 

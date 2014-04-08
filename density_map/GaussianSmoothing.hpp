@@ -1,9 +1,9 @@
 #ifndef DSTORM_DENSITY_MAP_GAUSSIAN_SMOOTHINGN_HPP
 #define DSTORM_DENSITY_MAP_GAUSSIAN_SMOOTHINGN_HPP
 
-#include "GaussianSmoothing.h"
-#include "Interpolator.h"
-#include "InterpolatorFactory.h"
+#include "density_map/GaussianSmoothing.h"
+#include "density_map/Interpolator.h"
+#include "density_map/InterpolatorFactory.h"
 #include <bitset>
 #include <simparm/Object.h>
 #include <simparm/Entry.h>

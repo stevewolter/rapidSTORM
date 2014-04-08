@@ -1,4 +1,4 @@
-#include "cpu_time.h"
+#include "test-plugin/cpu_time.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

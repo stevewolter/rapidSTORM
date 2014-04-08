@@ -7,8 +7,8 @@
 
 #include <simparm/Entry.h>
 #include <simparm/Entry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
 #include <iostream>
 #include <stdexcept>
 #include <boost/units/io.hpp>

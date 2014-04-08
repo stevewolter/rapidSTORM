@@ -1,9 +1,9 @@
 #ifndef DSTORM_CARCONFIG_H
 #define DSTORM_CARCONFIG_H
 
-#include <dStorm/Config.h>
-#include <dStorm/output/Config.h>
-#include <dStorm/input/Link.h>
+#include "base/Config.h"
+#include "output/Config.h"
+#include "input/Link.h"
 #include <memory>
 #include <list>
 #include <simparm/Group.h>
@@ -11,10 +11,10 @@
 #include <simparm/FileEntry.h>
 #include <simparm/Entry.h>
 #include <simparm/Message.h>
-#include <dStorm/output/BasenameAdjustedFileEntry.h>
+#include "output/BasenameAdjustedFileEntry.h"
 #include <boost/function/function1.hpp>
 
-#include "OutputTreeRoot.h"
+#include "job/OutputTreeRoot.h"
 
 namespace dStorm {
 namespace output { class OutputSource; }

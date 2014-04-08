@@ -1,8 +1,8 @@
-#include "KernelCreator.h"
+#include "guf/KernelCreator.h"
 #include "gaussian_psf/BaseExpression.h"
 #include "constant_background/model.hpp"
 
-#include "MultiKernelModel.h"
+#include "guf/MultiKernelModel.h"
 
 namespace dStorm {
 namespace guf {

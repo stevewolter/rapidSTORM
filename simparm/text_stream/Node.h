@@ -1,15 +1,15 @@
 #ifndef SIMPARM_TEXT_STREAM_NODE_H
 #define SIMPARM_TEXT_STREAM_NODE_H
 
-#include "../Node.h"
-#include "../Attribute.hpp"
+#include "simparm/Node.h"
+#include "simparm/Attribute.hpp"
 #include <map>
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
-#include "ChildrenList.h"
-#include "NodeBackend.h"
+#include "simparm/text_stream/ChildrenList.h"
+#include "simparm/text_stream/NodeBackend.h"
 
 namespace simparm {
 namespace text_stream {

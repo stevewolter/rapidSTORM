@@ -1,10 +1,10 @@
 #ifndef DSTORM_FORMFITTER_TILE_H
 #define DSTORM_FORMFITTER_TILE_H
 
-#include <dStorm/engine/Input.h>
-#include <dStorm/Localization.h>
-#include <dStorm/display/DataSource.h>
-#include <dStorm/traits/Projection.h>
+#include "engine/Input.h"
+#include "Localization.h"
+#include "display/DataSource.h"
+#include "traits/Projection.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

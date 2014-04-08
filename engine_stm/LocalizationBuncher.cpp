@@ -1,11 +1,11 @@
 #include "debug.h"
 
-#include "LocalizationBuncher.h"
-#include <dStorm/input/Source.h>
-#include <dStorm/output/Output.h>
+#include "engine_stm/LocalizationBuncher.h"
+#include "input/Source.h"
+#include "output/Output.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/get.hpp>
-#include <dStorm/localization/record.h>
+#include "localization/record.h"
 
 using namespace dStorm::output;
 

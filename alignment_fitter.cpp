@@ -1,8 +1,8 @@
 #include "debug.h"
 #include "alignment_fitter.h"
-#include <dStorm/Job.h>
+#include "Job.h"
 
-#include <dStorm/localization_file/reader.h>
+#include "localization_file/reader.h"
 #include <boost/variant/get.hpp>
 
 #include <boost/thread/mutex.hpp>

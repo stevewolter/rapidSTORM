@@ -1,4 +1,4 @@
-#include "ZoomSlider.h"
+#include "simparm/wx_ui/image_window/ZoomSlider.h"
 #include <stdexcept>
 #include "debug.h"
 

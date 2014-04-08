@@ -1,8 +1,8 @@
-#include "Canvas.h"
+#include "simparm/wx_ui/image_window/Canvas.h"
 #include <stdexcept>
 #include <wx/dcbuffer.h>
-#include "SizeConvert.h"
-#include <dStorm/Image_iterator.h>
+#include "simparm/wx_ui/image_window/SizeConvert.h"
+#include "image/iterator.h"
 
 #include "debug.h"
 

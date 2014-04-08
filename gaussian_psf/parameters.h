@@ -1,7 +1,7 @@
 #ifndef DSTORM_FITTER_PSF_PARAMETERS_H
 #define DSTORM_FITTER_PSF_PARAMETERS_H
 
-#include "fwd.h"
+#include "gaussian_psf/fwd.h"
 #include <nonlinfit/Xs.h>
 
 namespace dStorm {

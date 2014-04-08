@@ -1,7 +1,7 @@
 #ifndef SIMPARM_WX_UI_PROGRESSNODE_H
 #define SIMPARM_WX_UI_PROGRESSNODE_H
 
-#include "Node.h"
+#include "simparm/wx_ui/Node.h"
 #include <wx/gauge.h>
 
 namespace simparm {

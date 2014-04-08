@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_EVALUATOR_H
 #define NONLINFIT_EVALUATOR_H
 
-#include "fwd.h"
+#include "nonlinfit/fwd.h"
 
 namespace nonlinfit {
 

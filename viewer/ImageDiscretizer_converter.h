@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_CONVERTER_H
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_CONVERTER_H
 
-#include "ImageDiscretizer.h"
+#include "viewer/ImageDiscretizer.h"
 #include "density_map/Coordinates.h"
 
 namespace dStorm {

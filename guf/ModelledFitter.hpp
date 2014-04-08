@@ -4,20 +4,20 @@
 #include <Eigen/StdVector>
 #include <nonlinfit/TermParameter.h>
 
-#include "Config.h"
+#include "guf/Config.h"
 
 #undef DEBUG
 
-#include "ModelledFitter.h"
-#include "MultiKernelModel.hpp"
+#include "guf/ModelledFitter.h"
+#include "guf/MultiKernelModel.hpp"
 #include "gaussian_psf/is_plane_dependent.h"
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/sum/AbstractMap.hpp>
 #include <nonlinfit/AbstractFunctionAdapter.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/JobInfo.h"
+#include "engine/InputTraits.h"
 #include "fit_window/Stack.h"
 #include <nonlinfit/AbstractTerminator.h>
 

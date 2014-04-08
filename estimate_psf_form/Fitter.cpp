@@ -1,13 +1,13 @@
-#include "decl.h"
+#include "estimate_psf_form/decl.h"
 #include <Eigen/StdVector>
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include "Fitter.h"
-#include "Config.h"
-#include <dStorm/image/slice.h>
-#include <dStorm/Localization.h>
-#include <dStorm/engine/JobInfo.h>
+#include "estimate_psf_form/Fitter.h"
+#include "estimate_psf_form/Config.h"
+#include "image/slice.h"
+#include "Localization.h"
+#include "engine/JobInfo.h"
 #include "guf/Spot.h"
 #include <nonlinfit/plane/Distance.hpp>
 #include <nonlinfit/plane/JointData.hpp>
@@ -28,7 +28,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/variant/get.hpp>
 #include <nonlinfit/BoundFunction.hpp>
-#include <dStorm/engine/InputTraits.h>
+#include "engine/InputTraits.h"
 #include <fstream>
 
 #include "fit_window/Optics.h"
@@ -37,10 +37,10 @@
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
 #include <nonlinfit/terminators/All.h>
-#include <dStorm/threed_info/No3D.h>
-#include <dStorm/threed_info/Spline3D.h>
+#include "threed_info/No3D.h"
+#include "threed_info/Spline3D.h"
 
-#include "LocalizationValueFinder.h"
+#include "estimate_psf_form/LocalizationValueFinder.h"
 #include "calibrate_3d/constant_parameter.hpp"
 #include <nonlinfit/sum/Lambda.h>
 #include "constant_background/model.hpp"

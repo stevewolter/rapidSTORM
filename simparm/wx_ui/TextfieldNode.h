@@ -1,8 +1,8 @@
 #ifndef SIMPARM_WX_UI_TEXTFIELDNODE_H
 #define SIMPARM_WX_UI_TEXTFIELDNODE_H
 
-#include "AttributeHandle.h"
-#include "Node.h"
+#include "simparm/wx_ui/AttributeHandle.h"
+#include "simparm/wx_ui/Node.h"
 
 namespace simparm {
 namespace wx_ui {

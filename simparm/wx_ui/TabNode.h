@@ -1,8 +1,8 @@
 #ifndef SIMPARM_WX_UI_TABNODE_H
 #define SIMPARM_WX_UI_TABNODE_H
 
-#include "WindowNode.h"
-#include "GUIHandle.h"
+#include "simparm/wx_ui/WindowNode.h"
+#include "simparm/wx_ui/GUIHandle.h"
 
 namespace simparm {
 namespace wx_ui {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_NULL_OUTPUT_H
 #define DSTORM_NULL_OUTPUT_H
 
-#include <dStorm/output/Output.h>
+#include "output/Output.h"
 
 namespace dStorm {
 namespace outputs {

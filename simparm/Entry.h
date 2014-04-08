@@ -1,10 +1,10 @@
 #if !defined(CONFIGENTRY_HH)
 #define CONFIGENTRY_HH
 
-#include "BasicEntry.h"
+#include "simparm/BasicEntry.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include "Attribute.h"
-#include "BoostOptional.h"
+#include "simparm/Attribute.h"
+#include "simparm/BoostOptional.h"
 
 namespace simparm {
 using std::string;

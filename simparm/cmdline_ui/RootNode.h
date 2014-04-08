@@ -1,7 +1,7 @@
 #ifndef SIMPARM_CMDLINE_UI_ROOTNODE_H
 #define SIMPARM_CMDLINE_UI_ROOTNODE_H
 
-#include "Node.h"
+#include "simparm/cmdline_ui/Node.h"
 
 namespace simparm {
 namespace cmdline_ui {

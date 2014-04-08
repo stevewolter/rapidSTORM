@@ -1,6 +1,6 @@
-#include "BasicEntry.h"
-#include "Node.h"
-#include "GUILabelTable.h"
+#include "simparm/BasicEntry.h"
+#include "simparm/Node.h"
+#include "simparm/GUILabelTable.h"
 
 namespace simparm {
 

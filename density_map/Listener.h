@@ -1,8 +1,8 @@
 #ifndef DSTORM_DENSITY_MAP_LISTENER_H
 #define DSTORM_DENSITY_MAP_LISTENER_H
 
-#include <dStorm/image/fwd.h>
-#include <dStorm/output/Output.h>
+#include "image/fwd.h"
+#include "output/Output.h"
 
 namespace dStorm {
 namespace density_map {

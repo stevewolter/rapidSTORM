@@ -1,5 +1,5 @@
-#include "../Node.h"
-#include "fwd.h"
+#include "simparm/Node.h"
+#include "simparm/dummy_ui/fwd.h"
 
 namespace simparm {
 namespace dummy_ui {

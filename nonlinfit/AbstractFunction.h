@@ -1,10 +1,10 @@
 #ifndef NONLINFIT_ABSTRACTFUNCTION_H
 #define NONLINFIT_ABSTRACTFUNCTION_H
 
-#include "fwd.h"
+#include "nonlinfit/fwd.h"
 #include <Eigen/Core>
 #include <boost/static_assert.hpp>
-#include "Evaluation.h"
+#include "nonlinfit/Evaluation.h"
 
 namespace nonlinfit {
 

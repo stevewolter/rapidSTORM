@@ -3,11 +3,11 @@
 
 #include <Eigen/StdVector>
 #include <boost/array.hpp>
-#include <dStorm/localization/Traits.h>
-#include <dStorm/Localization.h>
+#include "localization/Traits.h"
+#include "Localization.h"
 #include <boost/units/systems/si/length.hpp>
 #include <boost/icl/continuous_interval.hpp>
-#include <dStorm/Image.h>
+#include "image/Image.h"
 
 namespace dStorm {
 namespace ripley_k {

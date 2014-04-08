@@ -1,18 +1,18 @@
-#include "fwd.h"
+#include "kalman_filter/fwd.h"
 
 #include <simparm/BoostUnits.h>
 #include <simparm/Entry.h>
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
-#include <dStorm/output/TraceReducer.h>
+#include "output/TraceReducer.h"
 #include <cassert>
 #include <Eigen/Core>
 #include <vector>
-#include "KalmanTrace.h"
-#include <dStorm/output/FilterBuilder.h>
+#include "kalman_filter/KalmanTrace.h"
+#include "output/FilterBuilder.h"
 #include "binning/binning.h"
 #include "binning/binning.hpp"
-#include <dStorm/UnitEntries/Nanometre.h>
+#include "UnitEntries/Nanometre.h"
 #include <boost/ptr_container/ptr_set.hpp>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -20,10 +20,10 @@
 #include <algorithm>
 #include <numeric>
 #include <boost/units/Eigen/Array>
-#include <dStorm/helpers/back_inserter.h>
+#include "helpers/back_inserter.h"
 #include "binning/localization_impl.h"
-#include <dStorm/output/Filter.h>
-#include <dStorm/image/iterator.h>
+#include "output/Filter.h"
+#include "image/iterator.h"
 #include <boost/units/Eigen/Array>
 #include <boost/utility/in_place_factory.hpp>
 
@@ -149,14 +149,11 @@ Output::TracedObject::~TracedObject() {
 }
 
 Output::Config::Config() 
-: allowBlinking("AllowBlinking", "Allowed blinking interval", 0 * camera::frame),
-  diffusion("DiffusionConstant", "Diffusion constant", boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit>::from_value(0) ),
-  mobility("Mobility", "Mobility constant", boost::units::quantity<KalmanMetaInfo<2>::mobility_unit>::from_value(0) ),
-  distance_threshold("DistanceThreshold", "Distance threshold", 2)
+: allowBlinking("AllowBlinking", 0 * camera::frame),
+  diffusion("DiffusionConstant", boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit>::from_value(0) ),
+  mobility("Mobility", boost::units::quantity<KalmanMetaInfo<2>::mobility_unit>::from_value(0) ),
+  distance_threshold("DistanceThreshold", 2)
 {
-    allowBlinking.setHelpID( "EmissionTracker.Allow_Blinking" );
-    diffusion.setHelpID( "EmissionTracker.Diffusion_Constant" );
-    mobility.setHelpID( "EmissionTracker.Mobility_Constant" );
 }
 
 void Output::Config::attach_ui( simparm::NodeHandle at )
@@ -199,8 +196,8 @@ Output::announceStormSize(const Announcement &a)
     static_cast< dStorm::input::Traits<Localization>& >(my_announcement) 
         = dStorm::input::Traits<Localization>();
     my_announcement.in_sequence = true;
-    my_announcement.position_x().is_given = true;
-    my_announcement.position_y().is_given = true;
+    my_announcement.position_x() = a.position_x();
+    my_announcement.position_y() = a.position_y();
     my_announcement.amplitude() = a.amplitude();
     my_announcement.image_number() = a.image_number();
     my_announcement.source_traits.push_back( 

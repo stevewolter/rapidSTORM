@@ -37,7 +37,7 @@ EXTRA_DIST = windows_resources.rc \
 
 CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
-	dstorm-config.txt installation-directory.h
+	installation-directory.h
 
 always-force-remake :
 
@@ -86,168 +86,164 @@ endif
 
 rapidstorm_SOURCES = \
     installation-directory.h \
-    dStorm/LengthUnit.h \
-    dStorm/polynomial_3d.h \
-    dStorm/InsertionPlace.h \
-    dStorm/Localization_decl.h dStorm/Localization.h \
-    dStorm/Pixel.h \
-    dStorm/DataSetTraits.h \
-    dStorm/Job.h dStorm/UnitEntries.h \
-    dStorm/Config_decl.h dStorm/Config.h \
-    dStorm/Engine.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
-    dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
-    dStorm/unit_interval.h \
-    dStorm/stack_realign.h dStorm/dimension_names.h \
-    dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
-    dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
-    dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
-    dStorm/threed_info/types.h \
-    dStorm/threed_info/DepthInfo.h \
-    dStorm/threed_info/Config.h \
-    dStorm/threed_info/look_up_sigma_diff.h \
-    dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
-    dStorm/localization/record_decl.h dStorm/localization/record.h\
-    dStorm/localization/Fields.h dStorm/localization/Fields.cpp \
-    dStorm/output/Basename_decl.h dStorm/output/Basename.h \
-    dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
-    dStorm/output/Capabilities.h \
-    dStorm/output/FileOutputBuilder.h \
-    dStorm/output/FilterBuilder.h dStorm/output/FilterBuilder_impl.h \
-    dStorm/output/FilterSource.h \
-    dStorm/output/Localizations.h dStorm/output/Localizations_iterator.h \
-    dStorm/output/OutputBuilder.h dStorm/output/OutputBuilder_impl.h \
-    dStorm/output/SourceFactory_decl.h dStorm/output/SourceFactory.h \
-    dStorm/output/Output_decl.h dStorm/output/Output.h dStorm/output/Filter.h \
-    dStorm/output/OutputSource.h \
-    dStorm/output/Traits_decl.h dStorm/output/Traits.h \
-    dStorm/output/TraceReducer.h \
-    dStorm/output/LocalizedImage_decl.h dStorm/output/LocalizedImage.h dStorm/output/LocalizedImage_traits.h \
-    dStorm/engine/Candidate_decl.h dStorm/engine/Candidate.h \
-    dStorm/engine/CandidateTree_decl.h dStorm/engine/CandidateTree.h \
-    dStorm/engine/Image_decl.h dStorm/engine/Image.h \
-    dStorm/engine/Input_decl.h dStorm/engine/Input.h \
-    dStorm/engine/Spot.h \
-    dStorm/engine/SpotFinder_decl.h dStorm/engine/SpotFinder.h \
-    dStorm/engine/SpotFinderBuilder.h \
-    dStorm/engine/JobInfo_decl.h dStorm/engine/JobInfo.h \
-    dStorm/engine/SpotFitter_decl.h dStorm/engine/SpotFitter.h \
-    dStorm/engine/FitPosition.h \
-    dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
-    dStorm/engine/InputTraits.h dStorm/engine/InputPlane.h \
-    dStorm/engine/FitJudger.h dStorm/engine/FitJudgerFactory.h dStorm/engine/FitJudger.cpp \
-    dStorm/input/AdapterSource.h \
-    dStorm/input/Choice.h \
-    dStorm/input/fwd.h dStorm/input/Link.h \
-    dStorm/input/Forwarder.h \
-    dStorm/input/DefaultFilterTypes.h \
-    dStorm/input/MetaInfo.h \
-    dStorm/input/Source.h \
-    dStorm/input/Traits.h  \
-    dStorm/input/InputMutex.h \
-    dStorm/input/FileInput.h \
-    dStorm/helpers/thread.h \
-    dStorm/helpers/default_on_copy.h \
-    dStorm/helpers/nocopy_ptr.hpp \
-    dStorm/helpers/OutOfMemory.h \
-    dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
-    dStorm/helpers/back_inserter.h \
-    dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
-    dStorm/image/Image.h dStorm/image/Image.hpp \
-    dStorm/image/fwd.h dStorm/image/MetaInfo.h dStorm/image/MetaInfo.hpp \
-    dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \
-    dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
-    dStorm/image/dilation.h dStorm/image/dilation_impl.h dStorm/image/contains.h \
-    dStorm/image/find_by_offset.hpp dStorm/image/normalize.h \
-    dStorm/image/corners.h \
-    dStorm/image/morphological_reconstruction.h \
-    dStorm/image/morphological_reconstruction.hpp \
-    dStorm/image/Box.h dStorm/image/Box.hpp \
-    dStorm/image/unit_tests.cpp \
-    dStorm/units/icl.h \
-    dStorm/units/amplitude.h dStorm/units/frame_count.h \
-    dStorm/units/megafrequency.h \
-    dStorm/units/microtime.h dStorm/units/nanolength.h \
-    dStorm/units/microlength.h dStorm/units/permicrolength.h \
-    dStorm/units/nanoresolution.h \
-    dStorm/units/camera_response.h \
-    dStorm/UnitEntries/FrameEntry.h dStorm/UnitEntries/Hertz.h \
-    dStorm/UnitEntries/Nanometre.h dStorm/UnitEntries/PixelEntry.h \
-    dStorm/UnitEntries/PixelSize.h dStorm/UnitEntries/TemperatureEntry.h \
-    dStorm/UnitEntries/TimeEntry.h dStorm/UnitEntries/ADC.h \
-    dStorm/signals/UseSpotFinder.h dStorm/signals/UseSpotFitter.h \
-    dStorm/signals/InputFileNameChange.h dStorm/signals/ResolutionChange.h dStorm/signals/BasenameChange.h \
-    dStorm/display/fwd.h \
-    dStorm/display/DataSource.h dStorm/display/display_normalized.hpp \
-    dStorm/display/Manager.h \
-    dStorm/display/SharedDataSource.h dStorm/display/SharedDataSource.cpp \
-    dStorm/display/store_image.h dStorm/display/store_image.cpp \
-    dStorm/Direction.h \
-    dStorm/threed_info/Polynomial3D.h \
-    dStorm/threed_info/No3D.h \
-    dStorm/threed_info/Lens3D.h \
-    dStorm/threed_info/Spline3D.h \
-    dStorm/threed_info/fwd.h
+    LengthUnit.h \
+    polynomial_3d.h \
+    InsertionPlace.h \
+    Localization_decl.h Localization.h \
+    Pixel.h \
+    DataSetTraits.h \
+    Job.h UnitEntries.h \
+    Config.h \
+    Engine.h types/samplepos.h types/fluorophore.h \
+    namespaces.h \
+    unit_interval.h \
+    stack_realign.h \
+    traits/Projection.h traits/ProjectionConfig.h \
+    traits/ProjectionFactory.h traits/ScaledProjection.h \
+    traits/optics.h traits/image_resolution.h traits/optics_config.h \
+    threed_info/types.h \
+    threed_info/DepthInfo.h \
+    threed_info/Config.h \
+    threed_info/look_up_sigma_diff.h \
+    localization/Field.h localization/Traits_decl.h localization/Traits.h \
+    localization/record_decl.h localization/record.h\
+    localization/Fields.h localization/Fields.cpp \
+    output/Basename_decl.h output/Basename.h \
+    output/BasenameAdjustedFileEntry_decl.h output/BasenameAdjustedFileEntry.h \
+    output/Capabilities.h \
+    output/FileOutputBuilder.h \
+    output/FilterBuilder.h output/FilterBuilder_impl.h \
+    output/FilterSource.h \
+    output/OutputBuilder.h output/OutputBuilder_impl.h \
+    output/SourceFactory_decl.h output/SourceFactory.h \
+    output/Output_decl.h output/Output.h output/Filter.h \
+    output/OutputSource.h \
+    output/Traits_decl.h output/Traits.h \
+    output/TraceReducer.h \
+    output/LocalizedImage_decl.h output/LocalizedImage.h output/LocalizedImage_traits.h \
+    engine/Candidate_decl.h engine/Candidate.h \
+    engine/CandidateTree_decl.h engine/CandidateTree.h \
+    engine/Image_decl.h engine/Image.h \
+    engine/Input_decl.h engine/Input.h \
+    engine/Spot.h \
+    engine/SpotFinder_decl.h engine/SpotFinder.h \
+    engine/SpotFinderBuilder.h \
+    engine/JobInfo_decl.h engine/JobInfo.h \
+    engine/SpotFitter_decl.h engine/SpotFitter.h \
+    engine/FitPosition.h \
+    engine/SpotFitterFactory_decl.h engine/SpotFitterFactory.h \
+    engine/InputTraits.h engine/InputPlane.h \
+    engine/FitJudger.h engine/FitJudgerFactory.h engine/FitJudger.cpp \
+    input/AdapterSource.h \
+    input/Choice.h \
+    input/fwd.h input/Link.h \
+    input/Forwarder.h \
+    input/DefaultFilterTypes.h \
+    input/MetaInfo.h \
+    input/Source.h \
+    input/Traits.h  \
+    input/InputMutex.h \
+    input/FileInput.h \
+    helpers/thread.h \
+    helpers/default_on_copy.h \
+    helpers/nocopy_ptr.hpp \
+    helpers/OutOfMemory.h \
+    helpers/clone_ptr.hpp helpers/make_boost_clone.h \
+    helpers/back_inserter.h \
+    image/Image.h image/Image.hpp \
+    image/fwd.h image/MetaInfo.h image/MetaInfo.hpp \
+    image/constructors.h image/convert.h image/iterator.h image/minmax.h image/slice.h \
+    image/mirror.h image/crop.h image/extend.h \
+    image/dilation.h image/dilation_impl.h image/contains.h \
+    image/find_by_offset.hpp image/normalize.h \
+    image/corners.h \
+    image/morphological_reconstruction.h \
+    image/morphological_reconstruction.hpp \
+    image/Box.h image/Box.hpp \
+    image/unit_tests.cpp \
+    units/icl.h \
+    units/amplitude.h units/frame_count.h \
+    units/megafrequency.h \
+    units/microtime.h units/nanolength.h \
+    units/microlength.h units/permicrolength.h \
+    units/nanoresolution.h \
+    units/camera_response.h \
+    UnitEntries/FrameEntry.h UnitEntries/Hertz.h \
+    UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
+    UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
+    UnitEntries/TimeEntry.h UnitEntries/ADC.h \
+    signals/UseSpotFinder.h signals/UseSpotFitter.h \
+    signals/InputFileNameChange.h signals/ResolutionChange.h signals/BasenameChange.h \
+    display/fwd.h \
+    display/DataSource.h display/display_normalized.hpp \
+    display/Manager.h \
+    display/SharedDataSource.h display/SharedDataSource.cpp \
+    display/store_image.h display/store_image.cpp \
+    Direction.h \
+    threed_info/Polynomial3D.h \
+    threed_info/No3D.h \
+    threed_info/Lens3D.h \
+    threed_info/Spline3D.h \
+    threed_info/fwd.h
 
 rapidstorm_SOURCES += \
-    dStorm/localization_file/children_field.h dStorm/localization_file/children_field.cpp \
-    dStorm/localization_file/converter.h \
-    dStorm/localization_file/field.h dStorm/localization_file/field_decl.h \
-    dStorm/localization_file/fields.cpp \
-    dStorm/localization_file/localization_field.h \
-    dStorm/localization_file/localization_field_impl.h \
-    dStorm/localization_file/reader.cpp \
-    dStorm/localization_file/reader.h \
-    dStorm/localization_file/unknown_field.h 
+    localization_file/converter.h \
+    localization_file/field.h localization_file/field_decl.h \
+    localization_file/fields.cpp \
+    localization_file/localization_field.h \
+    localization_file/localization_field_impl.h \
+    localization_file/reader.cpp localization_file/reader.h \
+    localization_file/writer.h localization_file/writer.cpp  \
+    localization_file/unknown_field.h 
 
 rapidstorm_SOURCES += \
-    dStorm/Localization.cpp \
-    dStorm/UnitEntries.cpp \
-    dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \
-    dStorm/localization/Field.cpp \
-    dStorm/localization/Traits.cpp \
-    dStorm/image/instantiate.cpp \
-    dStorm/traits/optics.cpp dStorm/traits/optics_config.cpp \
-    dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
-    dStorm/traits/Projection.cpp \
-    dStorm/traits/AffineProjection.h dStorm/traits/AffineProjection.cpp \
-    dStorm/traits/ScaledProjection.cpp \
-    dStorm/traits/SupportPointProjection.cpp \
-    dStorm/localization/record.cpp \
-    dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
-    dStorm/image/Box.cpp \
-    dStorm/helpers/OutOfMemory.cpp \
-    dStorm/input/Source.cpp \
-    dStorm/input/MetaInfo.cpp \
-    dStorm/input/InputMutex.cpp \
-    dStorm/input/Link.cpp dStorm/input/Choice.cpp \
-    dStorm/input/Forwarder.cpp \
-    dStorm/input/Method.hpp \
-    dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
-    dStorm/engine/JobInfo.cpp dStorm/engine/InputTraits.cpp \
-    dStorm/engine/InputPlane.cpp \
-    dStorm/output/Output.cpp dStorm/output/LocalizedImage.cpp \
-    dStorm/output/Basename.cpp \
-    dStorm/output/BasenameAdjustedFileEntry.cpp \
-    dStorm/output/Config.cpp \
-    dStorm/output/FilterSource.cpp \
-    dStorm/output/OutputSource.cpp dStorm/output/Trace.cpp \
-    dStorm/output/Traits.cpp \
-    dStorm/output/Localizations.cpp \
-    dStorm/output/TraceReducers.cpp \
-    dStorm/output/SourceFactory.cpp  \
-    dStorm/output/LocalizedImage_traits.cpp \
-    dStorm/output/Filter.cpp \
-    dStorm/Pixel.cpp \
-    dStorm/image/slice.cpp dStorm/image/iterator.cpp \
-    dStorm/image/morphological_reconstruction.cpp \
-    dStorm/threed_info/DepthInfo.cpp \
-    dStorm/threed_info/Polynomial3D.cpp \
-    dStorm/threed_info/Config.cpp \
-    dStorm/threed_info/Spline3D.cpp \
-    dStorm/threed_info/No3D.cpp \
-    dStorm/threed_info/Lens3D.cpp \
-    dStorm/threed_info/look_up_sigma_diff.cpp \
-    dStorm/make_clone_allocator.hpp
+    Localization.cpp \
+    UnitEntries.cpp \
+    DataSetTraits.cpp units/units.cpp image/MetaInfo.cpp \
+    localization/Field.cpp \
+    localization/Traits.cpp \
+    image/instantiate.cpp \
+    traits/optics.cpp traits/optics_config.cpp \
+    traits/unit_tests.h traits/unit_tests.cpp \
+    traits/Projection.cpp \
+    traits/AffineProjection.h traits/AffineProjection.cpp \
+    traits/ScaledProjection.cpp \
+    traits/SupportPointProjection.cpp \
+    localization/record.cpp \
+    helpers/thread.cpp display/Manager.cpp image/dilation.cpp \
+    image/Box.cpp \
+    helpers/OutOfMemory.cpp \
+    input/Source.cpp \
+    input/MetaInfo.cpp \
+    input/InputMutex.cpp \
+    input/Link.cpp input/Choice.cpp \
+    input/Forwarder.cpp \
+    input/Method.hpp \
+    engine/CandidateTree.cpp engine/SpotFinder.cpp engine/SpotFitterFactory.cpp engine/Image.cpp \
+    engine/JobInfo.cpp engine/InputTraits.cpp \
+    engine/InputPlane.cpp \
+    output/Output.cpp output/LocalizedImage.cpp \
+    output/Basename.cpp \
+    output/BasenameAdjustedFileEntry.cpp \
+    output/Config.cpp \
+    output/FilterSource.cpp \
+    output/OutputSource.cpp \
+    output/Traits.cpp \
+    output/TraceReducers.cpp \
+    output/SourceFactory.cpp  \
+    output/LocalizedImage_traits.cpp \
+    output/Filter.cpp \
+    Pixel.cpp \
+    image/slice.cpp image/iterator.cpp \
+    image/morphological_reconstruction.cpp \
+    threed_info/DepthInfo.cpp \
+    threed_info/Polynomial3D.cpp \
+    threed_info/Config.cpp \
+    threed_info/Spline3D.cpp \
+    threed_info/No3D.cpp \
+    threed_info/Lens3D.cpp \
+    threed_info/look_up_sigma_diff.cpp \
+    make_clone_allocator.hpp
 
 rapidstorm_SOURCES += dstorm.cpp installation-directory.h \
     config_file.h config_file.cpp \
@@ -261,7 +257,7 @@ rapidstorm_SOURCES += \
     shell/ReplayJob.h shell/ReplayJob.cpp \
     shell/Shell.cpp \
     InputStream.h InputStream.cpp \
-    dStorm/GUIThread.h dStorm/GUIThread.cpp \
+    GUIThread.h GUIThread.cpp \
     debug.h $(RESOURCE_FILE)
 
 rapidstorm_SOURCES += \
@@ -273,7 +269,7 @@ rapidstorm_SOURCES += \
     job/OutputTreeRoot.h job/OutputTreeRoot.cpp
 
 rapidstorm_SOURCES += \
-    dStorm/output/Config.h
+    output/Config.h
 
 rapidstorm_SOURCES += \
     inputs/inputs.h \
@@ -293,7 +289,7 @@ rapidstorm_SOURCES += \
     inputs/PlaneFilter.h inputs/PlaneFilter.cpp \
     inputs/Basename.h inputs/Basename.cpp \
     inputs/Buffer.h inputs/Buffer.cpp \
-    inputs/LocalizationFile.h inputs/LocalizationFile.cpp  \
+    inputs/LocalizationFile.h inputs/LocalizationFile.cpp \
     inputs/WarnAboutLocalizationFile.h inputs/WarnAboutLocalizationFile.cpp
 
 rapidstorm_SOURCES += \
@@ -304,7 +300,6 @@ rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
-    engine/SpotFinder.cpp \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
@@ -344,7 +339,6 @@ rapidstorm_SOURCES += \
     outputs/BasicTransmissions.h \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
-    outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
     outputs/LinearAlignment.h outputs/LinearAlignment.cpp \
     outputs/Crankshaft.h outputs/Crankshaft.cpp \
@@ -781,7 +775,6 @@ rapidstorm_SOURCES += \
     boost/units/systems/camera/area.hpp \
     boost/units/systems/camera/intensity.hpp \
     boost/units/systems/camera/intensity_dimension.hpp \
-    boost/units/systems/camera/pixel_size.hpp \
     boost/units/systems/camera/base.hpp \
     boost/units/systems/base_units/frame.hpp \
     boost/units/systems/base_units/pixel.hpp \

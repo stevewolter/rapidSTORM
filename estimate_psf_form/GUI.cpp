@@ -1,15 +1,15 @@
 #include "debug.h"
-#include "GUI.h"
+#include "estimate_psf_form/GUI.h"
 #include <simparm/Node.h>
-#include <dStorm/display/Manager.h>
-#include <dStorm/display/display_normalized.hpp>
-#include <dStorm/image/crop.h>
-#include <dStorm/image/minmax.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/convert.h>
-#include <dStorm/image/extend.h>
-#include <dStorm/image/normalize.h>
-#include <dStorm/image/slice.h>
+#include "display/Manager.h"
+#include "display/display_normalized.hpp"
+#include "image/crop.h"
+#include "image/minmax.h"
+#include "image/constructors.h"
+#include "image/convert.h"
+#include "image/extend.h"
+#include "image/normalize.h"
+#include "image/slice.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

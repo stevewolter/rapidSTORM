@@ -1,11 +1,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "RootNode.h"
-#include "ScrolledTabNode.h"
-#include "App.h"
-#include "VisibilityControl.h"
-#include "lambda.h"
+#include "simparm/wx_ui/RootNode.h"
+#include "simparm/wx_ui/ScrolledTabNode.h"
+#include "simparm/wx_ui/App.h"
+#include "simparm/wx_ui/VisibilityControl.h"
+#include "simparm/wx_ui/lambda.h"
 #include <wx/notebook.h>
 #include <boost/smart_ptr/make_shared.hpp>
 #include <wx/helpbase.h>
@@ -15,18 +15,18 @@
 #include <wx/filedlg.h>
 #include <wx/icon.h>
 #include <fstream>
-#include "gui_thread.h"
+#include "simparm/wx_ui/gui_thread.h"
 #include "config_file.h"
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include "alignment_fitter.h"
 #include "shell/ReplayJob.h"
-#include "Microscope_16.xpm"
-#include "Microscope_24.xpm"
-#include "Microscope_32.xpm"
-#include "Microscope_48.xpm"
-#include "Microscope_64.xpm"
+#include "simparm/wx_ui/Microscope_16.xpm"
+#include "simparm/wx_ui/Microscope_24.xpm"
+#include "simparm/wx_ui/Microscope_32.xpm"
+#include "simparm/wx_ui/Microscope_48.xpm"
+#include "simparm/wx_ui/Microscope_64.xpm"
 
 namespace simparm {
 namespace wx_ui {

@@ -1,9 +1,9 @@
 #ifndef SIMPARM_BASIC_ENTRY_HH
 #define SIMPARM_BASIC_ENTRY_HH
 
-#include "BoostOptional.h"
-#include "Object.h"
-#include "Attribute.h"
+#include "simparm/BoostOptional.h"
+#include "simparm/Object.h"
+#include "simparm/Attribute.h"
 #include <boost/utility.hpp>
 #include <boost/utility/base_from_member.hpp>
 

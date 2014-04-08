@@ -1,7 +1,7 @@
 #ifndef SIMPARM_WX_UI_TREE_ROOT_H
 #define SIMPARM_WX_UI_TREE_ROOT_H
 
-#include "Node.h"
+#include "simparm/wx_ui/Node.h"
 
 namespace simparm {
 namespace wx_ui {

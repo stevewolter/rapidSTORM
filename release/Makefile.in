@@ -1,0 +1,31 @@
+srcdir=@srcdir@
+DEBIAN_VERSION?=@VERSION@-1
+PBUILDER_BUILD=
+
+%_amd64.changes : ARCH_FLAGS=--architecture amd64
+%_i386.changes : ARCH_FLAGS=--architecture i386 --debbuildopts -B
+%_mingw-i686.changes : ARCH_FLAGS=--architecture mingw-i686 --debbuildopts -B
+%_mingw-amd64.changes : ARCH_FLAGS=--architecture mingw-amd64 --debbuildopts -B
+
+.SECONDARY :
+
+all :
+
+-include : release/dependencies-$(DEBIAN_VERSION)
+
+release/dependencies-$(DEBIAN_VERSION) : release/$(srcdir)/create-dependencies.sh
+	sh $< $(DEBIAN_VERSION) > $@
+
+%_amd64.changes : ARCH_FLAGS=--architecture amd64
+%_i386.changes : ARCH_FLAGS=--architecture i386 --debbuildopts -B
+%_mingw-i686.changes : ARCH_FLAGS=--architecture mingw-i686 --debbuildopts -B
+%_mingw-amd64.changes : ARCH_FLAGS=--architecture mingw-amd64 --debbuildopts -B
+
+%.changes :
+	@mkdir -p $(dir $@)
+	sudo pbuilder --build $(ARCH_FLAGS) --distribution $(DIST) \
+	    --configfile release/pbuilder/pbuilderrc --logfile $(@:.changes=.log) $<
+	gzip $(@:.changes=.log)
+
+%~ubuntu12.04.1.dsc : %.dsc
+	backportpackage --dont-sign -d precise -s saucy $< -w .

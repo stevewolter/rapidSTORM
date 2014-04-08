@@ -1,7 +1,7 @@
 #ifndef DSTORM_BASIC_TRANSMISSIONS_H
 #define DSTORM_BASIC_TRANSMISSIONS_H
 
-#include <dStorm/Config.h>
+#include "base/Config.h"
 
 namespace dStorm {
 namespace output {

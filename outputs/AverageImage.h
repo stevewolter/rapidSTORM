@@ -1,7 +1,7 @@
 #ifndef DSTORM_AVERAGEIMAGE_H
 #define DSTORM_AVERAGEIMAGE_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 #include <memory>
 
 namespace dStorm {

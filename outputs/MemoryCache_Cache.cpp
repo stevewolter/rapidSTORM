@@ -1,6 +1,6 @@
-#include "MemoryCache_Cache.h"
-#include <dStorm/output/LocalizedImage_traits.h>
-#include <dStorm/localization/Fields.h>
+#include "outputs/MemoryCache_Cache.h"
+#include "output/LocalizedImage_traits.h"
+#include "localization/Fields.h"
 #include <boost/fusion/include/at.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>

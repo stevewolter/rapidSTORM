@@ -2,9 +2,9 @@
  * handling of windows.h. */
 #include <wx/gbsizer.h>
 
-#include "Sizer.h"
-#include "lambda.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/Sizer.h"
+#include "simparm/wx_ui/lambda.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

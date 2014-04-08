@@ -1,19 +1,19 @@
 #include <Eigen/StdVector>
-#include "ParameterLinearizer.h"
+#include "calibrate_3d/ParameterLinearizer.h"
 #include "gaussian_psf/Polynomial3D.h"
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/sum/AbstractMap.hpp>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <nonlinfit/make_bitset.h>
-#include "Config.h"
+#include "calibrate_3d/Config.h"
 #include "gaussian_psf/is_plane_dependent.h"
 #include "guf/TraitValueFinder.h"
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/threed_info/DepthInfo.h>
-#include <dStorm/threed_info/Polynomial3D.h>
+#include "engine/JobInfo.h"
+#include "threed_info/DepthInfo.h"
+#include "threed_info/Polynomial3D.h"
 #include <boost/variant/get.hpp>
-#include "constant_parameter.hpp"
+#include "calibrate_3d/constant_parameter.hpp"
 
 namespace dStorm {
 namespace calibrate_3d {

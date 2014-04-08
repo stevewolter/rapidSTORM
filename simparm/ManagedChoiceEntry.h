@@ -1,7 +1,7 @@
 #ifndef SIMPARM_MANAGED_CHOICE_ENTRY_HH
 #define SIMPARM_MANAGED_CHOICE_ENTRY_HH
 
-#include "ChoiceEntry.h"
+#include "simparm/ChoiceEntry.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace simparm {

@@ -6,13 +6,13 @@
 #include <boost/variant/recursive_wrapper.hpp>
 #include <boost/optional/optional.hpp>
 #include <Eigen/Core>
-#include <dStorm/localization/Traits_decl.h>
+#include "localization/Traits_decl.h"
 #include <boost/fusion/include/vector.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "tokens_decl.h"
-#include "Variable.h"
-#include "DynamicQuantity.h"
+#include "expression/tokens_decl.h"
+#include "expression/Variable.h"
+#include "expression/DynamicQuantity.h"
 
 namespace dStorm {
 namespace expression {

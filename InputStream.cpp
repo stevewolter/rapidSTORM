@@ -6,7 +6,7 @@
 #include "InputStream.h"
 #include "ModuleLoader.h"
 #include "test-plugin/cpu_time.h"
-#include "dStorm/GUIThread.h"
+#include "GUIThread.h"
 #include "alignment_fitter.h"
 #include "shell/ReplayJob.h"
 

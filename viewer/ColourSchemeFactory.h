@@ -4,8 +4,8 @@
 #include <simparm/ObjectChoice.h>
 #include <simparm/BaseAttribute.h>
 #include <memory>
-#include "Backend.h"
-#include <dStorm/make_clone_allocator.hpp>
+#include "viewer/Backend.h"
+#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace viewer {

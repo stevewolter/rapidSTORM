@@ -1,15 +1,15 @@
 #ifndef DSTORM_PSF_ZHUANG_H
 #define DSTORM_PSF_ZHUANG_H
 
-#include "Base3D.h"
+#include "gaussian_psf/Base3D.h"
 #include <nonlinfit/append.h>
 #include <nonlinfit/access_parameters.hpp>
 #include <nonlinfit/DerivationSummand.h>
 #include <nonlinfit/DerivationSummand.h>
 #include <boost/mpl/iter_fold.hpp>
 #include <boost/mpl/range_c.hpp>
-#include <dStorm/polynomial_3d.h>
-#include <dStorm/Direction.h>
+#include "polynomial_3d.h"
+#include "Direction.h"
 
 namespace dStorm {
 namespace gaussian_psf {

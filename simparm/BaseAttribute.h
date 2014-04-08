@@ -4,9 +4,9 @@
 #include <boost/optional/optional.hpp>
 #include <boost/signals2/slot.hpp>
 #include <boost/signals2/connection.hpp>
-#include <dStorm/helpers/nocopy_ptr.hpp>
+#include "helpers/nocopy_ptr.hpp"
 #include <memory>
-#include "NodeHandle.h"
+#include "simparm/NodeHandle.h"
 
 namespace simparm {
 

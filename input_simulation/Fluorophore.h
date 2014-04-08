@@ -4,8 +4,8 @@
 #include <Eigen/StdVector>
 #include <simparm/Eigen_decl.h>
 #include <simparm/BoostUnits.h>
-#include <dStorm/Localization.h>
-#include <dStorm/engine/Image.h>
+#include "Localization.h"
+#include "engine/Image.h"
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_matrix.h>
 #include <simparm/Group.h>
@@ -17,9 +17,9 @@
 #include <boost/units/systems/si/activity.hpp>
 #include <boost/units/systems/si/time.hpp>
 #include <boost/units/power10.hpp>
-#include <dStorm/traits/optics.h>
-#include <dStorm/traits/Projection.h>
-#include <dStorm/UnitEntries/Nanometre.h>
+#include "traits/optics.h"
+#include "traits/Projection.h"
+#include "UnitEntries/Nanometre.h"
 
 namespace input_simulation {
 

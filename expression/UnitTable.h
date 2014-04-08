@@ -1,8 +1,8 @@
 #ifndef DSTORM_EXPRESSION_UNITTABLE_H
 #define DSTORM_EXPRESSION_UNITTABLE_H
 
-#include "SIPrefixes.h"
-#include "tokens.h"
+#include "expression/SIPrefixes.h"
+#include "expression/tokens.h"
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/begin.hpp>

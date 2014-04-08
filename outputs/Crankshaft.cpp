@@ -1,5 +1,5 @@
 #define DSTORM_CRANKSHAFT_CPP
-#include "Crankshaft.h"
+#include "outputs/Crankshaft.h"
 
 #include <iostream> 
 #include <sstream> 

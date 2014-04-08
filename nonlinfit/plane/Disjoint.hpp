@@ -1,8 +1,8 @@
 #ifndef NONLINFIT_PLANE_DISJOINT_HPP
 #define NONLINFIT_PLANE_DISJOINT_HPP
 
-#include "fwd.h"
-#include "Disjoint.h"
+#include "nonlinfit/plane/fwd.h"
+#include "nonlinfit/plane/Disjoint.h"
 #include <nonlinfit/DerivationSummand.h>
 #include <nonlinfit/Evaluator.h>
 #include <boost/mpl/transform.hpp>

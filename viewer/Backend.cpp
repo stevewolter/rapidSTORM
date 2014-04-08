@@ -1,9 +1,9 @@
-#include "Backend.h"
-#include "LiveBackend.h"
-#include "TerminalBackend.h"
-#include "Config.h"
-#include "Status.h"
-#include "ColourScheme.h"
+#include "viewer/Backend.h"
+#include "viewer/LiveBackend.h"
+#include "viewer/TerminalBackend.h"
+#include "viewer/Config.h"
+#include "viewer/Status.h"
+#include "viewer/ColourScheme.h"
 
 namespace dStorm {
 namespace viewer {

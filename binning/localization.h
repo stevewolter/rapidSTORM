@@ -1,12 +1,12 @@
 #ifndef DSTORM_OUTPUT_BINNING_LOCALIZATION_H
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_H
 
-#include "binning.h"
+#include "binning/binning.h"
 #include <boost/fusion/include/sequence.hpp>
 
 #include <boost/units/io.hpp>
 #include <bitset>
-#include <dStorm/display/DataSource.h>
+#include "display/DataSource.h"
 
 namespace dStorm {
 namespace binning {

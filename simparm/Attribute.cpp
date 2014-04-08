@@ -1,13 +1,13 @@
-#include "Attribute.h"
-#include "Node.h"
+#include "simparm/Attribute.h"
+#include "simparm/Node.h"
 #include <math.h>
 #include <limits>
 
-#include "BoostUnits.h"
-#include "BoostOptional.h"
-#include "Eigen.h"
-#include "iostream.h"
-#include "Attribute.hpp"
+#include "simparm/BoostUnits.h"
+#include "simparm/BoostOptional.h"
+#include "simparm/Eigen.h"
+#include "simparm/iostream.h"
+#include "simparm/Attribute.hpp"
 
 namespace simparm {
 

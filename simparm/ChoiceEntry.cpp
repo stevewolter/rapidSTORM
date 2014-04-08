@@ -1,5 +1,5 @@
-#include "ManagedChoiceEntry.h"
-#include "Object.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/Object.h"
 #include <simparm/dummy_ui/fwd.h>
 
 namespace simparm {

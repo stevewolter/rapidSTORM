@@ -1,9 +1,9 @@
 #ifndef NONLINFT_FWD_H
 #define NONLINFT_FWD_H
 
-#include "sum/fwd.h"
-#include "levmar/fwd.h"
-#include "terminators/fwd.h"
+#include "nonlinfit/sum/fwd.h"
+#include "nonlinfit/levmar/fwd.h"
+#include "nonlinfit/terminators/fwd.h"
 
 /** The nonlinfit namespace contains a generic nonlinear fitting
  *  header library. Its core concepts are 

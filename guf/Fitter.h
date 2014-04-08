@@ -1,13 +1,13 @@
-#include "Config.h"
-#include "NaiveFitter.h"
-#include <dStorm/engine/SpotFitter.h>
-#include <dStorm/traits/optics.h>
+#include "guf/Config.h"
+#include "guf/NaiveFitter.h"
+#include "engine/SpotFitter.h"
+#include "traits/optics.h"
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/optional/optional.hpp>
-#include "InitialValueFinder.h"
-#include "LocalizationCreator.h"
-#include "LocalizationChecker.h"
-#include "KernelCreator.h"
+#include "guf/InitialValueFinder.h"
+#include "guf/LocalizationCreator.h"
+#include "guf/LocalizationChecker.h"
+#include "guf/KernelCreator.h"
 #include "fit_window/Stack.h"
 
 namespace dStorm {

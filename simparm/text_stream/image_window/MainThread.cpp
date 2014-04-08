@@ -1,4 +1,4 @@
-#include "MainThread.h"
+#include "simparm/text_stream/image_window/MainThread.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -10,8 +10,8 @@
 
 #include <boost/foreach.hpp>
 #include <simparm/Message.h>
-#include "Window.h"
-#include <dStorm/display/SharedDataSource.h>
+#include "simparm/text_stream/image_window/Window.h"
+#include "display/SharedDataSource.h"
 
 namespace Eigen {
 

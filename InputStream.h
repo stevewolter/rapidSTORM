@@ -2,12 +2,13 @@
 #define DSTORM_INPUTSTREAM_H
 
 #include <memory>
-#include <dStorm/Config_decl.h>
 #include "shell/JobFactory.h"
 #include "shell/JobMetaFactory.h"
 #include <simparm/text_stream/Node.h>
 
 namespace dStorm {
+
+class JobConfig;
 
 class InputStream 
 : public simparm::text_stream::Node

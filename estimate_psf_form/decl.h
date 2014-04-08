@@ -1,4 +1,4 @@
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

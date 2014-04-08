@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_SUM_ABSTRACTFUNCTION_HPP
 #define NONLINFIT_SUM_ABSTRACTFUNCTION_HPP
 
-#include "AbstractFunction.h"
+#include "nonlinfit/sum/AbstractFunction.h"
 #include "debug.h"
 #include <cmath>
 

@@ -3,21 +3,21 @@
 #ifndef CImgBuffer_ANDORSIF_H
 #define CImgBuffer_ANDORSIF_H
 
-#include <dStorm/engine/Input_decl.h>
-#include <dStorm/input/FileInput.h>
-#include <dStorm/input/Source.h>
+#include "engine/Input_decl.h"
+#include "input/FileInput.h"
+#include "input/Source.h"
 #include <memory>
 #include <string>
 #include <stdexcept>
 #include <stdio.h>
 #include <simparm/FileEntry.h>
-#include <dStorm/helpers/thread.h>
-#include <dStorm/Image.h>
+#include "helpers/thread.h"
+#include "image/Image.h"
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 
-#include "AndorSIF_OpenFile.h"
+#include "andor-sif/AndorSIF_OpenFile.h"
 
 namespace dStorm {
 class BasenameWatcher;

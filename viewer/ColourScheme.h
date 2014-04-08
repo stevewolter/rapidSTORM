@@ -3,9 +3,9 @@
 
 #include "density_map/VirtualListener.h"
 #include <memory>
-#include <dStorm/Pixel.h>
-#include <dStorm/display/DataSource.h>
-#include "Image.h"
+#include "Pixel.h"
+#include "display/DataSource.h"
+#include "viewer/Image.h"
 
 namespace dStorm {
 namespace viewer {

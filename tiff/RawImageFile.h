@@ -3,8 +3,8 @@
 
 #include "debug.h"
 
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FileOutputBuilder.h>
+#include "output/Output.h"
+#include "output/FileOutputBuilder.h"
 #include <tiffio.h>
 #include <simparm/FileEntry.h>
 

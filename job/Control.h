@@ -3,7 +3,7 @@
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <dStorm/Engine.h>
+#include "base/Engine.h"
 #include <simparm/TriggerEntry.h>
 
 namespace dStorm {

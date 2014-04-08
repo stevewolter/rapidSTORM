@@ -1,7 +1,7 @@
 #ifndef SIMPARM_ENTRY_PROGRESS
 #define  SIMPARM_ENTRY_PROGRESS
 
-#include "Entry.h"
+#include "simparm/Entry.h"
 
 namespace simparm {
 

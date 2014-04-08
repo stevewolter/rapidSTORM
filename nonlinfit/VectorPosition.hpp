@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_EXPRESSIONMOVER_HPP
 #define NONLINFIT_EXPRESSIONMOVER_HPP
 
-#include "VectorPosition.h"
+#include "nonlinfit/VectorPosition.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/at.hpp>

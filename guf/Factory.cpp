@@ -1,11 +1,11 @@
 #include <Eigen/StdVector>
-#include "Factory.h"
-#include "Fitter.h"
-#include "Config.h"
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/output/Traits.h>
+#include "guf/Factory.h"
+#include "guf/Fitter.h"
+#include "guf/Config.h"
+#include "engine/JobInfo.h"
+#include "output/Traits.h"
 #include <boost/variant/get.hpp>
-#include <dStorm/threed_info/DepthInfo.h>
+#include "threed_info/DepthInfo.h"
 
 namespace dStorm {
 namespace guf {

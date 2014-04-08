@@ -1,8 +1,8 @@
 #ifndef SIMPARM_OBJECTCHOICE_HH
 #define SIMPARM_OBJECTCHOICE_HH
 
-#include "Object.h"
-#include "Choice.h"
+#include "simparm/Object.h"
+#include "simparm/Choice.h"
 
 namespace simparm {
 

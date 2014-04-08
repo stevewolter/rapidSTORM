@@ -4,7 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <boost/signals2/signal.hpp>
-#include "BaseAttribute.h"
+#include "simparm/BaseAttribute.h"
 
 namespace boost { template <typename Inner> class optional; }
 

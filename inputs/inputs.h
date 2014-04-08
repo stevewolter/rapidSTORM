@@ -1,24 +1,24 @@
 #ifndef DSTORM_BASIC_INPUTS_H
 #define DSTORM_BASIC_INPUTS_H
 
-#include <dStorm/Config.h>
-#include <dStorm/engine/Image_decl.h>
-#include <dStorm/input/Link.h>
-#include <dStorm/Config.h>
-#include "Splitter.h"
-#include "YMirror.h"
-#include "SampleInfo.h"
-#include "ResolutionSetter.h"
-#include "ROIFilter.h"
-#include "PlaneFilter.h"
-#include "Buffer.h"
-#include "Basename.h"
-#include "InsertionPoint.h"
-#include "InputBase.h"
-#include "InputMethods.h"
-#include "FileMethod.h"
-#include "join.h"
-#include "LocalizationFile.h"
+#include "base/Config.h"
+#include "engine/Image_decl.h"
+#include "input/Link.h"
+#include "base/Config.h"
+#include "inputs/Splitter.h"
+#include "inputs/YMirror.h"
+#include "inputs/SampleInfo.h"
+#include "inputs/ResolutionSetter.h"
+#include "inputs/ROIFilter.h"
+#include "inputs/PlaneFilter.h"
+#include "inputs/Buffer.h"
+#include "inputs/Basename.h"
+#include "inputs/InsertionPoint.h"
+#include "inputs/InputBase.h"
+#include "inputs/InputMethods.h"
+#include "inputs/FileMethod.h"
+#include "inputs/join.h"
+#include "inputs/LocalizationFile.h"
 #include "engine_stm/ChainLink.h"
 
 #endif

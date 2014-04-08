@@ -1,12 +1,12 @@
 #ifndef DSTORM_DENSITY_MAP_DENSITY_MAP_H
 #define DSTORM_DENSITY_MAP_DENSITY_MAP_H
 
-#include "Interpolator.h"
+#include "density_map/Interpolator.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
-#include <dStorm/Image.h>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/output/Output.h>
+#include "image/Image.h"
+#include "image/MetaInfo.h"
+#include "output/Output.h"
 
 namespace dStorm {
 namespace density_map {

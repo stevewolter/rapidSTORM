@@ -1,10 +1,10 @@
-#include "DriftRemover.h"
+#include "outputs/DriftRemover.h"
 
 #include <simparm/Object.h>
 #include <simparm/FileEntry.h>
 
-#include <dStorm/output/Filter.h>
-#include <dStorm/output/FilterBuilder.h>
+#include "output/Filter.h"
+#include "output/FilterBuilder.h"
 #include <boost/units/cmath.hpp>
 #include <boost/range/algorithm/lower_bound.hpp>
 

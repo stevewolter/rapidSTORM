@@ -1,8 +1,8 @@
 #ifndef SIMPARM_WX_UI_SIZER_H
 #define SIMPARM_WX_UI_SIZER_H
 
-#include "GUIHandle.h"
-#include "Node.h"
+#include "simparm/wx_ui/GUIHandle.h"
+#include "simparm/wx_ui/Node.h"
 
 class wxGridBagSizer;
 class wxSizer;

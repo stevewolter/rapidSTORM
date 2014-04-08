@@ -1,12 +1,12 @@
 #ifndef DSTORM_STATUS_H
 #define DSTORM_STATUS_H
 
-#include "Config.h"
+#include "viewer/Config.h"
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
 #include <simparm/TriggerEntry.h>
 #include <boost/thread/mutex.hpp>
-#include <dStorm/Engine.h>
+#include "base/Engine.h"
 
 namespace dStorm {
 namespace display { class Manager; }

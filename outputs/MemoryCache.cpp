@@ -1,24 +1,22 @@
-#include "MemoryCache.h"
-#include <dStorm/Engine.h>
+#include "outputs/MemoryCache.h"
+#include "base/Engine.h"
 
 #include "debug.h"
 #include <string>
 
-#include <dStorm/output/Filter.h>
-#include <dStorm/output/FilterSource.h>
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Localizations.h>
-#include <dStorm/localization/Traits.h>
-#include <dStorm/Engine.h>
-#include <dStorm/stack_realign.h>
+#include "output/Filter.h"
+#include "output/FilterSource.h"
+#include "output/FilterBuilder.h"
+#include "localization/Traits.h"
+#include "base/Engine.h"
+#include "stack_realign.h"
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/thread.hpp>
 
-#include <dStorm/stack_realign.h>
-#include <dStorm/output/Localizations_iterator.h>
+#include "stack_realign.h"
 #include <boost/thread/locks.hpp>
-#include "MemoryCache_Cache.h"
+#include "outputs/MemoryCache_Cache.h"
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/bind/bind.hpp>

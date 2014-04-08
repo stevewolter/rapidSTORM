@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_STM_CHAINLINK_DECL_H
 #define DSTORM_ENGINE_STM_CHAINLINK_DECL_H
 
-#include <dStorm/input/fwd.h>
+#include "input/fwd.h"
 #include <memory>
 
 namespace dStorm {
