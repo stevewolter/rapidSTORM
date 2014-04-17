@@ -13,7 +13,7 @@ declare -r VERSION=$3
 declare -r MARKETING_VERSION="$1.$2"
 declare -r MAJOR_VERSION="$1"
 
-while read ARCH HOST_TYPE MARKETING_ARCH COMPILER_PACKAGE; do
+while read ARCH HOST_TYPE MARKETING_ARCH COMPILER_PACKAGES; do
     TEMPDIR="tmp-${ARCH}"
     APT_DIR="$(pwd)/${TEMPDIR}/apt-tree"
     STAGE_DIR="${TEMPDIR}/stage"
@@ -46,15 +46,16 @@ EOF
 
     APT_CONFIG=${APT_CONFIG} apt-get --download-only --allow-unauthenticated install rapidstorm=${VERSION} rapidstorm-doc=${VERSION}
 
-    pushd ${TEMPDIR}
-    APT_CONFIG=${APT_CONFIG} apt-get download --allow-unauthenticated ${COMPILER_PACKAGE}:amd64
-    popd
-
-    mkdir -p "${STAGE_DIR}"
-
     # We need only the dll's that are packaged into the gcc compiler.
     # Extract them first and delete the rest.
-    dpkg -x ${TEMPDIR}/${COMPILER_PACKAGE}_*_amd64.deb ${STAGE_DIR}
+    mkdir -p "${STAGE_DIR}"
+    for package in ${COMPILER_PACKAGES}; do
+        pushd ${TEMPDIR}
+        APT_CONFIG=apt.conf apt-get download --allow-unauthenticated ${package}:amd64
+        popd
+
+        dpkg -x ${TEMPDIR}/${package}_*_amd64.deb ${STAGE_DIR}
+    done
     find ${STAGE_DIR} -type f -not -name '*.dll' -delete
 
     # Now extract all the rest over it.
@@ -82,6 +83,6 @@ EOF
     mv ${TEMPDIR}/Output/setup.exe rapidstorm-${MARKETING_VERSION}-${MARKETING_ARCH}.exe
     rm -rf ${TEMPDIR}
 done <<EOF
-mingw-i686 i686-w64-mingw32 win32 gcc-mingw-w64-i686
-mingw-amd64 x86_64-w64-mingw32 win64 gcc-mingw-w64-x86-64
+mingw-i686 i686-w64-mingw32 win32 gcc-mingw-w64-i686 g++-mingw-w64-i686
+mingw-amd64 x86_64-w64-mingw32 win64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
 EOF
