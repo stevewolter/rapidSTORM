@@ -3,17 +3,17 @@
 #include <boost/smart_ptr/make_shared.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/engine/InputTraits.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/input/Choice.h>
-#include <dStorm/input/Forwarder.h>
+#include "input/InputMutex.h"
+#include "engine/Image.h"
+#include "engine/InputTraits.h"
+#include "input/MetaInfo.h"
+#include "input/Choice.h"
+#include "input/Forwarder.h"
 #include <simparm/FileEntry.h>
 #include <simparm/Group.h>
 
-#include "FileMethod.h"
-#include <dStorm/signals/InputFileNameChange.h>
+#include "inputs/FileMethod.h"
+#include "signals/InputFileNameChange.h"
 
 namespace dStorm {
 namespace input {

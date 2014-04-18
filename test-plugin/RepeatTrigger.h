@@ -2,9 +2,9 @@
 #define TESTPLUGIN_REPEATTRIGGER_H
 
 #include <simparm/TriggerEntry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
-#include <dStorm/Engine.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
+#include "base/Engine.h"
 
 struct Repeat
 : public dStorm::output::Output

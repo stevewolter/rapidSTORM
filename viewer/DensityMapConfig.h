@@ -4,7 +4,7 @@
 #include <simparm/Entry.h>
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/InterpolatorChoice.h"
-#include "Image.h"
+#include "viewer/Image.h"
 
 namespace dStorm {
 namespace viewer {

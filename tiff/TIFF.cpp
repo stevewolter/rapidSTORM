@@ -1,4 +1,4 @@
-#include "TIFF.h"
+#include "tiff/TIFF.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -27,17 +27,17 @@
 #include <simparm/TriggerEntry.h>
 #include <simparm/text_stream/RootNode.h>
 
-#include <dStorm/engine/Image.h>
-#include <dStorm/Image.h>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/image/slice.h>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/signals/InputFileNameChange.h>
+#include "engine/Image.h"
+#include "image/Image.h"
+#include "image/MetaInfo.h"
+#include "image/slice.h"
+#include "input/InputMutex.h"
+#include "input/Source.h"
+#include "signals/InputFileNameChange.h"
 
 #include <boost/test/unit_test.hpp>
-#include "TIFFOperation.h"
-#include "OpenFile.h"
+#include "tiff/TIFFOperation.h"
+#include "tiff/OpenFile.h"
 
 using namespace std;
 

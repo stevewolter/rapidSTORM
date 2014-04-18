@@ -1,5 +1,5 @@
-#include "TabGroup.h"
-#include "Node.h"
+#include "simparm/TabGroup.h"
+#include "simparm/Node.h"
 
 namespace simparm {
 

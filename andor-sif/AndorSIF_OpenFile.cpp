@@ -2,15 +2,15 @@
 #include <simparm/Message.h>
 #include <simparm/NodeHandle.h>
 #include <read_sif.h>
-#include "AndorSIF_OpenFile.h"
+#include "andor-sif/AndorSIF_OpenFile.h"
 #include <stdexcept>
 #include <sstream>
 #include <errno.h>
 #include <boost/units/systems/si/time.hpp>
 #include <boost/units/io.hpp>
 #include <boost/units/systems/temperature/celsius.hpp>
-#include <dStorm/DataSetTraits.h>
-#include <dStorm/engine/Image.h>
+#include "DataSetTraits.h"
+#include "engine/Image.h"
 #include <boost/smart_ptr/scoped_array.hpp>
 
 namespace dStorm {

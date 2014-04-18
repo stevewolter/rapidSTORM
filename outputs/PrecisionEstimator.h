@@ -1,7 +1,7 @@
 #ifndef LOCPREC_PRECISIONESTIMATOR_H
 #define LOCPREC_PRECISIONESTIMATOR_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 #include <memory>
 
 namespace dStorm { 

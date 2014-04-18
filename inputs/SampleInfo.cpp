@@ -1,21 +1,21 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/BoostOptional.h>
-#include "SampleInfo.h"
+#include "inputs/SampleInfo.h"
 
 #include "debug.h"
 #include <simparm/FileEntry.h>
 #include <simparm/dummy_ui/fwd.h>
-#include <dStorm/input/AdapterSource.h>
-#include <dStorm/UnitEntries/PixelSize.h>
-#include <dStorm/units/nanolength.h>
-#include <dStorm/localization/Traits.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/Localization.h>
-#include <dStorm/localization/Traits.h>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/input/Method.hpp>
+#include "input/AdapterSource.h"
+#include "UnitEntries/PixelSize.h"
+#include "units/nanolength.h"
+#include "localization/Traits.h"
+#include "input/MetaInfo.h"
+#include "input/Source.h"
+#include "engine/Image.h"
+#include "Localization.h"
+#include "localization/Traits.h"
+#include "input/InputMutex.h"
+#include "input/Method.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 

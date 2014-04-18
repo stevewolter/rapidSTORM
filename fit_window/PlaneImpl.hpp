@@ -1,10 +1,10 @@
 #ifndef DSTORM_GUF_DATAPLANE_IMPL_HPP
 #define DSTORM_GUF_DATAPLANE_IMPL_HPP
 
-#include "PlaneImpl.h"
-#include "Optics.h"
-#include "fit_position_out_of_range.h"
-#include "Centroid.h"
+#include "fit_window/PlaneImpl.h"
+#include "fit_window/Optics.h"
+#include "fit_window/fit_position_out_of_range.h"
+#include "fit_window/Centroid.h"
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>

@@ -22,13 +22,13 @@
 // Leonard Huxley Bldg 56
 // Australian National University, ACT, 0200, Australia
 
-#include "Entry.h"
+#include "simparm/Entry.h"
 #include <stdlib.h>
 #include <sstream>
-#include "iostream.h"
-#include "Node.h"
-#include "Attribute.hpp"
-#include "Entry.hpp"
+#include "simparm/iostream.h"
+#include "simparm/Node.h"
+#include "simparm/Attribute.hpp"
+#include "simparm/Entry.hpp"
 
 #define INSTANTIATE(x) \
     template class Entry<x>; \

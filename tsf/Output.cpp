@@ -1,6 +1,6 @@
 #include <boost/math/constants/constants.hpp>
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 #include <endian.h>
 #include <fcntl.h>
@@ -9,9 +9,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <dStorm/output/FileOutputBuilder.h>
+#include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include "output/FileOutputBuilder.h"
 #include "tsf/TSFProto.pb.h"
 
 namespace dStorm {
@@ -159,7 +160,8 @@ void Output::receiveLocalizations(const EngineResult& er) {
 void Output::store_results_(bool) {
   int64_t spot_list_offset = file->ByteCount() - 12;
   TSF::SpotList spot_list;
-  spot_list.set_application_id(1);
+  // ID was allocated by Nico Stuurman on 2014-03-07 for rapidSTORM
+  spot_list.set_application_id(3);
   {
     google::protobuf::io::CodedOutputStream coded_output(file.get());
     coded_output.WriteVarint32(spot_list.ByteSize());

@@ -2,13 +2,13 @@
 #define DSTORM_GUF_PSF_DISJOINTEVALUATOR_H
 
 #include "debug.h"
-#include "BaseEvaluator.h"
+#include "gaussian_psf/BaseEvaluator.h"
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/at_c.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <nonlinfit/plane/fwd.h>
 #include <nonlinfit/Evaluator.h>
-#include "expressions.h"
+#include "gaussian_psf/expressions.h"
 
 namespace dStorm {
 namespace gaussian_psf {

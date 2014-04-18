@@ -4,7 +4,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <memory>
 #include <boost/utility.hpp>
-#include "PlaneFunction.h"
+#include "guf/PlaneFunction.h"
 #include <nonlinfit/VectorPosition.h>
 #include <nonlinfit/AbstractMoveable.h>
 

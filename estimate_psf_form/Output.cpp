@@ -1,18 +1,18 @@
 #include "debug.h"
 
-#include "Output.h"
-#include "Config.h"
-#include "Fitter.h"
+#include "estimate_psf_form/Output.h"
+#include "estimate_psf_form/Config.h"
+#include "estimate_psf_form/Fitter.h"
 
 #include <simparm/Node.h>
 
-#include <dStorm/output/OutputSource.h>
-#include <dStorm/output/OutputBuilder.h>
-#include <dStorm/Engine.h>
-#include <dStorm/image/slice.h>
-#include <dStorm/image/crop.h>
-#include <dStorm/image/convert.h>
-#include <dStorm/image/constructors.h>
+#include "output/OutputSource.h"
+#include "output/OutputBuilder.h"
+#include "base/Engine.h"
+#include "image/slice.h"
+#include "image/crop.h"
+#include "image/convert.h"
+#include "image/constructors.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/condition.hpp>

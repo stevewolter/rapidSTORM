@@ -1,4 +1,4 @@
-#include "DisjointData.hpp"
+#include "nonlinfit/plane/DisjointData.hpp"
 #include <boost/test/unit_test.hpp>
 
 namespace nonlinfit {

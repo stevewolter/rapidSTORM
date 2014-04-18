@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_KERNELCREATOR_H
 #define DSTORM_GUF_KERNELCREATOR_H
 
-#include "Spot.h"
+#include "guf/Spot.h"
 
 namespace dStorm {
 namespace guf {

@@ -3,9 +3,9 @@
 
 #include <Eigen/StdVector>
 #include <vector>
-#include "GenericData.h"
-#include "fwd.h"
-#include "DataPoint.h"
+#include "nonlinfit/plane/GenericData.h"
+#include "nonlinfit/plane/fwd.h"
+#include "nonlinfit/plane/DataPoint.h"
 
 namespace nonlinfit {
 namespace plane {

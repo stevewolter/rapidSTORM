@@ -1,5 +1,5 @@
-#include "Key.h"
-#include "helpers.h"
+#include "simparm/wx_ui/image_window/Key.h"
+#include "simparm/wx_ui/image_window/helpers.h"
 #include <wx/dcbuffer.h>
 #include <algorithm>
 #include <math.h>

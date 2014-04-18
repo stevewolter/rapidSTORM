@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include <dStorm/engine/Image.h>
-#include <dStorm/output/LocalizedImage.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/input/Traits.h>
+#include "engine/Image.h"
+#include "output/LocalizedImage.h"
+#include "input/Source.h"
+#include "input/Traits.h"
 
 namespace dStorm {
 namespace temporal_join {

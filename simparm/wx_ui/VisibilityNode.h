@@ -1,8 +1,8 @@
 #ifndef WX_UI_VISIBILITY_NODE_H
 #define WX_UI_VISIBILITY_NODE_H
 
-#include "Window.h"
-#include "VisibilityControl.h"
+#include "simparm/wx_ui/Window.h"
+#include "simparm/wx_ui/VisibilityControl.h"
 
 namespace simparm {
 namespace wx_ui {

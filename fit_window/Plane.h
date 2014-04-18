@@ -2,7 +2,7 @@
 #define DSTORM_GUF_DATAPLANE_H
 
 #include <memory>
-#include "Spot.h"
+#include "fit_window/Spot.h"
 
 namespace dStorm {
 namespace fit_window {

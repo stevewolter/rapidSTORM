@@ -1,4 +1,4 @@
-#include "GaussianSmoothing.hpp"
+#include "density_map/GaussianSmoothing.hpp"
 
 namespace dStorm {
 namespace density_map {

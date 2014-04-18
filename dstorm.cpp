@@ -9,14 +9,14 @@
 
 #include "CommandLine.h"
 #include <stdexcept>
-#include <dStorm/helpers/thread.h>
+#include "helpers/thread.h"
 #include <stdlib.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <locale.h>
 #include "simparm/wx_ui/App.h"
 #include "installation-directory.h"
-#include <dStorm/GUIThread.h>
+#include "GUIThread.h"
 #include <fstream>
 #include <simparm/GUILabelTable.h>
 #include <boost/filesystem/fstream.hpp>

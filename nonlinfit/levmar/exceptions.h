@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_LEVENBERGMARQUARDT_EXCEPTIONS_H
 #define NONLINFIT_LEVENBERGMARQUARDT_EXCEPTIONS_H
 
-#include "fwd.h"
+#include "nonlinfit/levmar/fwd.h"
 #include <stdexcept>
 #include <Eigen/Core>
 

@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_RESOLUTIONSETTER_DECL_H
 
 #include <memory>
-#include <dStorm/input/fwd.h>
+#include "input/fwd.h"
 
 class TestState;
 

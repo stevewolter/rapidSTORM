@@ -1,7 +1,7 @@
 #ifndef CSUNITS_CAMERA_LENGTH_HPP
 #define CSUNITS_CAMERA_LENGTH_HPP
 
-#include "base.hpp"
+#include "boost/units/systems/camera/base.hpp"
 #include <boost/units/static_constant.hpp>
 
 namespace boost {

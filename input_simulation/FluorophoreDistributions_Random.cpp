@@ -1,5 +1,5 @@
 #include <boost/units/io.hpp>
-#include "FluorophoreDistributions.h"
+#include "input_simulation/FluorophoreDistributions.h"
 
 namespace input_simulation {
 namespace FluorophoreDistributions {

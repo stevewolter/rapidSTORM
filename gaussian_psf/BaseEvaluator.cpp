@@ -1,8 +1,8 @@
 #include <boost/math/constants/constants.hpp>
 
 #include "debug.h"
-#include "BaseEvaluator.h"
-#include "expressions.h"
+#include "gaussian_psf/BaseEvaluator.h"
+#include "gaussian_psf/expressions.h"
 #include <nonlinfit/plane/GenericData.h>
 
 namespace dStorm {

@@ -2,7 +2,7 @@
 
 #include "debug.h"
 
-#include "EngineDebug.h"
+#include "engine/EngineDebug.h"
 #include "engine/Engine.h"
 
 #include <cassert>
@@ -10,20 +10,20 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <dStorm/input/Source.h>
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/engine/SpotFitter.h>
-#include <dStorm/output/Traits.h>
-#include <dStorm/output/LocalizedImage_traits.h>
-#include <dStorm/output/LocalizedImage.h>
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/slice.h>
-#include <dStorm/helpers/back_inserter.h>
-#include <dStorm/traits/Projection.h>
-#include "PlaneFlattener.h"
-#include "Config.h"
+#include "input/Source.h"
+#include "engine/SpotFinder.h"
+#include "engine/SpotFitterFactory.h"
+#include "engine/SpotFitter.h"
+#include "output/Traits.h"
+#include "output/LocalizedImage_traits.h"
+#include "output/LocalizedImage.h"
+#include "engine/JobInfo.h"
+#include "image/constructors.h"
+#include "image/slice.h"
+#include "helpers/back_inserter.h"
+#include "traits/Projection.h"
+#include "engine/PlaneFlattener.h"
+#include "engine/Config.h"
 #include <simparm/dummy_ui/fwd.h>
 
 #ifdef DSTORM_MEASURE_TIMES

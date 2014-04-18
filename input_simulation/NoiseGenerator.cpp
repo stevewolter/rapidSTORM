@@ -1,5 +1,5 @@
 #define LOCPREC_NOISEGENERATOR_CPP
-#include "NoiseGenerator.h"
+#include "input_simulation/NoiseGenerator.h"
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_statistics.h>
 #include <fstream>

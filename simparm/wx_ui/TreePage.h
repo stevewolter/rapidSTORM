@@ -1,7 +1,7 @@
 #ifndef SIMPARM_WX_UI_TREENODE_H
 #define SIMPARM_WX_UI_TREENODE_H
 
-#include "Node.h"
+#include "simparm/wx_ui/Node.h"
 
 class TreeRepresentation;
 

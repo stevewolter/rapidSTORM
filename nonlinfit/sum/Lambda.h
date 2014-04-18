@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_SUM_MODEL_H
 #define NONLINFIT_SUM_MODEL_H
 
-#include "fwd.h"
+#include "nonlinfit/sum/fwd.h"
 
 #include <Eigen/Core>
 #include <boost/mpl/bind.hpp>

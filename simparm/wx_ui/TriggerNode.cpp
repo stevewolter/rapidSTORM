@@ -2,12 +2,12 @@
  * handling of windows.h. */
 #include <wx/button.h>
 
-#include "TriggerNode.h"
+#include "simparm/wx_ui/TriggerNode.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include "gui_thread.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

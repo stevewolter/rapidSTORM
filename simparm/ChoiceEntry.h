@@ -1,9 +1,9 @@
 #ifndef SIMPARM_CONFIG_ENTRY_CHOICE
 #define SIMPARM_CONFIG_ENTRY_CHOICE
 
-#include "Entry.h"
-#include "Attribute.h"
-#include "Choice.h"
+#include "simparm/Entry.h"
+#include "simparm/Attribute.h"
+#include "simparm/Choice.h"
 #include <vector>
 #include <map>
 #include <stdexcept>

@@ -1,7 +1,7 @@
 #ifndef LOCPREC_KALMANTRACE_H
 #define LOCPREC_KALMANTRACE_H
 
-#include <dStorm/Localization.h>
+#include "Localization.h"
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <boost/units/Eigen/Array>

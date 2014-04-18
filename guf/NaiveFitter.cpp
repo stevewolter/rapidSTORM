@@ -1,17 +1,17 @@
 #include "debug.h"
-#include "NaiveFitter.h"
-#include "ModelledFitter.h"
+#include "guf/NaiveFitter.h"
+#include "guf/ModelledFitter.h"
 #include "guf/MultiKernelLambda.h"
 #include "gaussian_psf/free_form.h"
 #include "gaussian_psf/fixed_form.h"
 #include "gaussian_psf/expressions.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/traits/optics.h>
-#include <dStorm/engine/JobInfo.h>
-#include <dStorm/engine/InputTraits.h>
+#include "traits/optics.h"
+#include "engine/JobInfo.h"
+#include "engine/InputTraits.h"
 #include <nonlinfit/Bind.h>
-#include <dStorm/threed_info/No3D.h>
+#include "threed_info/No3D.h"
 
 namespace dStorm {
 namespace guf {

@@ -1,5 +1,5 @@
-#include "../Object.h"
-#include "RootNode.h"
+#include "simparm/Object.h"
+#include "simparm/text_stream/RootNode.h"
 #include <boost/test/unit_test.hpp>
 #include <boost/thread/thread.hpp>
 

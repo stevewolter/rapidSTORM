@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_PLANE_JOINT_H
 #define NONLINFIT_PLANE_JOINT_H
 
-#include "fwd.h"
+#include "nonlinfit/plane/fwd.h"
 #include <nonlinfit/Xs.h>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>

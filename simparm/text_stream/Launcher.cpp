@@ -1,8 +1,8 @@
-#include "Launcher.h"
+#include "simparm/text_stream/Launcher.h"
 #include "InputStream.h"
-#include <dStorm/GUIThread.h>
+#include "GUIThread.h"
 #include <boost/thread/thread.hpp>
-#include <dStorm/stack_realign.h>
+#include "stack_realign.h"
 
 namespace simparm {
 namespace text_stream {

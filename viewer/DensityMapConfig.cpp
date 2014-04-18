@@ -1,4 +1,4 @@
-#include "DensityMapConfig.h"
+#include "viewer/DensityMapConfig.h"
 
 namespace dStorm {
 namespace viewer {

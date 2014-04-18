@@ -1,4 +1,4 @@
-#include "LinearInterpolation.hpp"
+#include "density_map/LinearInterpolation.hpp"
 
 namespace dStorm {
 namespace density_map {

@@ -1,11 +1,11 @@
 #include <wx/button.h>
 #include <wx/choicdlg.h>
 
-#include "OutputChoiceNode.h"
-#include "Node.h"
-#include "AttributeHandle.h"
-#include "lambda.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/OutputChoiceNode.h"
+#include "simparm/wx_ui/Node.h"
+#include "simparm/wx_ui/AttributeHandle.h"
+#include "simparm/wx_ui/lambda.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 #include <boost/range/algorithm_ext/erase.hpp>
 #include <boost/foreach.hpp>

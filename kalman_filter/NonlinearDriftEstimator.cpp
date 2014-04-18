@@ -2,14 +2,14 @@
 #include "config.h"
 #endif
 
-#include <dStorm/output/Output.h>
+#include "output/Output.h"
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
 #include <simparm/Node.h>
 #include <fstream>
 #include <memory>
-#include <dStorm/output/FileOutputBuilder.h>
-#include <dStorm/units/frame_count.h>
+#include "output/FileOutputBuilder.h"
+#include "units/frame_count.h"
 #include <boost/foreach.hpp>
 
 #if HAVE_EIGEN_SPARSECHOLESKY

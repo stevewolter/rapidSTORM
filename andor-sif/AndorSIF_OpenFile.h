@@ -4,10 +4,10 @@
 #include <stdio.h> 
 #include <string> 
 #include <boost/shared_ptr.hpp> 
-#include <dStorm/input/Traits.h>
+#include "input/Traits.h"
 #include <boost/utility.hpp>
-#include <dStorm/Image.h>
-#include <dStorm/engine/InputTraits.h>
+#include "image/Image.h"
+#include "engine/InputTraits.h"
 #include <read_sif.h>
 
 namespace dStorm {

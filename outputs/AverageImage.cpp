@@ -1,21 +1,21 @@
 #define cimg_use_magick
 #define DSTORM_AVERAGEIMAGE_CPP
-#include "AverageImage.h"
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
-#include <dStorm/output/FileOutputBuilder.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/engine/Input.h>
+#include "outputs/AverageImage.h"
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
+#include "output/FileOutputBuilder.h"
+#include "engine/Image.h"
+#include "engine/Input.h"
 #include <simparm/FileEntry.h>
 #include <memory>
 
 #include <iostream>
-#include <dStorm/Image_iterator.h>
-#include <dStorm/display/Manager.h>
-#include <dStorm/display/store_image.h>
-#include <dStorm/display/display_normalized.hpp>
-#include <dStorm/Image_impl.h>
-#include <dStorm/image/extend.h>
+#include "image/iterator.h"
+#include "display/Manager.h"
+#include "display/store_image.h"
+#include "display/display_normalized.hpp"
+#include "image/Image.hpp"
+#include "image/extend.h"
 
 using namespace std;
 namespace dStorm {

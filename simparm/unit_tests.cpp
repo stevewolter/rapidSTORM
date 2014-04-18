@@ -1,8 +1,8 @@
 #define SIMPARM_OPTIONAL_ENABLE_CHECK
 #include <boost/test/unit_test.hpp>
-#include "Entry.h"
-#include "Entry.hpp"
-#include "Attribute.hpp"
+#include "simparm/Entry.h"
+#include "simparm/Entry.hpp"
+#include "simparm/Attribute.hpp"
 #include <stdexcept>
 #include <iostream>
 #include <cassert>

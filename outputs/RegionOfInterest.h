@@ -2,7 +2,7 @@
 #define LOCPREC_ROI_FILTER_H
 
 #include <memory>
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 namespace dStorm {
 namespace outputs {

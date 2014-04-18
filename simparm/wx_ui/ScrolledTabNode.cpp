@@ -2,13 +2,13 @@
  * handling of windows.h. */
 #include <wx/aui/auibook.h>
 
-#include "ScrolledTabNode.h"
-#include "WindowNode.h"
+#include "simparm/wx_ui/ScrolledTabNode.h"
+#include "simparm/wx_ui/WindowNode.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include "lambda.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/lambda.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

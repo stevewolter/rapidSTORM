@@ -1,8 +1,8 @@
 #ifndef NONLINFIT_ABSTRACT_FUNCTION_ADAPTER_H
 #define NONLINFIT_ABSTRACT_FUNCTION_ADAPTER_H
 
-#include "fwd.h"
-#include "AbstractFunction.h"
+#include "nonlinfit/fwd.h"
+#include "nonlinfit/AbstractFunction.h"
 #include <Eigen/Core>
 
 namespace nonlinfit {

@@ -1,14 +1,14 @@
-#include "LiveBackend.h"
+#include "viewer/LiveBackend.h"
 
 #include <boost/thread/locks.hpp>
 
-#include "ImageDiscretizer.h"
-#include "ImageDiscretizer_converter.h"
-#include "Display.h"
-#include "Status.h"
-#include "Config.h"
-#include "ColourScheme.h"
-#include "TerminalBackend.h"
+#include "viewer/ImageDiscretizer.h"
+#include "viewer/ImageDiscretizer_converter.h"
+#include "viewer/Display.h"
+#include "viewer/Status.h"
+#include "viewer/Config.h"
+#include "viewer/ColourScheme.h"
+#include "viewer/TerminalBackend.h"
 #include "density_map/Coordinates.h"
 
 namespace dStorm {

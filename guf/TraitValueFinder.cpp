@@ -1,4 +1,4 @@
-#include "TraitValueFinder.h"
+#include "guf/TraitValueFinder.h"
 
 namespace dStorm {
 namespace guf {

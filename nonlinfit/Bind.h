@@ -1,8 +1,8 @@
 #ifndef NONLINFIT_FUNCTION_H
 #define NONLINFIT_FUNCTION_H
 
-#include "fwd.h"
-#include "Lambda.h"
+#include "nonlinfit/fwd.h"
+#include "nonlinfit/Lambda.h"
 
 #include <boost/mpl/size.hpp>
 #include <boost/mpl/copy_if.hpp>

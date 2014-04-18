@@ -1,5 +1,5 @@
-#include "ZTruthConfig.h"
-#include "ZTruth.h"
+#include "calibrate_3d/ZTruthConfig.h"
+#include "calibrate_3d/ZTruth.h"
 
 namespace dStorm {
 namespace calibrate_3d {

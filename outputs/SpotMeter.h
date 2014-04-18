@@ -1,7 +1,7 @@
 #ifndef LOCPREC_SPOTMETER_H
 #define LOCPREC_SPOTMETER_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 #include <memory>
 
 namespace dStorm { 

@@ -1,8 +1,8 @@
 #ifndef SIMPARM_CMDLINE_UI_PROGRESS_NODE_H
 #define SIMPARM_CMDLINE_UI_PROGRESS_NODE_H
 
-#include "Node.h"
-#include "../Attribute.h"
+#include "simparm/cmdline_ui/Node.h"
+#include "simparm/Attribute.h"
 
 namespace simparm {
 namespace cmdline_ui {

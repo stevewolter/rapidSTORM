@@ -1,5 +1,5 @@
-#include "Status.h"
-#include "Config.h"
+#include "viewer/Status.h"
+#include "viewer/Config.h"
 #include <simparm/dummy_ui/fwd.h>
 
 namespace dStorm {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRANSMISSIONS_SLICER_H
 #define DSTORM_TRANSMISSIONS_SLICER_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 namespace dStorm {
 namespace slicer {

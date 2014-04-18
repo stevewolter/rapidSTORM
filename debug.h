@@ -1,5 +1,5 @@
 #ifdef VERBOSE
-#include <dStorm/helpers/thread.h>
+#include "helpers/thread.h"
 #include <iostream>
 #include <boost/units/io.hpp>
 

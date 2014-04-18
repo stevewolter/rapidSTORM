@@ -1,4 +1,4 @@
-#include "GUILabelTable.h"
+#include "simparm/GUILabelTable.h"
 #include "doc/guilabels.h"
 #include <boost/tokenizer.hpp>
 
@@ -8,7 +8,8 @@ GUILabelTable::GUILabelTable() {
     for (size_t i = 0; i < sizeof(::guilabels) / sizeof(::guilabels[0]); ++i) {
         Entry entry;
         entry.description = guilabels[i][1];
-        entry.helpID = guilabels[i][2];
+        entry.helpID = guilabels[i][0];
+        entry.help = guilabels[i][2];
         entries[guilabels[i][0]] = entry;
     }
 }

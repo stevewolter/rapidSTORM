@@ -2,7 +2,7 @@
 #define DSTORM_DISPLAY_ZOOMSLIDER_H
 
 #include <wx/wx.h>
-#include "Canvas.h"
+#include "simparm/wx_ui/image_window/Canvas.h"
 
 namespace simparm {
 namespace wx_ui {

@@ -2,12 +2,12 @@
  * handling of windows.h. */
 #include <wx/choice.h>
 
-#include "ChoiceNode.h"
-#include "WindowNode.h"
-#include "lambda.h"
-#include "VisibilityControl.h"
-#include "GroupNode.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/ChoiceNode.h"
+#include "simparm/wx_ui/WindowNode.h"
+#include "simparm/wx_ui/lambda.h"
+#include "simparm/wx_ui/VisibilityControl.h"
+#include "simparm/wx_ui/GroupNode.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

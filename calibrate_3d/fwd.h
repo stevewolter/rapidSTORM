@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUTS_CALIBRATE_3D_H
 #define DSTORM_OUTPUTS_CALIBRATE_3D_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 #include <memory>
 
 namespace dStorm {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_FITTER_GUF_FIT_ANALYSIS_H
 #define DSTORM_FITTER_GUF_FIT_ANALYSIS_H
 
-#include "Spot.h"
+#include "guf/Spot.h"
 #include "gaussian_psf/fwd.h"
 #include "constant_background/fwd.hpp"
 #include <vector>

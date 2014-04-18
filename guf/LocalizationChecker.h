@@ -1,10 +1,10 @@
-#include <dStorm/engine/JobInfo_decl.h>
+#include "engine/JobInfo_decl.h"
 #include <boost/icl/interval.hpp>
 #include <boost/icl/interval_set.hpp>
-#include "Config_decl.h"
+#include "guf/Config_decl.h"
 #include "gaussian_psf/fwd.h"
-#include "Spot.h"
-#include <dStorm/types/samplepos.h>
+#include "guf/Spot.h"
+#include "types/samplepos.h"
 
 namespace dStorm {
 namespace guf {

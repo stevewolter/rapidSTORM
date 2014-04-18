@@ -1,8 +1,8 @@
-#include "fwd.h"
-#include "DensityMapConfig.h"
-#include <dStorm/output/BasenameAdjustedFileEntry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FileOutputBuilder.h>
+#include "viewer/fwd.h"
+#include "viewer/DensityMapConfig.h"
+#include "output/BasenameAdjustedFileEntry.h"
+#include "output/Output.h"
+#include "output/FileOutputBuilder.h"
 #include "density_map/DensityMap.h"
 #include "density_map/DummyListener.h"
 #include <fstream>
@@ -21,6 +21,11 @@ public:
     static std::string get_name() { return "DensityMap"; }
     static std::string get_description() { return "Density map"; }
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
+
+    void attach_ui( simparm::NodeHandle at ) {
+        outputFile.attach_ui(at);
+        DensityMapConfig::attach_ui(at);
+    }
 };
 
 class DensityMap : public output::Output {

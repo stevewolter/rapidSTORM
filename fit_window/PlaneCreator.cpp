@@ -1,9 +1,9 @@
-#include "PlaneCreator.hpp"
+#include "fit_window/PlaneCreator.hpp"
 
 #include <boost/test/unit_test.hpp>
-#include <dStorm/engine/InputPlane.h>
-#include <dStorm/units/nanolength.h>
-#include <dStorm/traits/ScaledProjection.h>
+#include "engine/InputPlane.h"
+#include "units/nanolength.h"
+#include "traits/ScaledProjection.h"
 #include <nonlinfit/plane/DisjointData.hpp>
 #include <nonlinfit/plane/Disjoint.h>
 

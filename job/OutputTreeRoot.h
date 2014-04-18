@@ -3,9 +3,9 @@
 
 #include <simparm/TreeRoot.h>
 #include <simparm/TreeEntry.h>
-#include <dStorm/output/Config.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FilterSource.h>
+#include "output/Config.h"
+#include "output/Output.h"
+#include "output/FilterSource.h"
 
 namespace dStorm {
 namespace job {

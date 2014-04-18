@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRANSMISSIONS_LINEAR_ALIGNMENT_H
 #define DSTORM_TRANSMISSIONS_LINEAR_ALIGNMENT_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 namespace dStorm {
 namespace output {

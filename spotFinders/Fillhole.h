@@ -1,7 +1,7 @@
 #ifndef DSTORM_FILLHOLESMOOTHING_H
 #define DSTORM_FILLHOLESMOOTHING_H
 
-#include <dStorm/engine/Image.h>
+#include "engine/Image.h"
 
 namespace dStorm {
 namespace spotFinders {

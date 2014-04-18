@@ -1,8 +1,8 @@
 #ifndef DSTORM_FIT_WINDOW_PLANECREATOR_HPP
 #define DSTORM_FIT_WINDOW_PLANECREATOR_HPP
 
-#include "PlaneCreator.h"
-#include "PlaneImpl.hpp"
+#include "fit_window/PlaneCreator.h"
+#include "fit_window/PlaneImpl.hpp"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
 

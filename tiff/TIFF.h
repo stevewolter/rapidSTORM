@@ -1,11 +1,11 @@
 #ifndef CImgBuffer_TIFF_H
 #define CImgBuffer_TIFF_H
 
-#include <dStorm/engine/InputTraits.h>
-#include <dStorm/image/fwd.h>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/input/FileInput.h>
-#include <dStorm/input/Source.h>
+#include "engine/InputTraits.h"
+#include "image/fwd.h"
+#include "image/MetaInfo.h"
+#include "input/FileInput.h"
+#include "input/Source.h"
 #include <memory>
 
 namespace boost { namespace unit_test { class test_suite; } }

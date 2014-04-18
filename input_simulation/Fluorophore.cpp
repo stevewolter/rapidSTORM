@@ -1,8 +1,8 @@
 #define LOCPREC_FLUOROPHORE_CPP
 #include "debug.h"
-#include "Fluorophore.h"
+#include "input_simulation/Fluorophore.h"
 
-#include "pixelatedBessel.h"
+#include "input_simulation/pixelatedBessel.h"
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf.h>
 
@@ -16,9 +16,9 @@
 
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-#include <dStorm/traits/Projection.h>
-#include <dStorm/engine/InputTraits.h>
-#include <dStorm/threed_info/DepthInfo.h>
+#include "traits/Projection.h"
+#include "engine/InputTraits.h"
+#include "threed_info/DepthInfo.h"
 
 using namespace std;
 

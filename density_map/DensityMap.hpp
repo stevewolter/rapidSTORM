@@ -3,14 +3,14 @@
 #include <boost/units/Eigen/Array>
 #include <boost/units/io.hpp>
 
-#include <dStorm/Engine.h>
-#include <dStorm/image/iterator.h>
-#include <dStorm/image/contains.h>
-#include <dStorm/image/constructors.h>
-#include <dStorm/units/amplitude.h>
+#include "base/Engine.h"
+#include "image/iterator.h"
+#include "image/contains.h"
+#include "image/constructors.h"
+#include "units/amplitude.h"
 
-#include "DensityMap.h"
-#include "Coordinates.h"
+#include "density_map/DensityMap.h"
+#include "density_map/Coordinates.h"
 
 namespace dStorm {
 namespace density_map {

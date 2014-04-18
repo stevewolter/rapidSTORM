@@ -2,8 +2,8 @@
 #define SIMPARM_WX_UI_SCROLLEDWINDOWNODE_H
 
 #include <wx/scrolwin.h>
-#include "WindowNode.h"
-#include "GUIHandle.h"
+#include "simparm/wx_ui/WindowNode.h"
+#include "simparm/wx_ui/GUIHandle.h"
 #include "shell/JobFactory.h"
 
 namespace simparm {

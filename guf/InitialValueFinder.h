@@ -1,13 +1,13 @@
 #ifndef DSTORM_FITTER_GUF_INITIAL_VALUE_FINDER_H
 #define DSTORM_FITTER_GUF_INITIAL_VALUE_FINDER_H
 
-#include "Spot.h"
-#include "Config.h"
-#include <dStorm/engine/Input_decl.h>
-#include <dStorm/engine/JobInfo_decl.h>
+#include "guf/Spot.h"
+#include "guf/Config.h"
+#include "engine/Input_decl.h"
+#include "engine/JobInfo_decl.h"
 #include "fit_window/Stack.h"
 #include <vector>
-#include <dStorm/Direction.h>
+#include "Direction.h"
 #include <boost/smart_ptr/scoped_ptr.hpp>
 
 namespace dStorm {

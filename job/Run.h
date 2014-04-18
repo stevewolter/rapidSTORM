@@ -1,13 +1,13 @@
 #ifndef DSTORM_JOB_RUN_H
 #define DSTORM_JOB_RUN_H
 
-#include "Queue.h"
+#include "job/Queue.h"
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <dStorm/Engine.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/stack_realign.h>
+#include "base/Engine.h"
+#include "output/Output.h"
+#include "stack_realign.h"
 
 namespace dStorm {
 namespace job {

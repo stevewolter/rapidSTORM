@@ -3,7 +3,7 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <memory>
-#include "Variable.h"
+#include "expression/Variable.h"
 
 namespace dStorm {
 namespace expression {

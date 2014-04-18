@@ -2,7 +2,7 @@
 #include <nonlinfit/functions/Polynom.h>
 #include <nonlinfit/VectorPosition.h>
 #include <nonlinfit/terminators/StepLimit.h>
-#include "Fitter.hpp"
+#include "nonlinfit/levmar/Fitter.hpp"
 #include <boost/test/unit_test.hpp>
 
 /** \cond */

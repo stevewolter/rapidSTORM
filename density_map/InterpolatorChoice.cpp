@@ -1,4 +1,4 @@
-#include "InterpolatorChoice.hpp"
+#include "density_map/InterpolatorChoice.hpp"
 
 namespace dStorm {
 namespace density_map {

@@ -1,8 +1,8 @@
 #ifndef SIMPARM_ATTRIBUTE_HPP
 #define SIMPARM_ATTRIBUTE_HPP
 
-#include "Attribute.h"
-#include "iostream.h"
+#include "simparm/Attribute.h"
+#include "simparm/iostream.h"
 #include <cstdio>
 
 namespace simparm {

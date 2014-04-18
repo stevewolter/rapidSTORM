@@ -1,6 +1,6 @@
 /** \cond */
 #include <nonlinfit/Terminator.h>
-#include "StepLimit.h"
+#include "nonlinfit/terminators/StepLimit.h"
 
 namespace nonlinfit {
 namespace terminators {

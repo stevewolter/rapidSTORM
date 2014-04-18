@@ -1,4 +1,4 @@
-#include "ProgressNode.h"
+#include "simparm/cmdline_ui/ProgressNode.h"
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 

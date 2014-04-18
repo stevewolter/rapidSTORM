@@ -1,9 +1,9 @@
 #ifndef SIMPARM_BACKEND_ROOT_H
 #define SIMPARM_BACKEND_ROOT_H
 
-#include "NodeBackend.h"
-#include "ChildrenList.h"
-#include "image_window/MainThread.h"
+#include "simparm/text_stream/NodeBackend.h"
+#include "simparm/text_stream/ChildrenList.h"
+#include "simparm/text_stream/image_window/MainThread.h"
 
 namespace simparm {
 namespace text_stream {

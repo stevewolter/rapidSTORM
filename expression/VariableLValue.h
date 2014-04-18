@@ -2,7 +2,7 @@
 #define DSTORM_EXPRESSION_CONFIG_VARIABLE_LVALUE_H
 
 #include "CommandLine.h"
-#include "LValue.h"
+#include "expression/LValue.h"
 
 namespace dStorm {
 namespace expression {

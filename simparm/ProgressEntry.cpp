@@ -1,5 +1,5 @@
-#include "ProgressEntry.h"
-#include "Node.h"
+#include "simparm/ProgressEntry.h"
+#include "simparm/Node.h"
 #include <math.h>
 
 namespace simparm {

@@ -1,13 +1,13 @@
 #ifndef DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 
-#include <dStorm/input/Traits.h>
-#include <dStorm/Pixel.h>
-#include "Publisher.h"
-#include "HighDepth.h"
+#include "input/Traits.h"
+#include "Pixel.h"
+#include "viewer/Publisher.h"
+#include "viewer/HighDepth.h"
 #include <vector>
-#include "Image.h"
-#include "ColourScheme.h"
+#include "viewer/Image.h"
+#include "viewer/ColourScheme.h"
 #include "density_map/VirtualListener.h"
 
 namespace dStorm {

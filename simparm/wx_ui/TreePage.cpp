@@ -1,6 +1,6 @@
-#include "TreeRepresentation.h"
-#include "TreePage.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/TreeRepresentation.h"
+#include "simparm/wx_ui/TreePage.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

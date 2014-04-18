@@ -2,7 +2,7 @@
 #define LOCPREC_NOISESOURCE_CPP
 
 #include "debug.h"
-#include "NoiseSource.h"
+#include "input_simulation/NoiseSource.h"
 
 #include <boost/thread/locks.hpp>
 
@@ -10,21 +10,21 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_statistics.h>
 #include <cassert>
-#include <dStorm/engine/Image.h>
+#include "engine/Image.h"
 #include <fstream>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-#include <dStorm/Image_impl.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/engine/InputTraits.h>
+#include "image/Image.hpp"
+#include "input/Source.h"
+#include "input/MetaInfo.h"
+#include "engine/InputTraits.h"
 #include <boost/units/Eigen/Array>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
-#include <dStorm/threed_info/Config.h>
+#include "threed_info/Config.h"
 #include <fstream>
 
-#include "FluorophoreDistributions.h"
+#include "input_simulation/FluorophoreDistributions.h"
 
 using namespace boost::units;
 

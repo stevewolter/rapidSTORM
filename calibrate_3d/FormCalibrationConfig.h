@@ -4,8 +4,8 @@
 #include <string>
 #include <boost/array.hpp>
 #include <simparm/Entry.h>
-#include <dStorm/polynomial_3d.h>
-#include <dStorm/Direction.h>
+#include "polynomial_3d.h"
+#include "Direction.h"
 
 namespace dStorm {
 namespace calibrate_3d {

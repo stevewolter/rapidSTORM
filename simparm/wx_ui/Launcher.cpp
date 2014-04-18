@@ -1,8 +1,8 @@
 /* wxWidgets must be included first in Windows due to conflicts with Boost's
  * handling of windows.h. */
 #include <wx/filename.h>
-#include "Launcher.h"
-#include "RootNode.h"
+#include "simparm/wx_ui/Launcher.h"
+#include "simparm/wx_ui/RootNode.h"
 
 namespace simparm {
 namespace wx_ui {

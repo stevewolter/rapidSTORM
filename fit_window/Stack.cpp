@@ -1,11 +1,11 @@
 #ifndef DSTORM_GUF_DATACUBE_IMPL_H
 #define DSTORM_GUF_DATACUBE_IMPL_H
 
-#include "Stack.hpp"
-#include <dStorm/image/slice.h>
-#include <dStorm/engine/InputPlane.h>
-#include <dStorm/engine/Image.h>
-#include "Centroid.h"
+#include "fit_window/Stack.hpp"
+#include "image/slice.h"
+#include "engine/InputPlane.h"
+#include "engine/Image.h"
+#include "fit_window/Centroid.h"
 
 namespace dStorm {
 namespace fit_window {

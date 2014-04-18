@@ -1,15 +1,15 @@
 #ifndef DSTORM_ENGINE_LOCALIZATIONBUNCHER_H
 #define DSTORM_ENGINE_LOCALIZATIONBUNCHER_H
 
-#include <dStorm/input/Traits.h>
-#include <dStorm/Localization.h>
+#include "input/Traits.h"
+#include "Localization.h"
 #include <map>
 #include <memory>
-#include <dStorm/output/Output.h>
+#include "output/Output.h"
 #include <boost/utility.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/thread/mutex.hpp>
-#include <dStorm/input/Source.h>
+#include "input/Source.h"
 
 namespace dStorm {
 namespace engine_stm {

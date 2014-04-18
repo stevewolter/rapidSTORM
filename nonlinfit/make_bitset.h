@@ -6,7 +6,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/bind/bind.hpp>
-#include "index_of.h"
+#include "nonlinfit/index_of.h"
 
 namespace nonlinfit {
 

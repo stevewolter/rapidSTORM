@@ -1,9 +1,9 @@
 #ifndef DSTORM_DENSITY_MAP_NEAREST_NEIGHBOUR_INTERPOLATION_HPP
 #define DSTORM_DENSITY_MAP_NEAREST_NEIGHBOUR_INTERPOLATION_HPP
 
-#include "NearestNeighbourInterpolation.h"
-#include "Interpolator.h"
-#include "InterpolatorFactory.h"
+#include "density_map/NearestNeighbourInterpolation.h"
+#include "density_map/Interpolator.h"
+#include "density_map/InterpolatorFactory.h"
 #include <bitset>
 #include <simparm/Object.h>
 

@@ -1,7 +1,7 @@
 #ifndef SIMPARM_GROUP_H
 #define SIMPARM_GROUP_H
 
-#include "Object.h"
+#include "simparm/Object.h"
 
 namespace simparm {
 class Group : public Object {

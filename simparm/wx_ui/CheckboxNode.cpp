@@ -2,11 +2,11 @@
  * handling of windows.h. */
 #include <wx/checkbox.h>
 
-#include "CheckboxNode.h"
+#include "simparm/wx_ui/CheckboxNode.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include "gui_thread.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

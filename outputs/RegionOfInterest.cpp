@@ -1,6 +1,6 @@
 #include <simparm/BoostUnits.h>
 
-#include "RegionOfInterest.h"
+#include "outputs/RegionOfInterest.h"
 #include <boost/multi_array.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
@@ -8,11 +8,11 @@
 #include <boost/range/algorithm_ext/erase.hpp>
 #include <Eigen/Core>
 
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Filter.h>
+#include "output/FilterBuilder.h"
+#include "output/Filter.h"
 #include <simparm/Entry.h>
-#include <dStorm/Engine.h>
-#include <dStorm/units/microlength.h>
+#include "base/Engine.h"
+#include "units/microlength.h"
 
 namespace dStorm {
 namespace outputs {

@@ -1,8 +1,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "NoiseSource.h"
-#include <dStorm/Config.h>
+#include "input_simulation/NoiseSource.h"
+#include "base/Config.h"
 
 using namespace dStorm::output;
 

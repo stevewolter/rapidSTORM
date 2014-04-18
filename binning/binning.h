@@ -1,14 +1,14 @@
 #ifndef DSTORM_OUTPUT_BINNING_BINNING_H
 #define DSTORM_OUTPUT_BINNING_BINNING_H
 
-#include "binning_decl.h"
+#include "binning/binning_decl.h"
 
-#include <dStorm/output/Output.h>
-#include <dStorm/traits/image_resolution.h>
+#include "output/Output.h"
+#include "traits/image_resolution.h"
 #include <boost/units/quantity.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/systems/camera/length.hpp>
-#include <dStorm/display/fwd.h>
+#include "display/fwd.h"
 
 namespace dStorm {
 namespace binning {

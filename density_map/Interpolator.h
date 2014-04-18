@@ -1,7 +1,7 @@
 #ifndef DSTORM_DENSITY_MAP_INTERPOLATOR_H
 #define DSTORM_DENSITY_MAP_INTERPOLATOR_H
 
-#include <dStorm/Image.h>
+#include "image/Image.h"
 #include <memory>
 #include <vector>
 #include <Eigen/Core>

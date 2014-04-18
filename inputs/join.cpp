@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "join.h"
+#include "inputs/join.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
@@ -9,13 +9,13 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>
-#include <dStorm/input/Source.h>
-#include <dStorm/input/DefaultFilterTypes.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/make_clone_allocator.hpp>
+#include "input/Source.h"
+#include "input/DefaultFilterTypes.h"
+#include "input/MetaInfo.h"
+#include "make_clone_allocator.hpp"
 
-#include "join/spatial.h"
-#include "join/temporal.h"
+#include "inputs/join/spatial.h"
+#include "inputs/join/temporal.h"
 
 namespace dStorm {
 namespace input {

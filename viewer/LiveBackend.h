@@ -1,14 +1,14 @@
 #ifndef DSTORM_VIEWER_LIVEBACKEND_H
 #define DSTORM_VIEWER_LIVEBACKEND_H
 
-#include "ImageDiscretizer.h"
-#include "Display.h"
-#include "Backend.h"
-#include "LiveCache.h"
+#include "viewer/ImageDiscretizer.h"
+#include "viewer/Display.h"
+#include "viewer/Backend.h"
+#include "viewer/LiveCache.h"
 
 #include "density_map/DensityMap.h"
 #include "density_map/VirtualListener.h"
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 #include <boost/thread/recursive_mutex.hpp>
 
 namespace dStorm {

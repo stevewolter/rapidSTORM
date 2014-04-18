@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BINNING_ZERO_BINNER_H
 #define DSTORM_OUTPUT_BINNING_ZERO_BINNER_H
 
-#include "binning.h"
+#include "binning/binning.h"
 
 namespace dStorm {
 namespace binning {

@@ -1,16 +1,16 @@
 #ifndef DSTORM_VIEWER_H
 #define DSTORM_VIEWER_H
 
-#include "Backend.h"
-#include "Config.h"
-#include "Status.h"
+#include "viewer/Backend.h"
+#include "viewer/Config.h"
+#include "viewer/Status.h"
 
 
-#include <dStorm/Localization.h>
+#include "Localization.h"
 #include <boost/thread/mutex.hpp>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
-#include <dStorm/output/FileOutputBuilder.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
+#include "output/FileOutputBuilder.h"
 #include <Eigen/Core>
 
 namespace dStorm {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_TIFF_OPEN_FILE_H
 #define DSTORM_TIFF_OPEN_FILE_H
 
-#include <dStorm/input/Traits.h>
+#include "input/Traits.h"
 #include <simparm/NodeHandle.h>
 #include <simparm/Entry.h>
 
@@ -12,9 +12,9 @@
 #include <tiffio.h>
 #endif
 
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/image/Image.h>
-#include <dStorm/engine/InputTraits.h>
+#include "image/MetaInfo.h"
+#include "image/Image.h"
+#include "engine/InputTraits.h"
 
 namespace dStorm {
 class TIFFOperation;

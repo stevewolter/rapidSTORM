@@ -1,10 +1,10 @@
-#include "Parser.h"
-#include "localization_variable_decl.h"
-#include "Evaluator.h"
-#include "Simplifier.h"
-#include "UnitChecker.h"
-#include <dStorm/localization/Traits.h>
-#include <dStorm/Localization.h>
+#include "expression/Parser.h"
+#include "expression/localization_variable_decl.h"
+#include "expression/Evaluator.h"
+#include "expression/Simplifier.h"
+#include "expression/UnitChecker.h"
+#include "localization/Traits.h"
+#include "Localization.h"
 
 using namespace dStorm::expression;
 

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
-#include "No3D.h"
-#include "check_evaluator.hpp"
+#include "gaussian_psf/No3D.h"
+#include "gaussian_psf/check_evaluator.hpp"
 #include "nonlinfit/InvalidPositionError.h"
 
 namespace dStorm {

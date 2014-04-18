@@ -1,7 +1,7 @@
 #ifndef DSTORM_AVERAGE_SMOOTH_H
 #define DSTORM_AVERAGE_SMOOTH_H
 
-#include <dStorm/image/fwd.h>
+#include "image/fwd.h"
 
 namespace dStorm {
 namespace spotFinders {

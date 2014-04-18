@@ -1,8 +1,8 @@
 #ifndef TESTPLUGIN_PLUGIN_H
 #define TESTPLUGIN_PLUGIN_H
 
-#include <dStorm/Config.h>
-#include <dStorm/display/Manager.h>
+#include "base/Config.h"
+#include "display/Manager.h"
 
 namespace dStorm {
 namespace test {

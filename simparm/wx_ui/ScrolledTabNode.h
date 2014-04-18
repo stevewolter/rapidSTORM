@@ -1,9 +1,9 @@
 #ifndef SIMPARM_WX_UI_SCROLLEDTABNODE_H
 #define SIMPARM_WX_UI_SCROLLEDTABNODE_H
 
-#include "Node.h"
-#include "GUIHandle.h"
-#include "ScrolledWindowNode.h"
+#include "simparm/wx_ui/Node.h"
+#include "simparm/wx_ui/GUIHandle.h"
+#include "simparm/wx_ui/ScrolledWindowNode.h"
 #include <wx/scrolwin.h>
 #include <wx/sizer.h>
 

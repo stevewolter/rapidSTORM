@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include <dStorm/output/Output.h>
-#include <dStorm/output/OutputBuilder.h>
-#include <dStorm/output/FileOutputBuilder.h>
+#include "output/Output.h"
+#include "output/OutputBuilder.h"
+#include "output/FileOutputBuilder.h"
 
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
@@ -12,7 +12,7 @@
 #include <Eigen/Core>
 
 
-#include "PrecisionEstimator.h"
+#include "outputs/PrecisionEstimator.h"
 
 #include <iomanip>
 #include <sstream>

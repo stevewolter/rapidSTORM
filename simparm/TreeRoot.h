@@ -1,7 +1,7 @@
 #ifndef SIMPARM_TREEROOT_HH
 #define SIMPARM_TREEROOT_HH
 
-#include "NodeHandle.h"
+#include "simparm/NodeHandle.h"
 
 namespace simparm {
 

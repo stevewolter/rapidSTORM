@@ -1,8 +1,8 @@
 #ifndef CSUNITS_CAMERA_FRAME_RATE_HPP
 #define CSUNITS_CAMERA_FRAME_RATE_HPP
 
-#include "base.hpp"
-#include "time.hpp"
+#include "boost/units/systems/camera/base.hpp"
+#include "boost/units/systems/camera/time.hpp"
 #include <boost/units/systems/si/time.hpp>
 #include <boost/units/static_constant.hpp>
 

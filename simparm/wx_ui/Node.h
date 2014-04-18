@@ -4,8 +4,8 @@
 #include <simparm/Node.h>
 #include <simparm/Message.h>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
-#include "VisibilityNode.h"
-#include "ProtocolNode.h"
+#include "simparm/wx_ui/VisibilityNode.h"
+#include "simparm/wx_ui/ProtocolNode.h"
 
 class wxSizer;
 class wxTreebook;

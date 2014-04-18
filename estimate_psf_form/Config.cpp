@@ -1,4 +1,4 @@
-#include "Config.h"
+#include "estimate_psf_form/Config.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

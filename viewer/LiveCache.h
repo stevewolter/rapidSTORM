@@ -2,12 +2,12 @@
 #define DSTORM_VIEWER_LIVECACHE_H
 
 #include <vector>
-#include "Publisher.h"
-#include "HighDepth.h"
-#include <dStorm/Pixel.h>
-#include "Image.h"
-#include "Display.h"
-#include <dStorm/image/find_by_offset.hpp>
+#include "viewer/Publisher.h"
+#include "viewer/HighDepth.h"
+#include "Pixel.h"
+#include "viewer/Image.h"
+#include "viewer/Display.h"
+#include "image/find_by_offset.hpp"
 
 namespace dStorm {
 namespace viewer {
