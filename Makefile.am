@@ -291,7 +291,9 @@ rapidstorm_SOURCES += \
     inputs/Buffer.h inputs/Buffer.cpp \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp  \
     inputs/WarnAboutLocalizationFile.h inputs/WarnAboutLocalizationFile.cpp \
-    inputs/MedianFilter.h inputs/MedianFilter.cpp
+    inputs/MedianFilter.h inputs/MedianFilter.cpp \
+    inputs/MedianFilter_test.h inputs/MedianFilter_test.cpp \
+    inputs/unit_tests.h inputs/unit_tests.cpp
 
 rapidstorm_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \

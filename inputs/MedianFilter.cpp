@@ -8,18 +8,19 @@
 #include <boost/units/io.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant.hpp>
-#include <dStorm/image/extend.h>
-#include <dStorm/Image.h>
-#include <dStorm/image/slice.h>
-#include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/input/InputMutex.h>
-#include <dStorm/localization/Traits.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/output/LocalizedImage.h>
-#include <dStorm/output/LocalizedImage_traits.h>
-#include <dStorm/UnitEntries/FrameEntry.h>
-#include <dStorm/units/frame_count.h>
+
+#include "image/extend.h"
+#include "image/Image.h"
+#include "image/slice.h"
+#include "input/AdapterSource.h"
+#include "input/InputMutex.h"
+#include "input/MetaInfo.h"
+#include "input/Method.hpp"
+#include "localization/Traits.h"
+#include "output/LocalizedImage.h"
+#include "output/LocalizedImage_traits.h"
+#include "UnitEntries/FrameEntry.h"
+#include "units/frame_count.h"
 
 namespace dStorm {
 namespace ROIFilter {
@@ -39,18 +40,16 @@ struct Config {
 };
 
 class Source
-: public input::Source<engine::ImageStack>
+: public input::AdapterSource<engine::ImageStack>
 {
-    std::unique_ptr<input::Source<engine::ImageStack>> upstream;
+    typedef engine::StormPixel StormPixel;
+
     const int half_width, width, stride;
     int remaining_stride;
     bool initial_median_computed, upstream_is_empty;
 
     std::queue<engine::ImageStack> outgoing;
-    std::vector<dStorm::Image<engine::StormPixel, 3>> median_values;
-
-    typedef engine::StormPixel StormPixel;
-    typedef input::Source<engine::ImageStack>::iterator base_iterator;
+    std::vector<dStorm::Image<StormPixel, 3>> median_values;
 
     void attach_local_ui_( simparm::NodeHandle ) {}
 
@@ -59,7 +58,7 @@ class Source
         for (size_t plane_index = 0; plane_index < median_values.size(); ++plane_index) {
             engine::Image2D starts = median_values[plane_index].slice(0, 0 * camera::pixel);
             for (auto i = starts.begin(); i != starts.end(); ++i) {
-                UpdateFunction(&*i, (&*i) + width, plane_index, i.position());
+                update(&*i, (&*i) + width, plane_index, i.position());
             }
         }
     }
@@ -86,12 +85,12 @@ class Source
 
     bool GetKeyImage(engine::ImageStack& input) {
 	for (int j = 0; j < stride; ++j) {
-	    if (!upstream->GetNext(0, &input)) {
+	    if (!base().GetNext(0, &input)) {
 		upstream_is_empty = true;
 		return false;
 	    }
 
-	    outgoing.push_back(input);
+	    outgoing.push(input);
 	}
 	return true;
     }
@@ -107,7 +106,7 @@ class Source
 	}
 
 	for (int i = 0; i < width; ++i) {
-	    for (int plane = 0; plane < images.plane_count(); ++plane) {
+	    for (int plane = 0; plane < inputs[i].plane_count(); ++plane) {
 		engine::Image2D image = inputs[i].plane(plane);
 		std::copy(image.begin(), image.end(),
 			  median_values[plane].slice(0, i * camera::pixel).begin());
@@ -131,8 +130,8 @@ class Source
 	}
 
 	engine::ImageStack image;
-	if (!upstream_is_empty && upstream->GetNext(0, &image)) {
-	    outgoing.push_back(image);
+	if (!upstream_is_empty && base().GetNext(0, &image)) {
+	    outgoing.push(image);
 	    if (--remaining_stride == 0) {
 		UpdateMedian(image, outgoing.front());
 		remaining_stride = stride;
@@ -144,9 +143,9 @@ class Source
 	} else {
 	    *output = outgoing.front();
 	    for (const auto& median : median_values) {
-		target.push_back_background(median.slice(0, half_width * camera::pixel));
+		image.push_back_background(median.slice(0, half_width * camera::pixel));
 	    }
-	    outgoing.pop_front();
+	    outgoing.pop();
 	    return true;
 	}
     }
@@ -154,24 +153,53 @@ class Source
   public:
     Source( std::auto_ptr< input::Source<engine::ImageStack> > upstream,
             frame_index width, frame_index stride)
-        : upstream(upstream.release()), half_width(width.value() / 2), width(width.value()), stride(stride.value()) {
-	if (this->width % 2 == 0) {
+        : input::AdapterSource<engine::ImageStack>(upstream),
+          half_width(width.value() / 2), width(width.value()), stride(stride.value()) {
+	if (width.value() % 2 == 0) {
 	    throw std::runtime_error("Median width must be an odd number");
 	}
     }
     Source* clone() const { throw std::logic_error("clone() for MedianFilter::Source not implemented"); }
 
-    base_iterator begin();
-    base_iterator end();
     void modify_traits( input::Traits<engine::ImageStack>& p)
     {
         for (int i = 0; i < p.plane_count(); ++i) {
-            dStorm::image::MetaInfo<3> size;
-            size.size[0] = width * camera::pixel;
-            size.size[1] = p.plane(i).image.size[0];
-            size.size[2] = p.plane(i).image.size[1];
+            dStorm::ImageTypes<3>::Size size;
+            size[0] = width * camera::pixel;
+            size[1] = p.plane(i).image.size[0];
+            size[2] = p.plane(i).image.size[1];
             median_values.emplace_back(size);
         }
+    }
+};
+
+class ChainLink 
+: public input::Method<ChainLink>
+{
+    friend class input::Method<ChainLink>;
+
+    Config config;
+
+    template <typename Type>
+    void update_traits( input::MetaInfo&, input::Traits<Type>& traits ) {}
+    template <typename Type>
+    void notice_traits( const input::MetaInfo&, const input::Traits<Type>& ) {}
+
+    template <typename Type>
+    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
+        return p.release();
+    }
+
+    input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
+        return new Source( p, config.width(), config.stride() );
+    }
+
+  public:
+    void attach_ui( simparm::NodeHandle at ) { 
+        config.attach_ui( at ); 
+    }
+    static std::string getName() {
+        return "TemporalMedianFilter";
     }
 };
 
@@ -188,6 +216,13 @@ Config::Config()
 
 std::auto_ptr<input::Link> make_link() {
     return std::auto_ptr<input::Link>( new ChainLink() );
+}
+
+std::auto_ptr<input::Source<engine::ImageStack>> make_source(
+        std::auto_ptr<input::Source<engine::ImageStack>> upstream,
+        frame_index width, frame_index stride) {
+    return std::auto_ptr<input::Source<engine::ImageStack>>(
+        new Source(upstream, width, stride));
 }
 
 }
