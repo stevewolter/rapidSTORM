@@ -31,7 +31,7 @@ class Image<PixelType,Dimensions>::_iterator
     bool equal(const _iterator<OtherIteratedType>& o) const 
         { return p == o.p; }
     void increment() { 
-        ++p; pos[0] += 1 * camera::pixel;
+        p += im->offsets[0]; pos[0] += 1 * camera::pixel;
         for ( int i = 1; i < Dimensions; i++ )
             if ( pos[i-1] >= im->sz[i-1] ) { 
                 pos[i-1] = 0; 
@@ -42,7 +42,7 @@ class Image<PixelType,Dimensions>::_iterator
                 break;
     }
     void decrement() { 
-        --p; pos[0] -= 1 * camera::pixel;
+        p -= im->offsets[0]; pos[0] -= 1 * camera::pixel;
         for ( int i = 1; i < Dimensions && pos[i-1].value() < 0; ++i ) { 
             pos[i-1] += im->sz[i-1];
             pos[i] -= 1 * camera::pixel;

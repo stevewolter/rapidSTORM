@@ -23,7 +23,7 @@
 #include "units/frame_count.h"
 
 namespace dStorm {
-namespace ROIFilter {
+namespace median_filter {
 
 struct Config {
     simparm::Object name_object;
@@ -45,75 +45,71 @@ class Source
     typedef engine::StormPixel StormPixel;
 
     const int half_width, width, stride;
-    int remaining_stride;
+    int overbuffered_images, time_to_median_update;
     bool initial_median_computed, upstream_is_empty;
 
-    std::queue<engine::ImageStack> outgoing;
+    std::queue<engine::ImageStack> output_buffer;
+    std::queue<engine::ImageStack> median_buffer;
     std::vector<dStorm::Image<StormPixel, 3>> median_values;
 
     void attach_local_ui_( simparm::NodeHandle ) {}
 
-    template <class UpdateFunction>
-    void ComputeMedian(const UpdateFunction& update) {
+    void replace_in_sorted_range(StormPixel* begin, StormPixel* end,
+                                 StormPixel old_value, StormPixel new_value) {
+        StormPixel* insertion_point = std::lower_bound(begin, end, new_value);
+        StormPixel* deletion_point = std::lower_bound(begin, end, old_value);
+
+        assert(deletion_point < end);
+        assert(*deletion_point == old_value);
+        assert(std::is_sorted(begin, end));
+        if (insertion_point <= deletion_point) {
+            std::move_backward(insertion_point, deletion_point, deletion_point + 1);
+            *insertion_point = new_value;
+        } else {
+            std::move(deletion_point + 1, insertion_point, deletion_point);
+            *(insertion_point-1) = new_value;
+        }
+        assert(std::is_sorted(begin, end));
+    }
+
+    void UpdateMedian(const engine::ImageStack& incoming, const engine::ImageStack& outgoing) {
         for (size_t plane_index = 0; plane_index < median_values.size(); ++plane_index) {
             engine::Image2D starts = median_values[plane_index].slice(0, 0 * camera::pixel);
             for (auto i = starts.begin(); i != starts.end(); ++i) {
-                update(&*i, (&*i) + width, plane_index, i.position());
+                replace_in_sorted_range(&*i, &*i + width,
+                    outgoing.plane(plane_index)(i.position()),
+                    incoming.plane(plane_index)(i.position()));
             }
         }
     }
 
-    void UpdateMedian(const engine::ImageStack& incoming, const engine::ImageStack& outgoing) {
-        ComputeMedian([&](StormPixel* begin, StormPixel* end, int plane, const engine::Image2D::Position& position) {
-            StormPixel new_value = incoming.plane(plane)(position);
-            StormPixel old_value = outgoing.plane(plane)(position);
-            StormPixel* insertion_point = std::lower_bound(begin, end, new_value);
-            StormPixel* deletion_point = std::find(begin, end, old_value);
-
-            assert(deletion_point < end);
-            if (insertion_point < deletion_point) {
-                std::move_backward(insertion_point, deletion_point, deletion_point + 1);
-            } else if (insertion_point == end) {
-                std::move(deletion_point + 1, end, deletion_point);
-                insertion_point = end - 1;
-            } else {
-                std::move(deletion_point + 1, insertion_point + 1, deletion_point);
-            }
-            *insertion_point = new_value;
-        });
-    }
-
-    bool GetKeyImage(engine::ImageStack& input) {
-	for (int j = 0; j < stride; ++j) {
-	    if (!base().GetNext(0, &input)) {
-		upstream_is_empty = true;
-		return false;
-	    }
-
-	    outgoing.push(input);
-	}
-	return true;
-    }
-
     bool ComputeInitialMedian() {
-	engine::ImageStack input;
-	if (!GetKeyImage(input)) { return false; }
-	std::vector<engine::ImageStack> inputs(half_width + 2, input);
+        for (int i = 0; i < width * stride; ++i) {
+            engine::ImageStack input;
+            if (!base().GetNext(0, &input)) {
+                return false;
+            }
 
-	for (int i = 0; i < half_width - 1; ++i) {
-	    if (!GetKeyImage(input)) { return false; }
-	    inputs.push_back(input);
-	}
+            output_buffer.push(input);
+            if (i % stride == 0) {
+                median_buffer.push(input);
+                for (int plane = 0; plane < input.plane_count(); ++plane) {
+                    engine::Image2D image = input.plane(plane);
+                    std::copy(image.begin(), image.end(),
+                              median_values[plane].slice(0, (i/stride) * camera::pixel).begin());
+                }
+            }
+        }
 
-	for (int i = 0; i < width; ++i) {
-	    for (int plane = 0; plane < inputs[i].plane_count(); ++plane) {
-		engine::Image2D image = inputs[i].plane(plane);
-		std::copy(image.begin(), image.end(),
-			  median_values[plane].slice(0, i * camera::pixel).begin());
-	    }
-	}
+        for (const auto& image : median_values) {
+            engine::Image2D starts = image.slice(0, 0 * camera::pixel);
+            for (auto& i : starts) {
+                std::sort(&i, &i + width);
+            }
+        }
 
-	remaining_stride = stride;
+        overbuffered_images = (half_width + 1) * stride;
+        time_to_median_update = 0;
 	return true;
     }
 
@@ -129,23 +125,34 @@ class Source
 	    initial_median_computed = true;
 	}
 
-	engine::ImageStack image;
-	if (!upstream_is_empty && base().GetNext(0, &image)) {
-	    outgoing.push(image);
-	    if (--remaining_stride == 0) {
-		UpdateMedian(image, outgoing.front());
-		remaining_stride = stride;
-	    }
-	}
+        if (overbuffered_images > 0) {
+            --overbuffered_images;
+        } else {
+            engine::ImageStack image;
+            if (!upstream_is_empty && base().GetNext(0, &image)) {
+                output_buffer.push(image);
+                if (time_to_median_update > 0) {
+                    --time_to_median_update;
+                } else {
+                    UpdateMedian(image, median_buffer.front());
+                    time_to_median_update = stride - 1;
+                    median_buffer.pop();
+                    median_buffer.push(image);
+                }
+            } else {
+                upstream_is_empty = true;
+            }
+        }
 
-	if (outgoing.empty()) {
+	if (output_buffer.empty()) {
 	    return false;
 	} else {
-	    *output = outgoing.front();
+	    *output = output_buffer.front();
 	    for (const auto& median : median_values) {
-		image.push_back_background(median.slice(0, half_width * camera::pixel));
+		output->push_back_background(
+                    median.slice(0, half_width * camera::pixel).deep_copy());
 	    }
-	    outgoing.pop();
+	    output_buffer.pop();
 	    return true;
 	}
     }
@@ -154,7 +161,8 @@ class Source
     Source( std::auto_ptr< input::Source<engine::ImageStack> > upstream,
             frame_index width, frame_index stride)
         : input::AdapterSource<engine::ImageStack>(upstream),
-          half_width(width.value() / 2), width(width.value()), stride(stride.value()) {
+          half_width(width.value() / 2), width(width.value()), stride(stride.value()),
+          initial_median_computed(false), upstream_is_empty(false) {
 	if (width.value() % 2 == 0) {
 	    throw std::runtime_error("Median width must be an odd number");
 	}
