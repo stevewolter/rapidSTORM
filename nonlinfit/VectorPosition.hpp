@@ -12,14 +12,11 @@ namespace nonlinfit {
  *  Gets an instance of boost::mpl::int_ and sets the corresponding 
  *  scalar in the Position to the unitless value of the indexed
  *  parameter in the Lambda. */
-template <class _Lambda>
-struct VectorPosition<_Lambda>::get_variable {
-    const Expression& m;
-    Position& p;
-    get_variable( Expression& m, Position& p ) : m(m), p(p) {}
-
+template <class Lambda_>
+struct VectorPosition<Lambda_>::get_variable {
+    typedef void result_type;
     template <typename IndexType>
-    void operator()( IndexType ) {
+    void operator()( const Lambda_& m, Evaluation<double>::Vector& p, IndexType ) {
         typedef typename boost::mpl::at<Variables, IndexType>::type Parameter;
         p[ IndexType::value ] = m( Parameter() );
     }
@@ -29,14 +26,11 @@ struct VectorPosition<_Lambda>::get_variable {
  *  Gets an instance of boost::mpl::int_ and writes the corresponding 
  *  scalar in the Position to the unitless value of the indexed
  *  parameter in the Lambda. */
-template <class _Lambda>
-struct VectorPosition<_Lambda>::set_variable {
-    Expression& m;
-    const Position& p;
-    set_variable( Expression& m, const Position& p ) : m(m), p(p) {}
-
+template <class Lambda_>
+struct VectorPosition<Lambda_>::set_variable {
+    typedef void result_type;
     template <typename IndexType>
-    void operator()( IndexType ) {
+    void operator()( Lambda_& m, const Evaluation<double>::Vector& p, IndexType ) {
         typedef typename boost::mpl::at<Variables, IndexType>::type Parameter;
         m( Parameter() ) = p[ IndexType::value ];
     }
@@ -46,14 +40,14 @@ template <class _Lambda>
 void VectorPosition<_Lambda>::get_position( Position& p ) const
 {
     boost::mpl::for_each< boost::mpl::range_c<int,0,VariableCount> >( 
-        get_variable(expression, p) );
+        boost::bind(get_variable(), boost::cref(expression), boost::ref(p), _1) );
 }
 
 template <class _Lambda>
 void VectorPosition<_Lambda>::set_position( const Position& p )
 {
     boost::mpl::for_each< boost::mpl::range_c<int,0,VariableCount> >( 
-        set_variable(expression, p) );
+        boost::bind(set_variable(), boost::ref(expression), boost::cref(p), _1) );
 }
 
 }

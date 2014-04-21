@@ -114,7 +114,7 @@ class VariableReduction
     int plane_count;
     const int max_plane_count;
 
-    sum::AbstractMap< VariableCount > result;
+    sum::AbstractMap result;
     struct reducer {
         const VariableReduction& r;
         int fluorophore_type, layer;
@@ -142,7 +142,7 @@ class VariableReduction
     /** Get the result matrix, which is a valid input matrix for 
      *  nonlinfit::plane::MultiPlaneEvaluator if add_plane() has been called
      *  sufficiently often. */
-    const sum::AbstractMap< VariableCount >& get_reduction_matrix() const
+    const sum::AbstractMap& get_reduction_matrix() const
         { return result; }
     template <typename Parameter>
     bool is_layer_independent( Parameter );
@@ -192,7 +192,7 @@ void VariableReduction<Lambda>::add_plane( const int layer, const int fluorophor
     if ( first_fluorophore_occurence[ fluorophore_type ] == -1 )
         first_fluorophore_occurence[ fluorophore_type ] = i;
 
-    result.add_function( reducer(*this, fluorophore_type, layer) );
+    result.add_function( VariableCount, reducer(*this, fluorophore_type, layer) );
 }
 
 template <typename Lambda>
@@ -250,7 +250,7 @@ class Fitter
         nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > > 
         PlaneFunction;
     typedef nonlinfit::VectorPosition< Lambda > VectorPosition;
-    typedef sum::AbstractFunction< PlaneFunction, PlaneFunction, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
+    typedef sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
 
     /** Optics indexed by input layer. */
     boost::ptr_vector<fit_window::Optics> optics;

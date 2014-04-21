@@ -11,7 +11,6 @@ class Lambda;
 template <typename Parts, typename ComputationTag>
 class Evaluator;
 
-template <int VariableCount>
 class AbstractMap;
 
 }

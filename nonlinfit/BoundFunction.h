@@ -13,9 +13,12 @@ namespace nonlinfit {
  *  function.
  */
 template <typename Function>
-class BoundFunction : public Function, private boost::noncopyable {
+class BoundFunction
+: public AbstractFunction<double>, public AbstractMoveable<double>,
+  private boost::noncopyable {
     typedef typename Function::Data Data;
     typedef typename Function::Lambda Lambda;
+    Function function;
     Lambda m;
     Data d;
     typedef VectorPosition<Lambda> Mover;
@@ -25,7 +28,7 @@ class BoundFunction : public Function, private boost::noncopyable {
     typedef Function bound_function_type;
     typedef Lambda expression_type;
     typedef Data data_type;
-    typedef typename Mover::Position Position;
+    typedef Evaluation<double>::Vector Position;
 
     /** Construct function, expression and data by default constructors. */
     BoundFunction();
@@ -42,6 +45,9 @@ class BoundFunction : public Function, private boost::noncopyable {
         { mover.get_position(p); }
     void set_position( const Position & p ) 
         { mover.set_position(p); }
+    int variable_count() const OVERRIDE { return mover.variable_count(); }
+    bool evaluate( Evaluation<double>& p ) OVERRIDE { return function.evaluate(p); }
+
 };
 
 }

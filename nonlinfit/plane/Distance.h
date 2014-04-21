@@ -26,7 +26,7 @@ class Distance : public AbstractFunction<Evaluation<Number>>
 {
     typedef Evaluation<Number, Eigen::Dynamic, MaxVarCount> Derivatives;
   public:
-    Distance(const std::vector<Term*>& terms, std::vector<DataChunk>& data);
+    Distance( const std::vector<Term*>& terms, std::vector<DataChunk>& data );
     bool evaluate( Derivatives& p );
     int variable_count() const { return variable_count_; }
 
@@ -76,7 +76,55 @@ class Distance : public AbstractFunction<Evaluation<Number>>
  *  While this potentially doubles the number of parameters,
  *  the rise in the number of parameters is usually much smaller.
  **/
+<<<<<<< Updated upstream
 #endif
+=======
+template <typename _Lambda, typename Num, int _ChunkSize, typename P1, typename P2>
+class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
+{
+    typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
+  public:
+    typedef _Lambda Lambda;
+    typedef Num Number;
+    typedef typename Tag::Data Data;
+    typedef Evaluation<Num> Derivatives;
+  private:
+    typedef typename Data::ChunkView::value_type DataRow;
+    typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
+        OuterTerms;
+    typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 
+        InnerTerms;
+    static const int TermCount = boost::mpl::size<OuterTerms>::size::value ;
+
+    /** Accumulator for the derivative terms for Evaluation::gradient.
+     *  This variable is necessary because a variable might have multiple
+     *  terms, making a post-processing step necessary. */
+    mutable Eigen::Matrix<Num, TermCount, 1> gradient_accum;
+    /** Accumulator for the Y parts of the hessian. */
+    mutable Eigen::Matrix<Num, TermCount, TermCount> y_hessian;
+
+    typedef nonlinfit::Jacobian<Num, _ChunkSize,OuterTerms> OuterJacobian;
+
+    typedef typename get_evaluator< Lambda, Tag >::type
+        Evaluator;
+    Evaluator evaluator;
+    const Data* data;
+    typename Tag::template get_derivative_combiner<Lambda>::type combiner;
+
+  public:
+    Distance( Lambda& l ) : evaluator(l) {}
+    bool evaluate( Derivatives& p );
+    void set_data( const Data& data ) { this->data = &data; }
+    static const int VariableCount = Derivatives::VariableCount;
+    int variable_count() const { return VariableCount; }
+
+    typedef void result_type;
+    inline void operator()( Derivatives&, 
+        const OuterJacobian&, const DataRow& );
+
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
+>>>>>>> Stashed changes
 
 }
 }

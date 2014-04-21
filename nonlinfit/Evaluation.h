@@ -15,7 +15,8 @@ struct Evaluation
     typedef Num Scalar;
 
     /** An Eigen vector with one row per function variable. */
-    typedef Eigen::Matrix<Num, Eigen::Dynamic, 1, Eigen::ColMajor | Eigen::AutoAlign> Vector;
+    typedef Eigen::Matrix<Num, Eigen::Dynamic, 1,
+            Eigen::ColMajor | Eigen::AutoAlign > Vector;
     /** A square Eigen matrix with one row and column per function variable. */
     typedef Eigen::Matrix<
         Num, Eigen::Dynamic, Eigen::Dynamic,
@@ -40,8 +41,7 @@ struct Evaluation
      *  \param varc For dynamically sized functions, the number of parameters.
      */
     Evaluation( int varc )
-        : gradient(varc,1), hessian(varc,varc) 
-        { assert( varc == Vars || Vars == Eigen::Dynamic ); }
+        : gradient(varc,1), hessian(varc,varc) {}
     /** Set all members fields to zero values. Useful for incremential 
      *  computation of the fields. */
     void set_zero() { gradient.fill(0); hessian.fill(0); value = 0; }
@@ -60,7 +60,7 @@ struct Evaluation
 };
 
 template <typename Num>
-std::ostream& operator<<( std::ostream&, const Evaluation<Num,VarCount,MaxVarCount>& );
+std::ostream& operator<<( std::ostream&, const Evaluation<Num>& );
 
 }
 

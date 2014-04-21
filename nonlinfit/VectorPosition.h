@@ -1,10 +1,12 @@
 #ifndef NONLINFIT_STATESPACE_H
 #define NONLINFIT_STATESPACE_H
 
-#include "nonlinfit/Lambda.h"
-#include "nonlinfit/Evaluation.h"
 #include <boost/mpl/copy_if.hpp>
 #include <boost/mpl/size.hpp>
+
+#include "nonlinfit/AbstractMoveable.h"
+#include "nonlinfit/Evaluation.h"
+#include "nonlinfit/Lambda.h"
 
 namespace nonlinfit {
 
@@ -13,21 +15,21 @@ namespace nonlinfit {
  *  perspective, i.e. by assigning each variable a place in a unitless 
  *  vector. */
 template <typename Lambda_>
-class VectorPosition
+class VectorPosition : public AbstractMoveable<double>
 {
-    typedef Lambda_ Expression;
-  public:
+  protected:
     typedef typename Lambda_::Variables Variables;
     static const int VariableCount = boost::mpl::size<Variables>::type::value;
-    typedef double Number;
-    typedef typename Evaluation<Number,VariableCount>::Vector Position;
     
   private:
-    Expression& expression;
+    Lambda_& expression;
     struct get_variable;
     struct set_variable;
   public:
-    VectorPosition( Expression& e ) : expression(e) {}
+    VectorPosition( Lambda_& e ) : expression(e) {}
+
+    int variable_count() const OVERRIDE { return VariableCount; }
+
     /** Store the variable values of the Lambda in the provided vector. */
     void get_position( Position& ) const;
     /** Change the variable values of the Lambda to the provided values. */
