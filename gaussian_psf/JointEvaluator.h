@@ -13,13 +13,38 @@ namespace gaussian_psf {
 
 template <typename Num, typename Expression, int ChunkSize>
 struct JointEvaluator
-: public Parameters<Num, Expression >
+: public Parameters<Num, Expression >,
+  public nonlinfit::Term<Num, ChunkSize>
 {
     Eigen::Array<Num, ChunkSize, 2> normed, squared;
     Eigen::Array<Num, ChunkSize, 1> expT;
 
     JointEvaluator() {}
-    JointEvaluator( const Expression& e ) : Parameters<Num, Expression >(e) {}
+    JointEvaluator( const nonlinfit::plane::JointData<Num, ChunkSize>* data,
+                    const Expression& e )
+        : Parameters<Num, Expression >(e), data_(data) {}
+
+    bool StartIteration() OVERRIDE {
+        prepare_iteration(*data_);
+        chunk_ = data.begin();
+    }
+
+    void ComputeNextValuesAndDerivatives(
+        Eigen::Matrix<Number, ChunkSize, 1>* values,
+        Eigen::Matrix<Number, ChunkSize, Eigen::Dynamic>* jacobian,
+        int* offset) OVERRIDE {
+        assert(chunk_ != data_.end());
+        add_value(*values);
+        boost::mpl::for_each<typename Expression::Variables>(
+            boost::bind(&JointEvaluator::set_variable, this, jacobian, offset)
+        );
+        ++chunk_;
+    }
+
+  private:
+    const nonlinfit::plane::JointData<Num, ChunkSize>* data_;
+    nonlinfit::plane::JointData<Num, ChunkSize>::const_iterator chunk_;
+
     void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs ) 
     {
         normed = (xs.rowwise() - this->spatial_mean.transpose())
@@ -32,6 +57,15 @@ struct JointEvaluator
         { result = this->expT; }
     void add_value( Eigen::Array<Num,ChunkSize,1>& result ) 
         { result += this->expT; }
+
+    template <typename Variable>
+    void set_derivative(
+        Eigen::Matrix<Number, ChunkSize, Eigen::Dynamic>* target_matrix,
+        int* column,
+        Variable variable) {
+        derivative(target_matrix->col(*column), variable);
+        *column += 1;
+    }
 
     template <typename Target, int Dim>
     void derivative( Target target, nonlinfit::Xs<Dim> ) {

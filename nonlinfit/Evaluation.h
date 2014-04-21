@@ -9,20 +9,17 @@
 namespace nonlinfit {
 
 /** \brief Value and partial derivatives of a Function. */
-template <class Num, int Vars, int MaxVarCount>
+template <class Num>
 struct Evaluation
 { 
     typedef Num Scalar;
-    static const int VariableCount = Vars;
 
     /** An Eigen vector with one row per function variable. */
-    typedef Eigen::Matrix<Num, Vars, 1,
-            Eigen::ColMajor | Eigen::AutoAlign, MaxVarCount, 1 > Vector;
+    typedef Eigen::Matrix<Num, Eigen::Dynamic, 1, Eigen::ColMajor | Eigen::AutoAlign> Vector;
     /** A square Eigen matrix with one row and column per function variable. */
     typedef Eigen::Matrix<
-        Num,Vars,Vars,
-        Eigen::ColMajor | Eigen::AutoAlign,
-        MaxVarCount, MaxVarCount > Matrix;
+        Num, Eigen::Dynamic, Eigen::Dynamic,
+        Eigen::ColMajor | Eigen::AutoAlign> Matrix;
 
     /** The vector \f$ -0.5 \frac{ \partial f }{ \partial p_i } \f$. 
      *  In words: Each element of this vector gives the partial derivative of #value
@@ -42,7 +39,7 @@ struct Evaluation
     /** Constructor. 
      *  \param varc For dynamically sized functions, the number of parameters.
      */
-    Evaluation( int varc = Vars )
+    Evaluation( int varc )
         : gradient(varc,1), hessian(varc,varc) 
         { assert( varc == Vars || Vars == Eigen::Dynamic ); }
     /** Set all members fields to zero values. Useful for incremential 
@@ -62,14 +59,7 @@ struct Evaluation
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-/** Metafunction returning the correct Evaluation type for a Lambda. */
-template <class Lambda, class NumberType>
-struct get_evaluation {
-    typedef Evaluation< NumberType,
-        boost::mpl::size< typename Lambda::Variables >::value > type;
-};
-
-template <typename Num, int VarCount, int MaxVarCount>
+template <typename Num>
 std::ostream& operator<<( std::ostream&, const Evaluation<Num,VarCount,MaxVarCount>& );
 
 }

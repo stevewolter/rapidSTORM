@@ -2,7 +2,6 @@
 
 namespace nonlinfit {
 
-template <class Position_>
 struct AbstractMoveable {
     typedef Position_ Position;
     virtual ~AbstractMoveable() {}

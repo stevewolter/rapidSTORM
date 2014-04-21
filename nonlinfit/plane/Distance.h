@@ -21,38 +21,25 @@ namespace plane {
  *  \tparam _Tag      A computation way (Joint or Disjoint)
  *  \tparam _Metric   A metric tag
  **/
-template <typename _Lambda, typename _Tag, typename _Metric>
-class Distance
+template <typename Number, int ChunkSize>
+class Distance : public AbstractFunction<Evaluation<Number>>
 {
-    typedef _Tag Tag;
+    typedef Evaluation<Number, Eigen::Dynamic, MaxVarCount> Derivatives;
   public:
-    typedef _Lambda Lambda;
-    typedef typename _Tag::Number Number;
-    typedef typename Tag::Data Data;
-    typedef typename get_evaluation< Lambda, Number >::type Derivatives;
-
-  private:
-    typedef typename Data::ChunkView::value_type DataRow;
-    typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
-    const Data* data;
-  protected:
-    Jacobian< Lambda, Tag > jac;
-    Evaluator evaluator;
-
-  public:
-    Distance( Lambda& lambda ) : evaluator(lambda) {}
+    Distance(const std::vector<Term*>& terms, std::vector<DataChunk>& data);
     bool evaluate( Derivatives& p );
-    void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
-
-
-    typedef void result_type;
-    inline void operator()( Derivatives&, const DataRow& );
+    int variable_count() const { return variable_count_; }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  private:
+    const std::vector<Term*>& terms_;
+    std::vector<DataChunk>& data_;
+    int variable_count_;
+    Eigen::Matrix<Number, ChunkSize, Eigen::Dynamic> jacobian_;
 };
 
+#if 0
 /** Computionally cheaper specialization of Distance. Distance can be computed 
  *  much cheaper for these parameters since the Hessian is a product of 
  *  P1-independent and P2-independent terms. 
@@ -89,51 +76,7 @@ class Distance
  *  While this potentially doubles the number of parameters,
  *  the rise in the number of parameters is usually much smaller.
  **/
-template <typename _Lambda, typename Num, int _ChunkSize, typename P1, typename P2>
-class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
-{
-    typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
-  public:
-    typedef _Lambda Lambda;
-    typedef Num Number;
-    typedef typename Tag::Data Data;
-    typedef typename get_evaluation< Lambda, Num >::type Derivatives;
-  private:
-    typedef typename Data::ChunkView::value_type DataRow;
-    typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
-        OuterTerms;
-    typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 
-        InnerTerms;
-    static const int TermCount = boost::mpl::size<OuterTerms>::size::value ;
-
-    /** Accumulator for the derivative terms for Evaluation::gradient.
-     *  This variable is necessary because a variable might have multiple
-     *  terms, making a post-processing step necessary. */
-    mutable Eigen::Matrix<Num, TermCount, 1> gradient_accum;
-    /** Accumulator for the Y parts of the hessian. */
-    mutable Eigen::Matrix<Num, TermCount, TermCount> y_hessian;
-
-    typedef nonlinfit::Jacobian<Num, _ChunkSize,OuterTerms> OuterJacobian;
-
-    typedef typename get_evaluator< Lambda, Tag >::type
-        Evaluator;
-    Evaluator evaluator;
-    const Data* data;
-    typename Tag::template get_derivative_combiner<Lambda>::type combiner;
-
-  public:
-    Distance( Lambda& l ) : evaluator(l) {}
-    bool evaluate( Derivatives& p );
-    void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
-
-    typedef void result_type;
-    inline void operator()( Derivatives&, 
-        const OuterJacobian&, const DataRow& );
-
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-};
+#endif
 
 }
 }
