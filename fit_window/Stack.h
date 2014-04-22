@@ -39,7 +39,7 @@ struct Stack
     const Plane& operator[](int i) const { return planes[i]; }
     int size() const { return planes.size(); }
 
-    Centroid residue_centroid() const;
+    Spot residue_centroid() const;
 };
 
 }

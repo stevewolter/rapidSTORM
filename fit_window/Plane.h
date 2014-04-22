@@ -7,7 +7,6 @@
 namespace dStorm {
 namespace fit_window {
 
-class Centroid;
 class Optics;
 
 class Plane {
@@ -23,14 +22,13 @@ public:
 protected:
     Plane( const Optics& optics ) : optics(optics), tag_index(-1) {}
 private:
-    virtual std::auto_ptr<Centroid> _residue_centroid() const = 0;
+    virtual Spot _residue_centroid() const = 0;
 
 public:
     virtual ~Plane() {}
 
-    std::auto_ptr<Centroid> residue_centroid() const
+    Spot residue_centroid() const
         { return _residue_centroid(); }
-
 };
 
 }

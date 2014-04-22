@@ -11,7 +11,7 @@ namespace fit_window {
 template <typename Tag>
 struct PlaneImpl
 : public Plane {
-    std::auto_ptr<Centroid> _residue_centroid() const;
+    Spot _residue_centroid() const;
 
   public:
     PlaneImpl( 

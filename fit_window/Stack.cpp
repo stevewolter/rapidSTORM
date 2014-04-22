@@ -5,7 +5,6 @@
 #include "image/slice.h"
 #include "engine/InputPlane.h"
 #include "engine/Image.h"
-#include "fit_window/Centroid.h"
 
 namespace dStorm {
 namespace fit_window {
@@ -37,11 +36,15 @@ StackCreator::set_image(
 
 Stack::Stack() {}
 
-Centroid Stack::residue_centroid() const
+Spot Stack::residue_centroid() const
 {
-    Centroid rv;
-    for ( size_t i = 0; i < planes.size(); ++i )
-        rv += *planes[i].residue_centroid();
+    Spot rv = planes[0].residue_centroid();
+    for ( size_t i = 1; i < planes.size(); ++i ) {
+        Spot add = planes[i].residue_centroid();
+        for (int dim = 0; dim < 2; ++dim) {
+            rv[dim] = (add[dim] + rv[dim] * i) / (i+1);
+        }
+    }
     return rv;
 }
 

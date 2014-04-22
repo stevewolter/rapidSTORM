@@ -4,7 +4,6 @@
 #include "fit_window/PlaneImpl.h"
 #include "fit_window/Optics.h"
 #include "fit_window/fit_position_out_of_range.h"
-#include "fit_window/Centroid.h"
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -115,14 +114,18 @@ PlaneImpl<Tag>::PlaneImpl(
 }
 
 template <typename Tag>
-std::auto_ptr<Centroid> PlaneImpl<Tag>::_residue_centroid() const
+Spot PlaneImpl<Tag>::_residue_centroid() const
 { 
-    std::auto_ptr<Centroid> rv( new Centroid( data.min, data.max ) );  
+    Spot location;
+    double highest_residue = std::numeric_limits<double>::min();
     for ( typename Tag::Data::const_iterator i= data.begin(), e = data.end(); i != e; ++i ) {
-        rv->add( i->position().template cast<double>(), i->residue() );
+        if (highest_residue < i->residue()) {
+            highest_residue = i->residue();
+            location = i->position().template cast<double>();
+        }
     }
 
-    return rv;
+    return location;
 }
 
 }

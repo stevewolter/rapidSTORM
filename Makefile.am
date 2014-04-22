@@ -487,7 +487,6 @@ rapidstorm_SOURCES += \
     fit_window/PlaneImpl.h fit_window/PlaneImpl.hpp \
     fit_window/fit_position_out_of_range.h fit_window/fit_position_out_of_range.cpp \
     fit_window/Spot.h \
-    fit_window/Centroid.h fit_window/Centroid.cpp \
     fit_window/Optics.h fit_window/Optics.cpp \
     fit_window/ScheduleIndexFinder.h fit_window/ScheduleIndexFinder.hpp fit_window/ScheduleIndexFinder.cpp \
     fit_window/PlaneCreator.h fit_window/PlaneCreator.hpp fit_window/PlaneCreator.cpp \
