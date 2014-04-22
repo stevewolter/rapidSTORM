@@ -47,7 +47,7 @@ class BoundFunction
     void set_position( const Position & p ) 
         { mover.set_position(p); }
     int variable_count() const { return f.variable_count(); }
-    bool evaluate(typename Function::Derivatives& p) {
+    bool evaluate(Evaluation<typename Function::Number> & p) {
         return f.evaluate(p);
     }
 };

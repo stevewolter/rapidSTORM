@@ -28,16 +28,16 @@ class Distance
 {
     typedef _Tag Tag;
   public:
+    // These typedefs are used by nonlinfit::BoundFunction
     typedef _Lambda Lambda;
     typedef typename _Tag::Number Number;
     typedef typename Tag::Data Data;
-    typedef Evaluation< Number > Derivatives;
 
   private:
+    typedef Evaluation< Number > Derivatives;
     typedef typename Data::ChunkView::value_type DataRow;
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
     const Data* data;
-  protected:
     Jacobian< Lambda, Tag > jac;
     Evaluator evaluator;
 
@@ -95,11 +95,13 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 {
     typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
   public:
+    // These typedefs are used by nonlinfit::BoundFunction
     typedef _Lambda Lambda;
     typedef Num Number;
     typedef typename Tag::Data Data;
-    typedef Evaluation< Num > Derivatives;
+
   private:
+    typedef Evaluation< Num > Derivatives;
     typedef typename Data::ChunkView::value_type DataRow;
     typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
         OuterTerms;
