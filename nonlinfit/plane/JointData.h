@@ -9,36 +9,30 @@
 #include <boost/static_assert.hpp>
 #include "nonlinfit/plane/DataPoint.h"
 #include "nonlinfit/plane/DataFacade.h"
+#include "nonlinfit/DataChunk.h"
 
 namespace nonlinfit {
 namespace plane {
 
 /** Data structure for the Joint computation way. */
-template <typename Number, int ChunkSize_>
+template <typename Number_, int ChunkSize_>
 class JointCoreData
 {
     BOOST_STATIC_ASSERT((ChunkSize_ != Eigen::Dynamic));
   public:
     static const int ChunkSize = ChunkSize_;
+    typedef Number_ Number;
     typedef DataPoint<Number> data_point;
     typedef Eigen::Array<Number, ChunkSize, 2> Input;
-    typedef Eigen::Array<Number, ChunkSize, 1> Output;
 
     struct DataRow {
-        typedef JointCoreData::Output Output;
         /** The X and Y coordinates for the current row. */
         Input inputs;
-        /** The measurements for the matching row in #inputs. */
-        Output output;
-        /** The value of \f$x \ln x\f$ for each \f$ x \f$ in #output. */
-        Output logoutput;
-        /** The difference between the measurements and a function's last
-         *  evaluation on these data. */
-        mutable Output residues;
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
-    data_point get( const DataRow& chunk, int in_chunk ) const;
+    double get_x( const DataRow& chunk, int in_chunk ) const { return chunk.inputs(in_chunk, 0); }
+    double get_y( const DataRow& chunk, int in_chunk ) const { return chunk.inputs(in_chunk, 1); }
     void set( DataRow& chunk, int in_chunk, const data_point& );
 };
 

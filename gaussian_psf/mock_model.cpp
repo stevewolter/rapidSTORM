@@ -19,10 +19,12 @@ mock_data() {
         disjoint_data.data.push_back( MockDataTag::Data::DataRow() );
         MockDataTag::Data::DataRow& d = disjoint_data.data.back();
         d.inputs(0,0) = i * boost::math::constants::pi<double>() / 30.0;
+        disjoint_data.data_chunks.push_back( MockDataTag::Data::DataChunk() );
+        MockDataTag::Data::DataChunk& c = disjoint_data.data_chunks.back();
         for (int j = 0; j < 12; ++j) {
-            d.output[j] = rand() * 1E-5;
-            d.logoutput[j] = (d.output[j] < 1E-10)
-                ? -23*d.output[j] : d.output[j] * log(d.output[j]);
+            c.output[j] = rand() * 1E-5;
+            c.logoutput[j] = (c.output[j] < 1E-10)
+                ? -23*c.output[j] : c.output[j] * log(c.output[j]);
         }
     }
     disjoint_data.min.fill( -1E50 );

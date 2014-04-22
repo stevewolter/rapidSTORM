@@ -40,18 +40,18 @@ struct increment_evaluation<negative_poisson_likelihood> {
 };
 
 template <typename _Function, typename Tag, typename _Metric>
-void Distance<_Function,Tag,_Metric>::operator()( 
-    Derivatives& p, const DataRow& r )
+void Distance<_Function,Tag,_Metric>::evaluate_chunk( 
+    Derivatives& p, const DataRow& r, const DataChunk& c )
 {
-    typename DataRow::Output values;
+    Eigen::Array<Number, Tag::ChunkSize, 1> values;
 
     this->evaluator.prepare_chunk( r.inputs );
     this->evaluator.value( values );
-    r.residues = r.output - values;
+    c.residues = c.output - values;
 
     this->jac.compute( this->evaluator );
 
-    increment_evaluation< _Metric >()( p, values, r, *this->jac );
+    increment_evaluation< _Metric >()( p, values, c, *this->jac );
     assert( p.value == p.value );
 }
 
@@ -65,29 +65,32 @@ bool Distance<_Function,Tag,_Metric>::evaluate(Derivatives& p)
         return false;
     
     jac.precompute( evaluator );
-    std::for_each( data->chunk_view().begin(), data->chunk_view().end(), 
-        boost::bind( boost::ref(*this), boost::ref(p), _1 ) );
+    assert(this->data->data.size() == this->data->data_chunks.size());
+    auto j = this->data->data_chunks.begin();
+    for (auto i = this->data->data.begin(); i != this->data->data.end(); ++i, ++j) {
+        evaluate_chunk(p, *i, *j);
+    }
 
     return true;
 }
 
 template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
 void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
-::operator()( Derivatives& p, const OuterJacobian& dx, const DataRow& r )
+::evaluate_chunk( Derivatives& p, const OuterJacobian& dx, const DataRow& r, const DataChunk& c )
 {
-    typename Data::Output values;
+    Eigen::Array<Number, _ChunkSize, 1> values;
 
     evaluator.prepare_chunk( r.inputs );
     evaluator.value( values );
-    r.residues = r.output - values;
-    p.value += r.residues.square().sum();
+    c.residues = c.output - values;
+    p.value += c.residues.square().sum();
 
     /* Compute the Y parts of the derivatives by part. */
     nonlinfit::Jacobian<Num,1,InnerTerms> dy;
     dy.compute( evaluator );
 
     gradient_accum +=
-        ((dx->transpose() * r.residues.matrix()).array()
+        ((dx->transpose() * c.residues.matrix()).array()
             * dy->transpose().array()).matrix();
     y_hessian += dy->transpose() * *dy;
 
@@ -109,8 +112,11 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     OuterJacobian dx;
     dx.compute( evaluator );
 
-    std::for_each( data->chunk_view().begin(), data->chunk_view().end(), 
-        boost::bind( boost::ref(*this), boost::ref(p), boost::cref(dx), _1 ) );
+    assert(this->data->data.size() == this->data->data_chunks.size());
+    auto j = this->data->data_chunks.begin();
+    for (auto i = this->data->data.begin(); i != this->data->data.end(); ++i, ++j) {
+        evaluate_chunk(p, dx, *i, *j);
+    }
 
     /* Compute the hessian matrix of derivation summands by multiplying
      * X and Y contributions. */

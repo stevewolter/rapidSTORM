@@ -7,6 +7,7 @@
 #include "nonlinfit/plane/Jacobian.h"
 #include "nonlinfit/AbstractFunction.h"
 #include "nonlinfit/VectorPosition.h"
+#include "nonlinfit/DataChunk.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -37,7 +38,8 @@ class Distance
   private:
     typedef Evaluation< Number > Derivatives;
     typedef typename Derivatives::Vector Position;
-    typedef typename Data::ChunkView::value_type DataRow;
+    typedef typename Data::DataRow DataRow;
+    typedef nonlinfit::DataChunk<Number, Tag::ChunkSize> DataChunk;
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
     const Data* data;
     Jacobian< Lambda, Tag > jac;
@@ -53,7 +55,7 @@ class Distance
     void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
 
     typedef void result_type;
-    inline void operator()( Derivatives&, const DataRow& );
+    inline void evaluate_chunk( Derivatives&, const DataRow&, const DataChunk& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -108,7 +110,8 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
   private:
     typedef Evaluation< Num > Derivatives;
     typedef typename Evaluation< Num >::Vector Position;
-    typedef typename Data::ChunkView::value_type DataRow;
+    typedef typename Data::DataRow DataRow;
+    typedef nonlinfit::DataChunk<Num, _ChunkSize> DataChunk;
     typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
         OuterTerms;
     typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 
@@ -140,8 +143,8 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
 
     typedef void result_type;
-    inline void operator()( Derivatives&, 
-        const OuterJacobian&, const DataRow& );
+    inline void evaluate_chunk( Derivatives&, 
+        const OuterJacobian&, const DataRow&, const DataChunk& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

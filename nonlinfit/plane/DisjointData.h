@@ -8,6 +8,7 @@
 #include "nonlinfit/plane/fwd.h"
 #include <boost/static_assert.hpp>
 #include "nonlinfit/plane/DataFacade.h"
+#include "nonlinfit/DataChunk.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -17,33 +18,25 @@ namespace plane {
  *  independently, with the outer dimension residing in
  *  the #xs member and the inner dimension residing in
  *  DataRow::inputs. */
-template <typename Number, int _ChunkSize>
+template <typename Number_, int _ChunkSize>
 struct DisjointCoreData
 {
     BOOST_STATIC_ASSERT((_ChunkSize != Eigen::Dynamic));
     static const int ChunkSize = _ChunkSize;
+    typedef Number_ Number;
     typedef Eigen::Array<Number,1,1> Input;
-    typedef Eigen::Array<Number, _ChunkSize, 1> Output;
     typedef DataPoint<Number> data_point;
 
     struct DataRow {
-        typedef DisjointCoreData::Output Output;
         /** The Y coordinate for the current row in LengthUnit. */
         Input inputs;
-        /** The measurements for the matching row in #xs and the row's Y. */
-        Output output;
-        /** The value of \f$x \ln x\f$ for each \f$ x \f$ in #output. */
-        Output logoutput;
-        /** The difference between the measurements and a function's last
-         *  evaluation on these data. */
-        mutable Output residues;
-
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
     /** The X coordinates for all DataRow instances in the data vector. */
     Eigen::Array<Number, _ChunkSize, 1> xs;
 
-    data_point get( const DataRow& chunk, int in_chunk ) const;
+    double get_x( const DataRow& chunk, int in_chunk ) const { return xs[in_chunk]; }
+    double get_y( const DataRow& chunk, int in_chunk ) const { return chunk.inputs(0,0); }
     void set( DataRow& chunk, int in_chunk, const data_point& );
 };
 
