@@ -35,6 +35,7 @@ template <typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Number, ChunkSize>& output) {
     chunkify_base(input, output);
     int chunk_count = input.points.size() / ChunkSize;
+    assert(input.window_width == ChunkSize);
     assert(input.points.size() % ChunkSize == 0);
 
     chunkify_data_chunks(input, output.data_chunks, chunk_count);
@@ -60,7 +61,7 @@ template <typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::JointData<Number, ChunkSize>& output) {
     chunkify_base(input, output);
     int chunk_count = input.points.size() / ChunkSize;
-    if (input.points.size() % ChunkSize >= ChunkSize / 2) {
+    if (ChunkSize > 1 && input.points.size() % ChunkSize >= ChunkSize / 2) {
         chunk_count += 1;
     }
 

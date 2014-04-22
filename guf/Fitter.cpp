@@ -16,8 +16,8 @@
 #include "fit_window/Plane.h"
 
 #include "guf/EvaluationTags.h"
-#include <nonlinfit/plane/DisjointData.hpp>
-#include <nonlinfit/plane/JointData.hpp>
+#include <nonlinfit/plane/DisjointData.h>
+#include <nonlinfit/plane/JointData.h>
 
 namespace dStorm {
 namespace guf {

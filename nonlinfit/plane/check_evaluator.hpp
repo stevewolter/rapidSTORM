@@ -5,7 +5,7 @@
 #include <nonlinfit/Lambda.h>
 #include <nonlinfit/Evaluation.hpp>
 #include <nonlinfit/BoundFunction.hpp>
-#include <nonlinfit/plane/JointData.hpp>
+#include <nonlinfit/plane/JointData.h>
 #include <nonlinfit/plane/Distance.hpp>
 #include <cassert>
 
@@ -20,13 +20,14 @@ template <
     class Function>
 bool compare_evaluators( 
     const Function& model,
-    const typename Tag::Data& data
+    const typename Tag::Data& data,
+    const typename RefTag::Data& ref_data
 )
 {
     BoundFunction< Distance< Function, Tag, Metric > > test;
     BoundFunction< Distance< Function, RefTag, Metric > > ref;
     test.get_data() = data;
-    ref.get_data() = data;
+    ref.get_data() = ref_data;
     test.get_expression() = model;
     ref.get_expression() = test.get_expression();
 

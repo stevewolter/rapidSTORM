@@ -11,7 +11,7 @@
 #include "guf/Spot.h"
 #include "fit_window/chunkify.hpp"
 #include <nonlinfit/plane/Distance.hpp>
-#include <nonlinfit/plane/JointData.hpp>
+#include <nonlinfit/plane/JointData.h>
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <nonlinfit/sum/VariableMap.hpp>

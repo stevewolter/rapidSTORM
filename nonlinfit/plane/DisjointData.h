@@ -34,18 +34,12 @@ struct DisjointCoreData
     };
     /** The X coordinates for all DataRow instances in the data vector. */
     Eigen::Array<Number, _ChunkSize, 1> xs;
-
-    double get_x( const DataRow& chunk, int in_chunk ) const { return xs[in_chunk]; }
-    double get_y( const DataRow& chunk, int in_chunk ) const { return chunk.inputs(0,0); }
-    void set( DataRow& chunk, int in_chunk, const data_point& );
 };
 
 template <typename Number, int ChunkSize>
 struct DisjointData
 : public DataFacade< DisjointCoreData<Number,ChunkSize> >,
-  public GenericData
-{
-};
+  public GenericData {};
 
 }
 }

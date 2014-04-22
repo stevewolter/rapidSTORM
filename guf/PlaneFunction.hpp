@@ -4,7 +4,6 @@
 #include "guf/PlaneFunction.h"
 #include "nonlinfit/plane/Distance.hpp"
 #include "nonlinfit/FunctionConverter.h"
-#include "nonlinfit/plane/DataFacade.hpp"
 #include "fit_window/chunkify.hpp"
 
 namespace dStorm {

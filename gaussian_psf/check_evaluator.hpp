@@ -3,7 +3,7 @@
 
 #include <Eigen/StdVector>
 #include <boost/test/unit_test.hpp>
-#include <nonlinfit/plane/DisjointData.hpp>
+#include <nonlinfit/plane/DisjointData.h>
 #include <nonlinfit/plane/Joint.h>
 #include <nonlinfit/plane/Distance.hpp>
 #include "gaussian_psf/JointEvaluator.h"
@@ -11,6 +11,7 @@
 #include <nonlinfit/plane/check_evaluator.hpp>
 #include "gaussian_psf/ReferenceEvaluation.h"
 #include "gaussian_psf/mock_model.h"
+#include "fit_window/chunkify.hpp"
 
 namespace dStorm {
 namespace gaussian_psf {
@@ -20,9 +21,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
     typedef typename boost::mpl::at_c< Info, 1 >::type Distance;
     typedef typename boost::mpl::at_c< Info, 2 >::type Data;
     typedef nonlinfit::plane::xs_joint<double, 1>::type RefTag;
-    MockDataTag::Data data = mock_data();
+    fit_window::Plane plane = mock_data();
     Model z = mock_model<Model>();
-    bool is_same = nonlinfit::plane::compare_evaluators< Distance, Data, RefTag >(z, data);
+    typename Data::Data data;
+    typename RefTag::Data ref_data;
+    fit_window::chunkify(plane, data);
+    fit_window::chunkify(plane, ref_data);
+    bool is_same = nonlinfit::plane::compare_evaluators< Distance, Data, RefTag >(z, data, ref_data);
     BOOST_CHECK( is_same );
 }
 
