@@ -13,27 +13,23 @@ template <class Lambda, class Tag>
 struct PlaneFunction::Implementation 
 : public PlaneFunction
 {
-    template <typename Metric>
-    struct for_metric {
-        typedef nonlinfit::FunctionConverter< 
-                double,
-                nonlinfit::plane::Distance< Lambda, Tag, Metric > 
-        > type;
-    };
-    typename for_metric< nonlinfit::plane::squared_deviations >::type lsq;
-    typename for_metric< nonlinfit::plane::negative_poisson_likelihood >::type mle;
+    nonlinfit::plane::Distance< Lambda, Tag, nonlinfit::plane::squared_deviations > lsq;
+    nonlinfit::plane::Distance< Lambda, Tag, nonlinfit::plane::negative_poisson_likelihood > mle;
+    nonlinfit::FunctionConverter<double, typename Tag::Number> lsq_converter;
+    nonlinfit::FunctionConverter<double, typename Tag::Number> mle_converter;
+
   public:
-    Implementation( Lambda& expression ) : lsq(expression), mle(expression) {}
+    Implementation( Lambda& expression ) : lsq(expression), mle(expression), lsq_converter(lsq), mle_converter(mle) {}
     nonlinfit::AbstractFunction<double>& for_data( const fit_window::Plane& data, DistanceMetric metric ) {
         const typename Tag::Data& typed_data
             = dynamic_cast< const fit_window::PlaneImpl<Tag>& >( data ).data;
         switch (metric) {
         case LeastSquares:
             lsq.set_data(typed_data);
-            return lsq;
+            return lsq_converter;
         case PoissonLikelihood:
             mle.set_data(typed_data);
-            return mle;
+            return mle_converter;
         default:
             throw std::logic_error("Non-implemented metric");
         }
