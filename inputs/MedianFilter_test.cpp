@@ -46,7 +46,7 @@ class FakeImageSource : public input::Source<engine::ImageStack> {
     std::vector<engine::ImageStack>::const_iterator current;
 };
 
-bool TestRandomSequence(int window_width, int stride, int frames) {
+void TestRandomSequence(int window_width, int stride, int frames) {
     int planes = 4;
     int image_width = 30;
     int image_height = 50;
