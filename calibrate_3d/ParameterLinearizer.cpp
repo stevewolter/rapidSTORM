@@ -60,6 +60,7 @@ public:
     const Lambda& get_expression() const { return expression; }
     void get_position( Position& p ) const { mover.get_position(p); }
     void set_position( const Position& p ) { mover.set_position(p); }
+    bool evaluate(Derivatives& p) { assert(false); return false; }
 };
 
 struct ParameterLinearizer::Pimpl 

@@ -28,14 +28,13 @@ class FunctionRepository
 
     /** The expression is dynamically allocated to avoid Eigen alignment trouble. */
     std::auto_ptr<Lambda> expression;
-    boost::ptr_vector< PlaneFunction<Lambda> > store;
+    boost::ptr_vector< PlaneFunction > store;
     std::auto_ptr<Mover> mover;
 
   public:
     FunctionRepository();
     ~FunctionRepository();
-    typedef typename PlaneFunction<Lambda>::abstraction
-        result_type;
+    typedef nonlinfit::AbstractFunction<double> result_type;
     /** Return an abstract function with the expression set to the result of
      *  get_expression() and the data to the supplied data. If \c mle is true,
      *  the function will be an instance of 

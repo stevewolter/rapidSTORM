@@ -5,6 +5,7 @@
 #include <nonlinfit/Evaluator.h>
 #include <nonlinfit/Evaluation.h>
 #include "nonlinfit/plane/Jacobian.h"
+#include "nonlinfit/AbstractFunction.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -23,6 +24,7 @@ namespace plane {
  **/
 template <typename _Lambda, typename _Tag, typename _Metric>
 class Distance
+: public nonlinfit::AbstractFunction<typename _Tag::Number>
 {
     typedef _Tag Tag;
   public:
@@ -89,6 +91,7 @@ class Distance
  **/
 template <typename _Lambda, typename Num, int _ChunkSize, typename P1, typename P2>
 class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
+: public nonlinfit::AbstractFunction<Num>
 {
     typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
   public:

@@ -19,6 +19,7 @@ class FunctionConverter;
  *  and a no-op. */
 template <class ToType, class Function, bool Trivial>
 class FunctionConverter
+: public AbstractFunction<ToType>
 {
     Function base;
   public:

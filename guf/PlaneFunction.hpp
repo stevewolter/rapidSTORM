@@ -3,32 +3,28 @@
 
 #include "guf/PlaneFunction.h"
 #include <nonlinfit/plane/Distance.hpp>
-#include <nonlinfit/AbstractFunctionAdapter.h>
 #include <nonlinfit/FunctionConverter.h>
 #include "fit_window/PlaneImpl.h"
 
 namespace dStorm {
 namespace guf {
 
-template <class Function>
-template <class Tag>
-struct PlaneFunction<Function>::Implementation 
+template <class Lambda, class Tag>
+struct PlaneFunction::Implementation 
 : public PlaneFunction
 {
     template <typename Metric>
     struct for_metric {
-        typedef nonlinfit::AbstractedFunction<
-            nonlinfit::FunctionConverter< 
+        typedef nonlinfit::FunctionConverter< 
                 double,
-                nonlinfit::plane::Distance< Function, Tag, Metric > 
-            >
+                nonlinfit::plane::Distance< Lambda, Tag, Metric > 
         > type;
     };
     typename for_metric< nonlinfit::plane::squared_deviations >::type lsq;
     typename for_metric< nonlinfit::plane::negative_poisson_likelihood >::type mle;
   public:
-    Implementation( Function& expression ) : lsq(expression), mle(expression) {}
-    abstraction& for_data( const fit_window::Plane& data, DistanceMetric metric ) {
+    Implementation( Lambda& expression ) : lsq(expression), mle(expression) {}
+    nonlinfit::AbstractFunction<double>& for_data( const fit_window::Plane& data, DistanceMetric metric ) {
         const typename Tag::Data& typed_data
             = dynamic_cast< const fit_window::PlaneImpl<Tag>& >( data ).data;
         switch (metric) {
@@ -46,13 +42,12 @@ struct PlaneFunction<Function>::Implementation
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-template <class Function>
-template <typename ComputationWay>
-std::auto_ptr< PlaneFunction<Function> >
-PlaneFunction<Function>::create( Function& e, ComputationWay )
+template <class Function, typename ComputationWay>
+std::auto_ptr< PlaneFunction >
+PlaneFunction::create( Function& e, ComputationWay )
 {
-    return std::auto_ptr< PlaneFunction<Function> >( 
-        new Implementation<ComputationWay>(e) );
+    return std::auto_ptr< PlaneFunction >( 
+        new Implementation<Function, ComputationWay>(e) );
 }
 
 }

@@ -23,7 +23,7 @@ struct FunctionRepository<Function>::instantiate
     template <typename Tag, typename Container>
     void operator()( Tag way, Function& expression, Container& target )
     {
-        target.push_back( PlaneFunction<Function>::create(expression, way) );
+        target.push_back( PlaneFunction::create(expression, way) );
     }
 };
 
