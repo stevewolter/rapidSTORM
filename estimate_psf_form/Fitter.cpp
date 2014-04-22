@@ -27,7 +27,6 @@
 #define BOOST_DETAIL_CONTAINER_FWD_HPP
 #include <boost/lambda/lambda.hpp>
 #include <boost/variant/get.hpp>
-#include <nonlinfit/BoundFunction.hpp>
 #include "engine/InputTraits.h"
 #include <fstream>
 
@@ -246,10 +245,28 @@ class Fitter
     typedef nonlinfit::sum::Lambda< boost::mpl::vector< Lambda, constant_background::Expression > >
         TheoreticalFunction;
     typedef plane::xs_joint<double,2>::type DataTag;
-    typedef BoundFunction< 
-        nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > > 
-        PlaneFunction;
     typedef sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
+
+    class PlaneFunction : public nonlinfit::AbstractFunction<double> {
+        TheoreticalFunction lambda;
+        nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > function;
+        nonlinfit::plane::JointData<double, 2> xs;
+        std::vector<nonlinfit::DataChunk<double, 2>> ys;
+
+      public:
+        PlaneFunction(const fit_window::Plane& plane) : function(lambda) {
+            chunkify(plane, xs);
+            chunkify_data_chunks(plane, ys);
+            function.set_data(xs, ys);
+        }
+
+        TheoreticalFunction& get_expression() { return lambda; }
+
+        int variable_count() const OVERRIDE { return function.variable_count(); }
+        bool evaluate( Derivatives& p ) OVERRIDE { return function.evaluate(p); }
+        void get_position( Position& p ) const OVERRIDE { function.get_position(p); }
+        void set_position( const Position& p ) OVERRIDE { function.set_position(p); }
+    };
 
     /** Optics indexed by input layer. */
     fit_window::FitWindowCutter window_cutter;
@@ -312,8 +329,7 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 
-        std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction() );
-        chunkify(stack[i], new_evaluator->get_data());
+        std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction(stack[i]) );
 
         LocalizationValueFinder iv(fluorophore, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );

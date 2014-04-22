@@ -29,19 +29,17 @@ class Distance
 : public nonlinfit::AbstractFunction<typename _Tag::Number>
 {
     typedef _Tag Tag;
-  public:
-    // These typedefs are used by nonlinfit::BoundFunction
     typedef _Lambda Lambda;
     typedef typename _Tag::Number Number;
     typedef typename Tag::Data Data;
 
-  private:
     typedef Evaluation< Number > Derivatives;
     typedef typename Derivatives::Vector Position;
     typedef typename Data::DataRow DataRow;
     typedef nonlinfit::DataChunk<Number, Tag::ChunkSize> DataChunk;
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
-    const Data* data;
+    const Data* xs;
+    const std::vector<DataChunk>* ys;
     Jacobian< Lambda, Tag > jac;
     VectorPosition<Lambda, Number> mover;
     Evaluator evaluator;
@@ -49,7 +47,7 @@ class Distance
   public:
     Distance( Lambda& lambda ) : mover(lambda), evaluator(lambda) {}
     bool evaluate( Derivatives& p );
-    void set_data( const Data& data ) { this->data = &data; }
+    void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
     void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
     void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
@@ -131,13 +129,14 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
         Evaluator;
     VectorPosition<Lambda, Num> mover;
     Evaluator evaluator;
-    const Data* data;
+    const Data* xs;
+    const std::vector<DataChunk>* ys;
     typename Tag::template get_derivative_combiner<Lambda>::type combiner;
 
   public:
     Distance( Lambda& l ) : mover(l), evaluator(l) {}
     bool evaluate( Derivatives& p );
-    void set_data( const Data& data ) { this->data = &data; }
+    void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
     void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
     void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }

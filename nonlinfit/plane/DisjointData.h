@@ -25,7 +25,6 @@ struct DisjointCoreData
     static const int ChunkSize = _ChunkSize;
     typedef Number_ Number;
     typedef Eigen::Array<Number,1,1> Input;
-    typedef DataPoint<Number> data_point;
 
     struct DataRow {
         /** The Y coordinate for the current row in LengthUnit. */

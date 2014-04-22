@@ -18,9 +18,7 @@ struct DataFacade
     static const int ChunkSize = CoreData::ChunkSize;
     typedef typename CoreData::DataRow DataRow;
     typedef std::vector<DataRow, Eigen::aligned_allocator<DataRow> > Data;
-    typedef nonlinfit::DataChunk<typename CoreData::Number, ChunkSize> DataChunk;
     Data data;
-    std::vector<DataChunk> data_chunks;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
