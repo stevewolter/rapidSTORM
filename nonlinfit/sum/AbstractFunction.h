@@ -3,7 +3,7 @@
 
 #include <nonlinfit/AbstractFunction.h>
 #include <boost/static_assert.hpp>
-#include "nonlinfit/sum/AbstractMap.h"
+#include "nonlinfit/sum/VariableMap.h"
 
 namespace nonlinfit {
 namespace sum {
@@ -32,8 +32,8 @@ public:
  *  This class implements a dynamically sized abstract function by summing 
  *  the value of a number of contributing functions. Parameters of different
  *  contributing functions can be declared to be the same number ("bound")
- *  via an AbstractMap. The number of contributing functions is chosen at
- *  runtime via the number of functions in the AbstractMap.
+ *  via an VariableMap. The number of contributing functions is chosen at
+ *  runtime via the number of functions in the VariableMap.
  *
  *  The contributing functions are not owned by this function.
  */
@@ -59,11 +59,7 @@ class AbstractFunction
         OutputVariableCountMax> Derivatives;
     typedef typename Derivatives::Vector Position;
 
-    /** The correct instance of the variable mapping helper class. */
-    typedef AbstractMap< InputVarC > VariableMap;
-
   private:
-    BOOST_STATIC_ASSERT( InputVarC != Eigen::Dynamic );
     typedef std::vector< argument_type* > Fitters;
     Fitters fitters;
     std::vector< _Moveable* > movers;

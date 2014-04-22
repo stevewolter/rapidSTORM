@@ -474,8 +474,9 @@ rapidstorm_SOURCES += \
     nonlinfit/terminators/fwd.h \
     nonlinfit/sum/AbstractFunction.h \
     nonlinfit/sum/AbstractFunction.hpp \
-    nonlinfit/sum/AbstractMap.h \
-    nonlinfit/sum/AbstractMap.hpp \
+    nonlinfit/sum/VariableMap.h \
+    nonlinfit/sum/VariableMap.hpp \
+    nonlinfit/sum/VariableMap.cpp \
     nonlinfit/sum/Evaluator.h \
     nonlinfit/sum/Evaluator.hpp \
     nonlinfit/sum/fwd.h \
