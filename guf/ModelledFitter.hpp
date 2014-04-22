@@ -60,20 +60,18 @@ double ModelledFitter<_Function>::fit(
     typedef nonlinfit::AbstractTerminator< typename Function::Position >
         TerminatorInterface;
     typedef nonlinfit::AbstractFunctionAdapter< Function > AbstractFunction;
-    typedef nonlinfit::AbstractMoveableAdapter< Function > AbstractMoveable;
+    typedef nonlinfit::AbstractMoveable<double> AbstractMoveable;
     for ( typename fit_window::Stack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i )
         fitter.set_fitter( i-b, *evaluators[i-b]( *i, mle ), evaluators[i-b].get_moveable() );
 
     AbstractFunction function( fitter );
-    AbstractMoveable moveable( fitter );
     MyTerminator concrete_terminator(terminator);
     AbstractTerminator abstract_terminator(concrete_terminator);
     return lm.fit< 
         typename AbstractFunction::abstract_type,
-        typename AbstractMoveable::abstract_type,
+        AbstractMoveable,
         TerminatorInterface& >
-        ( function.abstract(), moveable.abstract(),
-                   static_cast<TerminatorInterface&>(abstract_terminator) );
+        ( function.abstract(), fitter, abstract_terminator );
 }
 
 }

@@ -30,7 +30,7 @@ struct FunctionRepository<Function>::instantiate
 template <class Function>
 FunctionRepository<Function>::FunctionRepository() 
 : expression( new Function() ),
-  mover( new nonlinfit::AbstractedMoveable<nonlinfit::VectorPosition<Function> >(*expression) )
+  mover( new nonlinfit::VectorPosition<Function>(*expression) )
 {
     boost::mpl::for_each< evaluation_tags >( 
         boost::bind( instantiate(),

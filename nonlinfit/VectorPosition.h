@@ -3,6 +3,7 @@
 
 #include "nonlinfit/Lambda.h"
 #include "nonlinfit/Evaluation.h"
+#include "nonlinfit/AbstractMoveable.h"
 #include <boost/mpl/copy_if.hpp>
 #include <boost/mpl/size.hpp>
 
@@ -13,7 +14,7 @@ namespace nonlinfit {
  *  perspective, i.e. by assigning each variable a place in a unitless 
  *  vector. */
 template <typename Lambda_>
-class VectorPosition
+class VectorPosition : public AbstractMoveable<double>
 {
     typedef Lambda_ Expression;
   public:

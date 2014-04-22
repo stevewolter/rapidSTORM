@@ -4,6 +4,7 @@
 #include <nonlinfit/AbstractFunction.h>
 #include <boost/static_assert.hpp>
 #include "nonlinfit/sum/VariableMap.h"
+#include "nonlinfit/AbstractMoveable.h"
 
 namespace nonlinfit {
 namespace sum {
@@ -42,6 +43,7 @@ template <
     typename _Moveable = _Function,
     typename Policy = UnboundedPolicy >
 class AbstractFunction
+: public AbstractMoveable<typename _Function::Derivatives::Scalar>
 {
   public:
     /** The input function type. */

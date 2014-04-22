@@ -22,7 +22,7 @@ class FunctionRepository
 : public boost::noncopyable
 {
   public:
-    typedef typename nonlinfit::get_abstract_moveable_from_lambda< Lambda, double >::type Mover;
+    typedef nonlinfit::AbstractMoveable<double> Mover;
   private:
     class instantiate;
 

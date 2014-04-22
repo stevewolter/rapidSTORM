@@ -12,11 +12,11 @@ namespace levmar {
 template double
 Fitter::fit< 
     AbstractFunction< Evaluation<double> >,
-    AbstractMoveable< Eigen::Matrix<double, Eigen::Dynamic, 1, 0> >,
+    AbstractMoveable< double >,
     AbstractTerminator<Eigen::Matrix<double, Eigen::Dynamic, 1, 0> >& >
 ( 
     AbstractFunction< Evaluation<double> >&,
-    AbstractMoveable< Eigen::Matrix<double, Eigen::Dynamic, 1, 0> >&,
+    AbstractMoveable< double >&,
     AbstractTerminator<Eigen::Matrix<double, Eigen::Dynamic, 1, 0> >&
 );
 

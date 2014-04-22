@@ -1,10 +1,13 @@
+#ifndef NONLINFIT_ABSTRACTMOVEABLE_H
+#define NONLINFIT_ABSTRACTMOVEABLE_H
+
 #include "nonlinfit/Evaluation.h"
 
 namespace nonlinfit {
 
-template <class Position_>
+template <typename Number>
 struct AbstractMoveable {
-    typedef Position_ Position;
+    typedef typename Evaluation<Number>::Vector Position;
     virtual ~AbstractMoveable() {}
 
     /** Store the variable values of the Lambda in the provided vector. */
@@ -13,43 +16,6 @@ struct AbstractMoveable {
     virtual void set_position( const Position& ) = 0;
 };
 
-template <typename Moveable_>
-struct get_abstract_moveable {
-    typedef AbstractMoveable< typename Moveable_::Position > type;
-};
-
-template <typename Lambda_, class Number>
-struct get_abstract_moveable_from_lambda {
-    typedef AbstractMoveable< typename nonlinfit::get_evaluation<Lambda_,Number>::type::Vector > type;
-};
-
-template <typename Moveable_>
-struct AbstractMoveableAdapter 
-: public get_abstract_moveable<Moveable_>::type
-{
-    Moveable_ &m;
-  public:
-    AbstractMoveableAdapter( Moveable_& m ) : m(m) {}
-    typedef typename Moveable_::Position Position;
-
-    void get_position( Position& p ) const { m.get_position(p); }
-    /** Change the variable values of the Lambda to the provided values. */
-    void set_position( const Position& p ) { m.set_position(p); }
-
-    typedef typename get_abstract_moveable<Moveable_>::type abstract_type;
-    abstract_type& abstract() { return *this; }
-};
-
-template <typename Moveable_>
-struct AbstractedMoveable
-: public Moveable_,
-  public AbstractMoveableAdapter<Moveable_>
-{
-    template <typename T>
-    AbstractedMoveable( T& t ) : Moveable_(t), 
-                                 AbstractMoveableAdapter<Moveable_>( static_cast<Moveable_&>(*this) ) {}
-
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-};
-
 }
+
+#endif
