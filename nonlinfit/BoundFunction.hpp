@@ -7,16 +7,16 @@ namespace nonlinfit {
 
 template <typename Function>
 BoundFunction<Function>::BoundFunction()
-: Function(m), mover(m)
+: f(m), mover(m)
 {
-    Function::set_data( d );
+    f.set_data( d );
 }
 
 template <typename Function>
 BoundFunction<Function>::BoundFunction( const Function& f, const Lambda& m, const Data& d )
-: Function(f), m(m), d(d), mover(this->m)
+: f(f), m(m), d(d), mover(this->m)
 {
-    Function::set_data( d );
+    f.set_data( d );
 }
 
 }

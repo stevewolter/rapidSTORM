@@ -59,12 +59,6 @@ struct Evaluation
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-/** Metafunction returning the correct Evaluation type for a Lambda. */
-template <class Lambda, class NumberType>
-struct get_evaluation {
-    typedef Evaluation< NumberType > type;
-};
-
 template <typename Num>
 std::ostream& operator<<( std::ostream&, const Evaluation<Num>& );
 
