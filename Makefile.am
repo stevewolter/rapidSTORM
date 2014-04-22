@@ -423,7 +423,6 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
-    nonlinfit/AbstractMoveable.h \
     nonlinfit/AbstractTerminator.h \
     nonlinfit/access_parameters.hpp \
     nonlinfit/append.h \
@@ -560,7 +559,7 @@ endif
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
 INSTANTIATIONS_UNCPP = \
     $(INST_MODEL:=FunctionRepository) $(INST_MODEL:=ModelledFitter) \
-    $(INST_MODEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
+    $(INST_TAGS:=PlaneFunction) 
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
 rapidstorm_SOURCES += \

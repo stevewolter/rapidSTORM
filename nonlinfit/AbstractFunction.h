@@ -23,6 +23,7 @@ class AbstractFunction {
   public:
     /** \copydoc nonlinfit::Evaluation */
     typedef Evaluation<Number> Derivatives;
+    typedef typename Evaluation<Number>::Vector Position;
 
     virtual ~AbstractFunction() {}
     /** The runtime number of parameters. Equal to Vars for non-dynamic 
@@ -37,6 +38,10 @@ class AbstractFunction {
      *               function's support. */
     virtual bool evaluate( Derivatives& p ) = 0;
 
+    /** Store the variable values of the Lambda in the provided vector. */
+    virtual void get_position( Position& ) const = 0;
+    /** Change the variable values of the Lambda to the provided values. */
+    virtual void set_position( const Position& ) = 0;
 };
 
 }

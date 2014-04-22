@@ -15,7 +15,6 @@
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <nonlinfit/sum/VariableMap.hpp>
 #include <nonlinfit/sum/Evaluator.h>
-#include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/make_functor.hpp>
 #include "gaussian_psf/is_plane_dependent.h"
@@ -248,7 +247,6 @@ class Fitter
     typedef BoundFunction< 
         nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > > 
         PlaneFunction;
-    typedef nonlinfit::VectorPosition< Lambda > VectorPosition;
     typedef sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
 
     /** Optics indexed by input layer. */
@@ -379,7 +377,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
 
     nonlinfit::levmar::Fitter fitter = nonlinfit::levmar::Config();
     nonlinfit::terminators::StepLimit terminator(300);
-    fitter.fit( combiner, combiner, 
+    fitter.fit( combiner,
         all( nonlinfit::terminators::StepLimit(300), 
 #ifdef VERBOSE_STATE
         all( print_state(), nonlinfit::terminators::RelativeChange(1E-4) )

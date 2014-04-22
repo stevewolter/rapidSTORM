@@ -6,6 +6,7 @@
 #include <nonlinfit/Evaluation.h>
 #include "nonlinfit/plane/Jacobian.h"
 #include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/VectorPosition.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -35,17 +36,21 @@ class Distance
 
   private:
     typedef Evaluation< Number > Derivatives;
+    typedef typename Derivatives::Vector Position;
     typedef typename Data::ChunkView::value_type DataRow;
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
     const Data* data;
     Jacobian< Lambda, Tag > jac;
+    VectorPosition<Lambda, Number> mover;
     Evaluator evaluator;
 
   public:
-    Distance( Lambda& lambda ) : evaluator(lambda) {}
+    Distance( Lambda& lambda ) : mover(lambda), evaluator(lambda) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
+    void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
+    void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
 
     typedef void result_type;
     inline void operator()( Derivatives&, const DataRow& );
@@ -102,6 +107,7 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
   private:
     typedef Evaluation< Num > Derivatives;
+    typedef typename Evaluation< Num >::Vector Position;
     typedef typename Data::ChunkView::value_type DataRow;
     typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
         OuterTerms;
@@ -120,15 +126,18 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
     typedef typename get_evaluator< Lambda, Tag >::type
         Evaluator;
+    VectorPosition<Lambda, Num> mover;
     Evaluator evaluator;
     const Data* data;
     typename Tag::template get_derivative_combiner<Lambda>::type combiner;
 
   public:
-    Distance( Lambda& l ) : evaluator(l) {}
+    Distance( Lambda& l ) : mover(l), evaluator(l) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
+    void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
+    void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
 
     typedef void result_type;
     inline void operator()( Derivatives&, 

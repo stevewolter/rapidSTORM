@@ -3,7 +3,6 @@
 
 #include "nonlinfit/Lambda.h"
 #include "nonlinfit/Evaluation.h"
-#include "nonlinfit/AbstractMoveable.h"
 #include <boost/mpl/copy_if.hpp>
 #include <boost/mpl/size.hpp>
 
@@ -13,14 +12,14 @@ namespace nonlinfit {
  *  This class provides access to the variables of a Lambda with a vector
  *  perspective, i.e. by assigning each variable a place in a unitless 
  *  vector. */
-template <typename Lambda_>
-class VectorPosition : public AbstractMoveable<double>
+template <typename Lambda_, typename Number_>
+class VectorPosition
 {
     typedef Lambda_ Expression;
   public:
     typedef typename Lambda_::Variables Variables;
     static const int VariableCount = boost::mpl::size<Variables>::type::value;
-    typedef double Number;
+    typedef Number_ Number;
     typedef typename Evaluation<Number>::Vector Position;
     
   private:

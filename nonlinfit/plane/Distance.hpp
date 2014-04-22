@@ -1,6 +1,7 @@
 #ifndef NONLINFIT_IMAGE_PLANE_EVALUATOR_EVALUATE_H
 #define NONLINFIT_IMAGE_PLANE_EVALUATOR_EVALUATE_H
 
+#include "nonlinfit/VectorPosition.hpp"
 #include "nonlinfit/plane/Distance.h"
 #include <boost/bind/bind.hpp>
 

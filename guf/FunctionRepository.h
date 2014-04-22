@@ -6,7 +6,6 @@
 #include <boost/utility.hpp>
 #include "guf/PlaneFunction.h"
 #include <nonlinfit/VectorPosition.h>
-#include <nonlinfit/AbstractMoveable.h>
 
 namespace dStorm {
 namespace guf {
@@ -21,15 +20,12 @@ template <class Lambda>
 class FunctionRepository
 : public boost::noncopyable
 {
-  public:
-    typedef nonlinfit::AbstractMoveable<double> Mover;
   private:
     class instantiate;
 
     /** The expression is dynamically allocated to avoid Eigen alignment trouble. */
     std::auto_ptr<Lambda> expression;
     boost::ptr_vector< PlaneFunction > store;
-    std::auto_ptr<Mover> mover;
 
   public:
     FunctionRepository();
@@ -46,7 +42,6 @@ class FunctionRepository
     /** Return a reference to the expression shared by all functions in the
      *  repository. */
     Lambda& get_expression() { return *expression; }
-    Mover& get_moveable() { return *mover; }
 };
 
 }

@@ -23,11 +23,11 @@ namespace nonlinfit {
 namespace levmar {
 
 /** Helper class for Fitter that stores the current fitting state. */
-template <typename _Function, typename _Moveable>
+template <typename _Function>
 class Fitter::State {
     typedef _Function Function;
-    typedef typename _Moveable::Position Position;
     typedef typename Function::Derivatives Derivatives;
+    typedef typename Function::Position Position;
 
     struct Parameters {
         Position parameters;
@@ -47,7 +47,7 @@ class Fitter::State {
 
   public:
     /** Retrieve the position of function as the current position. */
-    State( Function& function, const _Moveable& m, int number_of_variables );
+    State( Function& function, int number_of_variables );
     /** Try to compute a step to the next location based on the current
      *  position and the LM lambda parameter. 
      *  \return Success of solving the equation system. */
@@ -63,7 +63,7 @@ class Fitter::State {
      *  validity.
      *  \pre{ solve_equations() has returned true }
      **/
-    Step try_to_move_position( _Function&, _Moveable& );
+    Step try_to_move_position( _Function& );
     void throw_singular_matrix() const 
         { throw SingularMatrix( work->derivatives.hessian.template cast<double>() ); }
  
@@ -73,13 +73,13 @@ class Fitter::State {
     bool solve_with_llt( const Derivatives& );
 };
 
-template <typename _Function, typename _Moveable>
-Fitter::State<_Function,_Moveable>::State( _Function& f, const _Moveable& m, int n )
+template <typename _Function>
+Fitter::State<_Function>::State( _Function& f, int n )
 : max(n), moritz(n) , work( &max ), trial( &moritz ),
   original_hessians_diagonal( n ), scratch(n,n), shift(n),
   use_ldlt( n > 4 )
 {
-    m.get_position( work->parameters );
+    f.get_position( work->parameters );
     bool initial_position_valid = false;
     try {
         initial_position_valid = f.evaluate( work->derivatives );
@@ -90,8 +90,8 @@ Fitter::State<_Function,_Moveable>::State( _Function& f, const _Moveable& m, int
     DEBUG("Started fitting at " << work->parameters.transpose() << " with value " << work->derivatives.value);
 }
 
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_equations( double lambda )
+template <typename _Function>
+bool Fitter::State<_Function>::solve_equations( double lambda )
 {
     assert( ! work->derivatives.contains_NaN() );
     assert( original_hessians_diagonal == original_hessians_diagonal );
@@ -103,8 +103,8 @@ bool Fitter::State<_Function,_Moveable>::solve_equations( double lambda )
         || solve_with_llt( work->derivatives );
 }
 
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_by_inversion( const Derivatives& d )
+template <typename _Function>
+bool Fitter::State<_Function>::solve_by_inversion( const Derivatives& d )
 {
     double determinant;
     bool invertible;
@@ -120,8 +120,8 @@ bool Fitter::State<_Function,_Moveable>::solve_by_inversion( const Derivatives& 
     }
 }
 
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_with_ldlt( const Derivatives& d )
+template <typename _Function>
+bool Fitter::State<_Function>::solve_with_ldlt( const Derivatives& d )
 {
     if ( boost::is_same< float, typename Derivatives::Vector::Scalar >::value )
     {
@@ -139,8 +139,8 @@ bool Fitter::State<_Function,_Moveable>::solve_with_ldlt( const Derivatives& d )
     return solved_well;
 }
 
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_with_llt( const Derivatives& d )
+template <typename _Function>
+bool Fitter::State<_Function>::solve_with_llt( const Derivatives& d )
 {
     if ( boost::is_same< float, typename Derivatives::Vector::Scalar >::value )
     {
@@ -155,13 +155,13 @@ bool Fitter::State<_Function,_Moveable>::solve_with_llt( const Derivatives& d )
     return solved_well;
 }
 
-template <typename _Function, typename _Moveable>
+template <typename _Function>
 Fitter::Step
-Fitter::State<_Function,_Moveable>::try_to_move_position( _Function& f, _Moveable& m )
+Fitter::State<_Function>::try_to_move_position( _Function& f )
 {
     trial->parameters = work->parameters + shift;
     DEBUG("Evaluating function at " << trial->parameters.transpose() << " after step of " << shift.transpose() );
-    m.set_position( trial->parameters );
+    f.set_position( trial->parameters );
     /* Compute the function at this place. */
     try {
         if ( ! f.evaluate(trial->derivatives) ) {
@@ -183,10 +183,10 @@ Fitter::State<_Function,_Moveable>::try_to_move_position( _Function& f, _Moveabl
     return BetterPosition;
 }
 
-template <typename _Function, typename _Moveable, typename _Terminator>
-double Fitter::fit( _Function& f, _Moveable& m, _Terminator t )
+template <typename _Function, typename _Terminator>
+double Fitter::fit( _Function& f, _Terminator t )
 {
-    State<_Function,_Moveable> state(f, m, f.variable_count());
+    State<_Function> state(f, f.variable_count());
     double lambda = initial_lambda;
     do {
         const bool solvable_equations = state.solve_equations( lambda );
@@ -196,7 +196,7 @@ double Fitter::fit( _Function& f, _Moveable& m, _Terminator t )
             lambda *= unsolvable_adjustment;
             continue;
         } else {
-            Step result = state.try_to_move_position( f, m );
+            Step result = state.try_to_move_position( f );
             if ( result == BetterPosition ) {
                 t.improved( state.current_position(), state.last_shift() );
                 lambda /= wrong_position_adjustment;
@@ -210,7 +210,7 @@ double Fitter::fit( _Function& f, _Moveable& m, _Terminator t )
     } while ( t.should_continue_fitting() );
     DEBUG("Finished fitting at " << state.current_position().transpose());
 
-    m.set_position( state.current_position() );
+    f.set_position( state.current_position() );
     return state.current_function_value();
 }
 

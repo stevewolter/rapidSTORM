@@ -3,7 +3,6 @@
 
 #include <boost/static_assert.hpp>
 #include "nonlinfit/AbstractFunction.h"
-#include "nonlinfit/AbstractMoveable.h"
 #include "nonlinfit/sum/VariableMap.h"
 
 namespace nonlinfit {
@@ -40,13 +39,11 @@ public:
  */
 template <typename Number, typename Policy = UnboundedPolicy >
 class AbstractFunction
-: public nonlinfit::AbstractFunction<Number>,
-  public AbstractMoveable<Number>
+: public nonlinfit::AbstractFunction<Number>
 {
   public:
     /** The input function type. */
     typedef nonlinfit::AbstractFunction<Number> argument_type;
-    typedef nonlinfit::AbstractMoveable<Number> moveable_type;
     /** The type of the implemented, resulting function. */
     typedef Evaluation<Number> Derivatives;
     typedef typename Derivatives::Vector Position;
@@ -54,25 +51,23 @@ class AbstractFunction
   private:
     typedef std::vector< argument_type* > Fitters;
     Fitters fitters;
-    std::vector< moveable_type* > movers;
     const VariableMap map;
     const int plane_count;
-    mutable typename moveable_type::Position position_buffer;
+    mutable typename argument_type::Position position_buffer;
     mutable typename argument_type::Derivatives evaluation_buffer;
 
   public:
     AbstractFunction( const VariableMap& variable_map );
     /** Use the supplied fitter as the base fitter for the given index. */
-    void set_fitter( int index, argument_type& input, moveable_type& moveable ) {
+    void set_fitter( int index, argument_type& input ) {
         fitters[index] = &input;
-        movers[index] = &moveable;
     }
     /** Set all base fitters to the elements in the supplied range. */
     template <typename Iterator>
     void set_fitters( Iterator i, Iterator end ) {
-        typename Fitters::iterator j = fitters.begin();
-        typename std::vector< moveable_type* >::iterator k = movers.begin();
-        for ( ; i != end; ++i, ++j, ++k ) { *j = &*i; *k = &*i; }
+        for (auto target = fitters.begin(); i != end; ++i, ++target) {
+            *target = &*i;
+        }
     }
 
     int variable_count() const { return map.output_variable_count(); }

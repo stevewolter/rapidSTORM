@@ -45,12 +45,12 @@ public:
 
 template <typename Lambda>
 class BoundMoveable 
-: public nonlinfit::AbstractFunction<double>, public nonlinfit::AbstractMoveable<double> {
+: public nonlinfit::AbstractFunction<double> {
     Lambda expression;
-    nonlinfit::VectorPosition<Lambda> mover;
+    nonlinfit::VectorPosition<Lambda, double> mover;
 public:
     typedef nonlinfit::Evaluation<double> Derivatives;
-    typedef typename nonlinfit::VectorPosition<Lambda>::Position Position;
+    typedef typename nonlinfit::VectorPosition<Lambda, double>::Position Position;
 
     BoundMoveable() : mover(expression) {}
     BoundMoveable( const BoundMoveable<Lambda>& o )
@@ -62,7 +62,7 @@ public:
     void get_position( Position& p ) const { mover.get_position(p); }
     void set_position( const Position& p ) { mover.set_position(p); }
     bool evaluate(Derivatives& p) { assert(false); return false; }
-    int variable_count() const { return nonlinfit::VectorPosition<Lambda>::VariableCount; }
+    int variable_count() const { return nonlinfit::VectorPosition<Lambda, double>::VariableCount; }
 };
 
 struct ParameterLinearizer::Pimpl 
