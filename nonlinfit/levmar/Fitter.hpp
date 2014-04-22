@@ -185,10 +185,11 @@ Fitter::State<_Function,_Moveable>::try_to_move_position( _Function& f, _Moveabl
     return BetterPosition;
 }
 
-template <typename _Function, typename _Moveable, typename _Terminator>
-double Fitter::fit( _Function& f, _Moveable& m, _Terminator t )
-{
-    State<_Function,_Moveable> state(f, m, f.variable_count());
+template <typename Number>
+double Fitter::fit( AbstractFunction<Number>& function,
+                    AbstractMoveable<Number>& moveable,
+                    AbstractTerminator<Number> terminator ) {
+    State<_Function,_Moveable> state(function, m, function.variable_count());
     double lambda = initial_lambda;
     do {
         const bool solvable_equations = state.solve_equations( lambda );
@@ -198,7 +199,7 @@ double Fitter::fit( _Function& f, _Moveable& m, _Terminator t )
             lambda *= unsolvable_adjustment;
             continue;
         } else {
-            Step result = state.try_to_move_position( f, m );
+            Step result = state.try_to_move_position( function, m );
             if ( result == BetterPosition ) {
                 t.improved( state.current_position(), state.last_shift() );
                 lambda /= wrong_position_adjustment;

@@ -11,22 +11,20 @@
 namespace dStorm {
 namespace gaussian_psf {
 
-template <typename Num, typename Expression, int ChunkSize>
+template <typename Number, typename Expression, int ChunkSize>
 struct JointEvaluator
-: public Parameters<Num, Expression >,
-  public nonlinfit::Term<Num, ChunkSize>
+: private Parameters<Number, Expression >,
+  public nonlinfit::Term<Number, ChunkSize>
 {
-    Eigen::Array<Num, ChunkSize, 2> normed, squared;
-    Eigen::Array<Num, ChunkSize, 1> expT;
-
     JointEvaluator() {}
-    JointEvaluator( const nonlinfit::plane::JointData<Num, ChunkSize>* data,
+    JointEvaluator( const nonlinfit::plane::GenericData* generic_data,
+                    const std::vector<Eigen::Matrix<Number, ChunkSize, 2>>* data,
                     const Expression& e )
-        : Parameters<Num, Expression >(e), data_(data) {}
+        : Parameters<Number, Expression >(e), generic_data_(generic_data), data_(data) {}
 
     bool StartIteration() OVERRIDE {
-        prepare_iteration(*data_);
-        chunk_ = data.begin();
+        chunk_ = data_.begin();
+        return this->prepare_iteration(*generic_data_);
     }
 
     void ComputeNextValuesAndDerivatives(
@@ -34,6 +32,7 @@ struct JointEvaluator
         Eigen::Matrix<Number, ChunkSize, Eigen::Dynamic>* jacobian,
         int* offset) OVERRIDE {
         assert(chunk_ != data_.end());
+        prepare_chunk(*chunk_);
         add_value(*values);
         boost::mpl::for_each<typename Expression::Variables>(
             boost::bind(&JointEvaluator::set_variable, this, jacobian, offset)
@@ -42,10 +41,13 @@ struct JointEvaluator
     }
 
   private:
-    const nonlinfit::plane::JointData<Num, ChunkSize>* data_;
-    nonlinfit::plane::JointData<Num, ChunkSize>::const_iterator chunk_;
+    Eigen::Array<Number, ChunkSize, 2> normed, squared;
+    Eigen::Array<Number, ChunkSize, 1> expT;
+    const nonlinfit::plane::GenericData* generic_data_;
+    const std::vector<Eigen::Matrix<Number, ChunkSize, 2>>* data_;
+    typename std::vector<Eigen::Matrix<Number, ChunkSize, 2>>::const_iterator chunk_;
 
-    void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs ) 
+    void prepare_chunk( const Eigen::Array<Number,ChunkSize,2>& xs ) 
     {
         normed = (xs.rowwise() - this->spatial_mean.transpose())
                 .matrix() * this->sigmaI.matrix().asDiagonal();
@@ -53,9 +55,9 @@ struct JointEvaluator
         expT = (squared.rowwise().sum() * -0.5).exp() * this->prefactor;
     }
 
-    void value( Eigen::Array<Num,ChunkSize,1>& result ) 
+    void value( Eigen::Array<Number,ChunkSize,1>& result ) 
         { result = this->expT; }
-    void add_value( Eigen::Array<Num,ChunkSize,1>& result ) 
+    void add_value( Eigen::Array<Number,ChunkSize,1>& result ) 
         { result += this->expT; }
 
     template <typename Variable>
@@ -108,25 +110,6 @@ struct JointEvaluator
 };
 
 }
-}
-
-namespace nonlinfit {
-
-#define DSTORM_GUF_PSF_JOINT_SPECIALIZATION(Expression) \
-template <typename Num, int ChunkSize> \
-struct get_evaluator< \
-    Expression, \
-    plane::Joint<Num,ChunkSize,dStorm::gaussian_psf::XPosition,dStorm::gaussian_psf::YPosition> > \
-{ \
-    typedef typename boost::mpl::if_c< ChunkSize == 1, \
-        dStorm::gaussian_psf::ReferenceEvaluator< Expression, Num, dStorm::gaussian_psf::XPosition, dStorm::gaussian_psf::YPosition >, \
-        dStorm::gaussian_psf::JointEvaluator< Num, Expression, ChunkSize > \
-    >::type type;  \
-};
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::No3D)
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::DepthInfo3D)
-#undef DSTORM_GUF_PSF_JOINT_SPECIALIZATION
-
 }
 
 #endif

@@ -10,7 +10,6 @@
 #include "engine/JobInfo.h"
 #include "guf/Spot.h"
 #include <nonlinfit/plane/Distance.hpp>
-#include <nonlinfit/plane/JointData.hpp>
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <nonlinfit/sum/AbstractMap.hpp>

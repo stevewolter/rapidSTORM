@@ -8,28 +8,28 @@ namespace nonlinfit {
 namespace plane {
 
 template <typename Number, int ChunkSize>
-bool Distance<Number, ChunkSize>::evaluate(Derivatives& p)
+bool Distance<Number, ChunkSize>::evaluate(Evaluation<Number>& p)
 {
     p.set_zero();
 
-    for (auto& term : terms) {
+    for (auto& term : terms_) {
         if (!term->StartIteration()) {
             return false;
         }
     }
 
     jacobian_.zero();
-    for (auto& block : blocks) {
+    for (auto& block : data_) {
         Eigen::Matrix<Number, ChunkSize, 1> values =
             Eigen::Matrix<Number, ChunkSize, 1>::Zero();
         int offset = 0;
-        for (auto& term : terms) {
+        for (auto& term : terms_) {
             term->ComputeNextValuesAndDerivatives(&values, &jacobian_, &offset);
         }
         assert(offset == jacobian_.size());
 
         block.residues = block.output - values;
-        switch (distance_metric) {
+        switch (distance_metric_) {
           case kSquaredDeviations:
             p.value += block.residues.square().sum();
             p.hessian.noalias() += jacobian_.transpose() * jacobian_;

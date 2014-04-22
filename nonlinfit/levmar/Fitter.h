@@ -1,6 +1,9 @@
 #ifndef NONLINFIT_LEVENBERGMARQUARDT_FITTER_H
 #define NONLINFIT_LEVENBERGMARQUARDT_FITTER_H
 
+#include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/AbstractMoveable.h"
+#include "nonlinfit/AbstractTerminator.h"
 #include "nonlinfit/levmar/fwd.h"
 #include "nonlinfit/levmar/Config.h"
 
@@ -32,7 +35,9 @@ class Fitter {
      *  \return The function value at the minimal position.
      **/
     template <typename Number>
-    double fit( AbstractFunction<Number>& function, AbstractMoveable<Number>& moveable, AbstractTerminator<Number> terminator );
+    double fit( AbstractFunction<Number>& function,
+                AbstractMoveable<Number>& moveable,
+                AbstractTerminator<Number> terminator );
 };
 
 Fitter::Fitter( const Config& config ) 
