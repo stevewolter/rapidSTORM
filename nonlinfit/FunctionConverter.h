@@ -24,8 +24,7 @@ class FunctionConverter
   public:
     typedef typename Function::Lambda Lambda;
     typedef typename Function::Data Data;
-    static const int VariableCount = Function::VariableCount;
-    typedef Evaluation< ToType, VariableCount > Derivatives;
+    typedef Evaluation< ToType > Derivatives;
     typedef ToType Number;
 
     FunctionConverter( Lambda& a ) : base(a) {}
@@ -33,7 +32,7 @@ class FunctionConverter
     void set_data( const Data& d ) { base.set_data(d); }
     int variable_count() const { return base.variable_count(); }
     bool evaluate( Derivatives& d ) {
-        typename Function::Derivatives buffer;
+        typename Function::Derivatives buffer(variable_count());
         if ( base.evaluate(buffer) ) {
             d.value = buffer.value;
             d.gradient = buffer.gradient.template cast<ToType>();

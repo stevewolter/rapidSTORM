@@ -20,7 +20,7 @@ class VectorPosition
     typedef typename Lambda_::Variables Variables;
     static const int VariableCount = boost::mpl::size<Variables>::type::value;
     typedef double Number;
-    typedef typename Evaluation<Number,VariableCount>::Vector Position;
+    typedef typename Evaluation<Number>::Vector Position;
     
   private:
     Expression& expression;

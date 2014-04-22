@@ -6,8 +6,8 @@
 
 namespace nonlinfit {
 
-template <class Num, int ChunkSize, int MaxChunkSize>
-bool Evaluation<Num,ChunkSize,MaxChunkSize>::operator==( const Evaluation& o ) const
+template <class Num>
+bool Evaluation<Num>::operator==( const Evaluation& o ) const
 {
     Num epsilon = 1E-2;
 
@@ -16,8 +16,8 @@ bool Evaluation<Num,ChunkSize,MaxChunkSize>::operator==( const Evaluation& o ) c
            ( std::abs( value - o.value ) / std::max( std::abs(value), std::abs(o.value) ) < epsilon );
 }
 
-template <class Num, int VarCount, int MaxVarCount>
-std::ostream& operator<<( std::ostream& o, const Evaluation<Num,VarCount,MaxVarCount>& e )
+template <class Num>
+std::ostream& operator<<( std::ostream& o, const Evaluation<Num>& e )
 {
     Eigen::IOFormat f(12);
     return o << e.value << " : " << e.gradient.transpose().format(f) << "\n"

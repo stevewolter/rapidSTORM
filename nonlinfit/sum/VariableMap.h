@@ -14,10 +14,11 @@ namespace sum {
 struct VariableMap {
     typedef std::vector<int> Row;
     std::vector<Row> map;
+    int input_var_c;
     int output_var_c;
 
   public:
-    VariableMap() : output_var_c(0) {}
+    VariableMap(int input_variable_count) : input_var_c(input_variable_count), output_var_c(0) {}
     /** Construct by calling add_function() function_count times. */
     VariableMap(int function_count, std::vector<bool> common );
     /** Add a function that has all bitset-indicated variables in common with
@@ -30,7 +31,7 @@ struct VariableMap {
      * arguments, a new output parameter is created for the current parameter.
      **/
     template <typename Function>
-    void add_function( int input_variable_count, const Function& reducer_functor );
+    void add_function( const Function& reducer_functor );
 
     /** Get the output parameter index for the given input function index and
      *  variable. */

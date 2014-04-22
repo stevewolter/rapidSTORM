@@ -31,8 +31,7 @@ bool compare_evaluators(
     ref.get_expression() = test.get_expression();
 
     typedef typename Tag::Number Num;
-    typename get_evaluation< Function, Num >::type
-        test_result, reference_result;
+    Evaluation<Num> test_result(test.variable_count()), reference_result(ref.variable_count());
     test.evaluate( test_result );
     ref.evaluate( reference_result );
 

@@ -43,20 +43,12 @@ template <
     typename Policy = UnboundedPolicy >
 class AbstractFunction
 {
-    static const int InputVarC = _Function::Derivatives::VariableCount;
-    static const int OutputVariableCountMax = 
-        ( Policy::PlaneCountMax == Eigen::Dynamic ) 
-            ? Eigen::Dynamic
-            : Policy::PlaneCountMax * InputVarC;
   public:
     /** The input function type. */
     typedef _Function argument_type;
     typedef _Moveable moveable_type;
     /** The type of the implemented, resulting function. */
-    typedef Evaluation<
-        typename _Function::Derivatives::Scalar, 
-        Eigen::Dynamic, 
-        OutputVariableCountMax> Derivatives;
+    typedef Evaluation<typename _Function::Derivatives::Scalar> Derivatives;
     typedef typename Derivatives::Vector Position;
 
   private:
@@ -65,6 +57,8 @@ class AbstractFunction
     std::vector< _Moveable* > movers;
     const VariableMap map;
     const int plane_count;
+    mutable typename moveable_type::Position position_buffer;
+    mutable typename argument_type::Derivatives evaluation_buffer;
 
   public:
     AbstractFunction( const VariableMap& variable_map );

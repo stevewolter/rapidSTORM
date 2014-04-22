@@ -43,9 +43,7 @@ class Distance
     Distance( Lambda& lambda ) : evaluator(lambda) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
-
+    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
 
     typedef void result_type;
     inline void operator()( Derivatives&, const DataRow& );
@@ -125,8 +123,7 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     Distance( Lambda& l ) : evaluator(l) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
+    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
 
     typedef void result_type;
     inline void operator()( Derivatives&, 

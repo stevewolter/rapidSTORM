@@ -9,7 +9,7 @@ namespace nonlinfit {
 namespace sum {
 
 VariableMap::VariableMap( int function_count, std::vector<bool> common )
-: output_var_c(0)
+: input_var_c(common.size()), output_var_c(0)
 {
     for (int i = 0; i < function_count; ++i) {
         add_function( common );
@@ -18,6 +18,7 @@ VariableMap::VariableMap( int function_count, std::vector<bool> common )
 
 void VariableMap::add_function( std::vector<bool> common )
 {
+    assert(int(common.size()) == input_var_c);
     bool first_row = map.empty();
     Row r(common.size());
     for (size_t j = 0; j < common.size(); ++j)  {
