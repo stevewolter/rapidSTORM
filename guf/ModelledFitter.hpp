@@ -18,7 +18,7 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include "engine/JobInfo.h"
 #include "engine/InputTraits.h"
-#include "fit_window/Stack.h"
+#include "fit_window/Plane.h"
 #include <nonlinfit/AbstractTerminator.h>
 
 #include "debug.h"
@@ -45,14 +45,14 @@ ModelledFitter<_Function>::ModelledFitter(
     FitTerminator<_Function>(config) )
 {
     for (int i = 0; i < info.traits.plane_count(); ++i ) {
-        evaluators.push_back( new Repository() );
+        evaluators.push_back( new Repository(config) );
         _model.push_back( MultiKernelModel( evaluators[i].get_expression() ) );
     }
 }
 
 template <class _Function>
 double ModelledFitter<_Function>::fit( 
-    fit_window::Stack& data,
+    fit_window::PlaneStack& data,
     bool mle
 ) {
     typedef nonlinfit::AbstractTerminatorAdaptor< MyTerminator, typename Function::Position >
@@ -60,8 +60,11 @@ double ModelledFitter<_Function>::fit(
     typedef nonlinfit::AbstractTerminator< typename Function::Position >
         TerminatorInterface;
     typedef nonlinfit::AbstractFunction<double> AbstractFunction;
-    for ( typename fit_window::Stack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i )
-        fitter.set_fitter( i-b, *evaluators[i-b]( *i, mle ) );
+    std::vector<std::unique_ptr<nonlinfit::AbstractFunction<double>>> functions;
+    for ( typename fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {
+        functions.push_back(evaluators[i-b].create_function(*i, mle));
+        fitter.set_fitter( i-b, *functions.back() );
+    }
 
     MyTerminator concrete_terminator(terminator);
     AbstractTerminator abstract_terminator(concrete_terminator);

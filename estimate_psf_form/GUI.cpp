@@ -159,7 +159,8 @@ dStorm::engine::Image2D::Size GUI::get_maximum_tile_size()
     {
         i->bounds.clear();
         for (int p = 0; p < i->image.plane_count(); ++p) {
-            traits::Projection::ROISpecification roi( i->spot.position().head<2>(), input.width );
+            traits::Projection::SamplePosition position = traits::Projection::SamplePosition::Constant(input.width);
+            traits::Projection::ROISpecification roi( i->spot.position().head<2>(), position );
             i->bounds.push_back( input.traits->plane(p).projection().get_region_of_interest(roi) );
             const traits::Projection::Bounds& b = i->bounds.back();
             for (Direction i = Direction_First; i != Direction_2D; ++i)

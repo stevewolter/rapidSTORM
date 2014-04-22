@@ -5,12 +5,9 @@
 #include "engine/JobInfo_decl.h"
 #include "Localization_decl.h"
 #include "guf/Config_decl.h"
+#include "fit_window/Plane.h"
 
 namespace dStorm {
-namespace fit_window {
-class Plane;
-class Stack;
-}
 namespace guf {
 
 class MultiKernelModel;
@@ -29,7 +26,7 @@ class LocalizationCreator {
   public:
     LocalizationCreator( const Config& config, const dStorm::engine::JobInfo& optics );
 
-    void operator()( Localization& loc, const MultiKernelModelStack&, double chi_sq, const fit_window::Stack& ) const;
+    void operator()( Localization& loc, const MultiKernelModelStack&, double chi_sq, const fit_window::PlaneStack& ) const;
 
 };
 

@@ -5,7 +5,7 @@
 #include "guf/Config.h"
 #include "engine/Input_decl.h"
 #include "engine/JobInfo_decl.h"
-#include "fit_window/Stack.h"
+#include "fit_window/Plane.h"
 #include <vector>
 #include "Direction.h"
 #include <boost/smart_ptr/scoped_ptr.hpp>
@@ -33,9 +33,9 @@ struct InitialValueFinder {
     float correlation( const SigmaDiff& ) const;
 
     struct PlaneEstimate;
-    std::vector<PlaneEstimate> estimate_bg_and_amp( const Spot& spot, const fit_window::Stack & ) const;
+    std::vector<PlaneEstimate> estimate_bg_and_amp( const Spot& spot, const fit_window::PlaneStack & ) const;
     void join_amp_estimates( std::vector<PlaneEstimate>& v ) const;
-    void estimate_z( const fit_window::Stack&, std::vector<PlaneEstimate>& ) const;
+    void estimate_z( const fit_window::PlaneStack&, std::vector<PlaneEstimate>& ) const;
     static bool determine_z_estimate_need( const engine::InputTraits& t );
     void create_z_lookup_table( const engine::InputTraits& t );
 
@@ -47,7 +47,7 @@ struct InitialValueFinder {
     InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info);
     ~InitialValueFinder();
 
-    void operator()( MultiKernelModelStack& position, const Spot&, const fit_window::Stack& ) const;
+    void operator()( MultiKernelModelStack& position, const Spot&, const fit_window::PlaneStack& ) const;
 };
 
 }

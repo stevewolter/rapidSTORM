@@ -10,8 +10,7 @@ Config::Config()
     max_per_image("MaxEstimationSpotsPerImage", "Number of spots used per image", 15.0),
     visual_selection("SelectSpots", "Manually select good spots", true),
     laempi_fit("LaempiPosition", "Laempi fit for positions", false),
-    disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false),
-    fit_window_width("FitWindowWidth", "Fit window radius", FitWindowWidth::Constant(600 * si::nanometre) )
+    disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false)
 {
 }
 
@@ -27,6 +26,7 @@ void Config::attach_ui( simparm::NodeHandle at ) {
     mle.attach_ui( at );
     FormCalibrationConfig::register_generic_entries( at );
 
+    fit_window_config.attach_ui(at);
 }
 
 }

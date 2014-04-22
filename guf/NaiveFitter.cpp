@@ -12,9 +12,38 @@
 #include "engine/InputTraits.h"
 #include <nonlinfit/Bind.h>
 #include "threed_info/No3D.h"
+#include "guf/EvaluationTags.h"
 
 namespace dStorm {
 namespace guf {
+
+struct add_fit_window_width {
+    typedef void result_type;
+    template <int ChunkSize, typename P1, typename P2>
+    void operator()( nonlinfit::plane::Disjoint<float,ChunkSize,P1,P2> t, bool disjoint, bool double_computation, std::set<int>& target ) {
+        if (disjoint && !double_computation) {
+            target.insert(ChunkSize);
+        }
+    }
+
+    template <int ChunkSize, typename P1, typename P2>
+    void operator()( nonlinfit::plane::Disjoint<double,ChunkSize,P1,P2> t, bool disjoint, bool double_computation, std::set<int>& target ) {
+        if (disjoint && double_computation) {
+            target.insert(ChunkSize);
+        }
+    }
+
+    template <int ChunkSize, typename Num, typename P1, typename P2>
+    void operator()( nonlinfit::plane::Joint<Num,ChunkSize, P1, P2> t, bool disjoint, bool double_computation, std::set<int>& target ) {
+    }
+};
+
+std::set<int> desired_fit_window_widths(const Config& config) {
+    std::set<int> result;
+    boost::mpl::for_each< evaluation_tags >( 
+        boost::bind( add_fit_window_width(), _1, config.allow_disjoint(), config.double_computation(), boost::ref(result)));
+    return result;
+}
 
 template <int Kernels, typename Assignment, typename Lambda>
 inline NaiveFitter::Ptr 

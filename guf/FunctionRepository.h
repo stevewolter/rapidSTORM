@@ -4,7 +4,9 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <memory>
 #include <boost/utility.hpp>
+#include "guf/Config.h"
 #include "guf/PlaneFunction.h"
+#include "fit_window/Spot.h"
 #include <nonlinfit/VectorPosition.h>
 
 namespace dStorm {
@@ -25,10 +27,10 @@ class FunctionRepository
 
     /** The expression is dynamically allocated to avoid Eigen alignment trouble. */
     std::auto_ptr<Lambda> expression;
-    boost::ptr_vector< PlaneFunction > store;
+    bool disjoint, use_doubles;
 
   public:
-    FunctionRepository();
+    FunctionRepository(const Config& config);
     ~FunctionRepository();
     typedef nonlinfit::AbstractFunction<double> result_type;
     /** Return an abstract function with the expression set to the result of
@@ -37,7 +39,7 @@ class FunctionRepository
      *  nonlinfit::plane::InversePoissonLikelihood, and of 
      *  nonlinfit::plane::SquaredDeviations otherwise.
      **/
-    result_type* operator()( const fit_window::Plane&, bool mle );
+    std::unique_ptr<result_type> create_function( const fit_window::Plane&, bool mle );
 
     /** Return a reference to the expression shared by all functions in the
      *  repository. */

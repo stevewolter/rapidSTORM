@@ -9,6 +9,7 @@
 #include "Localization.h"
 #include "engine/JobInfo.h"
 #include "guf/Spot.h"
+#include "fit_window/chunkify.hpp"
 #include <nonlinfit/plane/Distance.hpp>
 #include <nonlinfit/plane/JointData.hpp>
 #include <nonlinfit/Bind.h>
@@ -30,8 +31,9 @@
 #include "engine/InputTraits.h"
 #include <fstream>
 
+#include "fit_window/chunkify.h"
 #include "fit_window/Optics.h"
-#include "fit_window/PlaneImpl.hpp"
+#include "fit_window/FitWindowCutter.h"
 
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
@@ -250,7 +252,7 @@ class Fitter
     typedef sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
 
     /** Optics indexed by input layer. */
-    boost::ptr_vector<fit_window::Optics> optics;
+    fit_window::FitWindowCutter window_cutter;
     typedef boost::ptr_vector< PlaneFunction > Evaluators;
     Evaluators evaluators;
     const dStorm::engine::InputTraits& traits;
@@ -291,34 +293,27 @@ class Fitter
 
 template <class Metric, class Lambda>
 Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
-: traits(traits), table( config, traits, images * traits.plane_count() )
+: window_cutter(config.fit_window_config, traits, std::set<int>(), 0),
+  traits(traits), table( config, traits, images * traits.plane_count() )
 {
     DEBUG("Creating form fitter");
-    Eigen::Vector2d window_width;
-    window_width.x() = quantity<si::length>(config.fit_window_width().x()) / (1E-6 * si::meter);
-    window_width.y() = quantity<si::length>(config.fit_window_width().y()) / (1E-6 * si::meter);
-
-    for ( int i = 0; i < traits.plane_count(); ++i ) {
-        optics.push_back( new fit_window::Optics(window_width, traits.plane(i)) );
-    }
 }
 
 template <class Metric, class Lambda>
 bool Fitter<Metric,Lambda>::
 add_image( const engine::ImageStack& image, const Localization& position, int fluorophore ) 
 {
+    guf::Spot spot_position;
+    spot_position.x() = position.position_x() / (1E-6 * si::meter);
+    spot_position.y() = position.position_y() / (1E-6 * si::meter);
+    fit_window::PlaneStack stack = window_cutter.cut_region_of_interest(image, spot_position);
     for (int i = 0; i < image.plane_count(); ++i) {
         DEBUG("Adding layer " << i << " of " << image.plane_count() << " to model with " << evaluators.size()
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 
-        guf::Spot spot_position;
-        spot_position.x() = position.position_x() / (1E-6 * si::meter);
-        spot_position.y() = position.position_y() / (1E-6 * si::meter);
-        fit_window::PlaneImpl<DataTag>
-            data_creator( optics[i], image.plane(i), spot_position );
         std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction() );
-        new_evaluator->get_data() = data_creator.data;
+        chunkify(stack[i], new_evaluator->get_data());
 
         LocalizationValueFinder iv(fluorophore, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );
