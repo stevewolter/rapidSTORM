@@ -47,17 +47,14 @@ public:
 private:
     class lowest_mahalanobis_distance;
     class TracedObject : public KalmanTrace<2> {
-        int hope;
-        public:
+      public:
         boost::optional<Eigen::Vector2i> cache_position;
         TracedObject(const Output &papa);
         ~TracedObject();
 
-        void add( const dStorm::Localization& l)
-            { hope = 2; KalmanTrace<2>::add(l); }
-        bool has_lost_hope(int time_difference) const 
-            { return (hope - time_difference) < 0; }
-        void make_hope() { hope++; }
+        void add( const dStorm::Localization& l) {
+            KalmanTrace<2>::add(l);
+        }
     };
 
     std::auto_ptr<binning::Scaled> binners[2];
