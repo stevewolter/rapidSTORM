@@ -44,7 +44,8 @@ public:
 };
 
 template <typename Lambda>
-class BoundMoveable {
+class BoundMoveable 
+: public nonlinfit::AbstractFunction<double>, public nonlinfit::AbstractMoveable<double> {
     Lambda expression;
     nonlinfit::VectorPosition<Lambda> mover;
 public:
@@ -61,6 +62,7 @@ public:
     void get_position( Position& p ) const { mover.get_position(p); }
     void set_position( const Position& p ) { mover.set_position(p); }
     bool evaluate(Derivatives& p) { assert(false); return false; }
+    int variable_count() const { return nonlinfit::VectorPosition<Lambda>::VariableCount; }
 };
 
 struct ParameterLinearizer::Pimpl 
@@ -73,7 +75,7 @@ struct ParameterLinearizer::Pimpl
 
     std::vector<bool> reducible, plane_independent, constant;
     mutable std::vector< OnePlane, Eigen::aligned_allocator<OnePlane> > planes;
-    typedef nonlinfit::sum::AbstractFunction< OnePlane, OnePlane, nonlinfit::sum::VariableDropPolicy > MultiPlane;
+    typedef nonlinfit::sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > MultiPlane;
     mutable boost::optional< MultiPlane > multiplane;
 
 public:

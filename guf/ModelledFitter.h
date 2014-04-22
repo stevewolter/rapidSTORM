@@ -30,8 +30,7 @@ class ModelledFitter
     typedef FunctionRepository<_Function> Repository;
     typedef boost::ptr_vector< Repository > PlaneFunctions;
     typedef nonlinfit::sum::AbstractFunction< 
-        typename Repository::result_type,
-        typename Repository::Mover,
+        double,
         nonlinfit::sum::BoundedPolicy<Config::maximum_plane_count>
     > Function;
 

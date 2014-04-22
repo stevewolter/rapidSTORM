@@ -8,8 +8,8 @@
 namespace nonlinfit {
 namespace sum {
 
-template <typename F, typename M, typename Policy>
-AbstractFunction<F,M,Policy>::AbstractFunction( const VariableMap& variable_map )
+template <typename Number, typename Policy>
+AbstractFunction<Number, Policy>::AbstractFunction( const VariableMap& variable_map )
 : fitters( variable_map.function_count(), static_cast<argument_type*>(NULL) ), 
   movers( variable_map.function_count(), static_cast<moveable_type*>(NULL) ), 
   map( variable_map ),
@@ -17,8 +17,8 @@ AbstractFunction<F,M,Policy>::AbstractFunction( const VariableMap& variable_map 
   position_buffer(variable_map.input_var_c),
   evaluation_buffer(variable_map.input_var_c) {}
 
-template <typename F, typename M, typename Policy>
-void AbstractFunction<F,M,Policy>::get_position( Position& p ) const
+template <typename Number, typename Policy>
+void AbstractFunction<Number, Policy>::get_position( Position& p ) const
 {
     assert( p.rows() == variable_count() );
 #ifndef NDEBUG
@@ -43,8 +43,8 @@ void AbstractFunction<F,M,Policy>::get_position( Position& p ) const
     }
 }
 
-template <typename F, typename M, typename Policy>
-void AbstractFunction<F,M,Policy>::set_position( const Position& p ) 
+template <typename Number, typename Policy>
+void AbstractFunction<Number, Policy>::set_position( const Position& p ) 
 {
     for ( int i = 0; i < plane_count; ++i )
     {
@@ -63,8 +63,8 @@ void AbstractFunction<F,M,Policy>::set_position( const Position& p )
     }
 }
 
-template <typename F, typename M, typename Policy>
-bool AbstractFunction<F,M,Policy>::evaluate( Derivatives& p )
+template <typename Number, typename Policy>
+bool AbstractFunction<Number, Policy>::evaluate( Derivatives& p )
 {
     assert( p.hessian.rows() == variable_count() );
     assert( p.hessian.cols() == variable_count() );

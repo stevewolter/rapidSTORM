@@ -249,7 +249,7 @@ class Fitter
         nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > > 
         PlaneFunction;
     typedef nonlinfit::VectorPosition< Lambda > VectorPosition;
-    typedef sum::AbstractFunction< PlaneFunction, PlaneFunction, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
+    typedef sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
 
     /** Optics indexed by input layer. */
     boost::ptr_vector<fit_window::Optics> optics;
