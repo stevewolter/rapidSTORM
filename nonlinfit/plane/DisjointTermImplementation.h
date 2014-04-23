@@ -33,7 +33,7 @@ class DisjointTermImplementation : public DisjointTerm<Tag> {
 
   public:
     DisjointTermImplementation(Lambda& lambda)
-        : DisjointTerm<Tag>(TermCount),
+        : DisjointTerm<Tag>(TermCount, boost::mpl::size<typename Lambda::Variables>::value),
           evaluator(lambda),
           mover(lambda) {}
 
@@ -72,6 +72,10 @@ class DisjointTermImplementation : public DisjointTerm<Tag> {
         typename AbstractFunction<Number>::Position mover_position(position.rows());
         mover.get_position(mover_position);
         position = mover_position;
+    }
+
+    Eigen::VectorXi get_reduction_term() const OVERRIDE {
+        return MatrixReducer::create_reduction_list<ReducerTag<Tag, Lambda>>();
     }
 };
 

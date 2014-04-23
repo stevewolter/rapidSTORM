@@ -22,9 +22,11 @@ class DisjointTerm {
     typedef Eigen::Array<Number, Tag::ChunkSize, 1> ValueVector;
 
   public:
-    const int variable_count;
+    const int term_variable_count;
+    const int output_variable_count;
 
-    DisjointTerm(int variable_count) : variable_count(variable_count) {}
+    DisjointTerm(int term_variable_count, int output_variable_count)
+        : term_variable_count(term_variable_count), output_variable_count(output_variable_count) {}
     virtual ~DisjointTerm() {}
     virtual bool prepare_iteration(
             const typename Tag::Data&,
@@ -35,6 +37,7 @@ class DisjointTerm {
         YJacobianBlock y_jacobian) = 0;
     virtual void set_position(ConstPositionBlock position) = 0;
     virtual void get_position(PositionBlock position) const = 0;
+    virtual Eigen::VectorXi get_reduction_term() const = 0;
 };
 
 }

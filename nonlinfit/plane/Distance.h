@@ -44,21 +44,22 @@ class Distance
     const std::vector<DataChunk>* ys;
     JointTermImplementation<Lambda, Tag> term;
     std::vector<JointTerm<Tag>*> terms;
+    int variable_count_;
 
     mutable Eigen::Matrix<Number, Tag::ChunkSize, Eigen::Dynamic> jacobian;
 
   public:
     Distance( Lambda& lambda ) : term(lambda), terms(1, &term) {
-        int variable_count = 0;
+        variable_count_ = 0;
         for (const auto term : terms) {
-            variable_count += term->variable_count;
+            variable_count_ += term->variable_count;
         }
-        jacobian.resize(Tag::ChunkSize, variable_count);
+        jacobian.resize(Tag::ChunkSize, variable_count_);
     }
 
     bool evaluate( Derivatives& p );
     void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
-    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
+    int variable_count() const { return variable_count_; }
     void get_position( Position& p ) const OVERRIDE;
     void set_position( const Position& p ) OVERRIDE;
 
@@ -121,6 +122,8 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     typedef typename Data::DataRow DataRow;
     typedef nonlinfit::DataChunk<Num, _ChunkSize> DataChunk;
 
+    Eigen::Matrix<int, Eigen::Dynamic, 1> reduction;
+
     /** The x-dependent parts of the jacobian. */
     mutable Eigen::Matrix<Number, Tag::ChunkSize, Eigen::Dynamic> x_jacobian;
     /** The y-dependent parts of the jacobian. */
@@ -136,26 +139,37 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
     const Data* xs;
     const std::vector<DataChunk>* ys;
-    typename Tag::template get_derivative_combiner<Lambda>::type combiner;
     DisjointTermImplementation<Lambda, Tag> term;
     std::vector<DisjointTerm<Tag>*> terms;
+    int output_variable_count_;
 
   public:
     Distance( Lambda& lambda ) : term(lambda), terms(1, &term) {
-        int variable_count = 0;
+        int term_variable_count = 0;
         for (const auto term : terms) {
-            variable_count += term->variable_count;
+            term_variable_count += term->term_variable_count;
         }
-        x_jacobian.resize(Tag::ChunkSize, variable_count);
-        y_jacobian_row.resize(1, variable_count);
-        gradient_accum.resize(variable_count);
-        x_hessian.resize(variable_count, variable_count);
-        y_hessian.resize(variable_count, variable_count);
+        x_jacobian.resize(Tag::ChunkSize, term_variable_count);
+        y_jacobian_row.resize(1, term_variable_count);
+        gradient_accum.resize(term_variable_count);
+        x_hessian.resize(term_variable_count, term_variable_count);
+        y_hessian.resize(term_variable_count, term_variable_count);
+        reduction.resize(term_variable_count);
+
+        int offset = 0;
+        output_variable_count_ = 0;
+        for (const auto term : terms) {
+            auto block = reduction.segment(offset, term->term_variable_count);
+            block = term->get_reduction_term();
+            block.array() += output_variable_count_;
+            offset += term->term_variable_count;
+            output_variable_count_ += term->output_variable_count;
+        }
     }
 
     bool evaluate( Derivatives& p );
     void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
-    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
+    int variable_count() const { return output_variable_count_; }
     void get_position( Position& p ) const;
     void set_position( const Position& p );
 

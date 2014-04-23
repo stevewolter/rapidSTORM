@@ -108,8 +108,8 @@ void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     for (const auto& term : terms) {
         term->evaluate_chunk(r.inputs, values,
                 y_jacobian_row.template block<1, Eigen::Dynamic>(
-                    0, offset, 1, term->variable_count));
-        offset += term->variable_count;
+                    0, offset, 1, term->term_variable_count));
+        offset += term->term_variable_count;
     }
 
     c.residues = c.output - values;
@@ -133,11 +133,11 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     int offset = 0;
     for (const auto& term : terms) {
         auto block = x_jacobian.template block<_ChunkSize, Eigen::Dynamic>(
-                0, offset, _ChunkSize, term->variable_count);
+                0, offset, _ChunkSize, term->term_variable_count);
         if ( ! term->prepare_iteration(*xs, block) ) {
             return false;
         }
-        offset += term->variable_count;
+        offset += term->term_variable_count;
     }
     
     assert(this->xs->data.size() == this->ys->size());
@@ -150,8 +150,8 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
      * X and Y contributions. */
     x_hessian = x_jacobian.transpose() * x_jacobian;
 
-    combiner.matrix(p.hessian, (x_hessian.array() * y_hessian.array()).matrix());
-    combiner.vector(p.gradient, gradient_accum);
+    MatrixReducer::matrix(p.hessian, (x_hessian.array() * y_hessian.array()).matrix(), reduction);
+    MatrixReducer::vector(p.gradient, gradient_accum, reduction);
 
     return true;
 }
@@ -160,8 +160,8 @@ template <typename _Function, typename Num, int _ChunkSize, typename P1, typenam
 void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::get_position( Position& p ) const {
     int offset = 0;
     for (const auto& term : terms) {
-        term->get_position(p.segment(offset, term->variable_count));
-        offset += term->variable_count;
+        term->get_position(p.segment(offset, term->term_variable_count));
+        offset += term->term_variable_count;
     }
 }
 
@@ -169,8 +169,8 @@ template <typename _Function, typename Num, int _ChunkSize, typename P1, typenam
 void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::set_position( const Position& p ) {
     int offset = 0;
     for (const auto& term : terms) {
-        term->set_position(p.segment(offset, term->variable_count));
-        offset += term->variable_count;
+        term->set_position(p.segment(offset, term->term_variable_count));
+        offset += term->term_variable_count;
     }
 }
 

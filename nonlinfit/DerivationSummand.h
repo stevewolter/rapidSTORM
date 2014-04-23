@@ -35,10 +35,6 @@ template <class _Summand, typename _Parameter, class _Dimension>
 inline std::ostream& operator<<(std::ostream& o, DerivationSummand<_Summand,_Parameter,_Dimension>)  
     { return (o << "devsum " << _Summand::value << " in dim " << _Dimension::value << " for " << _Parameter()); }
 
-/** Free metafunction to get the base parameter type of a constructed 
- *  parameter. */
-template <typename Term>
-struct get_parameter { typedef typename Term::Parameter type; };
 }
 
 #endif

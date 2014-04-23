@@ -33,10 +33,13 @@ class Jacobian< Lambda, Disjoint<Num, ChunkSize, P1, P2 > >
 
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
 
-    typename Tag::template get_derivative_combiner<Lambda>::type combiner;
+    Eigen::Matrix<int, TermCount, 1> reductions;
     Eigen::Matrix<Num, ChunkSize, TermCount> x_parts;
 
   public:
+    Jacobian() : reductions(MatrixReducer::create_reduction_list<ReducerTag<Tag, Lambda>>()) {
+    }
+
     void precompute( Evaluator& evaluator ) {
         nonlinfit::Jacobian<Num, ChunkSize,OuterTerms> dx;
         dx.compute(evaluator, x_parts);
@@ -50,7 +53,7 @@ class Jacobian< Lambda, Disjoint<Num, ChunkSize, P1, P2 > >
 
         /* Sum the contributions from the different derivation summands for
         * each parameter. */
-        combiner.row_vector( result, x_parts * y_parts.asDiagonal() );
+        MatrixReducer::row_vector( result, x_parts * y_parts.asDiagonal(), reductions );
     }
 };
 
