@@ -99,23 +99,26 @@ void Distance<_Function,Tag,_Metric>::set_position( const Position& p ) {
 
 template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
 void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
-::evaluate_chunk( Derivatives& p, const OuterJacobian& dx, const DataRow& r, const DataChunk& c )
+::evaluate_chunk( Derivatives& p, const DataRow& r, const DataChunk& c )
 {
     Eigen::Array<Number, _ChunkSize, 1> values;
+    values.fill(0);
 
-    evaluator.prepare_chunk( r.inputs );
-    evaluator.value( values );
+    int offset = 0;
+    for (const auto& term : terms) {
+        term->evaluate_chunk(r.inputs, values,
+                y_jacobian_row.template block<1, Eigen::Dynamic>(
+                    0, offset, 1, term->variable_count));
+        offset += term->variable_count;
+    }
+
     c.residues = c.output - values;
     p.value += c.residues.square().sum();
 
-    /* Compute the Y parts of the derivatives by part. */
-    nonlinfit::Jacobian<Num,1,InnerTerms> dy;
-    dy.compute( evaluator );
-
     gradient_accum +=
-        ((dx->transpose() * c.residues.matrix()).array()
-            * dy->transpose().array()).matrix();
-    y_hessian += dy->transpose() * *dy;
+        ((x_jacobian.transpose() * c.residues.matrix()).array()
+            * y_jacobian_row.transpose().array()).matrix();
+    y_hessian += y_jacobian_row.transpose() * y_jacobian_row;
 
     assert( p.value == p.value );
 }
@@ -127,29 +130,50 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     gradient_accum.fill(0);
     y_hessian.fill(0);
 
-    if ( ! evaluator.prepare_iteration( *xs ) )
-        return false;
+    int offset = 0;
+    for (const auto& term : terms) {
+        auto block = x_jacobian.template block<_ChunkSize, Eigen::Dynamic>(
+                0, offset, _ChunkSize, term->variable_count);
+        if ( ! term->prepare_iteration(*xs, block) ) {
+            return false;
+        }
+        offset += term->variable_count;
+    }
     
-    /* Pre-compute the outer jacobian here so it will be available to compute
-     * the residues in the inner loop. */
-    OuterJacobian dx;
-    dx.compute( evaluator );
-
     assert(this->xs->data.size() == this->ys->size());
     auto j = this->ys->begin();
     for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i, ++j) {
-        evaluate_chunk(p, dx, *i, *j);
+        evaluate_chunk(p, *i, *j);
     }
 
     /* Compute the hessian matrix of derivation summands by multiplying
      * X and Y contributions. */
-    Eigen::Matrix<Num,TermCount,TermCount> x_hessian = dx->transpose() * *dx;
+    x_hessian = x_jacobian.transpose() * x_jacobian;
 
     combiner.matrix(p.hessian, (x_hessian.array() * y_hessian.array()).matrix());
     combiner.vector(p.gradient, gradient_accum);
 
     return true;
 }
+
+template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
+void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::get_position( Position& p ) const {
+    int offset = 0;
+    for (const auto& term : terms) {
+        term->get_position(p.segment(offset, term->variable_count));
+        offset += term->variable_count;
+    }
+}
+
+template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
+void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::set_position( const Position& p ) {
+    int offset = 0;
+    for (const auto& term : terms) {
+        term->set_position(p.segment(offset, term->variable_count));
+        offset += term->variable_count;
+    }
+}
+
 
 }
 }

@@ -9,6 +9,7 @@
 #include "nonlinfit/plane/Jacobian.h"
 #include "nonlinfit/VectorPosition.h"
 
+#include "nonlinfit/plane/DisjointTermImplementation.h"
 #include "nonlinfit/plane/JointTermImplementation.h"
 
 namespace nonlinfit {
@@ -119,40 +120,47 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     typedef typename Evaluation< Num >::Vector Position;
     typedef typename Data::DataRow DataRow;
     typedef nonlinfit::DataChunk<Num, _ChunkSize> DataChunk;
-    typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
-        OuterTerms;
-    typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 
-        InnerTerms;
-    static const int TermCount = boost::mpl::size<OuterTerms>::size::value ;
 
+    /** The x-dependent parts of the jacobian. */
+    mutable Eigen::Matrix<Number, Tag::ChunkSize, Eigen::Dynamic> x_jacobian;
+    /** The y-dependent parts of the jacobian. */
+    mutable Eigen::Matrix<Number, 1, Eigen::Dynamic> y_jacobian_row;
     /** Accumulator for the derivative terms for Evaluation::gradient.
      *  This variable is necessary because a variable might have multiple
      *  terms, making a post-processing step necessary. */
-    mutable Eigen::Matrix<Num, TermCount, 1> gradient_accum;
+    mutable Eigen::Matrix<Num, Eigen::Dynamic, 1> gradient_accum;
+    /** Accumulator for the X parts of the hessian. */
+    mutable Eigen::Matrix<Num, Eigen::Dynamic, Eigen::Dynamic> x_hessian;
     /** Accumulator for the Y parts of the hessian. */
-    mutable Eigen::Matrix<Num, TermCount, TermCount> y_hessian;
+    mutable Eigen::Matrix<Num, Eigen::Dynamic, Eigen::Dynamic> y_hessian;
 
-    typedef nonlinfit::Jacobian<Num, _ChunkSize,OuterTerms> OuterJacobian;
-
-    typedef typename get_evaluator< Lambda, Tag >::type
-        Evaluator;
-    VectorPosition<Lambda, Num> mover;
-    Evaluator evaluator;
     const Data* xs;
     const std::vector<DataChunk>* ys;
     typename Tag::template get_derivative_combiner<Lambda>::type combiner;
+    DisjointTermImplementation<Lambda, Tag> term;
+    std::vector<DisjointTerm<Tag>*> terms;
 
   public:
-    Distance( Lambda& l ) : mover(l), evaluator(l) {}
+    Distance( Lambda& lambda ) : term(lambda), terms(1, &term) {
+        int variable_count = 0;
+        for (const auto term : terms) {
+            variable_count += term->variable_count;
+        }
+        x_jacobian.resize(Tag::ChunkSize, variable_count);
+        y_jacobian_row.resize(1, variable_count);
+        gradient_accum.resize(variable_count);
+        x_hessian.resize(variable_count, variable_count);
+        y_hessian.resize(variable_count, variable_count);
+    }
+
     bool evaluate( Derivatives& p );
     void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
-    void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
-    void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
+    void get_position( Position& p ) const;
+    void set_position( const Position& p );
 
     typedef void result_type;
-    inline void evaluate_chunk( Derivatives&, 
-        const OuterJacobian&, const DataRow&, const DataChunk& );
+    inline void evaluate_chunk( Derivatives&, const DataRow&, const DataChunk& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
