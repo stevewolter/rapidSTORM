@@ -1,13 +1,15 @@
 #ifndef NONLINFIT_EVALUATORS_PLANE_GENERIC_H
 #define NONLINFIT_EVALUATORS_PLANE_GENERIC_H
 
-#include "nonlinfit/plane/fwd.h"
-#include <nonlinfit/Evaluator.h>
-#include <nonlinfit/Evaluation.h>
-#include "nonlinfit/plane/Jacobian.h"
 #include "nonlinfit/AbstractFunction.h"
-#include "nonlinfit/VectorPosition.h"
 #include "nonlinfit/DataChunk.h"
+#include "nonlinfit/Evaluation.h"
+#include "nonlinfit/Evaluator.h"
+#include "nonlinfit/plane/fwd.h"
+#include "nonlinfit/plane/Jacobian.h"
+#include "nonlinfit/VectorPosition.h"
+
+#include "nonlinfit/plane/JointTermImplementation.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -37,20 +39,27 @@ class Distance
     typedef typename Derivatives::Vector Position;
     typedef typename Data::DataRow DataRow;
     typedef nonlinfit::DataChunk<Number, Tag::ChunkSize> DataChunk;
-    typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
     const Data* xs;
     const std::vector<DataChunk>* ys;
-    Jacobian< Lambda, Tag > jac;
-    VectorPosition<Lambda, Number> mover;
-    Evaluator evaluator;
+    JointTermImplementation<Lambda, Tag> term;
+    std::vector<JointTerm<Tag>*> terms;
+
+    mutable Eigen::Matrix<Number, Tag::ChunkSize, Eigen::Dynamic> jacobian;
 
   public:
-    Distance( Lambda& lambda ) : mover(lambda), evaluator(lambda) {}
+    Distance( Lambda& lambda ) : term(lambda), terms(1, &term) {
+        int variable_count = 0;
+        for (const auto term : terms) {
+            variable_count += term->variable_count;
+        }
+        jacobian.resize(Tag::ChunkSize, variable_count);
+    }
+
     bool evaluate( Derivatives& p );
     void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
-    void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
-    void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
+    void get_position( Position& p ) const OVERRIDE;
+    void set_position( const Position& p ) OVERRIDE;
 
     typedef void result_type;
     inline void evaluate_chunk( Derivatives&, const DataRow&, const DataChunk& );
