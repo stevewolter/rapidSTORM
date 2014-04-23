@@ -30,34 +30,28 @@ class Jacobian< Lambda, Disjoint<Num, ChunkSize, P1, P2 > >
     typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 
         InnerTerms;
     static const int TermCount = boost::mpl::size<OuterTerms>::size::value ;
-    static const int VariableCount = 
-        boost::mpl::size<typename Lambda::Variables>::type::value;
 
-    typedef nonlinfit::Jacobian<Num, ChunkSize,OuterTerms> OuterJacobian;
-    typedef Eigen::Matrix< Num, ChunkSize, VariableCount >
-        result_type;
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
 
     typename Tag::template get_derivative_combiner<Lambda>::type combiner;
-    OuterJacobian dx;
-    result_type result;
+    Eigen::Matrix<Num, ChunkSize, TermCount> x_parts;
 
   public:
     void precompute( Evaluator& evaluator ) {
-        dx.compute(evaluator);
+        nonlinfit::Jacobian<Num, ChunkSize,OuterTerms> dx;
+        dx.compute(evaluator, x_parts);
     }
-    void compute( Evaluator& evaluator ) {
+    template <typename Result>
+    void compute( Evaluator& evaluator, Result& result ) {
         /* Compute the Y parts of the derivatives by part. */
         nonlinfit::Jacobian<Num, 1,InnerTerms> dy;
-        dy.compute( evaluator );
+        Eigen::Matrix<Num, 1, TermCount> y_parts;
+        dy.compute( evaluator, y_parts );
 
         /* Sum the contributions from the different derivation summands for
         * each parameter. */
-        combiner.row_vector( result, *dx * dy->asDiagonal() );
+        combiner.row_vector( result, x_parts * y_parts.asDiagonal() );
     }
-    const result_type& jacobian() const { return result; }
-    const result_type& operator*() const { return result; }
-    const result_type* operator->() const { return &result; }
 };
 
 /** Forward of nonlinfit::Jacobian.

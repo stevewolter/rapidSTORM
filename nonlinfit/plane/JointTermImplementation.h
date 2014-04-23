@@ -20,8 +20,8 @@ class JointTermImplementation : public JointTerm<Tag> {
     typedef typename JointTerm<Tag>::ConstPositionBlock ConstPositionBlock;
 
     Evaluator evaluator;
-    Jacobian<Lambda, Tag> jacobian_computer;
     VectorPosition<Lambda, Number> mover;
+    Jacobian<Lambda, Tag> jacobian_computer;
 
   public:
     JointTermImplementation(Lambda& lambda)
@@ -44,8 +44,7 @@ class JointTermImplementation : public JointTerm<Tag> {
             JacobianBlock jacobian_block) OVERRIDE {
         evaluator.prepare_chunk(data);
         evaluator.add_value(values);
-        jacobian_computer.compute(evaluator);
-        jacobian_block = jacobian_computer.jacobian();
+        jacobian_computer.compute(evaluator, jacobian_block);
     }
 
     void set_position(ConstPositionBlock position) OVERRIDE {
