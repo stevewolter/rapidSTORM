@@ -176,8 +176,8 @@ template <typename Num, int _ChunkSize, typename P1, typename P2>
 void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::get_position( Position& p ) const {
     int offset = 0;
     for (const auto& term : terms) {
-        term->get_position(p.segment(offset, term->term_variable_count));
-        offset += term->term_variable_count;
+        term->get_position(p.segment(offset, term->variable_count));
+        offset += term->variable_count;
     }
 }
 
@@ -185,8 +185,8 @@ template <typename Num, int _ChunkSize, typename P1, typename P2>
 void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::set_position( const Position& p ) {
     int offset = 0;
     for (const auto& term : terms) {
-        term->set_position(p.segment(offset, term->term_variable_count));
-        offset += term->term_variable_count;
+        term->set_position(p.segment(offset, term->variable_count));
+        offset += term->variable_count;
     }
 }
 
