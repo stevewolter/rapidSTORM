@@ -15,10 +15,8 @@ namespace nonlinfit {
  *  \tparam _Variables The list of all variables to be supported by the functor.
  *                    Indices in the result vector will be computed relative to
  *                    the Variables list. */
-template <typename Num, int ChunkSize, typename _Variables>
+template <typename Variables>
 class Jacobian {
-    typedef _Variables Variables;
-
     struct jacobian_maker {
         typedef void result_type;
         template <typename Result, typename Evaluator, typename Parameter>
@@ -32,8 +30,8 @@ class Jacobian {
      *  elements will be computed eagerly and stored in the internal
      *  result matrix that can be accessed via jacobian(). */
     template <typename Evaluator, typename Result>
-    void compute( Evaluator& cp, Result& r ) {
-        boost::mpl::for_each< _Variables >( boost::bind(
+    static void compute( Evaluator& cp, Result& r ) {
+        boost::mpl::for_each< Variables >( boost::bind(
             jacobian_maker(), boost::ref(r), boost::ref(cp), _1 ) );
     }
 };

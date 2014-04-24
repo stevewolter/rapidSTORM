@@ -39,7 +39,6 @@ template <typename Parameter> class ParameterReference;
 template <typename CRTP> struct access_parameters;
 template <typename A, typename B> struct append;
 template <typename Function> class BoundFunction;
-template <class Num, int VectorSize, typename _Variables> class Jacobian;
 template <typename List, typename Parameter> struct index_of;
 template <class Lambda, class Result> struct make_functor;
 

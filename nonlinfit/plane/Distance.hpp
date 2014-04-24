@@ -1,8 +1,9 @@
 #ifndef NONLINFIT_IMAGE_PLANE_EVALUATOR_EVALUATE_H
 #define NONLINFIT_IMAGE_PLANE_EVALUATOR_EVALUATE_H
 
-#include "nonlinfit/VectorPosition.hpp"
 #include "nonlinfit/plane/Distance.h"
+
+#include "nonlinfit/plane/sum_matrix_rows.h"
 #include <boost/bind/bind.hpp>
 
 namespace nonlinfit {
@@ -39,15 +40,15 @@ struct increment_evaluation<negative_poisson_likelihood> {
     }
 };
 
-template <typename _Function, typename Tag, typename _Metric>
-void Distance<_Function,Tag,_Metric>::evaluate_chunk( 
+template <typename Tag, typename _Metric>
+void Distance<Tag,_Metric>::evaluate_chunk( 
     Derivatives& p, const DataRow& r, const DataChunk& c )
 {
 }
 
 
-template <typename _Function, typename Tag, typename _Metric>
-bool Distance<_Function,Tag,_Metric>::evaluate(Derivatives& p)
+template <typename Tag, typename _Metric>
+bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
 {
     p.set_zero();
 
@@ -79,8 +80,8 @@ bool Distance<_Function,Tag,_Metric>::evaluate(Derivatives& p)
     return true;
 }
 
-template <typename _Function, typename Tag, typename _Metric>
-void Distance<_Function,Tag,_Metric>::get_position( Position& p ) const {
+template <typename Tag, typename _Metric>
+void Distance<Tag,_Metric>::get_position( Position& p ) const {
     int offset = 0;
     for (const auto& term : terms) {
         term->get_position(p.segment(offset, term->variable_count));
@@ -88,8 +89,8 @@ void Distance<_Function,Tag,_Metric>::get_position( Position& p ) const {
     }
 }
 
-template <typename _Function, typename Tag, typename _Metric>
-void Distance<_Function,Tag,_Metric>::set_position( const Position& p ) {
+template <typename Tag, typename _Metric>
+void Distance<Tag,_Metric>::set_position( const Position& p ) {
     int offset = 0;
     for (const auto& term : terms) {
         term->set_position(p.segment(offset, term->variable_count));
@@ -97,8 +98,8 @@ void Distance<_Function,Tag,_Metric>::set_position( const Position& p ) {
     }
 }
 
-template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
-void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
+template <typename Num, int _ChunkSize, typename P1, typename P2>
+void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 ::evaluate_chunk( Derivatives& p, const DataRow& r, const DataChunk& c )
 {
     Eigen::Array<Number, _ChunkSize, 1> values;
@@ -106,7 +107,7 @@ void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
     int offset = 0;
     for (const auto& term : terms) {
-        term->evaluate_chunk(r.inputs, values,
+        term->evaluate_disjoint_chunk(r.inputs, values,
                 y_jacobian_row.template block<1, Eigen::Dynamic>(
                     0, offset, 1, term->term_variable_count));
         offset += term->term_variable_count;
@@ -122,8 +123,8 @@ void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
     assert( p.value == p.value );
 }
-template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
-bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
+template <typename Num, int _ChunkSize, typename P1, typename P2>
+bool Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 ::evaluate( Derivatives& p) 
 {
     p.value = 0;
@@ -134,7 +135,7 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     for (const auto& term : terms) {
         auto block = x_jacobian.template block<_ChunkSize, Eigen::Dynamic>(
                 0, offset, _ChunkSize, term->term_variable_count);
-        if ( ! term->prepare_iteration(*xs, block) ) {
+        if ( ! term->prepare_disjoint_iteration(*xs, block) ) {
             return false;
         }
         offset += term->term_variable_count;
@@ -150,14 +151,14 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
      * X and Y contributions. */
     x_hessian = x_jacobian.transpose() * x_jacobian;
 
-    MatrixReducer::matrix(p.hessian, (x_hessian.array() * y_hessian.array()).matrix(), reduction);
-    MatrixReducer::vector(p.gradient, gradient_accum, reduction);
+    sum_rows_and_cols(p.hessian, (x_hessian.array() * y_hessian.array()).matrix(), reduction);
+    sum_rows(p.gradient, gradient_accum, reduction);
 
     return true;
 }
 
-template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
-void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::get_position( Position& p ) const {
+template <typename Num, int _ChunkSize, typename P1, typename P2>
+void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::get_position( Position& p ) const {
     int offset = 0;
     for (const auto& term : terms) {
         term->get_position(p.segment(offset, term->term_variable_count));
@@ -165,8 +166,8 @@ void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::
     }
 }
 
-template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
-void Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::set_position( const Position& p ) {
+template <typename Num, int _ChunkSize, typename P1, typename P2>
+void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::set_position( const Position& p ) {
     int offset = 0;
     for (const auto& term : terms) {
         term->set_position(p.segment(offset, term->term_variable_count));

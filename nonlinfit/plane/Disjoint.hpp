@@ -71,13 +71,6 @@ class MatrixReducer
         }
     };
 
-    template <bool Rows, bool Columns, typename Target, typename Source, typename Reducer>
-    static void do_combine( Target& t, const Source& s, const Reducer& a) {
-        t.fill(0);
-        for (int r = 0; r < s.rows(); ++r)
-            for (int c = 0; c < s.cols(); ++c)
-                t( ( Rows ) ? a[r] : r, ( Columns ) ? a[c] : c ) += s(r,c);
-    }
   public:
     template <typename ReducerTag>
     static Eigen::Matrix<int, ReducerTag::TermCount, 1> create_reduction_list() {
@@ -87,15 +80,6 @@ class MatrixReducer
         return result;
     }
 
-    /** Apply the reduction to both dimensions (rows and columns). */
-    template <typename Target, typename Source, typename Reducer>
-    static void matrix( Target& t, const Source& s, const Reducer& r) { do_combine<true,true>(t,s,r); }
-    /** Reduce only the rows, leaving the column count constant. */
-    template <typename Target, typename Source, typename Reducer>
-    static void vector( Target& t, const Source& s, const Reducer& r) { do_combine<true,false>(t,s,r); }
-    /** Reduce only the columns, leaving the row count constant. */
-    template <typename Target, typename Source, typename Reducer>
-    static void row_vector( Target& t, const Source& s, const Reducer& r) { do_combine<false,true>(t,s,r); }
 };
 
 template <typename DataTag, typename Lambda>

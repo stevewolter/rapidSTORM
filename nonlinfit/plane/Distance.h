@@ -4,13 +4,8 @@
 #include "nonlinfit/AbstractFunction.h"
 #include "nonlinfit/DataChunk.h"
 #include "nonlinfit/Evaluation.h"
-#include "nonlinfit/Evaluator.h"
 #include "nonlinfit/plane/fwd.h"
-#include "nonlinfit/plane/Jacobian.h"
-#include "nonlinfit/VectorPosition.h"
-
-#include "nonlinfit/plane/DisjointTermImplementation.h"
-#include "nonlinfit/plane/JointTermImplementation.h"
+#include "nonlinfit/plane/Term.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -27,12 +22,11 @@ namespace plane {
  *  \tparam _Tag      A computation way (Joint or Disjoint)
  *  \tparam _Metric   A metric tag
  **/
-template <typename _Lambda, typename _Tag, typename _Metric>
+template <typename _Tag, typename _Metric>
 class Distance
 : public nonlinfit::AbstractFunction<typename _Tag::Number>
 {
     typedef _Tag Tag;
-    typedef _Lambda Lambda;
     typedef typename _Tag::Number Number;
     typedef typename Tag::Data Data;
 
@@ -42,14 +36,13 @@ class Distance
     typedef nonlinfit::DataChunk<Number, Tag::ChunkSize> DataChunk;
     const Data* xs;
     const std::vector<DataChunk>* ys;
-    JointTermImplementation<Lambda, Tag> term;
-    std::vector<JointTerm<Tag>*> terms;
+    std::vector<Term<Tag>*> terms;
     int variable_count_;
 
     mutable Eigen::Matrix<Number, Tag::ChunkSize, Eigen::Dynamic> jacobian;
 
   public:
-    Distance( Lambda& lambda ) : term(lambda), terms(1, &term) {
+    Distance( Term<Tag>* term ) : terms(1, term) {
         variable_count_ = 0;
         for (const auto term : terms) {
             variable_count_ += term->variable_count;
@@ -105,14 +98,13 @@ class Distance
  *  While this potentially doubles the number of parameters,
  *  the rise in the number of parameters is usually much smaller.
  **/
-template <typename _Lambda, typename Num, int _ChunkSize, typename P1, typename P2>
-class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
+template <typename Num, int _ChunkSize, typename P1, typename P2>
+class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 : public nonlinfit::AbstractFunction<Num>
 {
     typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
   public:
     // These typedefs are used by nonlinfit::BoundFunction
-    typedef _Lambda Lambda;
     typedef Num Number;
     typedef typename Tag::Data Data;
 
@@ -139,12 +131,11 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
     const Data* xs;
     const std::vector<DataChunk>* ys;
-    DisjointTermImplementation<Lambda, Tag> term;
-    std::vector<DisjointTerm<Tag>*> terms;
+    std::vector<Term<Tag>*> terms;
     int output_variable_count_;
 
   public:
-    Distance( Lambda& lambda ) : term(lambda), terms(1, &term) {
+    Distance(Term<Tag>* term) : terms(1, term) {
         int term_variable_count = 0;
         for (const auto term : terms) {
             term_variable_count += term->term_variable_count;
@@ -163,7 +154,7 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
             block = term->get_reduction_term();
             block.array() += output_variable_count_;
             offset += term->term_variable_count;
-            output_variable_count_ += term->output_variable_count;
+            output_variable_count_ += term->variable_count;
         }
     }
 

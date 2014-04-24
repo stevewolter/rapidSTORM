@@ -10,14 +10,16 @@
 #include "engine/JobInfo.h"
 #include "guf/Spot.h"
 #include "fit_window/chunkify.hpp"
-#include <nonlinfit/plane/Distance.hpp>
-#include <nonlinfit/plane/JointData.h>
-#include <nonlinfit/Bind.h>
-#include <nonlinfit/sum/AbstractFunction.hpp>
-#include <nonlinfit/sum/VariableMap.hpp>
-#include <nonlinfit/sum/Evaluator.h>
-#include <nonlinfit/make_bitset.h>
-#include <nonlinfit/make_functor.hpp>
+#include "nonlinfit/plane/Distance.hpp"
+#include "nonlinfit/plane/JointData.h"
+#include "nonlinfit/plane/Joint.h"
+#include "nonlinfit/plane/JointTermImplementation.h"
+#include "nonlinfit/Bind.h"
+#include "nonlinfit/sum/AbstractFunction.hpp"
+#include "nonlinfit/sum/VariableMap.hpp"
+#include "nonlinfit/sum/Evaluator.h"
+#include "nonlinfit/make_bitset.h"
+#include "nonlinfit/make_functor.hpp"
 #include "gaussian_psf/is_plane_dependent.h"
 #include "gaussian_psf/DepthInfo3D.h"
 #include "gaussian_psf/No3D.h"
@@ -249,12 +251,13 @@ class Fitter
 
     class PlaneFunction : public nonlinfit::AbstractFunction<double> {
         TheoreticalFunction lambda;
-        nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > function;
+        nonlinfit::plane::JointTermImplementation<TheoreticalFunction, DataTag> term;
+        nonlinfit::plane::Distance< DataTag, Metric > function;
         nonlinfit::plane::JointData<double, 2> xs;
         std::vector<nonlinfit::DataChunk<double, 2>> ys;
 
       public:
-        PlaneFunction(const fit_window::Plane& plane) : function(lambda) {
+        PlaneFunction(const fit_window::Plane& plane) : term(lambda), function(&term) {
             chunkify(plane, xs);
             chunkify_data_chunks(plane, ys);
             function.set_data(xs, ys);
