@@ -45,6 +45,10 @@ struct PlaneFunctionImplementation
     bool evaluate( Derivatives& p ) OVERRIDE { return converted.evaluate(p); }
     void get_position( Position& p ) const OVERRIDE { converted.get_position(p); }
     void set_position( const Position& p ) OVERRIDE { converted.set_position(p); }
+    bool step_is_negligible( const Position& old_position,
+                             const Position& new_position ) const {
+        return converted.step_is_negligible(old_position, new_position);
+    }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

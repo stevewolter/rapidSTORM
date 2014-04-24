@@ -15,17 +15,18 @@
 #include "nonlinfit/plane/Joint.h"
 #include "nonlinfit/plane/JointTermImplementation.h"
 #include "nonlinfit/Bind.h"
-#include "nonlinfit/sum/AbstractFunction.hpp"
+#include "nonlinfit/sum/AbstractFunction.h"
 #include "nonlinfit/sum/VariableMap.hpp"
 #include "nonlinfit/sum/Evaluator.h"
 #include "nonlinfit/make_bitset.h"
 #include "nonlinfit/make_functor.hpp"
+#include "gaussian_psf/parameters.h"
 #include "gaussian_psf/is_plane_dependent.h"
 #include "gaussian_psf/DepthInfo3D.h"
 #include "gaussian_psf/No3D.h"
 #include "gaussian_psf/fixed_form.h"
 #include "gaussian_psf/JointEvaluator.h"
-#include <nonlinfit/levmar/Fitter.hpp>
+#include "nonlinfit/levmar/Fitter.h"
 #define BOOST_DETAIL_CONTAINER_FWD_HPP
 #include <boost/lambda/lambda.hpp>
 #include <boost/variant/get.hpp>
@@ -36,9 +37,7 @@
 #include "fit_window/Optics.h"
 #include "fit_window/FitWindowCutter.h"
 
-#include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
-#include <nonlinfit/terminators/All.h>
 #include "threed_info/No3D.h"
 #include "threed_info/Spline3D.h"
 
@@ -47,12 +46,21 @@
 #include <nonlinfit/sum/Lambda.h>
 #include "constant_background/model.hpp"
 
+#include "debug.h"
+
 namespace dStorm {
 namespace estimate_psf_form {
 
 namespace PSF = dStorm::gaussian_psf;
 
 using namespace nonlinfit;
+
+struct NonDataParameters
+{
+    template <typename Type> struct apply { typedef boost::mpl::true_ type; };
+};
+template <> struct NonDataParameters::apply< gaussian_psf::XPosition > {typedef boost::mpl::false_ type; };
+template <> struct NonDataParameters::apply< gaussian_psf::YPosition > {typedef boost::mpl::false_ type; };
 
 struct print_state {
 	void matrix_is_unsolvable(){}
@@ -244,10 +252,10 @@ class Fitter
 {
     struct less_amplitude;
 
-    typedef nonlinfit::sum::Lambda< boost::mpl::vector< Lambda, constant_background::Expression > >
+    typedef nonlinfit::sum::Lambda< boost::mpl::vector< nonlinfit::Bind<Lambda, NonDataParameters>, constant_background::Expression > >
         TheoreticalFunction;
     typedef plane::xs_joint<double,2>::type DataTag;
-    typedef sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
+    typedef sum::AbstractFunction CombinedFunction;
 
     class PlaneFunction : public nonlinfit::AbstractFunction<double> {
         TheoreticalFunction lambda;
@@ -258,6 +266,8 @@ class Fitter
 
       public:
         PlaneFunction(const fit_window::Plane& plane) : term(lambda), function(&term) {
+            lambda.get_part(boost::mpl::int_<0>()).set_relative_epsilon(1E-4);
+            lambda.get_part(boost::mpl::int_<0>()).set_negligible_step_length(1E-4);
             chunkify(plane, xs);
             chunkify_data_chunks(plane, ys);
             function.set_data(xs, ys);
@@ -269,6 +279,9 @@ class Fitter
         bool evaluate( Derivatives& p ) OVERRIDE { return function.evaluate(p); }
         void get_position( Position& p ) const OVERRIDE { function.get_position(p); }
         void set_position( const Position& p ) OVERRIDE { function.set_position(p); }
+        bool step_is_negligible( const Position& old_position, const Position& new_position ) const OVERRIDE {
+            return function.step_is_negligible(old_position, new_position);
+        }
     };
 
     /** Optics indexed by input layer. */
@@ -390,15 +403,8 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     combiner.set_fitters( evaluators.begin(), evaluators.end() );
 
     nonlinfit::levmar::Fitter fitter = nonlinfit::levmar::Config();
-    nonlinfit::terminators::StepLimit terminator(300);
-    fitter.fit( combiner,
-        all( nonlinfit::terminators::StepLimit(300), 
-#ifdef VERBOSE_STATE
-        all( print_state(), nonlinfit::terminators::RelativeChange(1E-4) )
-#else
-        nonlinfit::terminators::RelativeChange(1E-4)
-#endif
-        ) );
+    nonlinfit::terminators::StepLimit step_limit(300);
+    fitter.fit( combiner, step_limit );
 
     progress.indeterminate = false;
     progress.setValue( 1 );

@@ -43,6 +43,9 @@ class Term {
     virtual void set_position(ConstPositionBlock position) = 0;
     virtual void get_position(PositionBlock position) const = 0;
     virtual Eigen::VectorXi get_reduction_term() const = 0;
+    virtual bool step_is_negligible(
+            ConstPositionBlock from,
+            ConstPositionBlock to) const = 0;
 };
 
 }

@@ -4,6 +4,7 @@
 #include "nonlinfit/plane/Term.h"
 
 #include "nonlinfit/derive_by.hpp"
+#include "nonlinfit/parameter_is_negligible.hpp"
 #include "nonlinfit/plane/Disjoint.hpp"
 #include "nonlinfit/plane/sum_matrix_rows.h"
 #include "nonlinfit/VectorPosition.hpp"
@@ -28,6 +29,7 @@ class DisjointTermImplementation : public Term<Tag> {
         InnerTerms;
     static const int TermCount = boost::mpl::size<OuterTerms>::size::value ;
 
+    Lambda& lambda;
     Evaluator evaluator;
     VectorPosition<Lambda, Number> mover;
     Eigen::Matrix<int, TermCount, 1> reductions;
@@ -36,6 +38,7 @@ class DisjointTermImplementation : public Term<Tag> {
   public:
     DisjointTermImplementation(Lambda& lambda)
         : Term<Tag>(TermCount, boost::mpl::size<typename Lambda::Variables>::value),
+          lambda(lambda),
           evaluator(lambda),
           mover(lambda),
           reductions(MatrixReducer::create_reduction_list<ReducerTag<Tag, Lambda>>()) {}
@@ -102,6 +105,12 @@ class DisjointTermImplementation : public Term<Tag> {
 
     Eigen::VectorXi get_reduction_term() const OVERRIDE {
         return reductions;
+    }
+
+    bool step_is_negligible(
+            ConstPositionBlock from,
+            ConstPositionBlock to) const OVERRIDE {
+        return parameter_is_negligible().all(lambda, from, to);
     }
 };
 

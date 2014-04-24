@@ -67,6 +67,9 @@ struct SimpleFunction
     int variable_count() const { return 1; }
     void get_position(Position& position) const { position[0] = this->expression->var; }
     void set_position(const Position& position) { this->expression->var = position[0]; }
+    bool step_is_negligible(const Position& from, const Position& to) const {
+        return false;
+    }
 };
 
 }

@@ -2,8 +2,6 @@
 #define NONLINFT_FWD_H
 
 #include "nonlinfit/sum/fwd.h"
-#include "nonlinfit/levmar/fwd.h"
-#include "nonlinfit/terminators/fwd.h"
 
 /** The nonlinfit namespace contains a generic nonlinear fitting
  *  header library. Its core concepts are 
@@ -17,7 +15,6 @@ namespace nonlinfit {
 template <typename Model> struct Lambda;
 template <typename Model> struct Evaluator;
 template <typename Model> struct Function;
-template <class X, class Position> struct Terminator;
 
 template <class Derivatives>
     class AbstractFunction;

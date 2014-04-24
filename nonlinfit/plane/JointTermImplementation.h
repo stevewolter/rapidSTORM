@@ -4,6 +4,7 @@
 #include "nonlinfit/plane/Term.h"
 
 #include "nonlinfit/derive_by.hpp"
+#include "nonlinfit/parameter_is_negligible.hpp"
 #include "nonlinfit/VectorPosition.hpp"
 
 namespace nonlinfit {
@@ -20,12 +21,14 @@ class JointTermImplementation : public Term<Tag> {
     typedef typename Term<Tag>::PositionBlock PositionBlock;
     typedef typename Term<Tag>::ConstPositionBlock ConstPositionBlock;
 
+    Lambda& lambda;
     Evaluator evaluator;
     VectorPosition<Lambda, Number> mover;
 
   public:
     JointTermImplementation(Lambda& lambda)
         : Term<Tag>(-1, boost::mpl::size<typename Lambda::Variables>::value),
+          lambda(lambda),
           evaluator(lambda),
           mover(lambda) {}
 
@@ -68,6 +71,12 @@ class JointTermImplementation : public Term<Tag> {
 
     Eigen::VectorXi get_reduction_term() const {
         throw std::logic_error("Tried to run disjoint operations on joint data");
+    }
+
+    bool step_is_negligible(
+            ConstPositionBlock from,
+            ConstPositionBlock to) const OVERRIDE {
+        return parameter_is_negligible().all(lambda, from, to);
     }
 };
 

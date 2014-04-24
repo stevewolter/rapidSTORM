@@ -42,6 +42,9 @@ class AbstractFunction {
     virtual void get_position( Position& ) const = 0;
     /** Change the variable values of the Lambda to the provided values. */
     virtual void set_position( const Position& ) = 0;
+
+    virtual bool step_is_negligible( const Position& old_position,
+                                     const Position& new_position ) const = 0;
 };
 
 }

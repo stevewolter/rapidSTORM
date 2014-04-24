@@ -2,20 +2,19 @@
 #define DSTORM_FITTER_GUF_NAIVEFITTER_H
 
 #include <Eigen/StdVector>
-#include "guf/NaiveFitter.h"
-#include "engine/JobInfo_decl.h"
-#include "guf/Config_decl.h"
-#include "Localization_decl.h"
-#include <nonlinfit/sum/AbstractFunction.h>
-#include "guf/FitTerminator.h"
-#include <nonlinfit/terminators/All.h>
-#include <nonlinfit/terminators/StepLimit.h>
-#include "guf/FunctionRepository.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <nonlinfit/levmar/Fitter.h>
-#include <nonlinfit/AbstractFunction.h>
-#include "guf/MultiKernelModel.h"
+
+#include "engine/JobInfo_decl.h"
 #include "fit_window/Plane.h"
+#include "guf/Config_decl.h"
+#include "guf/FunctionRepository.h"
+#include "guf/MultiKernelModel.h"
+#include "guf/NaiveFitter.h"
+#include "Localization_decl.h"
+#include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/levmar/Fitter.h"
+#include "nonlinfit/sum/AbstractFunction.h"
+#include "nonlinfit/terminators/StepLimit.h"
 
 namespace dStorm {
 namespace guf {
@@ -30,21 +29,12 @@ class ModelledFitter
 {
     typedef FunctionRepository<_Function> Repository;
     typedef boost::ptr_vector< Repository > PlaneFunctions;
-    typedef nonlinfit::sum::AbstractFunction< 
-        double,
-        nonlinfit::sum::BoundedPolicy<Config::maximum_plane_count>
-    > Function;
+    typedef nonlinfit::sum::AbstractFunction Function;
 
     Function fitter;
     PlaneFunctions evaluators;
     nonlinfit::levmar::Fitter lm;
-    typedef nonlinfit::terminators::Combined< 
-            nonlinfit::terminators::StepLimit,
-            FitTerminator<_Function>,
-            std::logical_and<bool> >
-        MyTerminator;
-    const MyTerminator terminator;
-
+    const nonlinfit::terminators::StepLimit step_limit;
     MultiKernelModelStack _model;
 
   public:

@@ -98,6 +98,21 @@ void Distance<Tag,_Metric>::set_position( const Position& p ) {
     }
 }
 
+template <typename Tag, typename _Metric>
+bool Distance<Tag,_Metric>::step_is_negligible( const Position& from, const Position& to ) const {
+    int offset = 0;
+    for (const auto& term : terms) {
+        if (!term->step_is_negligible(
+                    from.segment(offset, term->variable_count),
+                    to.segment(offset, term->variable_count))) {
+            return false;
+        }
+        offset += term->variable_count;
+    }
+
+    return true;
+}
+
 template <typename Num, int _ChunkSize, typename P1, typename P2>
 void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 ::evaluate_chunk( Derivatives& p, const DataRow& r, const DataChunk& c )
@@ -173,6 +188,22 @@ void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::set_position
         term->set_position(p.segment(offset, term->term_variable_count));
         offset += term->term_variable_count;
     }
+}
+
+template <typename Num, int _ChunkSize, typename P1, typename P2>
+bool Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::step_is_negligible(
+        const Position& from, const Position& to ) const {
+    int offset = 0;
+    for (const auto& term : terms) {
+        if (!term->step_is_negligible(
+                    from.segment(offset, term->variable_count),
+                    to.segment(offset, term->variable_count))) {
+            return false;
+        }
+        offset += term->variable_count;
+    }
+
+    return true;
 }
 
 

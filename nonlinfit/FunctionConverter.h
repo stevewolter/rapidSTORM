@@ -26,9 +26,13 @@ class FunctionConverter
     AbstractFunction<FromType>& base;
     Evaluation<FromType> buffer;
     mutable typename AbstractFunction<FromType>::Position position_buffer;
+    mutable typename AbstractFunction<FromType>::Position new_position_buffer;
   public:
     FunctionConverter( AbstractFunction<FromType>& a )
-        : base(a), buffer(base.variable_count()), position_buffer(base.variable_count()) {}
+        : base(a),
+          buffer(base.variable_count()),
+          position_buffer(base.variable_count()),
+          new_position_buffer(base.variable_count()) {}
 
     int variable_count() const { return base.variable_count(); }
     bool evaluate( Evaluation<ToType>& d ) {
@@ -51,6 +55,13 @@ class FunctionConverter
         position_buffer = p.template cast<FromType>();
         base.set_position(position_buffer);
     }
+
+    bool step_is_negligible( const Position& old_position,
+                             const Position& new_position ) const OVERRIDE {
+        position_buffer = old_position.template cast<FromType>();
+        new_position_buffer = new_position_buffer.template cast<FromType>();
+        return base.step_is_negligible(position_buffer, new_position_buffer);
+    }
 };
 
 template <class ToType, class FromType>
@@ -66,6 +77,10 @@ class FunctionConverter<ToType, FromType, true>
     bool evaluate( Evaluation<ToType>& d ) { return base.evaluate(d); }
     void get_position( Position& p ) const OVERRIDE { base.get_position(p); }
     void set_position( const Position& p ) OVERRIDE { base.set_position(p); }
+    bool step_is_negligible( const Position& old_position,
+                             const Position& new_position ) const {
+        return base.step_is_negligible(old_position, new_position);
+    }
 };
 
 }

@@ -8,16 +8,16 @@
 namespace nonlinfit {
 namespace sum {
 
-template <typename Number, typename Policy>
-AbstractFunction<Number, Policy>::AbstractFunction( const VariableMap& variable_map )
+AbstractFunction::AbstractFunction( const VariableMap& variable_map )
 : fitters( variable_map.function_count(), static_cast<argument_type*>(NULL) ), 
   map( variable_map ),
   plane_count(variable_map.function_count()),
   position_buffer(variable_map.input_var_c),
-  evaluation_buffer(variable_map.input_var_c) {}
+  new_position_buffer(variable_map.input_var_c),
+  evaluation_buffer(variable_map.input_var_c),
+  variables_are_dropped(variable_map.variables_are_dropped()) {}
 
-template <typename Number, typename Policy>
-void AbstractFunction<Number, Policy>::get_position( Position& p ) const
+void AbstractFunction::get_position( Position& p ) const
 {
     assert( p.rows() == variable_count() );
 #ifndef NDEBUG
@@ -29,7 +29,7 @@ void AbstractFunction<Number, Policy>::get_position( Position& p ) const
         DEBUG("Getting parameters " << position_buffer.transpose() << " from upstream #" << i);
         for (int j = 0; j < position_buffer.rows(); ++j) {
             int downstream_pos = map(i,j);
-            if ( ! Policy::VariablesAreDropped || downstream_pos >= 0 )
+            if ( downstream_pos >= 0 )
             {
                 typename Position::Scalar& mapped_variable = p[ downstream_pos ];
                 DEBUG("Downstream variable of upstream " << i << " and variable " << j << " is at " 
@@ -42,19 +42,18 @@ void AbstractFunction<Number, Policy>::get_position( Position& p ) const
     }
 }
 
-template <typename Number, typename Policy>
-void AbstractFunction<Number, Policy>::set_position( const Position& p ) 
+void AbstractFunction::set_position( const Position& p ) 
 {
     for ( int i = 0; i < plane_count; ++i )
     {
         assert( fitters[i] );
         /* When variables have been dropped, we have to get their default
          * values first. */
-        if ( Policy::VariablesAreDropped )
+        if ( variables_are_dropped )
             fitters[i]->get_position( position_buffer );
         for (int r = 0; r < position_buffer.rows(); ++r) {
             const int row = map(i,r);
-            if ( ! Policy::VariablesAreDropped || row >= 0 )
+            if ( row >= 0 )
                 position_buffer[r] = p[ map(i,r) ];
         }
         DEBUG("Setting parameters " << position_buffer.transpose() << " for upstream #" << i);
@@ -62,8 +61,7 @@ void AbstractFunction<Number, Policy>::set_position( const Position& p )
     }
 }
 
-template <typename Number, typename Policy>
-bool AbstractFunction<Number, Policy>::evaluate( Derivatives& p )
+bool AbstractFunction::evaluate( Derivatives& p )
 {
     assert( p.hessian.rows() == variable_count() );
     assert( p.hessian.cols() == variable_count() );
@@ -81,14 +79,39 @@ bool AbstractFunction<Number, Policy>::evaluate( Derivatives& p )
         p.value += evaluation_buffer.value;
         for (int r = 0; r < map.input_var_c; ++r) {
             int tr = map(i,r);
-            if ( ! Policy::VariablesAreDropped || tr >= 0 ) {
+            if ( tr >= 0 ) {
                 p.gradient[ tr ] += evaluation_buffer.gradient[r];
                 for (int c = 0; c < map.input_var_c; ++c) {
                     const int tc = map(i,c);
-                    if ( ! Policy::VariablesAreDropped || tc >= 0 )
+                    if ( tc >= 0 )
                         p.hessian(tr, tc) += evaluation_buffer.hessian(r,c);
                 }
             }
+        }
+    }
+    return true;
+}
+
+bool AbstractFunction::step_is_negligible(
+        const Position& old_position, const Position& new_position ) const {
+    for ( int i = 0; i < plane_count; ++i ) {
+        assert( fitters[i] );
+        /* When variables have been dropped, we have to get their default
+         * values first. */
+        if ( variables_are_dropped ) {
+            fitters[i]->get_position( position_buffer );
+            fitters[i]->get_position( new_position_buffer );
+        }
+        for (int r = 0; r < position_buffer.rows(); ++r) {
+            const int row = map(i,r);
+            if ( row >= 0 ) {
+                position_buffer[r] = old_position[ map(i,r) ];
+                new_position_buffer[r] = new_position[ map(i,r) ];
+            }
+        }
+        DEBUG(" " << position_buffer.transpose() << " for upstream #" << i);
+        if (!fitters[i]->step_is_negligible( position_buffer, new_position_buffer )) {
+            return false;
         }
     }
     return true;

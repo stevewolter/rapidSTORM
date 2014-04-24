@@ -20,9 +20,20 @@ struct Expression
 : public nonlinfit::access_parameters< Expression >
 {
     typedef boost::mpl::vector< Amount > Variables;
+    Expression() : relative_epsilon(0) {}
+
+    bool change_is_negligible(Amount tag, double from, double to) const {
+        double rel_change = std::abs(to - from) / std::max(1E-10, std::max(std::abs(from), std::abs(to)));
+        return rel_change < relative_epsilon;
+    }
+
+    void set_relative_epsilon(double relative_epsilon) {
+        this->relative_epsilon = relative_epsilon;
+    }
 
   private:
     double amount;
+    double relative_epsilon;
     double& access( Amount ) { return amount; }
     friend class access_parameters< Expression >;
 };

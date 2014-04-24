@@ -30,6 +30,17 @@ void VariableMap::add_function( std::vector<bool> common )
     map.push_back( r );
 }
 
+bool VariableMap::variables_are_dropped() const {
+    for (const Row& row : map) {
+        for (const int& entry : row) {
+            if (entry < 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 }
 }
 

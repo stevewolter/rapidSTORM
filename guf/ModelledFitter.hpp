@@ -14,12 +14,12 @@
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/sum/VariableMap.h>
 #include <nonlinfit/AbstractFunction.h>
-#include <nonlinfit/sum/AbstractFunction.hpp>
+#include <nonlinfit/sum/AbstractFunction.h>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include "engine/JobInfo.h"
 #include "engine/InputTraits.h"
 #include "fit_window/Plane.h"
-#include <nonlinfit/AbstractTerminator.h>
+#include "LengthUnit.h"
 
 #include "debug.h"
 
@@ -40,13 +40,17 @@ ModelledFitter<_Function>::ModelledFitter(
                 config.disjoint_amplitudes() ) ) ) 
   ),
   lm(config.make_levmar_config()),
-  terminator( 
-    nonlinfit::terminators::StepLimit(config.maximumIterationSteps()),
-    FitTerminator<_Function>(config) )
+  step_limit(config.maximumIterationSteps())
 {
+    // TODO: Set the terminating step length.
     for (int i = 0; i < info.traits.plane_count(); ++i ) {
         evaluators.push_back( new Repository(config) );
         _model.push_back( MultiKernelModel( evaluators[i].get_expression() ) );
+        for (gaussian_psf::BaseExpression& gaussian : _model.back()) {
+            gaussian.set_negligible_step_length(ToLengthUnit(config.negligible_x_step()));
+            gaussian.set_relative_epsilon(config.relative_epsilon());
+        }
+        _model.back().background_model().set_relative_epsilon(config.relative_epsilon());
     }
 }
 
@@ -55,10 +59,6 @@ double ModelledFitter<_Function>::fit(
     fit_window::PlaneStack& data,
     bool mle
 ) {
-    typedef nonlinfit::AbstractTerminatorAdaptor< MyTerminator, typename Function::Position >
-        AbstractTerminator;
-    typedef nonlinfit::AbstractTerminator< typename Function::Position >
-        TerminatorInterface;
     typedef nonlinfit::AbstractFunction<double> AbstractFunction;
     std::vector<std::unique_ptr<nonlinfit::AbstractFunction<double>>> functions;
     for ( typename fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {
@@ -66,9 +66,8 @@ double ModelledFitter<_Function>::fit(
         fitter.set_fitter( i-b, *functions.back() );
     }
 
-    MyTerminator concrete_terminator(terminator);
-    AbstractTerminator abstract_terminator(concrete_terminator);
-    return lm.fit<AbstractFunction, TerminatorInterface&>( fitter, abstract_terminator );
+    nonlinfit::terminators::StepLimit step_limit(this->step_limit);
+    return lm.fit( fitter, step_limit );
 }
 
 }

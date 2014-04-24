@@ -4,7 +4,7 @@
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/sum/VariableMap.hpp>
-#include <nonlinfit/sum/AbstractFunction.hpp>
+#include <nonlinfit/sum/AbstractFunction.h>
 #include <nonlinfit/make_bitset.h>
 #include "calibrate_3d/Config.h"
 #include "gaussian_psf/is_plane_dependent.h"
@@ -63,6 +63,7 @@ public:
     void set_position( const Position& p ) { mover.set_position(p); }
     bool evaluate(Derivatives& p) { assert(false); return false; }
     int variable_count() const { return nonlinfit::VectorPosition<Lambda, double>::VariableCount; }
+    bool step_is_negligible(const Position& from, const Position& to) const { assert(false); return true; }
 };
 
 struct ParameterLinearizer::Pimpl 
@@ -75,7 +76,7 @@ struct ParameterLinearizer::Pimpl
 
     std::vector<bool> reducible, plane_independent, constant;
     mutable std::vector< OnePlane, Eigen::aligned_allocator<OnePlane> > planes;
-    typedef nonlinfit::sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > MultiPlane;
+    typedef nonlinfit::sum::AbstractFunction MultiPlane;
     mutable boost::optional< MultiPlane > multiplane;
 
 public:
