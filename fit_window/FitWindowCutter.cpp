@@ -17,7 +17,7 @@ FitWindowCutter::FitWindowCutter(const Config& c, const dStorm::engine::InputTra
     : desired_fit_window_widths(desired_fit_window_widths), fit_window_width_slack(fit_window_width_slack) {
     auto window_size = Spot::Constant( quantity<si::length>( c.fit_window_size() ).value() * 1E6 );
     for (int i = 0; i < traits.plane_count(); ++i) {
-        optics.push_back( Optics(window_size, traits.plane(i)) );
+        optics.emplace_back( new Optics(window_size, traits.plane(i)) );
     }
 }
 
@@ -116,7 +116,7 @@ std::vector<Plane> FitWindowCutter::cut_region_of_interest(
     const Spot& position) {
     std::vector<Plane> result;
     for (int i = 0; i < image.plane_count(); ++i) {
-        result.push_back(cut_region_of_interest(optics[i], image.plane(i), position));
+        result.push_back(cut_region_of_interest(*optics[i], image.plane(i), position));
     }
     return result;
 }
