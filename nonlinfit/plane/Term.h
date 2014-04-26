@@ -15,8 +15,8 @@ class Term {
     typedef Eigen::Matrix<Number, 1, Eigen::Dynamic> FullJacobianRow;
 
   protected:
-    typedef Eigen::Block<FullJacobian, Tag::ChunkSize> JacobianBlock;
-    typedef Eigen::Block<FullJacobianRow, 1> JacobianRowBlock;
+    typedef Eigen::Block<FullJacobian, Tag::ChunkSize, Eigen::Dynamic, true> JacobianBlock;
+    typedef Eigen::Block<FullJacobianRow, 1, Eigen::Dynamic, true> JacobianRowBlock;
     typedef Eigen::Block<FullPosition, Eigen::Dynamic, 1> PositionBlock;
     typedef Eigen::Block<const FullPosition, Eigen::Dynamic, 1> ConstPositionBlock;
     typedef Eigen::Array<Number, Tag::ChunkSize, 1> ValueVector;

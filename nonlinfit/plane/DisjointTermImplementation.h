@@ -6,6 +6,7 @@
 #include "nonlinfit/derive_by.hpp"
 #include "nonlinfit/parameter_is_negligible.hpp"
 #include "nonlinfit/plane/Disjoint.hpp"
+#include "nonlinfit/plane/DisjointData.h"
 #include "nonlinfit/plane/sum_matrix_rows.h"
 #include "nonlinfit/VectorPosition.hpp"
 
