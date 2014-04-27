@@ -459,7 +459,6 @@ rapidstorm_SOURCES += \
     nonlinfit/plane/Disjoint.h nonlinfit/plane/Disjoint.hpp \
     nonlinfit/plane/JointData.h \
     nonlinfit/plane/DisjointData.h nonlinfit/plane/DisjointData.hpp \
-    nonlinfit/plane/DisjointData.cpp \
     nonlinfit/plane/GenericData.h \
     nonlinfit/plane/JointData.hpp \
     nonlinfit/terminators/StepLimit.h \
