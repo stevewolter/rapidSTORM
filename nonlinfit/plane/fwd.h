@@ -6,7 +6,6 @@ namespace nonlinfit {
 /** Contains tags and evaluation functions for two-dimensional datasets. */
 namespace plane {
 
-template <typename Number> class DataPoint;
 class GenericData;
 template <typename Num, int ChunkSize> class DisjointData;
 template <typename Num, int ChunkSize> class JointData;
