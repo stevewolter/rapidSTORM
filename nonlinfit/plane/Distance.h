@@ -2,7 +2,6 @@
 #define NONLINFIT_EVALUATORS_PLANE_GENERIC_H
 
 #include "nonlinfit/AbstractFunction.h"
-#include "nonlinfit/DataChunk.h"
 #include "nonlinfit/Evaluation.h"
 #include "nonlinfit/plane/fwd.h"
 #include "nonlinfit/plane/Term.h"
@@ -33,9 +32,7 @@ class Distance
     typedef Evaluation< Number > Derivatives;
     typedef typename Derivatives::Vector Position;
     typedef typename Data::DataRow DataRow;
-    typedef nonlinfit::DataChunk<Number, Tag::ChunkSize> DataChunk;
     const Data* xs;
-    const std::vector<DataChunk>* ys;
     std::vector<Term<Tag>*> terms;
     int variable_count_;
 
@@ -50,16 +47,13 @@ class Distance
         jacobian.resize(Tag::ChunkSize, variable_count_);
     }
 
-    bool evaluate( Derivatives& p );
-    void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
+    bool evaluate( Derivatives& p ) OVERRIDE;
+    void set_data( const Data& xs ) OVERRIDE { this->xs = &xs; }
     int variable_count() const { return variable_count_; }
     void get_position( Position& p ) const OVERRIDE;
     void set_position( const Position& p ) OVERRIDE;
     bool step_is_negligible( const Position& old_position,
                              const Position& new_position ) const OVERRIDE;
-
-    typedef void result_type;
-    inline void evaluate_chunk( Derivatives&, const DataRow&, const DataChunk& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -114,7 +108,6 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     typedef Evaluation< Num > Derivatives;
     typedef typename Evaluation< Num >::Vector Position;
     typedef typename Data::DataRow DataRow;
-    typedef nonlinfit::DataChunk<Num, _ChunkSize> DataChunk;
 
     Eigen::Matrix<int, Eigen::Dynamic, 1> reduction;
 
@@ -132,7 +125,6 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     mutable Eigen::Matrix<Num, Eigen::Dynamic, Eigen::Dynamic> y_hessian;
 
     const Data* xs;
-    const std::vector<DataChunk>* ys;
     std::vector<Term<Tag>*> terms;
     int output_variable_count_;
 
@@ -161,7 +153,7 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     }
 
     bool evaluate( Derivatives& p );
-    void set_data( const Data& xs, const std::vector<DataChunk>& ys ) { this->xs = &xs; this->ys = &ys; }
+    void set_data( const Data& xs ) { this->xs = &xs; }
     int variable_count() const { return output_variable_count_; }
     void get_position( Position& p ) const;
     void set_position( const Position& p );
@@ -169,7 +161,7 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
                              const Position& new_position ) const OVERRIDE;
 
     typedef void result_type;
-    inline void evaluate_chunk( Derivatives&, const DataRow&, const DataChunk& );
+    inline void evaluate_chunk( Derivatives&, const DataRow& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

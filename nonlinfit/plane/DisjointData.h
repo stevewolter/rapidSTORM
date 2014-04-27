@@ -26,7 +26,7 @@ struct DisjointCoreData
     typedef Number_ Number;
     typedef Eigen::Array<Number,1,1> Input;
 
-    struct DataRow {
+    struct DataRow : public nonlinfit::DataChunk<Number_,_ChunkSize> {
         /** The Y coordinate for the current row in LengthUnit. */
         Input inputs;
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
