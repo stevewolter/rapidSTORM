@@ -1,8 +1,13 @@
 #include "guf/FitFunctionFactory.h"
 
-#include "guf/FunctionRepository.h"
-#include "guf/MultiKernelLambda.h"
+#include "guf/FunctionRepository.hpp"
 #include "threed_info/No3D.h"
+
+#include "nonlinfit/Bind.h"
+#include "gaussian_psf/No3D.h"
+#include "gaussian_psf/DepthInfo3D.h"
+#include "gaussian_psf/free_form.h"
+#include "gaussian_psf/fixed_form.h"
 
 namespace dStorm {
 namespace guf {
@@ -11,19 +16,8 @@ template <typename Assignment, typename Lambda>
 inline std::unique_ptr<FitFunctionFactory>
 create2( const Config& c, int kernel_count ) 
 { 
-    if (kernel_count == 1) {
-	typedef typename MultiKernelLambda< 
-	    nonlinfit::Bind< Lambda ,Assignment> , 1>
-	    ::type F;
-	return std::unique_ptr<FitFunctionFactory>( new FunctionRepository<F>(c) );
-    } else if (kernel_count == 2) {
-	typedef typename MultiKernelLambda< 
-	    nonlinfit::Bind< Lambda ,Assignment> , 2>
-	    ::type F;
-	return std::unique_ptr<FitFunctionFactory>( new FunctionRepository<F>(c) );
-    } else {
-	throw std::logic_error("Only one or two kernels are supported");
-    }
+    typedef nonlinfit::Bind< Lambda ,Assignment> F;
+    return std::unique_ptr<FitFunctionFactory>( new FunctionRepository<F, constant_background::Expression>(c, kernel_count) );
 }
  
 std::unique_ptr<FitFunctionFactory>

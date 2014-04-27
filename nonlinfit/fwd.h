@@ -1,8 +1,6 @@
 #ifndef NONLINFT_FWD_H
 #define NONLINFT_FWD_H
 
-#include "nonlinfit/sum/fwd.h"
-
 /** The nonlinfit namespace contains a generic nonlinear fitting
  *  header library. Its core concepts are 
  *  - nonlinfit::Lambda

@@ -469,11 +469,7 @@ rapidstorm_SOURCES += \
     nonlinfit/sum/AbstractFunction.cpp \
     nonlinfit/sum/VariableMap.h \
     nonlinfit/sum/VariableMap.hpp \
-    nonlinfit/sum/VariableMap.cpp \
-    nonlinfit/sum/Evaluator.h \
-    nonlinfit/sum/Evaluator.hpp \
-    nonlinfit/sum/fwd.h \
-    nonlinfit/sum/Lambda.h
+    nonlinfit/sum/VariableMap.cpp
 
 rapidstorm_SOURCES += \
     fit_window/Config.h fit_window/Config.cpp \
@@ -489,11 +485,10 @@ rapidstorm_SOURCES += \
     guf/fitter.h guf/fitter.cpp \
     guf/EvaluationTags.h \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
-    guf/create_evaluators.h guf/create_evaluators.hpp \
+    guf/create_evaluator.h guf/create_evaluator.hpp \
     guf/FunctionRepository.h guf/FunctionRepository.hpp \
     guf/Factory.cpp guf/Factory.h \
     guf/MultiKernelModel.h guf/MultiKernelModel.hpp \
-    guf/MultiKernelLambda.h \
     guf/Fitter.cpp guf/Fitter.h \
     guf/InitialValueFinder.h guf/InitialValueFinder.cpp \
     guf/TraitValueFinder.h guf/TraitValueFinder.cpp \
@@ -532,14 +527,8 @@ rapidstorm_SOURCES += \
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
 # empty suffix to generate lists
 INST_DIR = guf/instantiations/
-INST_MODEL = \
-    $(INST_DIR:=no3d_-_free_form_model_-_one_kernel_-_) \
-    $(INST_DIR:=no3d_-_fixed_form_model_-_one_kernel_-_) \
-    $(INST_DIR:=no3d_-_fixed_form_model_-_two_kernel_-_) \
-    $(INST_DIR:=depthinfo3d_-_fixed_form_model_-_one_kernel_-_) \
-    $(INST_DIR:=depthinfo3d_-_fixed_form_model_-_two_kernel_-_)
 
-INST_NUMTYPE = $(INST_MODEL:=float_-_) $(INST_MODEL:=double_-_)
+INST_NUMTYPE = $(INST_DIR:=float_-_) $(INST_DIR:=double_-_)
 INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14) 
 if COMPILE_SPECIALIZED_FITTERS
 INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
@@ -549,37 +538,26 @@ INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
 endif
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
 
-INST_NUMTYPE_ONLY = float_-_ double_-_
-INST_TAGS_ONLY_UNSEP = $(INST_NUMTYPE_ONLY:=joint_8) $(INST_NUMTYPE_ONLY:=disjoint_14) 
-if COMPILE_SPECIALIZED_FITTERS
-INST_TAGS_ONLY_UNSEP += $(INST_NUMTYPE_ONLY:=disjoint_8) \
-    $(INST_NUMTYPE_ONLY:=disjoint_10) $(INST_NUMTYPE_ONLY:=disjoint_12) \
-    $(INST_NUMTYPE_ONLY:=disjoint_16) $(INST_NUMTYPE_ONLY:=disjoint_18) \
-    $(INST_NUMTYPE_ONLY:=disjoint_20) 
-endif
-
-INST_TAGS_ONLY = $(INST_TAGS_ONLY_UNSEP:=_-_)
+INST_MODEL = \
+    $(INST_TAGS:=no3d_free_form_model_-_) \
+    $(INST_TAGS:=no3d_fixed_form_model_-_) \
+    $(INST_TAGS:=depthinfo3d_fixed_form_model_-_) \
+    $(INST_TAGS:=constant_background_-_)
 INSTANTIATIONS_UNCPP = \
-    $(INST_MODEL:=FunctionRepository) \
-    $(INST_TAGS:=create_evaluators) $(INST_TAGS_ONLY:=PlaneFunction)
+    $(INST_MODEL:=create_evaluator) $(INST_TAGS:=PlaneFunction)
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
 rapidstorm_SOURCES += \
-    guf/instantiations/one_kernel.h \
-    guf/instantiations/two_kernel.h \
-    guf/instantiations/no3d.h \
-    guf/instantiations/depthinfo3d.h \
-    guf/instantiations/fixed_form_model.h \
-    guf/instantiations/free_form_model.h \
+    guf/instantiations/no3d_free_form_model.h \
+    guf/instantiations/no3d_fixed_form_model.h \
+    guf/instantiations/depthinfo3d_fixed_form_model.h \
+    guf/instantiations/constant_background.h \
     guf/instantiations/float.h \
     guf/instantiations/double.h \
     guf/instantiations/disjoint.h \
     guf/instantiations/joint_8.h \
     guf/instantiations/create_evaluators.h \
-    guf/instantiations/FunctionRepository.h \
-    guf/instantiations/PlaneFunction.h \
-    guf/instantiations/ModelledFitter.h \
-    guf/instantiations/Moveable.h
+    guf/instantiations/PlaneFunction.h
 nodist_rapidstorm_SOURCES = $(INSTANTIATIONS)
 CLEANFILES += $(INSTANTIATIONS)
 
