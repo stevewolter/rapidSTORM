@@ -190,20 +190,25 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
     std::vector<PlaneEstimate> rv( s.size() );
     for (int i = 0; i < int(s.size()); ++i) {
         const traits::Optics& o = info.traits.optics(i);
-        /* Value of perfectly sharp PSF at Z = 0 */
-        double pif = o.transmission_coefficient(info.fluorophore);
             
-        /* Solution of equation system:
-            * peak_intensity == bg_estimate + pif * amp_estimate
-            * integral == pixel_count * bg_estimate + amp_estimate */
-        if ( pif > 1E-20 ) {
-            rv[i].bg = s[i].background_estimate;
-            rv[i].amp = std::max( 
-                (s[i].integral - rv[i].bg * double(s[i].points.size())) / pif,
-                1.0 );
+        if (s[i].has_per_pixel_background) {
+            rv[i].bg = 0;
+            rv[i].amp = s[i].integral;
         } else {
-            rv[i].amp = 0;
-            rv[i].bg = s[i].integral / s[i].points.size();
+            /* Value of perfectly sharp PSF at Z = 0 */
+            double pif = o.transmission_coefficient(info.fluorophore);
+            /* Solution of equation system:
+                * peak_intensity == bg_estimate + pif * amp_estimate
+                * integral == pixel_count * bg_estimate + amp_estimate */
+            if ( pif > 1E-20 ) {
+                rv[i].bg = s[i].background_estimate;
+                rv[i].amp = std::max( 
+                    (s[i].integral - rv[i].bg * double(s[i].points.size())) / pif,
+                    1.0 );
+            } else {
+                rv[i].amp = 0;
+                rv[i].bg = s[i].integral / s[i].points.size();
+            }
         }
     }
 

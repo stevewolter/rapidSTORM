@@ -51,9 +51,8 @@ bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
         }
     }
     
-    Eigen::Array<Number, Tag::ChunkSize, 1> values;
     for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i) {
-        values.fill(0);
+        Eigen::Array<Number, Tag::ChunkSize, 1> values(i->background);
 
         int offset = 0;
         for (const auto& term : terms) {
@@ -107,8 +106,7 @@ template <typename Num, int _ChunkSize, typename P1, typename P2>
 void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 ::evaluate_chunk( Derivatives& p, const DataRow& r )
 {
-    Eigen::Array<Number, _ChunkSize, 1> values;
-    values.fill(0);
+    Eigen::Array<Number, _ChunkSize, 1> values(r.background);
 
     int offset = 0;
     for (const auto& term : terms) {

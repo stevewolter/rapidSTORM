@@ -35,6 +35,7 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Num
             assert(std::abs(output.data[chunk].inputs[0] - point.position.y()) < 1E-10);
             assert(std::abs(output.xs[i] - point.position.x()) < 1E-10);
             output.data[chunk].output[i] = point.value;
+            output.data[chunk].background[i] = point.background;
             output.data[chunk].logoutput[i] =
                 (point.value < 1E-10) ? -23*point.value : log(point.value);
             output.data[chunk].residues[i] = 0;
@@ -57,6 +58,7 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::JointData<Number
             output.data[chunk].inputs(i, 0) = point.position.x();
             output.data[chunk].inputs(i, 1) = point.position.y();
             output.data[chunk].output[i] = point.value;
+            output.data[chunk].background[i] = point.background;
             output.data[chunk].logoutput[i] =
                 (point.value < 1E-10) ? -23*point.value : log(point.value);
             output.data[chunk].residues[i] = 0;

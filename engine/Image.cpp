@@ -24,9 +24,10 @@ namespace engine {
 void ImageStack::push_back( const Plane& p ) 
 {
     planes_.push_back( p );
+    background_.push_back( Image2D() );
 }
 
-void ImageStack::clear() { planes_.clear(); }
+void ImageStack::clear() { planes_.clear(); background_.clear(); }
 
 ImageStack::ImageStack() : fn( 0 * camera::frame ) {}
 ImageStack::ImageStack( frame_index i) : fn(i) {}

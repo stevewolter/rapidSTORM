@@ -24,14 +24,15 @@ FitWindowCutter::FitWindowCutter(const Config& c, const dStorm::engine::InputTra
 Plane FitWindowCutter::cut_region_of_interest(
     const Optics& optics,
     const dStorm::engine::Image2D& image,
+    const dStorm::engine::Image2D& background,
     const Spot& position
 ) {
     const float background_part = 0.25;
 
     Plane result;
     result.optics = &optics;
-
     result.pixel_size = quantity<si::area>(optics.pixel_size(position)).value() * 1E12;
+    result.has_per_pixel_background = background.is_valid();
 
     /* Initialize iteratively computed statistics */
     for (int d = 0; d < 2; ++d) {
@@ -77,10 +78,16 @@ Plane FitWindowCutter::cut_region_of_interest(
             result.max_coordinate[d] = std::max( pos, result.max_coordinate[d] );
         }
 
-        const double value = 
+        double value = 
             std::max( 0.0, optics.absolute_in_photons( image( i->image_position ) * camera::ad_count ) );
         data_point.value = value;
-        pixels.push_back(value);
+        if (background.is_valid()) {
+            data_point.background = std::max( 0.0, optics.absolute_in_photons( background( i->image_position ) * camera::ad_count ) );
+            value = std::max(0.0, value - data_point.background);
+        } else {
+	    data_point.background = 0;
+            pixels.push_back(value);
+        }
         result.integral += value;
         if ( value >= result.peak_intensity ) {
             result.highest_pixel_index = points.size();
@@ -89,19 +96,23 @@ Plane FitWindowCutter::cut_region_of_interest(
         result.points.push_back(data_point);
     }
 
-    assert( ! pixels.empty() );
-
-    std::vector<float>::iterator qp = pixels.begin() + pixels.size() * background_part;
-    std::nth_element( pixels.begin(), qp, pixels.end());
-    result.background_estimate = *qp;
+    if (!result.has_per_pixel_background) {
+	assert( ! pixels.empty() );
+        std::vector<float>::iterator qp = pixels.begin() + pixels.size() * background_part;
+        std::nth_element( pixels.begin(), qp, pixels.end());
+        result.background_estimate = *qp;
+    } else {
+	result.background_estimate = 0;
+    }
 
     accumulator_set<double, stats<tag::weighted_variance(lazy)>, double> acc[2];
 
     for (const DataPoint& point : result.points) {
         for (int dim = 0; dim < 2; ++dim) {
             double offset = point.position[dim] - result.points[result.highest_pixel_index].position[dim];
+            double background_estimate = (result.has_per_pixel_background) ? point.background : result.background_estimate;
             double intensity_above_background = 
-                std::max(0.0, double(point.value - result.background_estimate));
+                std::max(0.0, double(point.value - background_estimate));
             acc[dim]( offset, weight = intensity_above_background );
         }
     }
@@ -116,7 +127,7 @@ std::vector<Plane> FitWindowCutter::cut_region_of_interest(
     const Spot& position) {
     std::vector<Plane> result;
     for (int i = 0; i < image.plane_count(); ++i) {
-        result.push_back(cut_region_of_interest(*optics[i], image.plane(i), position));
+        result.push_back(cut_region_of_interest(*optics[i], image.plane(i), image.background(i), position));
     }
     return result;
 }

@@ -60,26 +60,32 @@ struct FitFunctionFactoryImplementation<Kernel, Background>::instantiate
             for (auto& kernel : repository.kernels) {
                 evaluators.push_back(create_evaluator(*kernel, way));
             }
-            evaluators.push_back(create_evaluator(*repository.background, way));
+            if (repository.use_background) {
+                evaluators.push_back(create_evaluator(*repository.background, way));
+            }
             target.reset(PlaneFunction<Tag>::create(std::move(evaluators), data, mle).release());
         }
     }
 };
 
 template <class Kernel, class Background>
-FitFunctionFactoryImplementation<Kernel, Background>::FitFunctionFactoryImplementation(const Config& config, int kernel_count) 
+FitFunctionFactoryImplementation<Kernel, Background>::FitFunctionFactoryImplementation(
+    const Config& config, int kernel_count, bool use_background) 
 : disjoint(config.allow_disjoint()),
   use_doubles(config.double_computation()),
   disjoint_amplitudes(config.disjoint_amplitudes()),
-  laempi_fit(config.laempi_fit()) {
+  laempi_fit(config.laempi_fit()),
+  use_background(use_background) {
     for (int i = 0; i < kernel_count; ++i) {
 	std::unique_ptr<Kernel> kernel(new Kernel());
         kernel->set_negligible_step_length(ToLengthUnit(config.negligible_x_step()));
         kernel->set_relative_epsilon(config.relative_epsilon());
 	kernels.push_back(std::move(kernel));
     }
-    background.reset(new Background());
-    background->set_relative_epsilon(config.relative_epsilon());
+    if (use_background) {
+        background.reset(new Background());
+        background->set_relative_epsilon(config.relative_epsilon());
+    }
 }
 
 template <class Kernel, class Background>
@@ -95,7 +101,9 @@ std::vector<bool> FitFunctionFactoryImplementation<Kernel, Background>::reductio
     for (const auto& kernel : kernels) {
         std::copy(kernel_set.begin(), kernel_set.end(), std::back_inserter(result));
     }
-    std::copy(background_set.begin(), background_set.end(), std::back_inserter(result));
+    if (use_background) {
+        std::copy(background_set.begin(), background_set.end(), std::back_inserter(result));
+    }
 
     return result;
 }
@@ -104,6 +112,7 @@ template <class Kernel, class Background>
 std::unique_ptr<nonlinfit::AbstractFunction<double>>
 FitFunctionFactoryImplementation<Kernel, Background>::create_function( const fit_window::Plane& data, bool mle )
 {
+    assert(data.has_per_pixel_background || use_background);
     std::unique_ptr<result_type> result;
     boost::mpl::for_each< evaluation_tags >( 
         boost::bind( instantiate(),

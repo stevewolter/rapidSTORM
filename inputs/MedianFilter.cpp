@@ -148,9 +148,9 @@ class Source
 	    return false;
 	} else {
 	    *output = output_buffer.front();
-	    for (const auto& median : median_values) {
-		output->push_back_background(
-                    median.slice(0, half_width * camera::pixel).deep_copy());
+	    for (int plane = 0; plane < output->plane_count(); ++plane) {
+		output->set_background(plane,
+                    median_values[plane].slice(0, half_width * camera::pixel).deep_copy());
 	    }
 	    output_buffer.pop();
 	    return true;
@@ -177,6 +177,8 @@ class Source
             size[1] = p.plane(i).image.size[0];
             size[2] = p.plane(i).image.size[1];
             median_values.emplace_back(size);
+
+            p.plane(i).has_background_estimate = true;
         }
     }
 };

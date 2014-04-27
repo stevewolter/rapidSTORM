@@ -28,7 +28,8 @@ struct PlaneFunctionImplementation
     }
 
   public:
-    PlaneFunctionImplementation(Evaluators expression, const fit_window::Plane& plane )
+    PlaneFunctionImplementation(Evaluators expression,
+                                const fit_window::Plane& plane)
         : implementations(std::move(expression)),
           unconverted(get_pointers(implementations)),
           converted(unconverted) {
@@ -50,14 +51,16 @@ struct PlaneFunctionImplementation
 
 template <typename ComputationWay>
 std::auto_ptr< nonlinfit::AbstractFunction<double> >
-PlaneFunction<ComputationWay>::create( Evaluators e, const fit_window::Plane& data, bool mle )
+PlaneFunction<ComputationWay>::create( Evaluators e, const fit_window::Plane& data, bool mle)
 {
     if (mle) {
         return std::auto_ptr< nonlinfit::AbstractFunction<double> >( 
-            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::negative_poisson_likelihood>(std::move(e), data) );
+            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::negative_poisson_likelihood>(
+                std::move(e), data) );
     } else {
         return std::auto_ptr< nonlinfit::AbstractFunction<double> >( 
-            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::squared_deviations>(std::move(e), data) );
+            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::squared_deviations>(
+                std::move(e), data) );
     }
 }
 

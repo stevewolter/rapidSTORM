@@ -14,10 +14,10 @@ namespace guf {
 
 template <typename Assignment, typename Lambda>
 inline std::unique_ptr<FitFunctionFactory>
-create2( const Config& c, int kernel_count ) 
+create2( const Config& c, int kernel_count, bool use_background ) 
 { 
     typedef nonlinfit::Bind< Lambda ,Assignment> F;
-    return std::unique_ptr<FitFunctionFactory>( new FitFunctionFactoryImplementation<F, constant_background::Expression>(c, kernel_count) );
+    return std::unique_ptr<FitFunctionFactory>( new FitFunctionFactoryImplementation<F, constant_background::Expression>(c, kernel_count, use_background) );
 }
  
 std::unique_ptr<FitFunctionFactory>
@@ -32,11 +32,11 @@ FitFunctionFactory::create(
     if ( c.free_sigmas() && ! is_no_3d )
         throw std::runtime_error("Free-sigma fitting is limited to 2D");
     else if ( c.free_sigmas() )
-        return create2<gaussian_psf::FreeForm,gaussian_psf::No3D>(c,kernel_count);
+        return create2<gaussian_psf::FreeForm,gaussian_psf::No3D>(c,kernel_count, !plane.has_background_estimate);
     else if ( is_no_3d )
-        return create2<gaussian_psf::FixedForm,gaussian_psf::No3D>(c,kernel_count);
+        return create2<gaussian_psf::FixedForm,gaussian_psf::No3D>(c,kernel_count, !plane.has_background_estimate);
     else
-        return create2<gaussian_psf::FixedForm,gaussian_psf::DepthInfo3D>(c,kernel_count);
+        return create2<gaussian_psf::FixedForm,gaussian_psf::DepthInfo3D>(c,kernel_count, !plane.has_background_estimate);
 }
 
 }

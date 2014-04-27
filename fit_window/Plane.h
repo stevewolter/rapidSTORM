@@ -20,6 +20,7 @@ struct Plane {
     int window_width;
     std::vector<DataPoint> points;
     int highest_pixel_index;
+    bool has_per_pixel_background;
 };
 
 typedef std::vector<Plane> PlaneStack;

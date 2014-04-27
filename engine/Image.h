@@ -30,9 +30,7 @@ public:
     const_iterator end() const { return planes_.end(); }
 
     void push_back( const Plane& );
-    void push_back_background(const Image2D& image) {
-        background_.push_back(image);
-    }
+    void set_background( int plane, Image2D background ) { background_[plane] = background; }
     void clear();
 
     frame_index frame_number() const { return fn; }
