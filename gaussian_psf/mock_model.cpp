@@ -21,6 +21,7 @@ mock_data() {
             point.position.x() = j * exp(1) / 30.0;
             point.position.y() = i * boost::math::constants::pi<double>() / 30.0;
             point.value = rand() * 1E-5;
+            point.background = rand() * 1E-6;
             result.points.push_back( point );
         }
     }
