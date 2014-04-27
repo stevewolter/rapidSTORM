@@ -41,13 +41,6 @@ struct increment_evaluation<negative_poisson_likelihood> {
 };
 
 template <typename Tag, typename _Metric>
-void Distance<Tag,_Metric>::evaluate_chunk( 
-    Derivatives& p, const DataRow& r, const DataChunk& c )
-{
-}
-
-
-template <typename Tag, typename _Metric>
 bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
 {
     p.set_zero();
@@ -58,10 +51,8 @@ bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
         }
     }
     
-    assert(this->xs->data.size() == this->ys->size());
     Eigen::Array<Number, Tag::ChunkSize, 1> values;
-    auto j = this->ys->begin();
-    for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i, ++j) {
+    for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i) {
         values.fill(0);
 
         int offset = 0;
@@ -71,8 +62,8 @@ bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
             offset += term->variable_count;
         }
 
-        j->residues = j->output - values;
-        increment_evaluation< _Metric >()( p, values, *j, jacobian );
+        i->residues = i->output - values;
+        increment_evaluation< _Metric >()( p, values, *i, jacobian );
         assert( p.value == p.value );
     }
 
@@ -114,7 +105,7 @@ bool Distance<Tag,_Metric>::step_is_negligible( const Position& from, const Posi
 
 template <typename Num, int _ChunkSize, typename P1, typename P2>
 void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
-::evaluate_chunk( Derivatives& p, const DataRow& r, const DataChunk& c )
+::evaluate_chunk( Derivatives& p, const DataRow& r )
 {
     Eigen::Array<Number, _ChunkSize, 1> values;
     values.fill(0);
@@ -126,11 +117,11 @@ void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
         offset += term->term_variable_count;
     }
 
-    c.residues = c.output - values;
-    p.value += c.residues.square().sum();
+    r.residues = r.output - values;
+    p.value += r.residues.square().sum();
 
     gradient_accum +=
-        ((x_jacobian.transpose() * c.residues.matrix()).array()
+        ((x_jacobian.transpose() * r.residues.matrix()).array()
             * y_jacobian_row.transpose().array()).matrix();
     y_hessian += y_jacobian_row.transpose() * y_jacobian_row;
 
@@ -153,10 +144,8 @@ bool Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
         offset += term->term_variable_count;
     }
     
-    assert(this->xs->data.size() == this->ys->size());
-    auto j = this->ys->begin();
-    for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i, ++j) {
-        evaluate_chunk(p, *i, *j);
+    for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i) {
+        evaluate_chunk(p, *i);
     }
 
     /* Compute the hessian matrix of derivation summands by multiplying

@@ -15,26 +15,6 @@ inline void chunkify_base(const fit_window::Plane& input, nonlinfit::plane::Gene
 }
 
 template <typename Number, int ChunkSize>
-inline void chunkify_data_chunks(
-        const fit_window::Plane& input,
-        std::vector<nonlinfit::DataChunk<Number, ChunkSize>>& output) {
-    int chunk_count = input.points.size() / ChunkSize;
-    if (ChunkSize > 1 && input.points.size() % ChunkSize >= ChunkSize / 2) {
-        chunk_count += 1;
-    }
-    output.resize(chunk_count);
-    for (int chunk = 0; chunk < chunk_count; ++chunk) {
-        for (int i = 0; i < ChunkSize; ++i) {
-            const DataPoint& point = input.points[(chunk * ChunkSize + i) % input.points.size()];
-            output[chunk].output[i] = point.value;
-            output[chunk].logoutput[i] =
-                (point.value < 1E-10) ? -23*point.value : log(point.value);
-            output[chunk].residues[i] = 0;
-        }
-    }
-}
-
-template <typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Number, ChunkSize>& output) {
     chunkify_base(input, output);
     int chunk_count = input.points.size() / ChunkSize;
@@ -54,6 +34,10 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Num
             const DataPoint& point = input.points[chunk * ChunkSize + i];
             assert(std::abs(output.data[chunk].inputs[0] - point.position.y()) < 1E-10);
             assert(std::abs(output.xs[i] - point.position.x()) < 1E-10);
+            output.data[chunk].output[i] = point.value;
+            output.data[chunk].logoutput[i] =
+                (point.value < 1E-10) ? -23*point.value : log(point.value);
+            output.data[chunk].residues[i] = 0;
         }
     }
 }
@@ -72,6 +56,10 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::JointData<Number
             const DataPoint& point = input.points[(chunk * ChunkSize + i) % input.points.size()];
             output.data[chunk].inputs(i, 0) = point.position.x();
             output.data[chunk].inputs(i, 1) = point.position.y();
+            output.data[chunk].output[i] = point.value;
+            output.data[chunk].logoutput[i] =
+                (point.value < 1E-10) ? -23*point.value : log(point.value);
+            output.data[chunk].residues[i] = 0;
         }
     }
 }

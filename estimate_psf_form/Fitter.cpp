@@ -254,7 +254,6 @@ class Fitter
         nonlinfit::plane::JointTermImplementation<constant_background::Expression, DataTag> background_term;
         nonlinfit::plane::Distance< DataTag, Metric > function;
         nonlinfit::plane::JointData<double, 2> xs;
-        std::vector<nonlinfit::DataChunk<double, 2>> ys;
 
       public:
         PlaneFunction(const fit_window::Plane& plane)
@@ -264,8 +263,7 @@ class Fitter
             gaussian.set_negligible_step_length(1E-4);
             background.set_relative_epsilon(1E-4);
             chunkify(plane, xs);
-            chunkify_data_chunks(plane, ys);
-            function.set_data(xs, ys);
+            function.set_data(xs);
         }
 
         Lambda& get_gaussian() { return gaussian; }

@@ -18,7 +18,6 @@ struct PlaneFunctionImplementation
     nonlinfit::plane::Distance< Tag, DistanceMetric > unconverted;
     nonlinfit::FunctionConverter<double, typename Tag::Number> converted;
     typename Tag::Data xs;
-    std::vector<nonlinfit::DataChunk<typename Tag::Number, Tag::ChunkSize>> ys;
 
     std::vector<nonlinfit::plane::Term<Tag>*> get_pointers(const Evaluators& evaluators) {
         std::vector<nonlinfit::plane::Term<Tag>*> result;
@@ -34,8 +33,7 @@ struct PlaneFunctionImplementation
           unconverted(get_pointers(implementations)),
           converted(unconverted) {
         fit_window::chunkify(plane, xs);
-        fit_window::chunkify_data_chunks(plane, ys);
-        unconverted.set_data(xs, ys);
+        unconverted.set_data(xs);
     }
 
     int variable_count() const OVERRIDE { return converted.variable_count(); }

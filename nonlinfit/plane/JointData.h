@@ -25,7 +25,7 @@ class JointCoreData
     typedef DataPoint<Number> data_point;
     typedef Eigen::Array<Number, ChunkSize, 2> Input;
 
-    struct DataRow {
+    struct DataRow : public nonlinfit::DataChunk<Number_,ChunkSize_> {
         /** The X and Y coordinates for the current row. */
         Input inputs;
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
