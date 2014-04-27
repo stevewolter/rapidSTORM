@@ -10,7 +10,7 @@
 #include "engine/ChainLink_decl.h"
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
-#include "guf/fitter.h"
+#include "guf/augment_config.h"
 #include "estimate_psf_form/decl.h"
 #include "localization_file/writer.h"
 
