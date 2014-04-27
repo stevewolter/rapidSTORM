@@ -1,6 +1,6 @@
 #include "guf/FitFunctionFactory.h"
 
-#include "guf/FunctionRepository.hpp"
+#include "guf/FitFunctionFactoryImplementation.hpp"
 #include "threed_info/No3D.h"
 
 #include "nonlinfit/Bind.h"
@@ -17,7 +17,7 @@ inline std::unique_ptr<FitFunctionFactory>
 create2( const Config& c, int kernel_count ) 
 { 
     typedef nonlinfit::Bind< Lambda ,Assignment> F;
-    return std::unique_ptr<FitFunctionFactory>( new FunctionRepository<F, constant_background::Expression>(c, kernel_count) );
+    return std::unique_ptr<FitFunctionFactory>( new FitFunctionFactoryImplementation<F, constant_background::Expression>(c, kernel_count) );
 }
  
 std::unique_ptr<FitFunctionFactory>

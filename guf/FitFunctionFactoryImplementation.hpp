@@ -10,7 +10,7 @@
 #include "gaussian_psf/is_plane_dependent.h"
 #include "guf/create_evaluator.h"
 #include "guf/EvaluationTags.h"
-#include "guf/FunctionRepository.h"
+#include "guf/FitFunctionFactoryImplementation.h"
 #include "LengthUnit.h"
 #include "nonlinfit/make_bitset.h"
 #include "nonlinfit/plane/Joint.h"
@@ -24,7 +24,7 @@ namespace dStorm {
 namespace guf {
 
 template <class Kernel, class Background>
-struct FunctionRepository<Kernel, Background>::instantiate
+struct FitFunctionFactoryImplementation<Kernel, Background>::instantiate
 {
     typedef void result_type;
 
@@ -53,7 +53,7 @@ struct FunctionRepository<Kernel, Background>::instantiate
      *  The instantiated function is stored in the supplied target store,
      *  at the index of the given tag in the instantiation schedule. */
     template <typename Tag, typename Container>
-    void operator()( Tag way, FunctionRepository& repository, const fit_window::Plane& data, bool mle, Container& target )
+    void operator()( Tag way, FitFunctionFactoryImplementation& repository, const fit_window::Plane& data, bool mle, Container& target )
     {
         if (target.get() == nullptr && is_appropriate(way, data.window_width, repository.disjoint, repository.use_doubles)) {
             std::vector<std::unique_ptr<nonlinfit::plane::Term<Tag>>> evaluators;
@@ -67,7 +67,7 @@ struct FunctionRepository<Kernel, Background>::instantiate
 };
 
 template <class Kernel, class Background>
-FunctionRepository<Kernel, Background>::FunctionRepository(const Config& config, int kernel_count) 
+FitFunctionFactoryImplementation<Kernel, Background>::FitFunctionFactoryImplementation(const Config& config, int kernel_count) 
 : disjoint(config.allow_disjoint()),
   use_doubles(config.double_computation()),
   disjoint_amplitudes(config.disjoint_amplitudes()),
@@ -83,7 +83,7 @@ FunctionRepository<Kernel, Background>::FunctionRepository(const Config& config,
 }
 
 template <class Kernel, class Background>
-std::vector<bool> FunctionRepository<Kernel, Background>::reduction_bitset() const OVERRIDE {
+std::vector<bool> FitFunctionFactoryImplementation<Kernel, Background>::reduction_bitset() const OVERRIDE {
     std::vector<bool> result;
     std::vector<bool> kernel_set = nonlinfit::make_bitset( 
         typename Kernel::Variables(), 
@@ -102,7 +102,7 @@ std::vector<bool> FunctionRepository<Kernel, Background>::reduction_bitset() con
 
 template <class Kernel, class Background>
 std::unique_ptr<nonlinfit::AbstractFunction<double>>
-FunctionRepository<Kernel, Background>::create_function( const fit_window::Plane& data, bool mle )
+FitFunctionFactoryImplementation<Kernel, Background>::create_function( const fit_window::Plane& data, bool mle )
 {
     std::unique_ptr<result_type> result;
     boost::mpl::for_each< evaluation_tags >( 

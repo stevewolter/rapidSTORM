@@ -19,7 +19,7 @@ namespace guf {
  *  base expression shared between all functions, which can be accessed by 
  *  get_expression(). */
 template <class Kernel, class Background>
-class FunctionRepository : public FitFunctionFactory, private boost::noncopyable
+class FitFunctionFactoryImplementation : public FitFunctionFactory, private boost::noncopyable
 {
   private:
     class instantiate;
@@ -31,7 +31,7 @@ class FunctionRepository : public FitFunctionFactory, private boost::noncopyable
     MultiKernelModel model;
 
   public:
-    FunctionRepository(const Config& config, int kernel_count);
+    FitFunctionFactoryImplementation(const Config& config, int kernel_count);
     std::vector<bool> reduction_bitset() const OVERRIDE;
     MultiKernelModel fit_position() OVERRIDE { return const_cast<const MultiKernelModel&>(model); }
     typedef nonlinfit::AbstractFunction<double> result_type;

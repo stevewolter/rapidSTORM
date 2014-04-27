@@ -484,7 +484,7 @@ rapidstorm_SOURCES += \
     guf/EvaluationTags.h \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
     guf/create_evaluator.h guf/create_evaluator.hpp \
-    guf/FunctionRepository.h guf/FunctionRepository.hpp \
+    guf/FitFunctionFactoryImplementation.h guf/FitFunctionFactoryImplementation.hpp \
     guf/Factory.cpp guf/Factory.h \
     guf/MultiKernelModel.h guf/MultiKernelModel.hpp \
     guf/Fitter.cpp guf/Fitter.h \
