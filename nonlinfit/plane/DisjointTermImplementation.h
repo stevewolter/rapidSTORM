@@ -4,11 +4,12 @@
 #include "nonlinfit/plane/Term.h"
 
 #include "nonlinfit/derive_by.hpp"
+#include "nonlinfit/get_variable.hpp"
 #include "nonlinfit/parameter_is_negligible.hpp"
 #include "nonlinfit/plane/Disjoint.hpp"
 #include "nonlinfit/plane/DisjointData.h"
 #include "nonlinfit/plane/sum_matrix_rows.h"
-#include "nonlinfit/VectorPosition.hpp"
+#include "nonlinfit/set_variable.hpp"
 
 namespace nonlinfit {
 namespace plane {
@@ -32,7 +33,6 @@ class DisjointTermImplementation : public Term<Tag> {
 
     Lambda& lambda;
     Evaluator evaluator;
-    VectorPosition<Lambda, Number> mover;
     Eigen::Matrix<int, TermCount, 1> reductions;
     Eigen::Matrix<Number, Tag::ChunkSize, TermCount> x_parts;
 
@@ -41,7 +41,6 @@ class DisjointTermImplementation : public Term<Tag> {
         : Term<Tag>(TermCount, boost::mpl::size<typename Lambda::Variables>::value),
           lambda(lambda),
           evaluator(lambda),
-          mover(lambda),
           reductions(MatrixReducer::create_reduction_list<ReducerTag<Tag, Lambda>>()) {}
 
     bool prepare_iteration(const typename Tag::Data& inputs) {
@@ -94,14 +93,11 @@ class DisjointTermImplementation : public Term<Tag> {
     }
 
     void set_position(ConstPositionBlock position) OVERRIDE {
-        typename AbstractFunction<Number>::Position mover_position = position;
-        mover.set_position(mover_position);
+	set_variable::read_vector(position, lambda);
     }
 
     void get_position(PositionBlock position) const OVERRIDE {
-        typename AbstractFunction<Number>::Position mover_position(position.rows());
-        mover.get_position(mover_position);
-        position = mover_position;
+	get_variable::fill_vector(lambda, position);
     }
 
     Eigen::VectorXi get_reduction_term() const OVERRIDE {

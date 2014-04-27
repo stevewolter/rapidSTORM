@@ -9,7 +9,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "nonlinfit/functions/Polynom.h"
-#include "nonlinfit/VectorPosition.h"
 #include "nonlinfit/terminators/StepLimit.h"
 #include "nonlinfit/levmar/Fitter.h"
 #include "nonlinfit/levmar/exceptions.h"

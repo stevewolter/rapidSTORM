@@ -22,8 +22,6 @@ template <class _Summand, typename _Parameter, class _Dimension>
     struct DerivationSummand;
 template <class Num> 
     struct Evaluation;
-template <typename Lambda, typename Number> 
-    struct VectorPosition;
 template <typename Func, typename BaseParameter> 
     struct TermParameter;
 

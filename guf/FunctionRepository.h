@@ -8,7 +8,6 @@
 #include "guf/FitFunctionFactory.h"
 #include "guf/PlaneFunction.h"
 #include "fit_window/Spot.h"
-#include <nonlinfit/VectorPosition.h>
 
 namespace dStorm {
 namespace guf {

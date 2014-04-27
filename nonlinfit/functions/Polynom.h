@@ -5,7 +5,6 @@
 #include <boost/mpl/vector.hpp>
 #include <nonlinfit/Lambda.h>
 #include <nonlinfit/Bind.h>
-#include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/plane/fwd.h>
 #include <nonlinfit/access_parameters.hpp>
 #include "nonlinfit/AbstractFunction.h"

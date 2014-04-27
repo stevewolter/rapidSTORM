@@ -432,7 +432,8 @@ rapidstorm_SOURCES += \
     nonlinfit/derive_by.hpp \
     nonlinfit/Bind.h \
     nonlinfit/FunctionConverter.h \
-    nonlinfit/VectorPosition.h nonlinfit/VectorPosition.hpp \
+    nonlinfit/get_position.hpp \
+    nonlinfit/set_position.hpp \
     nonlinfit/fwd.h \
     nonlinfit/index_of.h \
     nonlinfit/make_bitset.h \
