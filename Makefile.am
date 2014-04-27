@@ -489,6 +489,7 @@ rapidstorm_SOURCES += \
     guf/fitter.h guf/fitter.cpp \
     guf/EvaluationTags.h \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
+    guf/create_evaluators.h guf/create_evaluators.hpp \
     guf/FunctionRepository.h guf/FunctionRepository.hpp \
     guf/Factory.cpp guf/Factory.h \
     guf/MultiKernelModel.h guf/MultiKernelModel.hpp \
@@ -497,7 +498,7 @@ rapidstorm_SOURCES += \
     guf/InitialValueFinder.h guf/InitialValueFinder.cpp \
     guf/TraitValueFinder.h guf/TraitValueFinder.cpp \
     guf/NaiveFitter.h guf/NaiveFitter.cpp \
-    guf/ModelledFitter.h guf/ModelledFitter.hpp \
+    guf/FitFunctionFactory.h guf/FitFunctionFactory.cpp \
     guf/LocalizationChecker.h guf/LocalizationChecker.cpp \
     guf/LocalizationCreator.h guf/LocalizationCreator.cpp \
     guf/KernelCreator.h guf/KernelCreator.cpp \
@@ -546,11 +547,21 @@ INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
     $(INST_NUMTYPE:=disjoint_16) $(INST_NUMTYPE:=disjoint_18) \
     $(INST_NUMTYPE:=disjoint_20) 
 endif
-
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
+
+INST_NUMTYPE_ONLY = float_-_ double_-_
+INST_TAGS_ONLY_UNSEP = $(INST_NUMTYPE_ONLY:=joint_8) $(INST_NUMTYPE_ONLY:=disjoint_14) 
+if COMPILE_SPECIALIZED_FITTERS
+INST_TAGS_ONLY_UNSEP += $(INST_NUMTYPE_ONLY:=disjoint_8) \
+    $(INST_NUMTYPE_ONLY:=disjoint_10) $(INST_NUMTYPE_ONLY:=disjoint_12) \
+    $(INST_NUMTYPE_ONLY:=disjoint_16) $(INST_NUMTYPE_ONLY:=disjoint_18) \
+    $(INST_NUMTYPE_ONLY:=disjoint_20) 
+endif
+
+INST_TAGS_ONLY = $(INST_TAGS_ONLY_UNSEP:=_-_)
 INSTANTIATIONS_UNCPP = \
-    $(INST_MODEL:=FunctionRepository) $(INST_MODEL:=ModelledFitter) \
-    $(INST_TAGS:=PlaneFunction) 
+    $(INST_MODEL:=FunctionRepository) \
+    $(INST_TAGS:=create_evaluators) $(INST_TAGS_ONLY:=PlaneFunction)
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
 rapidstorm_SOURCES += \
@@ -564,6 +575,7 @@ rapidstorm_SOURCES += \
     guf/instantiations/double.h \
     guf/instantiations/disjoint.h \
     guf/instantiations/joint_8.h \
+    guf/instantiations/create_evaluators.h \
     guf/instantiations/FunctionRepository.h \
     guf/instantiations/PlaneFunction.h \
     guf/instantiations/ModelledFitter.h \

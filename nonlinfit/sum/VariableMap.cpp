@@ -18,7 +18,11 @@ VariableMap::VariableMap( int function_count, std::vector<bool> common )
 
 void VariableMap::add_function( std::vector<bool> common )
 {
-    assert(int(common.size()) == input_var_c);
+    if (map.empty()) {
+	input_var_c = common.size();
+    } else {
+	assert(int(common.size()) == input_var_c);
+    }
     bool first_row = map.empty();
     Row r(common.size());
     for (size_t j = 0; j < common.size(); ++j)  {

@@ -1,6 +1,8 @@
 #ifndef DSTORM_GUF_PSF_EVALUATOR_H
 #define DSTORM_GUF_PSF_EVALUATOR_H
 
+#include <boost/mpl/if.hpp>
+
 #include "gaussian_psf/fwd.h"
 #include "gaussian_psf/BaseEvaluator.h"
 #include <nonlinfit/plane/fwd.h>

@@ -18,6 +18,7 @@ struct VariableMap {
     int output_var_c;
 
   public:
+    VariableMap() : input_var_c(0), output_var_c(0) {}
     VariableMap(int input_variable_count) : input_var_c(input_variable_count), output_var_c(0) {}
     /** Construct by calling add_function() function_count times. */
     VariableMap(int function_count, std::vector<bool> common );

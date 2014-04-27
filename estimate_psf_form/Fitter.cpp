@@ -17,7 +17,6 @@
 #include "nonlinfit/Bind.h"
 #include "nonlinfit/sum/AbstractFunction.h"
 #include "nonlinfit/sum/VariableMap.hpp"
-#include "nonlinfit/sum/Evaluator.h"
 #include "nonlinfit/make_bitset.h"
 #include "nonlinfit/make_functor.hpp"
 #include "gaussian_psf/parameters.h"
@@ -43,7 +42,6 @@
 
 #include "estimate_psf_form/LocalizationValueFinder.h"
 #include "calibrate_3d/constant_parameter.hpp"
-#include <nonlinfit/sum/Lambda.h>
 #include "constant_background/model.hpp"
 
 #include "debug.h"
@@ -83,9 +81,6 @@ public:
     template <int Term>
     bool operator()( PSF::DeltaSigma<1,Term> ) { return config.symmetric(); }
 
-    template <class SubFunction, typename Base>
-    bool operator()( nonlinfit::TermParameter<SubFunction,Base> ) { return operator()(Base()); }
-
     template <typename Parameter> 
     bool operator()( Parameter ) { return false; }
 };
@@ -101,13 +96,11 @@ public:
  *  in multiple layers (e.g. 2 for dual-color), and the layers of all fluorophores form the
  *  planes. For example, given 50 fluorophores on 2 layers, we have 100 planes.
  *
- *  \tparam _Lambda The nonlinfit lambda that is used as the MultiPlaneEvaluator's input 
+ *  \tparam Variables_ The variable tag vector for the MultiPlaneEvaluator's input 
  **/
-template <typename _Lambda>
+template <typename Variables>
 class VariableReduction 
 {
-    typedef _Lambda Lambda;
-    typedef typename Lambda::Variables Variables;
     static const int VariableCount = boost::mpl::size< Variables >::value;
 
     const Config config;
@@ -160,16 +153,15 @@ class VariableReduction
     double collection_state() const { return double(plane_count) / max_plane_count; }
 };
 
-template <typename Lambda>
+template <typename Variables>
 template <typename Parameter>
-bool VariableReduction<Lambda>::is_layer_independent( Parameter p ) {
+bool VariableReduction<Variables>::is_layer_independent( Parameter p ) {
     return PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma(), config.universal_3d())(p);
 }
 
 struct is_positional {
     typedef bool result_type;
     template <typename Func, typename Base>
-    bool operator()( TermParameter< Func, Base > ) { return (*this)( Base() ); }
     bool operator()( constant_background::Amount ) { return true; }
     template <typename Parameter>
     bool operator()( Parameter ) {
@@ -177,8 +169,8 @@ struct is_positional {
     }
 };
 
-template <typename Lambda>
-VariableReduction<Lambda>::VariableReduction( const Config& config, const input::Traits< engine::ImageStack >& traits, int nop )
+template <typename Variables>
+VariableReduction<Variables>::VariableReduction( const Config& config, const input::Traits< engine::ImageStack >& traits, int nop )
 : config(config), 
   first_fluorophore_occurence( traits.fluorophores.size(), -1 ),
   plane_count(0), max_plane_count(nop), result(VariableCount)
@@ -192,8 +184,8 @@ VariableReduction<Lambda>::VariableReduction( const Config& config, const input:
     constant = make_bitset( Variables(), calibrate_3d::constant_parameter( traits.plane_count() > 1, config, true ) );
 }
 
-template <typename Lambda>
-void VariableReduction<Lambda>::add_plane( const int layer, const int fluorophore_type )
+template <typename Variables>
+void VariableReduction<Variables>::add_plane( const int layer, const int fluorophore_type )
 {
     const int i = plane_count++;
     assert( plane_count <= max_plane_count );
@@ -204,9 +196,9 @@ void VariableReduction<Lambda>::add_plane( const int layer, const int fluorophor
     result.add_function( reducer(*this, fluorophore_type, layer) );
 }
 
-template <typename Lambda>
+template <typename Variables>
 std::pair<int,int>
-VariableReduction<Lambda>::reducer::operator()( const int function, const int parameter ) const
+VariableReduction<Variables>::reducer::operator()( const int function, const int parameter ) const
 {
     int base_row = function,
         base_col = parameter;
@@ -233,8 +225,8 @@ VariableReduction<Lambda>::reducer::operator()( const int function, const int pa
     return std::make_pair( base_row, base_col );
 }
 
-template <typename Lambda>
-int VariableReduction<Lambda>::find_plane( const int layer, const int fluorophore )
+template <typename Variables>
+int VariableReduction<Variables>::find_plane( const int layer, const int fluorophore )
 { 
     assert( first_fluorophore_occurence[fluorophore] != -1 );
     return first_fluorophore_occurence[fluorophore] + layer; 
@@ -252,28 +244,32 @@ class Fitter
 {
     struct less_amplitude;
 
-    typedef nonlinfit::sum::Lambda< boost::mpl::vector< nonlinfit::Bind<Lambda, NonDataParameters>, constant_background::Expression > >
-        TheoreticalFunction;
     typedef plane::xs_joint<double,2>::type DataTag;
     typedef sum::AbstractFunction CombinedFunction;
 
     class PlaneFunction : public nonlinfit::AbstractFunction<double> {
-        TheoreticalFunction lambda;
-        nonlinfit::plane::JointTermImplementation<TheoreticalFunction, DataTag> term;
+        Lambda gaussian;
+        nonlinfit::plane::JointTermImplementation<Lambda, DataTag> gaussian_term;
+        constant_background::Expression background;
+        nonlinfit::plane::JointTermImplementation<constant_background::Expression, DataTag> background_term;
         nonlinfit::plane::Distance< DataTag, Metric > function;
         nonlinfit::plane::JointData<double, 2> xs;
         std::vector<nonlinfit::DataChunk<double, 2>> ys;
 
       public:
-        PlaneFunction(const fit_window::Plane& plane) : term(lambda), function(&term) {
-            lambda.get_part(boost::mpl::int_<0>()).set_relative_epsilon(1E-4);
-            lambda.get_part(boost::mpl::int_<0>()).set_negligible_step_length(1E-4);
+        PlaneFunction(const fit_window::Plane& plane)
+            : gaussian_term(gaussian), background_term(background),
+              function(std::vector<nonlinfit::plane::Term<DataTag>*>{&gaussian_term, &background_term}) {
+            gaussian.set_relative_epsilon(1E-4);
+            gaussian.set_negligible_step_length(1E-4);
+            background.set_relative_epsilon(1E-4);
             chunkify(plane, xs);
             chunkify_data_chunks(plane, ys);
             function.set_data(xs, ys);
         }
 
-        TheoreticalFunction& get_expression() { return lambda; }
+        Lambda& get_gaussian() { return gaussian; }
+        constant_background::Expression& get_background() { return background; }
 
         int variable_count() const OVERRIDE { return function.variable_count(); }
         bool evaluate( Derivatives& p ) OVERRIDE { return function.evaluate(p); }
@@ -289,13 +285,15 @@ class Fitter
     typedef boost::ptr_vector< PlaneFunction > Evaluators;
     Evaluators evaluators;
     const dStorm::engine::InputTraits& traits;
-    VariableReduction<TheoreticalFunction> table;
+    VariableReduction<typename boost::mpl::joint_view<
+        typename Lambda::Variables,
+        constant_background::Expression::Variables>::type> table;
 
     /** Get one of the model instances matching the given fluorophore type and layer. */
     const Lambda& result( int fluorophore = -1, int layer = 0 ) {
         const int i = ( fluorophore == -1 ) ? layer : table.find_plane(layer, fluorophore);
         assert( i >= 0 && i < int(evaluators.size()) );
-        return evaluators[i].get_expression().get_part( boost::mpl::int_<0>() );
+        return evaluators[i].get_gaussian();
     }
 
     boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::DepthInfo3D& s, int plane, Direction dir ) {
@@ -309,10 +307,6 @@ class Fitter
     }
 
     void apply_z_calibration();
-    static Lambda& gaussian_kernel( PlaneFunction& e ) 
-        { return e.get_expression().get_part( boost::mpl::int_<0>() ); }
-    static const Lambda& gaussian_kernel( const PlaneFunction& e ) 
-        { return e.get_expression().get_part( boost::mpl::int_<0>() ); }
 
   public:
     /** \see FittingVariant::create(). */
@@ -348,9 +342,9 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
         std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction(stack[i]) );
 
         LocalizationValueFinder iv(fluorophore, traits.optics(i), position, i);
-        iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );
-        iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<1>() ) );
-        gaussian_kernel( *new_evaluator ).allow_leaving_ROI( true );
+        iv.find_values( new_evaluator->get_gaussian() );
+        iv.find_values( new_evaluator->get_background() );
+        new_evaluator->get_gaussian().allow_leaving_ROI( true );
 
         /* After adding the evaluator to the table and the combiner, it is only
          * kept for later reference with the result() function. */
