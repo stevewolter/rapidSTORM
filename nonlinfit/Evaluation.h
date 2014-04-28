@@ -1,7 +1,6 @@
 #ifndef NONLINFIT_DERIVATIVES_H
 #define NONLINFIT_DERIVATIVES_H
 
-#include "nonlinfit/fwd.h"
 #include <Eigen/Core>
 #include <iosfwd>
 #include <boost/mpl/size.hpp>

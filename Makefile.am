@@ -434,7 +434,6 @@ rapidstorm_SOURCES += \
     nonlinfit/Evaluation.h nonlinfit/Evaluation.hpp \
     nonlinfit/Evaluator.h \
     nonlinfit/FunctionConverter.h \
-    nonlinfit/fwd.h \
     nonlinfit/get_variable.hpp \
     nonlinfit/index_of.h \
     nonlinfit/InvalidPositionError.h \
