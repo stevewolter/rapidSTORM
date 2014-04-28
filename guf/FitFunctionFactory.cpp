@@ -17,7 +17,7 @@ inline std::unique_ptr<FitFunctionFactory>
 create2( const Config& c, int kernel_count, bool use_background ) 
 { 
     typedef nonlinfit::Bind< Lambda ,Assignment> F;
-    return std::unique_ptr<FitFunctionFactory>( new FitFunctionFactoryImplementation<F, constant_background::Expression>(c, kernel_count, use_background) );
+    return std::unique_ptr<FitFunctionFactory>( new FitFunctionFactoryImplementation<F>(c, kernel_count, use_background) );
 }
  
 std::unique_ptr<FitFunctionFactory>

@@ -23,8 +23,8 @@
 namespace dStorm {
 namespace guf {
 
-template <class Kernel, class Background>
-struct FitFunctionFactoryImplementation<Kernel, Background>::instantiate
+template <class Kernel>
+struct FitFunctionFactoryImplementation<Kernel>::instantiate
 {
     typedef void result_type;
 
@@ -68,8 +68,8 @@ struct FitFunctionFactoryImplementation<Kernel, Background>::instantiate
     }
 };
 
-template <class Kernel, class Background>
-FitFunctionFactoryImplementation<Kernel, Background>::FitFunctionFactoryImplementation(
+template <class Kernel>
+FitFunctionFactoryImplementation<Kernel>::FitFunctionFactoryImplementation(
     const Config& config, int kernel_count, bool use_background) 
 : disjoint(config.allow_disjoint()),
   use_doubles(config.double_computation()),
@@ -83,34 +83,31 @@ FitFunctionFactoryImplementation<Kernel, Background>::FitFunctionFactoryImplemen
         model.add_kernel(kernel.get());
 	kernels.push_back(std::move(kernel));
     }
-    background.reset(new Background());
+    background.reset(new constant_background::Expression());
     background->set_relative_epsilon(config.relative_epsilon());
     model.set_constant(background.get());
 }
 
-template <class Kernel, class Background>
-std::vector<bool> FitFunctionFactoryImplementation<Kernel, Background>::reduction_bitset() const {
+template <class Kernel>
+std::vector<bool> FitFunctionFactoryImplementation<Kernel>::reduction_bitset() const {
     std::vector<bool> result;
     std::vector<bool> kernel_set = nonlinfit::make_bitset( 
         typename Kernel::Variables(), 
-        gaussian_psf::is_plane_independent( laempi_fit, disjoint_amplitudes ) );
-    std::vector<bool> background_set = nonlinfit::make_bitset( 
-        typename Background::Variables(), 
         gaussian_psf::is_plane_independent( laempi_fit, disjoint_amplitudes ) );
 
     for (size_t i = 0; i <  kernels.size(); ++i) {
         std::copy(kernel_set.begin(), kernel_set.end(), std::back_inserter(result));
     }
     if (use_background) {
-        std::copy(background_set.begin(), background_set.end(), std::back_inserter(result));
+        result.push_back(false);
     }
 
     return result;
 }
 
-template <class Kernel, class Background>
+template <class Kernel>
 std::unique_ptr<nonlinfit::AbstractFunction<double>>
-FitFunctionFactoryImplementation<Kernel, Background>::create_function( const fit_window::Plane& data, bool mle )
+FitFunctionFactoryImplementation<Kernel>::create_function( const fit_window::Plane& data, bool mle )
 {
     assert(data.has_per_pixel_background || use_background);
     std::unique_ptr<result_type> result;

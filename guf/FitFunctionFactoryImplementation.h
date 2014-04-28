@@ -8,6 +8,7 @@
 #include "guf/FitFunctionFactory.h"
 #include "guf/PlaneFunction.h"
 #include "fit_window/Spot.h"
+#include "constant_background/model.hpp"
 
 namespace dStorm {
 namespace guf {
@@ -18,7 +19,7 @@ namespace guf {
  *  nonlinfit::plane::Distance per tag in the instantiation schedule. It also stores an instance of the function's
  *  base expression shared between all functions, which can be accessed by 
  *  get_expression(). */
-template <class Kernel, class Background>
+template <class Kernel>
 class FitFunctionFactoryImplementation : public FitFunctionFactory, private boost::noncopyable
 {
   private:
@@ -26,7 +27,7 @@ class FitFunctionFactoryImplementation : public FitFunctionFactory, private boos
 
     /** The expression is dynamically allocated to avoid Eigen alignment trouble. */
     std::vector<std::unique_ptr<Kernel>> kernels;
-    std::unique_ptr<Background> background;
+    std::unique_ptr<constant_background::Expression> background;
     bool disjoint, use_doubles, disjoint_amplitudes, laempi_fit, use_background;
     MultiKernelModel model;
 
