@@ -49,8 +49,8 @@ class Distance
     }
 
     bool evaluate( Derivatives& p ) OVERRIDE;
-    void set_data( const Data& xs ) OVERRIDE { this->xs = &xs; }
-    int variable_count() const { return variable_count_; }
+    void set_data( const Data& xs ) { this->xs = &xs; }
+    int variable_count() const OVERRIDE { return variable_count_; }
     void get_position( Position& p ) const OVERRIDE;
     void set_position( const Position& p ) OVERRIDE;
     bool step_is_negligible( const Position& old_position,
@@ -129,6 +129,8 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     std::vector<Term<Tag>*> terms;
     int output_variable_count_;
 
+    inline void evaluate_chunk( Derivatives&, const DataRow& );
+
   public:
     Distance( std::vector<Term<Tag>*> terms )
     : terms(terms) {
@@ -154,16 +156,13 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
         }
     }
 
-    bool evaluate( Derivatives& p );
+    bool evaluate( Derivatives& p ) OVERRIDE;
     void set_data( const Data& xs ) { this->xs = &xs; }
-    int variable_count() const { return output_variable_count_; }
-    void get_position( Position& p ) const;
-    void set_position( const Position& p );
+    int variable_count() const OVERRIDE { return output_variable_count_; }
+    void get_position( Position& p ) const OVERRIDE;
+    void set_position( const Position& p ) OVERRIDE;
     bool step_is_negligible( const Position& old_position,
                              const Position& new_position ) const OVERRIDE;
-
-    typedef void result_type;
-    inline void evaluate_chunk( Derivatives&, const DataRow& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

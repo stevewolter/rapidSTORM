@@ -43,7 +43,8 @@ NaiveFitter::NaiveFitter(
 : lm(config.make_levmar_config()),
   step_limit(config.maximumIterationSteps())
 {
-    boost::optional<bool> consistently_no_3d;
+    boost::optional<bool> consistently_no_3d = true;
+    consistently_no_3d.reset();
     for (int i = 0; i < info.traits.plane_count(); ++i ) {
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
 	    bool is_no3d = dynamic_cast< const threed_info::No3D* >( info.traits.plane(i).optics.depth_info(dir).get() );

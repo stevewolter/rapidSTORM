@@ -17,8 +17,6 @@ public:
         : config(config), multiplane(has_multiple_planes), fit_z_coordinate(fit_z_coordinate) {}
 
     typedef bool result_type;
-    template <typename Func, typename Base>
-    bool operator()( nonlinfit::TermParameter< Func, Base > ) { return (*this)( Base() ); }
 
     template <int Dim> 
     bool operator()( nonlinfit::Xs<Dim> ) { return true; }

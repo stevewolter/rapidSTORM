@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include "fit_window/unit_tests.h"
 #include "inputs/unit_tests.h"
+#include "estimate_psf_form/unit_test.h"
 #include "gaussian_psf/unit_test.h"
 #include "nonlinfit/unit_test.h"
 #include "simparm/text_stream/unit_tests.h"
@@ -52,6 +53,8 @@ bool init_unit_test() {
         add( dStorm::image::unit_test_suite() );
     boost::unit_test::framework::master_test_suite().
         add( dStorm::inputs::unit_test_suite() );
+    boost::unit_test::framework::master_test_suite().
+        add( dStorm::estimate_psf_form::test_unit_tests() );
 
     boost::unit_test::framework::master_test_suite().
         add( BOOST_TEST_CASE( &dStorm::pixel_unit_test ) );

@@ -80,16 +80,16 @@ FitFunctionFactoryImplementation<Kernel, Background>::FitFunctionFactoryImplemen
 	std::unique_ptr<Kernel> kernel(new Kernel());
         kernel->set_negligible_step_length(ToLengthUnit(config.negligible_x_step()));
         kernel->set_relative_epsilon(config.relative_epsilon());
+        model.add_kernel(kernel.get());
 	kernels.push_back(std::move(kernel));
     }
-    if (use_background) {
-        background.reset(new Background());
-        background->set_relative_epsilon(config.relative_epsilon());
-    }
+    background.reset(new Background());
+    background->set_relative_epsilon(config.relative_epsilon());
+    model.set_constant(background.get());
 }
 
 template <class Kernel, class Background>
-std::vector<bool> FitFunctionFactoryImplementation<Kernel, Background>::reduction_bitset() const OVERRIDE {
+std::vector<bool> FitFunctionFactoryImplementation<Kernel, Background>::reduction_bitset() const {
     std::vector<bool> result;
     std::vector<bool> kernel_set = nonlinfit::make_bitset( 
         typename Kernel::Variables(), 
@@ -98,7 +98,7 @@ std::vector<bool> FitFunctionFactoryImplementation<Kernel, Background>::reductio
         typename Background::Variables(), 
         gaussian_psf::is_plane_independent( laempi_fit, disjoint_amplitudes ) );
 
-    for (const auto& kernel : kernels) {
+    for (size_t i = 0; i <  kernels.size(); ++i) {
         std::copy(kernel_set.begin(), kernel_set.end(), std::back_inserter(result));
     }
     if (use_background) {

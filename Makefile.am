@@ -418,7 +418,10 @@ rapidstorm_SOURCES += \
     estimate_psf_form/decl.h estimate_psf_form/Tile.h \
     estimate_psf_form/GUI.h estimate_psf_form/GUI.cpp \
     estimate_psf_form/Input.h estimate_psf_form/Input.cpp \
-    estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp
+    estimate_psf_form/VariableReduction.h estimate_psf_form/VariableReduction.cpp \
+    estimate_psf_form/VariableReduction_test.h estimate_psf_form/VariableReduction_test.cpp \
+    estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp \
+    estimate_psf_form/unit_test.h estimate_psf_form/unit_test.cpp
 
 
 rapidstorm_SOURCES += \
