@@ -15,18 +15,10 @@ static void test_no3d() {
     VariableReduction<typename boost::mpl::joint_view<
         gaussian_psf::No3D::Variables,
         constant_background::Expression::Variables>::type> reduction(config, 3, true, 12);
-    reduction.add_plane(0, 0);
-    reduction.add_plane(1, 0);
-    reduction.add_plane(2, 0);
-    reduction.add_plane(0, 2);
-    reduction.add_plane(1, 2);
-    reduction.add_plane(2, 2);
-    reduction.add_plane(0, 1);
-    reduction.add_plane(1, 1);
-    reduction.add_plane(2, 1);
-    reduction.add_plane(0, 2);
-    reduction.add_plane(1, 2);
-    reduction.add_plane(2, 2);
+    reduction.add_planes(3, 0);
+    reduction.add_planes(3, 2);
+    reduction.add_planes(3, 1);
+    reduction.add_planes(3, 2);
 
     nonlinfit::sum::VariableMap variable_map(reduction.get_reduction_matrix());
     std::vector<std::vector<int>> expected_map{
@@ -66,14 +58,10 @@ static void test_depthinfo3d() {
     VariableReduction<typename boost::mpl::joint_view<
         gaussian_psf::DepthInfo3D::Variables,
         constant_background::Expression::Variables>::type> reduction(config, 3, true, 8);
-    reduction.add_plane(0, 0);
-    reduction.add_plane(1, 0);
-    reduction.add_plane(0, 2);
-    reduction.add_plane(1, 2);
-    reduction.add_plane(0, 1);
-    reduction.add_plane(1, 1);
-    reduction.add_plane(0, 2);
-    reduction.add_plane(1, 2);
+    reduction.add_planes(2, 0);
+    reduction.add_planes(2, 2);
+    reduction.add_planes(2, 1);
+    reduction.add_planes(2, 2);
 
     nonlinfit::sum::VariableMap variable_map(reduction.get_reduction_matrix());
     std::vector<std::vector<int>> expected_map{

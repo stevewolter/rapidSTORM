@@ -119,8 +119,6 @@ class Fitter
         return rv;
     }
 
-    void apply_z_calibration();
-
   public:
     /** \see FittingVariant::create(). */
     Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images );
@@ -161,9 +159,9 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
 
         /* After adding the evaluator to the table and the combiner, it is only
          * kept for later reference with the result() function. */
-        table.add_plane( i, fluorophore );
         evaluators.push_back( new_evaluator );
     }
+    table.add_planes( image.plane_count(), fluorophore );
     return ! table.needs_more_planes();
 }
 
@@ -176,33 +174,9 @@ struct Fitter<Metric,Lambda>::less_amplitude
     }
 };
 
-template <>
-void Fitter<plane::negative_poisson_likelihood,gaussian_psf::No3D>::apply_z_calibration() {}
-template <>
-void Fitter<plane::squared_deviations,gaussian_psf::No3D>::apply_z_calibration() {}
-template <>
-void Fitter<plane::negative_poisson_likelihood,gaussian_psf::DepthInfo3D>::apply_z_calibration() {}
-template <>
-void Fitter<plane::squared_deviations,gaussian_psf::DepthInfo3D>::apply_z_calibration() {}
-template <class Metric, class Lambda>
-void Fitter<Metric,Lambda>::apply_z_calibration()
-{
-    typename Evaluators::iterator highest_amp = std::max_element( 
-        evaluators.begin(), evaluators.end(), less_amplitude() );
-    double focus_z = gaussian_kernel( *highest_amp )( gaussian_psf::MeanZ() );
-    BOOST_FOREACH( PlaneFunction& f, evaluators ) {
-        /* Deviate minimally from the ideal Z position to avoid Z equalities */
-        if ( table.is_layer_independent( gaussian_psf::ZPosition<0>() ) )
-            gaussian_kernel( f )( gaussian_psf::ZPosition<0>() ) = focus_z - 1E-4;
-        if ( table.is_layer_independent( gaussian_psf::ZPosition<1>() ) )
-            gaussian_kernel( f )( gaussian_psf::ZPosition<1>() ) = focus_z + 1E-4;
-    }
-}
-
 template <class Metric, class Lambda>
 void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simparm::ProgressEntry& progress ) 
 {
-    apply_z_calibration();
     progress.indeterminate = true;
     progress.setValue( 0.5 );
 

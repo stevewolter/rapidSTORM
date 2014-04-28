@@ -81,7 +81,7 @@ class VariableReduction
      *
      *  @param nop Number of planes to generate a matrix for. */
     VariableReduction( const Config& config, int fluorophore_count, bool multiplane, int nop );
-    void add_plane( const int layer, const int fluorophore );
+    void add_planes( const int layer_count, const int fluorophore );
     /** Find the first plane that has been adding with matching parameters. */
     inline int find_plane( const int layer, const int fluorophore );
     /** Tests whether any plane with the given fluorophore type has
@@ -95,17 +95,9 @@ class VariableReduction
      *  sufficiently often. */
     const nonlinfit::sum::VariableMap& get_reduction_matrix() const
         { return result; }
-    template <typename Parameter>
-    bool is_layer_independent( Parameter );
 
     double collection_state() const { return double(plane_count) / max_plane_count; }
 };
-
-template <typename Variables>
-template <typename Parameter>
-bool VariableReduction<Variables>::is_layer_independent( Parameter p ) {
-    return gaussian_psf::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma(), config.universal_3d())(p);
-}
 
 struct is_positional {
     typedef bool result_type;
@@ -132,15 +124,17 @@ VariableReduction<Variables>::VariableReduction( const Config& config, int fluor
 }
 
 template <typename Variables>
-void VariableReduction<Variables>::add_plane( const int layer, const int fluorophore_type )
+void VariableReduction<Variables>::add_planes( const int layer_count, const int fluorophore_type )
 {
-    const int i = plane_count++;
-    assert( plane_count <= max_plane_count );
+    for (int layer = 0; layer < layer_count; ++layer) {
+        const int i = plane_count++;
+        assert( plane_count <= max_plane_count );
 
-    if ( first_fluorophore_occurence[ fluorophore_type ] == -1 )
-        first_fluorophore_occurence[ fluorophore_type ] = i;
+        if ( first_fluorophore_occurence[ fluorophore_type ] == -1 )
+            first_fluorophore_occurence[ fluorophore_type ] = i;
 
-    result.add_function( reducer(*this, fluorophore_type, layer) );
+        result.add_function( reducer(*this, fluorophore_type, layer) );
+    }
 }
 
 template <typename Variables>
