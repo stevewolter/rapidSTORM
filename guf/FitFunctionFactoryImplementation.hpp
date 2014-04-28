@@ -9,7 +9,6 @@
 #include "fit_window/Plane.h"
 #include "gaussian_psf/is_plane_dependent.h"
 #include "guf/create_evaluator.h"
-#include "guf/EvaluationTags.h"
 #include "guf/FitFunctionFactoryImplementation.h"
 #include "LengthUnit.h"
 #include "nonlinfit/make_bitset.h"
@@ -23,8 +22,8 @@
 namespace dStorm {
 namespace guf {
 
-template <class Kernel>
-struct FitFunctionFactoryImplementation<Kernel>::instantiate
+template <class Kernel, class DataTagList>
+struct FitFunctionFactoryImplementation<Kernel, DataTagList>::instantiate
 {
     typedef void result_type;
 
@@ -68,8 +67,8 @@ struct FitFunctionFactoryImplementation<Kernel>::instantiate
     }
 };
 
-template <class Kernel>
-FitFunctionFactoryImplementation<Kernel>::FitFunctionFactoryImplementation(
+template <class Kernel, class DataTagList>
+FitFunctionFactoryImplementation<Kernel, DataTagList>::FitFunctionFactoryImplementation(
     const Config& config, int kernel_count, bool use_background) 
 : disjoint(config.allow_disjoint()),
   use_doubles(config.double_computation()),
@@ -88,8 +87,8 @@ FitFunctionFactoryImplementation<Kernel>::FitFunctionFactoryImplementation(
     model.set_constant(background.get());
 }
 
-template <class Kernel>
-std::vector<bool> FitFunctionFactoryImplementation<Kernel>::reduction_bitset() const {
+template <class Kernel, class DataTagList>
+std::vector<bool> FitFunctionFactoryImplementation<Kernel, DataTagList>::reduction_bitset() const {
     std::vector<bool> result;
     std::vector<bool> kernel_set = nonlinfit::make_bitset( 
         typename Kernel::Variables(), 
@@ -105,13 +104,13 @@ std::vector<bool> FitFunctionFactoryImplementation<Kernel>::reduction_bitset() c
     return result;
 }
 
-template <class Kernel>
+template <class Kernel, class DataTagList>
 std::unique_ptr<nonlinfit::AbstractFunction<double>>
-FitFunctionFactoryImplementation<Kernel>::create_function( const fit_window::Plane& data, bool mle )
+FitFunctionFactoryImplementation<Kernel, DataTagList>::create_function( const fit_window::Plane& data, bool mle )
 {
     assert(data.has_per_pixel_background || use_background);
     std::unique_ptr<result_type> result;
-    boost::mpl::for_each< evaluation_tags >( 
+    boost::mpl::for_each< DataTagList >( 
         boost::bind( instantiate(),
                      _1, boost::ref(*this), boost::ref(data), mle, boost::ref(result) ) );
     assert(result);

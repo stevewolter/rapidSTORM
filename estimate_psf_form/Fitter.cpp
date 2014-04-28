@@ -1,44 +1,30 @@
-#include "estimate_psf_form/decl.h"
+#include "estimate_psf_form/Fitter.h"
+
 #include <Eigen/StdVector>
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include "estimate_psf_form/Fitter.h"
-#include "estimate_psf_form/Config.h"
-#include "estimate_psf_form/VariableReduction.h"
-#include "image/slice.h"
-#include "Localization.h"
+
+#include "constant_background/model.hpp"
+#include "engine/InputTraits.h"
 #include "engine/JobInfo.h"
-#include "guf/Spot.h"
+#include "estimate_psf_form/Config.h"
+#include "estimate_psf_form/LocalizationValueFinder.h"
+#include "estimate_psf_form/VariableReduction.h"
 #include "fit_window/chunkify.hpp"
-#include "nonlinfit/plane/Distance.hpp"
-#include "nonlinfit/plane/JointData.h"
-#include "nonlinfit/plane/Joint.h"
-#include "nonlinfit/plane/JointTermImplementation.h"
-#include "nonlinfit/Bind.h"
-#include "nonlinfit/sum/AbstractFunction.h"
-#include "gaussian_psf/parameters.h"
+#include "fit_window/FitWindowCutter.h"
+#include "fit_window/Optics.h"
 #include "gaussian_psf/DepthInfo3D.h"
 #include "gaussian_psf/No3D.h"
-#include "gaussian_psf/fixed_form.h"
-#include "gaussian_psf/JointEvaluator.h"
+#include "guf/FitFunctionFactoryImplementation.hpp"
+#include "guf/Spot.h"
+#include "Localization.h"
 #include "nonlinfit/levmar/Fitter.h"
-#define BOOST_DETAIL_CONTAINER_FWD_HPP
-#include <boost/lambda/lambda.hpp>
-#include <boost/variant/get.hpp>
-#include "engine/InputTraits.h"
-#include <fstream>
-
-#include "fit_window/chunkify.h"
-#include "fit_window/Optics.h"
-#include "fit_window/FitWindowCutter.h"
-
-#include <nonlinfit/terminators/StepLimit.h>
+#include "nonlinfit/plane/Joint.h"
+#include "nonlinfit/sum/AbstractFunction.h"
+#include "nonlinfit/terminators/StepLimit.h"
 #include "threed_info/No3D.h"
 #include "threed_info/Spline3D.h"
-
-#include "estimate_psf_form/LocalizationValueFinder.h"
-#include "constant_background/model.hpp"
 
 #include "debug.h"
 
@@ -50,53 +36,21 @@ using namespace nonlinfit;
 /** Specialization of a FittingVariant for a concrete PSF model and
  *  parameter assignment.
  *
- *  \tparam Metric Metric tag to use
  *  \tparam Lambda A lambda for a subclass of PSF::BaseExpression to fit to the data
  */
-template <class Metric, typename Lambda>
+template <typename Lambda>
 class Fitter
 : public FittingVariant
 {
-    struct less_amplitude;
-
-    typedef plane::xs_joint<double,2>::type DataTag;
     typedef sum::AbstractFunction CombinedFunction;
 
-    class PlaneFunction : public nonlinfit::AbstractFunction<double> {
-        Lambda gaussian;
-        nonlinfit::plane::JointTermImplementation<Lambda, DataTag> gaussian_term;
-        constant_background::Expression background;
-        nonlinfit::plane::JointTermImplementation<constant_background::Expression, DataTag> background_term;
-        nonlinfit::plane::Distance< DataTag, Metric > function;
-        nonlinfit::plane::JointData<double, 2> xs;
+    typedef boost::mpl::vector<nonlinfit::plane::xs_joint<double, 8>::type> DataTags;
+    typedef guf::FitFunctionFactoryImplementation<Lambda, DataTags> FitFunctionFactory;
 
-      public:
-        PlaneFunction(const fit_window::Plane& plane)
-            : gaussian_term(gaussian), background_term(background),
-              function(std::vector<nonlinfit::plane::Term<DataTag>*>{&gaussian_term, &background_term}) {
-            gaussian.set_relative_epsilon(1E-4);
-            gaussian.set_negligible_step_length(1E-4);
-            background.set_relative_epsilon(1E-4);
-            chunkify(plane, xs);
-            function.set_data(xs);
-        }
-
-        Lambda& get_gaussian() { return gaussian; }
-        constant_background::Expression& get_background() { return background; }
-
-        int variable_count() const OVERRIDE { return function.variable_count(); }
-        bool evaluate( Derivatives& p ) OVERRIDE { return function.evaluate(p); }
-        void get_position( Position& p ) const OVERRIDE { function.get_position(p); }
-        void set_position( const Position& p ) OVERRIDE { function.set_position(p); }
-        bool step_is_negligible( const Position& old_position, const Position& new_position ) const OVERRIDE {
-            return function.step_is_negligible(old_position, new_position);
-        }
-    };
-
-    /** Optics indexed by input layer. */
+    const Config config;
     fit_window::FitWindowCutter window_cutter;
-    typedef boost::ptr_vector< PlaneFunction > Evaluators;
-    Evaluators evaluators;
+    std::vector<std::unique_ptr<FitFunctionFactory>> models;
+    std::vector<std::unique_ptr<nonlinfit::AbstractFunction<double>>> functions;
     const dStorm::engine::InputTraits& traits;
     VariableReduction<typename boost::mpl::joint_view<
         typename Lambda::Variables,
@@ -105,8 +59,8 @@ class Fitter
     /** Get one of the model instances matching the given fluorophore type and layer. */
     const Lambda& result( int fluorophore = -1, int layer = 0 ) {
         const int i = ( fluorophore == -1 ) ? layer : table.find_plane(layer, fluorophore);
-        assert( i >= 0 && i < int(evaluators.size()) );
-        return evaluators[i].get_gaussian();
+        assert( i >= 0 && i < int(models.size()) );
+        return models[i]->get_gaussian();
     }
 
     boost::shared_ptr<const threed_info::DepthInfo> get_3d( const gaussian_psf::DepthInfo3D& s, int plane, Direction dir ) {
@@ -129,59 +83,59 @@ class Fitter
     double collection_state() const { return table.collection_state(); }
 };
 
-template <class Metric, class Lambda>
-Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
-: window_cutter(config.fit_window_config, traits, std::set<int>(), 0),
+template <class Lambda>
+Fitter<Lambda>::Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
+: config(config), window_cutter(config.fit_window_config, traits, std::set<int>(), 0),
   traits(traits), table( config, traits.fluorophores.size(), traits.plane_count() > 1, images * traits.plane_count() )
 {
     DEBUG("Creating form fitter");
 }
 
-template <class Metric, class Lambda>
-bool Fitter<Metric,Lambda>::
+template <class Lambda>
+bool Fitter<Lambda>::
 add_image( const engine::ImageStack& image, const Localization& position, int fluorophore ) 
 {
+    guf::Config guf_config;
+    guf_config.allow_disjoint = false;
+    guf_config.laempi_fit = config.laempi_fit();
+    guf_config.disjoint_amplitudes = config.disjoint_amplitudes();
+    guf_config.double_computation = true;
+    guf_config.negligible_x_step = 0.1f * boost::units::si::nanometre;
+    guf_config.relative_epsilon = 1E-4;
+
     guf::Spot spot_position;
     spot_position.x() = position.position_x() / (1E-6 * si::meter);
     spot_position.y() = position.position_y() / (1E-6 * si::meter);
     fit_window::PlaneStack stack = window_cutter.cut_region_of_interest(image, spot_position);
     for (int i = 0; i < image.plane_count(); ++i) {
-        DEBUG("Adding layer " << i << " of " << image.plane_count() << " to model with " << evaluators.size()
+        DEBUG("Adding layer " << i << " of " << image.plane_count() << " to model with " << models.size()
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 
-        std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction(stack[i]) );
+        std::unique_ptr<FitFunctionFactory> new_model( new FitFunctionFactory(guf_config, 1, true) );
 
         LocalizationValueFinder iv(fluorophore, traits.optics(i), position, i);
-        iv.find_values( new_evaluator->get_gaussian() );
-        iv.find_values( new_evaluator->get_background() );
-        new_evaluator->get_gaussian().allow_leaving_ROI( true );
+        iv.find_values( new_model->get_gaussian() );
+        iv.find_values( new_model->get_background() );
+        new_model->get_gaussian().allow_leaving_ROI( true );
 
-        /* After adding the evaluator to the table and the combiner, it is only
-         * kept for later reference with the result() function. */
-        evaluators.push_back( new_evaluator );
+        functions.push_back(new_model->create_function(stack[i], config.mle()));
+        models.push_back( std::move(new_model) );
     }
     table.add_planes( image.plane_count(), fluorophore );
     return ! table.needs_more_planes();
 }
 
-template <class Metric, typename Lambda>
-struct Fitter<Metric,Lambda>::less_amplitude
-: public std::binary_function<bool,const PlaneFunction&,const PlaneFunction&>
-{
-    bool operator()( const PlaneFunction& a, const PlaneFunction& b ) {
-        return gaussian_kernel( a )( gaussian_psf::Amplitude() ) < gaussian_kernel( b )( gaussian_psf::Amplitude() );
-    }
-};
-
-template <class Metric, class Lambda>
-void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simparm::ProgressEntry& progress ) 
+template <class Lambda>
+void Fitter<Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simparm::ProgressEntry& progress ) 
 {
     progress.indeterminate = true;
     progress.setValue( 0.5 );
 
     CombinedFunction combiner( table.get_reduction_matrix() );
-    combiner.set_fitters( evaluators.begin(), evaluators.end() );
+    for (size_t i = 0; i < functions.size(); ++i) {
+        combiner.set_fitter(i, *functions[i]);
+    }
 
     nonlinfit::levmar::Fitter fitter = nonlinfit::levmar::Config();
     nonlinfit::terminators::StepLimit step_limit(300);
@@ -220,10 +174,7 @@ create2( const Config& config, const input::Traits< engine::ImageStack >& traits
             if ( dynamic_cast< const DepthInfo* >( i->optics.depth_info(dir).get() ) == NULL ) {
                 throw std::runtime_error("3D PSF models need to be consistent for form fitting");
             }
-    if ( config.mle() )
-        return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
-    else
-        return std::auto_ptr<FittingVariant>( new Fitter< plane::squared_deviations, Lambda > ( config, traits, images ) );
+    return std::auto_ptr<FittingVariant>( new Fitter< Lambda > ( config, traits, images ) );
 }
 
 std::auto_ptr<FittingVariant>

@@ -545,6 +545,8 @@ INST_MODEL = \
     $(INST_TAGS:=no3d_free_form_model_-_) \
     $(INST_TAGS:=no3d_fixed_form_model_-_) \
     $(INST_TAGS:=depthinfo3d_fixed_form_model_-_) \
+    $(INST_DIR:=double_-_joint_8_-_no3d_full_model_-_) \
+    $(INST_DIR:=double_-_joint_8_-_depthinfo3d_full_model_-_) \
     $(INST_TAGS:=constant_background_-_)
 INSTANTIATIONS_UNCPP = \
     $(INST_MODEL:=create_evaluator) $(INST_TAGS:=PlaneFunction)

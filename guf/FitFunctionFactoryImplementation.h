@@ -19,7 +19,7 @@ namespace guf {
  *  nonlinfit::plane::Distance per tag in the instantiation schedule. It also stores an instance of the function's
  *  base expression shared between all functions, which can be accessed by 
  *  get_expression(). */
-template <class Kernel>
+template <class Kernel, class DataTagList>
 class FitFunctionFactoryImplementation : public FitFunctionFactory, private boost::noncopyable
 {
   private:
@@ -43,6 +43,9 @@ class FitFunctionFactoryImplementation : public FitFunctionFactory, private boos
      *  nonlinfit::plane::SquaredDeviations otherwise.
      **/
     std::unique_ptr<result_type> create_function( const fit_window::Plane&, bool mle ) OVERRIDE;
+
+    Kernel& get_gaussian() { assert(kernels.size() == 1); return *kernels[0]; }
+    constant_background::Expression& get_background() { return *background; }
 };
 
 }
