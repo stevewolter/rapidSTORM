@@ -444,7 +444,6 @@ rapidstorm_SOURCES += \
     nonlinfit/parameter_is_negligible.hpp \
     nonlinfit/set_variable.hpp \
     nonlinfit/Terminator.h \
-    nonlinfit/TermParameter.h \
     nonlinfit/unit_test.h \
     nonlinfit/unit_test.cpp \
     nonlinfit/Xs.h \
