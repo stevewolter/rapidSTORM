@@ -1,13 +1,13 @@
 #include "guf/FitFunctionFactory.h"
 
-#include "guf/FitFunctionFactoryImplementation.hpp"
-#include "threed_info/No3D.h"
-
-#include "nonlinfit/Bind.h"
-#include "gaussian_psf/No3D.h"
+#include "config.h"
 #include "gaussian_psf/DepthInfo3D.h"
-#include "gaussian_psf/free_form.h"
 #include "gaussian_psf/fixed_form.h"
+#include "gaussian_psf/free_form.h"
+#include "gaussian_psf/No3D.h"
+#include "guf/FitFunctionFactoryImplementation.hpp"
+#include "nonlinfit/Bind.h"
+#include "threed_info/No3D.h"
 
 namespace dStorm {
 namespace guf {
