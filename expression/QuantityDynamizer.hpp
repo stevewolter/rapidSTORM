@@ -18,7 +18,9 @@ QuantityDynamizer<Quantity>::QuantityDynamizer()
     double result;
 
     bool success = boost::spirit::qi::phrase_parse(begin, end, parser, boost::spirit::ascii::space, result);
-    assert( success && begin == end );
+    if ( !success || begin != end ) {
+        throw std::logic_error("Unable to parse quantity string " + symbol);
+    }
 
     unit = parser.result;
     scale = result;

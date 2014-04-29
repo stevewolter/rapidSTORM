@@ -47,7 +47,9 @@ static void add_tab(
     wxString name
 ) {
     bool success = (*notebook)->AddPage( *window, name, true );
-    assert( success );
+    if (!success) {
+        throw std::logic_error("Unable to add a page to the notebook");
+    }
 }
 
 void ScrolledTabNode::add_entry_line( LineSpecification& ) { throw std::logic_error("Entry cannot be a direct child of tab group"); }

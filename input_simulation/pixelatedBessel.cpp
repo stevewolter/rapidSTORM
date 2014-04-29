@@ -144,7 +144,9 @@ double BesselFunction::line_integration_callback(double y, void *params)
 
     int status = gsl_integration_qags( &func, xc-0.5, xc+0.5, 0, 1E-3,
                          i->integration_size, i->x, &val, &abserr );
-    assert( ! status );
+    if (status != 0) {
+        throw std::logic_error("Unable to integrate bessel function");
+    }
 
     return val;
 }
@@ -164,7 +166,9 @@ double BesselFunction::wavelength_callback(double l, void *params)
 
     int status = gsl_integration_qags( &func, yc-0.5, yc+0.5, 0, 1E-3,
         i->integration_size, i->y, &val, &abserr );
-    assert( ! status );
+    if (status != 0) {
+        throw std::logic_error("Unable to integrate bessel function");
+    }
 
     return val;
 }
@@ -190,7 +194,9 @@ double BesselFunction::integrate( const Subpixel& pixel_center) const
         int status = gsl_integration_qags( &func, lambda.value()-15E-9, lambda.value()+15E-9, 0, 1E-3,
             int_info->integration_size, int_info->lambda, &val, &abserr );
 
-        assert( ! status );
+        if (status != 0) {
+            throw std::logic_error("Unable to integrate bessel function");
+        }
         gsl_set_error_handler(old_handler);
         return val / 30E-9;
     } else {
