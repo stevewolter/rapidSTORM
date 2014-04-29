@@ -480,7 +480,7 @@ rapidstorm_SOURCES += \
     fit_window/fit_position_out_of_range.h fit_window/fit_position_out_of_range.cpp \
     fit_window/FitWindowCutter.h fit_window/FitWindowCutter.cpp \
     fit_window/Optics.h fit_window/Optics.cpp \
-    fit_window/Plane.h fit_window/Plane.cpp \
+    fit_window/Plane.h \
     fit_window/Spot.h \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
@@ -490,6 +490,7 @@ rapidstorm_SOURCES += \
     guf/create_evaluator.h guf/create_evaluator.hpp \
     guf/DistanceMetric.h \
     guf/Factory.cpp guf/Factory.h \
+    guf/FitFunction.h \
     guf/FitFunctionFactory.h guf/FitFunctionFactory.cpp \
     guf/FitFunctionFactoryImplementation.h guf/FitFunctionFactoryImplementation.hpp \
     guf/Fitter.cpp guf/Fitter.h \

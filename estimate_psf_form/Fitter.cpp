@@ -50,7 +50,7 @@ class Fitter
     const Config config;
     fit_window::FitWindowCutter window_cutter;
     std::vector<std::unique_ptr<FitFunctionFactory>> models;
-    std::vector<std::unique_ptr<nonlinfit::AbstractFunction<double>>> functions;
+    std::vector<std::unique_ptr<guf::FitFunction>> functions;
     const dStorm::engine::InputTraits& traits;
     VariableReduction<typename boost::mpl::joint_view<
         typename Lambda::Variables,
@@ -134,7 +134,7 @@ void Fitter<Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simpa
 
     CombinedFunction combiner( table.get_reduction_matrix() );
     for (size_t i = 0; i < functions.size(); ++i) {
-        combiner.set_fitter(i, *functions[i]);
+        combiner.set_fitter(i, *functions[i]->abstract_function());
     }
 
     nonlinfit::levmar::Fitter fitter = nonlinfit::levmar::Config();

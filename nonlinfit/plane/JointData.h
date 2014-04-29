@@ -41,6 +41,10 @@ class JointData : public GenericData
 
     typedef std::vector<DataRow, Eigen::aligned_allocator<DataRow> > Data;
     Data data;
+
+    Eigen::Matrix<Number, 2, 1> get_coordinate(const DataRow& chunk, int index) const {
+        return chunk.inputs.row(index);
+    }
 };
 
 }

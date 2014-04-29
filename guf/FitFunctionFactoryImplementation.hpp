@@ -98,11 +98,11 @@ std::vector<bool> FitFunctionFactoryImplementation<Kernel, DataTagList>::reducti
 }
 
 template <class Kernel, class DataTagList>
-std::unique_ptr<nonlinfit::AbstractFunction<double>>
+std::unique_ptr<FitFunction>
 FitFunctionFactoryImplementation<Kernel, DataTagList>::create_function( const fit_window::Plane& data, bool mle )
 {
     assert(data.has_per_pixel_background || use_background);
-    std::unique_ptr<result_type> result;
+    std::unique_ptr<FitFunction> result;
     boost::mpl::for_each< DataTagList >( 
         boost::bind( instantiate(),
                      _1, boost::ref(*this), boost::ref(data), mle, boost::ref(result) ) );

@@ -47,6 +47,13 @@ struct DisjointData : public GenericData
     Data data;
     /** The X coordinates for all DataRow instances in the data vector. */
     Eigen::Array<Number, _ChunkSize, 1> xs;
+
+    Eigen::Matrix<Number, 2, 1> get_coordinate(const DataRow& chunk, int index) const {
+        Eigen::Matrix<Number, 2, 1> result;
+        result.x() = xs[index];
+        result.y() = chunk.inputs(0,0);
+        return result;
+    }
 };
 
 }

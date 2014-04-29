@@ -35,14 +35,13 @@ class FitFunctionFactoryImplementation : public FitFunctionFactory, private boos
     FitFunctionFactoryImplementation(const Config& config, int kernel_count, bool use_background);
     std::vector<bool> reduction_bitset() const OVERRIDE;
     MultiKernelModel fit_position() OVERRIDE { return const_cast<const MultiKernelModel&>(model); }
-    typedef nonlinfit::AbstractFunction<double> result_type;
     /** Return an abstract function with the expression set to the result of
      *  get_expression() and the data to the supplied data. If \c mle is true,
      *  the function will be an instance of 
      *  nonlinfit::plane::InversePoissonLikelihood, and of 
      *  nonlinfit::plane::SquaredDeviations otherwise.
      **/
-    std::unique_ptr<result_type> create_function( const fit_window::Plane&, bool mle ) OVERRIDE;
+    std::unique_ptr<FitFunction> create_function( const fit_window::Plane&, bool mle ) OVERRIDE;
 
     Kernel& get_gaussian() { assert(kernels.size() == 1); return *kernels[0]; }
     constant_background::Expression& get_background() { return *background; }

@@ -37,16 +37,28 @@ NaiveFitter::NaiveFitter(
     plane_combiner = boost::in_place<nonlinfit::sum::AbstractFunction>(variable_map);
 }
 
-double NaiveFitter::fit(fit_window::PlaneStack& data, bool mle) {
+double NaiveFitter::fit(fit_window::PlaneStack& data, bool mle, Spot* residue_centroid) {
     typedef nonlinfit::AbstractFunction<double> AbstractFunction;
-    std::vector<std::unique_ptr<nonlinfit::AbstractFunction<double>>> functions;
-    for ( typename fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {
+    std::vector<std::unique_ptr<FitFunction>> functions;
+    for ( fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {
         functions.push_back(function_creators[i-b]->create_function(*i, mle));
-        plane_combiner->set_fitter( i-b, *functions.back() );
+        plane_combiner->set_fitter( i-b, *functions.back()->abstract_function() );
     }
 
     nonlinfit::terminators::StepLimit step_limit(this->step_limit);
-    return lm.fit( *plane_combiner, step_limit );
+    double chi_sq = lm.fit( *plane_combiner, step_limit );
+    if (residue_centroid) {
+        double highest_residue = std::numeric_limits<double>::min();
+        for ( fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {
+            Spot candidate;
+            double residue = functions[i-b]->highest_residue(candidate);
+            if (highest_residue < residue) {
+                highest_residue = residue;
+                *residue_centroid = candidate;
+            }
+        }
+    }
+    return chi_sq;
 }
 
 }

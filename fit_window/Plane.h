@@ -25,8 +25,6 @@ struct Plane {
 
 typedef std::vector<Plane> PlaneStack;
 
-Spot residue_centroid(const PlaneStack& planes);
-
 }
 }
 

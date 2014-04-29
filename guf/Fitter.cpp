@@ -54,20 +54,21 @@ int Fitter::fitSpot(
             data_creator.cut_region_of_interest( im, spot );
 
         DEBUG("Fitting at " << spot.transpose() );
+        Spot centroid_storage;
+        Spot* centroid = (two_kernel_analysis) ? &centroid_storage : nullptr;
         MultiKernelModelStack& one_kernel = one_kernel_fitter.fit_position();
         double mle_result = 0;
         double improvement = 0;
         initial_value_finder( one_kernel, spot, data );
-        double lsq_result = one_kernel_fitter.fit( data, false );
+        double lsq_result = one_kernel_fitter.fit( data, false, centroid );
         if ( ! is_good_localization( one_kernel, spot ) ) { DEBUG("No good spot"); return -1; }
         if ( mle )
-            mle_result = one_kernel_fitter.fit( data, true );
+            mle_result = one_kernel_fitter.fit( data, true, centroid );
         if ( two_kernel_analysis ) {
             try {
                 MultiKernelModelStack& two_kernel_model = two_kernels_fitter->fit_position();
-                Spot centroid = residue_centroid(data);
-                add_new_kernel( two_kernel_model, one_kernel, centroid);
-                double two_kernel_result = two_kernels_fitter->fit( data, false );
+                add_new_kernel( two_kernel_model, one_kernel, *centroid);
+                double two_kernel_result = two_kernels_fitter->fit( data, false, nullptr );
                 if ( is_good_localization( two_kernel_model, spot ) )
                     improvement = 1.0 - two_kernel_result / lsq_result;
             } catch ( const nonlinfit::levmar::SingularMatrix&) {

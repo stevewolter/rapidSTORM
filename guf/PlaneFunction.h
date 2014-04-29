@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "guf/DistanceMetric.h"
+#include "guf/FitFunction.h"
 #include "nonlinfit/AbstractFunction.h"
 #include "nonlinfit/plane/Term.h"
 
@@ -15,7 +16,7 @@ template <typename ComputationWay>
 struct PlaneFunction {
   public:
     typedef std::vector<std::unique_ptr<nonlinfit::plane::Term<ComputationWay>>> Evaluators;
-    static std::auto_ptr<nonlinfit::AbstractFunction<double>> 
+    static std::auto_ptr<FitFunction> 
         create( Evaluators, const fit_window::Plane&, bool mle );
 };
 

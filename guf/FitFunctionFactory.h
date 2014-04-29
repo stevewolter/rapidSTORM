@@ -7,7 +7,7 @@
 #include "engine/InputPlane.h"
 #include "guf/MultiKernelModel.h"
 #include "fit_window/Plane.h"
-#include "nonlinfit/AbstractFunction.h"
+#include "guf/FitFunction.h"
 
 namespace dStorm {
 namespace guf {
@@ -22,7 +22,7 @@ class FitFunctionFactory {
     virtual ~FitFunctionFactory() {}
     virtual std::vector<bool> reduction_bitset() const = 0;
     virtual MultiKernelModel fit_position() = 0;
-    virtual std::unique_ptr<nonlinfit::AbstractFunction<double>> create_function(
+    virtual std::unique_ptr<FitFunction> create_function(
         const fit_window::Plane& plane, bool mle) = 0;
 };
 

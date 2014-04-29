@@ -11,7 +11,7 @@ namespace guf {
 
 template <class Tag, class DistanceMetric>
 struct PlaneFunctionImplementation 
-: public nonlinfit::AbstractFunction<double>
+: public FitFunction 
 {
     typedef std::vector<std::unique_ptr<nonlinfit::plane::Term<Tag>>> Evaluators;
     Evaluators implementations;
@@ -37,28 +37,36 @@ struct PlaneFunctionImplementation
         unconverted.set_data(xs);
     }
 
-    int variable_count() const OVERRIDE { return converted.variable_count(); }
-    bool evaluate( Derivatives& p ) OVERRIDE { return converted.evaluate(p); }
-    void get_position( Position& p ) const OVERRIDE { converted.get_position(p); }
-    void set_position( const Position& p ) OVERRIDE { converted.set_position(p); }
-    bool step_is_negligible( const Position& old_position,
-                             const Position& new_position ) const {
-        return converted.step_is_negligible(old_position, new_position);
+    nonlinfit::AbstractFunction<double>* abstract_function() OVERRIDE {
+        return &converted;
+    }
+
+    double highest_residue(Spot& spot) const {
+        double current_highest = std::numeric_limits<double>::min();
+        for (const typename Tag::Data::DataRow& row : xs.data) {
+            for (int i = 0; i < row.residues.rows(); ++i) {
+                if (current_highest < row.residues[i]) {
+                    current_highest = row.residues[i];
+                    spot = xs.get_coordinate(row, i).template cast<double>();
+                }
+            }
+        }
+        return current_highest;
     }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 template <typename ComputationWay>
-std::auto_ptr< nonlinfit::AbstractFunction<double> >
+std::auto_ptr<FitFunction>
 PlaneFunction<ComputationWay>::create( Evaluators e, const fit_window::Plane& data, bool mle)
 {
     if (mle) {
-        return std::auto_ptr< nonlinfit::AbstractFunction<double> >( 
+        return std::auto_ptr<FitFunction>( 
             new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::negative_poisson_likelihood>(
                 std::move(e), data) );
     } else {
-        return std::auto_ptr< nonlinfit::AbstractFunction<double> >( 
+        return std::auto_ptr<FitFunction>( 
             new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::squared_deviations>(
                 std::move(e), data) );
     }

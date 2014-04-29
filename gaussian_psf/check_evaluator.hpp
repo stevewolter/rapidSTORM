@@ -31,12 +31,12 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
     ref_evaluators.push_back(nonlinfit::plane::create_term(z, RefTag()));
     typename guf::PlaneFunction<Data>::Evaluators tested_evaluators;
     tested_evaluators.push_back(nonlinfit::plane::create_term(z, Data()));
-    std::auto_ptr<nonlinfit::AbstractFunction<double>> ref =
+    std::auto_ptr<guf::FitFunction> ref =
         guf::PlaneFunction<RefTag>::create(std::move(ref_evaluators), plane, MLE::value);
-    std::auto_ptr<nonlinfit::AbstractFunction<double>> test =
+    std::auto_ptr<guf::FitFunction> test =
         guf::PlaneFunction<Data>::create(std::move(tested_evaluators), plane, MLE::value);
 
-    bool is_same = nonlinfit::plane::compare_evaluators<double>(*ref, *test);
+    bool is_same = nonlinfit::plane::compare_evaluators<double>(*ref->abstract_function(), *test->abstract_function());
     BOOST_CHECK( is_same );
 }
 
