@@ -2,6 +2,7 @@
 #define DSTORM_PSF_SPLINE3D_H
 
 #include "gaussian_psf/Base3D.h"
+#include "gaussian_psf/BaseEvaluator.h"
 #include <nonlinfit/append.h>
 #include <nonlinfit/access_parameters.hpp>
 #include <nonlinfit/DerivationSummand.h>

@@ -9,37 +9,6 @@
 namespace nonlinfit {
 namespace plane {
 
-template <class Metric> struct increment_evaluation;
-
-template <>
-struct increment_evaluation<squared_deviations> {
-    template <class Evaluation, class Values, class DataRow, class Jacobian>
-    void operator()( 
-        Evaluation& p, 
-        const Values&, const DataRow& r, 
-        const Jacobian& jac ) const
-    {
-        p.value += r.residues.square().sum();
-        p.hessian.noalias() += jac.transpose() * jac;
-        p.gradient.noalias() += jac.transpose() * r.residues.matrix();
-    }
-};
-
-template <>
-struct increment_evaluation<negative_poisson_likelihood> {
-    template <class Evaluation, class Values, class DataRow, class Jacobian>
-    void operator()( 
-        Evaluation& p, 
-        const Values& function, const DataRow& r,
-        const Jacobian& jac ) const
-    {
-        p.value -= 2 * (r.residues - r.logoutput + function.log() * r.output).sum();
-        typename DataRow::Output quotient = r.output / function;
-        p.hessian.noalias() += jac.transpose() * (quotient / function).matrix().asDiagonal() * jac;
-        p.gradient.noalias() += jac.transpose() * (quotient - 1).matrix();
-    }
-};
-
 template <typename Tag, typename _Metric>
 bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
 {
@@ -60,9 +29,20 @@ bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
                     jacobian.middleCols(offset, term->variable_count));
             offset += term->variable_count;
         }
+        assert(offset == jacobian.cols());
 
         i->residues = i->output - values;
-        increment_evaluation< _Metric >()( p, values, *i, jacobian );
+        if (boost::is_same<_Metric, squared_deviations>::value) {
+            p.value += i->residues.square().sum();
+            p.hessian.noalias() += jacobian.transpose() * jacobian;
+            p.gradient.noalias() += jacobian.transpose() * i->residues.matrix();
+        } else {
+            p.value -= 2 * (i->residues - i->logoutput + values.log() * i->output).sum();
+            typename DataRow::Output quotient = i->output / values;
+            p.hessian.noalias() += jacobian.transpose() * (quotient / values).matrix().asDiagonal() * jacobian;
+            p.gradient.noalias() += jacobian.transpose() * (quotient - 1).matrix();
+        }
+
         assert( p.value == p.value );
     }
 
@@ -76,6 +56,7 @@ void Distance<Tag,_Metric>::get_position( Position& p ) const {
         term->get_position(p.segment(offset, term->variable_count));
         offset += term->variable_count;
     }
+    assert(offset == p.rows());
 }
 
 template <typename Tag, typename _Metric>
@@ -85,6 +66,7 @@ void Distance<Tag,_Metric>::set_position( const Position& p ) {
         term->set_position(p.segment(offset, term->variable_count));
         offset += term->variable_count;
     }
+    assert(offset == p.rows());
 }
 
 template <typename Tag, typename _Metric>
@@ -98,6 +80,8 @@ bool Distance<Tag,_Metric>::step_is_negligible( const Position& from, const Posi
         }
         offset += term->variable_count;
     }
+    assert(offset == from.rows());
+    assert(offset == to.rows());
 
     return true;
 }
@@ -114,6 +98,7 @@ void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
                 y_jacobian_row.middleCols(offset, term->term_variable_count));
         offset += term->term_variable_count;
     }
+    assert(offset == y_jacobian_row.cols());
 
     r.residues = r.output - values;
     p.value += r.residues.square().sum();
@@ -141,6 +126,7 @@ bool Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
         }
         offset += term->term_variable_count;
     }
+    assert(offset == x_jacobian.cols());
     
     for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i) {
         evaluate_chunk(p, *i);
@@ -163,6 +149,7 @@ void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::get_position
         term->get_position(p.segment(offset, term->variable_count));
         offset += term->variable_count;
     }
+    assert(offset == p.rows());
 }
 
 template <typename Num, int _ChunkSize, typename P1, typename P2>
@@ -172,6 +159,7 @@ void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::set_position
         term->set_position(p.segment(offset, term->variable_count));
         offset += term->variable_count;
     }
+    assert(offset == p.rows());
 }
 
 template <typename Num, int _ChunkSize, typename P1, typename P2>
@@ -186,6 +174,8 @@ bool Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >::step_is_negl
         }
         offset += term->variable_count;
     }
+    assert(offset == from.rows());
+    assert(offset == to.rows());
 
     return true;
 }

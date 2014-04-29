@@ -41,7 +41,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
 }
 
 template <typename Model>
-boost::unit_test::test_suite* check_evaluator( const char* name ) {
+void check_evaluator( boost::unit_test::test_suite* suite ) {
     typedef nonlinfit::plane::xs_joint<double, 8>::type Joint;
     typedef boost::mpl::vector< 
         boost::mpl::vector<Model, boost::mpl::false_, Joint>,
@@ -49,9 +49,7 @@ boost::unit_test::test_suite* check_evaluator( const char* name ) {
         boost::mpl::vector<Model, boost::mpl::false_, MockDataTag>,
         boost::mpl::vector<Model, boost::mpl::true_, MockDataTag>
     > DataTags;
-    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( name );
-    rv->add( BOOST_TEST_CASE_TEMPLATE( check_evaluator_with_tag, DataTags ) );
-    return rv;
+    suite->add( BOOST_TEST_CASE_TEMPLATE( check_evaluator_with_tag, DataTags ) );
 }
 
 

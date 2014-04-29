@@ -514,7 +514,9 @@ rapidstorm_SOURCES += \
     gaussian_psf/expressions.h gaussian_psf/Base3D.h \
     gaussian_psf/Polynomial3D.h gaussian_psf/Polynomial3D.cpp \
     gaussian_psf/No3D.h gaussian_psf/No3D.cpp \
+    gaussian_psf/No3D_test.h gaussian_psf/No3D_test.cpp \
     gaussian_psf/DepthInfo3D.h gaussian_psf/DepthInfo3D.cpp \
+    gaussian_psf/DepthInfo3D_test.h gaussian_psf/DepthInfo3D_test.cpp \
     gaussian_psf/is_plane_dependent.h \
     gaussian_psf/JointEvaluator.h \
     gaussian_psf/unit_test.h gaussian_psf/unit_test.cpp \

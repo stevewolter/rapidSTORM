@@ -1,6 +1,7 @@
 #ifndef DSTORM_PSF_NO3D_H
 #define DSTORM_PSF_NO3D_H
 
+#include "gaussian_psf/BaseEvaluator.h"
 #include "gaussian_psf/BaseExpression.h"
 #include <nonlinfit/append.h>
 
