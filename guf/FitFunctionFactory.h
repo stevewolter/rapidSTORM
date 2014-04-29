@@ -1,6 +1,8 @@
 #ifndef DSTORM_GUF_FITFUNCTIONCREATOR_H
 #define DSTORM_GUF_FITFUNCTIONCREATOR_H
 
+#include <set>
+
 #include "guf/Config.h"
 #include "engine/InputPlane.h"
 #include "guf/MultiKernelModel.h"
@@ -9,6 +11,8 @@
 
 namespace dStorm {
 namespace guf {
+
+std::set<int> desired_fit_window_widths(const Config& config);
 
 class FitFunctionFactory {
   public:

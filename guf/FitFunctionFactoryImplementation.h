@@ -28,7 +28,7 @@ class FitFunctionFactoryImplementation : public FitFunctionFactory, private boos
     /** The expression is dynamically allocated to avoid Eigen alignment trouble. */
     std::vector<std::unique_ptr<Kernel>> kernels;
     std::unique_ptr<constant_background::Expression> background;
-    bool disjoint, use_doubles, disjoint_amplitudes, laempi_fit, use_background;
+    bool disjoint_amplitudes, laempi_fit, use_background;
     MultiKernelModel model;
 
   public:

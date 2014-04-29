@@ -2,7 +2,6 @@
 #define DSTORM_FITTER_GUF_NAIVEFITTER_INTERFACE_H
 
 #include <memory>
-#include <set>
 #include <vector>
 
 #include "guf/Config.h"
@@ -18,8 +17,6 @@ namespace dStorm {
 namespace guf {
 
 class MultiKernelModelStack;
-
-std::set<int> desired_fit_window_widths(const Config& config);
 
 class NaiveFitter {
   public:

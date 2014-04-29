@@ -489,7 +489,6 @@ rapidstorm_SOURCES += \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
     guf/create_evaluator.h guf/create_evaluator.hpp \
     guf/DistanceMetric.h \
-    guf/EvaluationTags.h \
     guf/Factory.cpp guf/Factory.h \
     guf/FitFunctionFactory.h guf/FitFunctionFactory.cpp \
     guf/FitFunctionFactoryImplementation.h guf/FitFunctionFactoryImplementation.hpp \

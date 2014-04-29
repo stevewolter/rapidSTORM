@@ -30,22 +30,17 @@ struct FitFunctionFactoryImplementation<Kernel, DataTagList>::instantiate
     template <int ChunkSize, typename Num, typename P1, typename P2>
     bool is_appropriate( 
         nonlinfit::plane::Disjoint<Num,ChunkSize,P1,P2> t,
-        int width,
-        bool disjoint,
-        bool use_doubles
+        int width
     ) const { 
-        return disjoint && ChunkSize == width &&
-            (boost::is_same<Num,float>::value || use_doubles);
+        return ChunkSize == width;
     }
 
     template <int ChunkSize, typename Num, typename P1, typename P2>
     bool is_appropriate( 
         nonlinfit::plane::Joint<Num,ChunkSize,P1,P2>,
-        int,
-        bool disjoint,
-        bool use_doubles
+        int
     ) const { 
-        return (boost::is_same<Num,float>::value || use_doubles); 
+        return true;
     }
 
     /** Instantiate a Function wrapped by the MetaFunction computed by Tag.
@@ -54,7 +49,7 @@ struct FitFunctionFactoryImplementation<Kernel, DataTagList>::instantiate
     template <typename Tag, typename Container>
     void operator()( Tag way, FitFunctionFactoryImplementation& repository, const fit_window::Plane& data, bool mle, Container& target )
     {
-        if (target.get() == nullptr && is_appropriate(way, data.window_width, repository.disjoint, repository.use_doubles)) {
+        if (target.get() == nullptr && is_appropriate(way, data.window_width)) {
             std::vector<std::unique_ptr<nonlinfit::plane::Term<Tag>>> evaluators;
             for (auto& kernel : repository.kernels) {
                 evaluators.push_back(create_evaluator(*kernel, way));
@@ -70,9 +65,7 @@ struct FitFunctionFactoryImplementation<Kernel, DataTagList>::instantiate
 template <class Kernel, class DataTagList>
 FitFunctionFactoryImplementation<Kernel, DataTagList>::FitFunctionFactoryImplementation(
     const Config& config, int kernel_count, bool use_background) 
-: disjoint(config.allow_disjoint()),
-  use_doubles(config.double_computation()),
-  disjoint_amplitudes(config.disjoint_amplitudes()),
+: disjoint_amplitudes(config.disjoint_amplitudes()),
   laempi_fit(config.laempi_fit()),
   use_background(use_background) {
     for (int i = 0; i < kernel_count; ++i) {
