@@ -34,6 +34,7 @@ ImageStack::ImageStack( frame_index i) : fn(i) {}
 ImageStack::ImageStack( const Image2D& p ) {
     fn = p.frame_number();
     planes_.push_back(p);
+    background_.push_back(Image2D());
 }
 
 bool ImageStack::has_invalid_planes() const
