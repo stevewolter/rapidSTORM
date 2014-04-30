@@ -14,7 +14,7 @@ inline void chunkify_base(const fit_window::Plane& input, nonlinfit::plane::Gene
     }
 }
 
-template <typename Number, int ChunkSize>
+template <bool NeedLogOutput, typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Number, ChunkSize>& output) {
     chunkify_base(input, output);
     int chunk_count = input.points.size() / ChunkSize;
@@ -36,14 +36,16 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Num
             assert(std::abs(output.xs[i] - point.position.x()) < 1E-10);
             output.data[chunk].output[i] = point.value;
             output.data[chunk].background[i] = point.background;
-            output.data[chunk].logoutput[i] =
-                (point.value < 1E-10) ? -23*point.value : log(point.value);
+            if (NeedLogOutput) {
+                output.data[chunk].logoutput[i] =
+                    (point.value < 1E-10) ? -23*point.value : log(point.value);
+            }
             output.data[chunk].residues[i] = 0;
         }
     }
 }
 
-template <typename Number, int ChunkSize>
+template <bool NeedLogOutput, typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::JointData<Number, ChunkSize>& output) {
     chunkify_base(input, output);
     int chunk_count = input.points.size() / ChunkSize;
@@ -59,8 +61,10 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::JointData<Number
             output.data[chunk].inputs(i, 1) = point.position.y();
             output.data[chunk].output[i] = point.value;
             output.data[chunk].background[i] = point.background;
-            output.data[chunk].logoutput[i] =
-                (point.value < 1E-10) ? -23*point.value : log(point.value);
+            if (NeedLogOutput) {
+                output.data[chunk].logoutput[i] =
+                    (point.value < 1E-10) ? -23*point.value : log(point.value);
+            }
             output.data[chunk].residues[i] = 0;
         }
     }

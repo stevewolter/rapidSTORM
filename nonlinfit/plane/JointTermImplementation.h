@@ -29,7 +29,8 @@ class JointTermImplementation : public Term<Tag> {
 
   public:
     JointTermImplementation(Lambda& lambda)
-        : Term<Tag>(-1, boost::mpl::size<typename Lambda::Variables>::value),
+        : Term<Tag>(boost::mpl::size<typename Lambda::Variables>::value,
+                    boost::mpl::size<typename Lambda::Variables>::value),
           lambda(lambda),
           evaluator(lambda) {}
 

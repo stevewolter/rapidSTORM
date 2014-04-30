@@ -16,8 +16,14 @@ template <typename ComputationWay>
 struct PlaneFunction {
   public:
     typedef std::vector<std::unique_ptr<nonlinfit::plane::Term<ComputationWay>>> Evaluators;
-    static std::auto_ptr<FitFunction> 
+    static std::unique_ptr<FitFunction> 
         create( Evaluators, const fit_window::Plane&, bool mle );
+
+  private:
+    template <typename DistanceMetric>
+    static std::unique_ptr<FitFunction> create1(Evaluators, const fit_window::Plane&);
+    template <typename DistanceMetric, int VariableCount>
+    static std::unique_ptr<FitFunction> create2(Evaluators, const fit_window::Plane&);
 };
 
 }

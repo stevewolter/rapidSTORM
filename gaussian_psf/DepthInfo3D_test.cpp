@@ -11,11 +11,19 @@ static void test_termination() {
     d.set_relative_epsilon(0.5);
 
     BOOST_CHECK(d.change_is_negligible(Mean<1>(), 1, 9));
+    BOOST_CHECK(d.change_is_negligible(Mean<1>(), -1, -9));
+    BOOST_CHECK(!d.change_is_negligible(Mean<1>(), -1, 9));
+    BOOST_CHECK(!d.change_is_negligible(Mean<1>(), 1, -9));
     BOOST_CHECK(!d.change_is_negligible(Mean<1>(), 101, 112));
+    BOOST_CHECK(!d.change_is_negligible(Mean<1>(), -101, -112));
+
     BOOST_CHECK(d.change_is_negligible(Mean<2>(), 1, 9));
     BOOST_CHECK(!d.change_is_negligible(Mean<2>(), 101, 112));
+
     BOOST_CHECK(!d.change_is_negligible(Amplitude(), 1, 9));
+    BOOST_CHECK(!d.change_is_negligible(Amplitude(), -1, -9));
     BOOST_CHECK(d.change_is_negligible(Amplitude(), 101, 112));
+    BOOST_CHECK(d.change_is_negligible(Amplitude(), -101, -112));
 }
 
 boost::unit_test::test_suite* test_DepthInfo3D() {

@@ -6,16 +6,18 @@
 #include "nonlinfit/FunctionConverter.h"
 #include "fit_window/chunkify.hpp"
 
+#include <iostream>
+
 namespace dStorm {
 namespace guf {
 
-template <class Tag, class DistanceMetric>
+template <class Tag, class DistanceMetric, int VariableCount>
 struct PlaneFunctionImplementation 
 : public FitFunction 
 {
     typedef std::vector<std::unique_ptr<nonlinfit::plane::Term<Tag>>> Evaluators;
     Evaluators implementations;
-    nonlinfit::plane::Distance< Tag, DistanceMetric > unconverted;
+    nonlinfit::plane::Distance< Tag, DistanceMetric, VariableCount > unconverted;
     nonlinfit::FunctionConverter<double, typename Tag::Number> converted;
     typename Tag::Data xs;
 
@@ -33,7 +35,7 @@ struct PlaneFunctionImplementation
         : implementations(std::move(expression)),
           unconverted(get_pointers(implementations)),
           converted(unconverted) {
-        fit_window::chunkify(plane, xs);
+        fit_window::chunkify<DistanceMetric::need_logoutput>(plane, xs);
         unconverted.set_data(xs);
     }
 
@@ -58,17 +60,45 @@ struct PlaneFunctionImplementation
 };
 
 template <typename ComputationWay>
-std::auto_ptr<FitFunction>
+template <typename DistanceMetric, int VariableCount>
+std::unique_ptr<FitFunction>
+PlaneFunction<ComputationWay>::create2(Evaluators e, const fit_window::Plane& data) {
+    return std::unique_ptr<FitFunction>(
+            new PlaneFunctionImplementation<ComputationWay, DistanceMetric, VariableCount>(
+                std::move(e), data));
+}
+
+template <typename ComputationWay>
+template <typename DistanceMetric>
+std::unique_ptr<FitFunction>
+PlaneFunction<ComputationWay>::create1(Evaluators e, const fit_window::Plane& data) {
+    int variable_count = 0;
+    for (const auto& evaluator : e) {
+        variable_count += evaluator->term_variable_count;
+    }
+
+    if (variable_count == 3) {
+        return create2<DistanceMetric, 3>(std::move(e), data);
+    } else if (variable_count == 4) {
+        return create2<DistanceMetric, 4>(std::move(e), data);
+    } else if (variable_count == 5) {
+        return create2<DistanceMetric, 5>(std::move(e), data);
+    } else if (variable_count == 6) {
+        return create2<DistanceMetric, 6>(std::move(e), data);
+    } else {
+        std::cerr << "Creating variable-sized distance for variable count " << variable_count << std::endl;
+        return create2<DistanceMetric, Eigen::Dynamic>(std::move(e), data);
+    }
+}
+
+template <typename ComputationWay>
+std::unique_ptr<FitFunction>
 PlaneFunction<ComputationWay>::create( Evaluators e, const fit_window::Plane& data, bool mle)
 {
     if (mle) {
-        return std::auto_ptr<FitFunction>( 
-            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::negative_poisson_likelihood>(
-                std::move(e), data) );
+        return create1<nonlinfit::plane::negative_poisson_likelihood>(std::move(e), data);
     } else {
-        return std::auto_ptr<FitFunction>( 
-            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::squared_deviations>(
-                std::move(e), data) );
+        return create1<nonlinfit::plane::squared_deviations>(std::move(e), data);
     }
 }
 

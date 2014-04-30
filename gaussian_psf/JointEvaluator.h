@@ -18,7 +18,7 @@ struct JointEvaluator
 : public Parameters<Num, Expression >
 {
     Eigen::Array<Num, ChunkSize, 2> normed, squared;
-    Eigen::Array<Num, ChunkSize, 1> expT;
+    Eigen::Array<Num, ChunkSize, 1> exp_term, expT;
 
     JointEvaluator() {}
     JointEvaluator( const Expression& e ) : Parameters<Num, Expression >(e) {}
@@ -27,7 +27,8 @@ struct JointEvaluator
         normed = (xs.rowwise() - this->spatial_mean.transpose())
                 .matrix() * this->sigmaI.matrix().asDiagonal();
         squared = normed.square();
-        expT = (squared.rowwise().sum() * -0.5).exp() * this->prefactor;
+        exp_term = squared.rowwise().sum() * -0.5;
+        expT = exp_term.exp() * this->prefactor;
     }
 
     void value( Eigen::Array<Num,ChunkSize,1>& result ) 

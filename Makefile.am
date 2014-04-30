@@ -533,12 +533,13 @@ rapidstorm_SOURCES += \
 # empty suffix to generate lists
 INST_DIR = guf/instantiations/
 
+INST_NUMTYPE_DOUBLE = $(INST_DIR:=double_-_)
 INST_NUMTYPE = $(INST_DIR:=float_-_) $(INST_DIR:=double_-_)
-INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14) 
+INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE_DOUBLE:=disjoint_14) 
 if COMPILE_SPECIALIZED_FITTERS
 INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
-    $(INST_NUMTYPE:=disjoint_10) $(INST_NUMTYPE:=disjoint_12) \
-    $(INST_NUMTYPE:=disjoint_16) $(INST_NUMTYPE:=disjoint_18) \
+    $(INST_NUMTYPE_DOUBLE:=disjoint_10) $(INST_NUMTYPE:=disjoint_12) \
+    $(INST_NUMTYPE:=disjoint_16) $(INST_NUMTYPE_DOUBLE:=disjoint_18) \
     $(INST_NUMTYPE:=disjoint_20) 
 endif
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
