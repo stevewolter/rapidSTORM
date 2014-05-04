@@ -160,6 +160,7 @@ rapidstorm_SOURCES = \
     image/morphological_reconstruction.h \
     image/morphological_reconstruction.hpp \
     image/Box.h image/Box.hpp \
+    image/subtract.hpp \
     image/unit_tests.cpp \
     units/icl.h \
     units/amplitude.h units/frame_count.h \
