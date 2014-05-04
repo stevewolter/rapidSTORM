@@ -45,8 +45,14 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     traits.fit_residues().is_given = true;
     traits.local_background().is_given = (info.traits.plane_count() <= 1);
     traits.fluorophore().is_given = true;
-    traits.two_kernel_improvement().is_given= config.two_kernel_fitting();
+    if (config.two_kernel_fitting()) {
+        traits.two_kernel_improvement().is_given = true;
+        traits.two_kernel_improvement().range().first = 0.0;
+        traits.two_kernel_improvement().range().second = 1.0;
+    }
     traits.coefficient_of_determination().is_given= true;
+    traits.coefficient_of_determination().range().first = 0.0;
+    traits.coefficient_of_determination().range().second = 1.0;
 
     config.laempi_fit.set_visibility( info.traits.plane_count() > 1 );
     config.disjoint_amplitudes.set_visibility( info.traits.plane_count() > 1 );
