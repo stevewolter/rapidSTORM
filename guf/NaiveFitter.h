@@ -31,7 +31,7 @@ class NaiveFitter {
      *  \returns The new function value, which is the sum of squared residues
      *           for mle == false and the negative likelihood for mle == true.
      **/
-    double fit( fit_window::PlaneStack& data, bool mle, Spot* highest_residue );
+    double fit( fit_window::PlaneStack& data, bool mle, Spot* highest_residue, double* r_value );
 
   private:
     std::vector<std::unique_ptr<FitFunctionFactory>> function_creators;

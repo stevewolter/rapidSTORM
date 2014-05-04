@@ -75,6 +75,15 @@ struct TwoKernelImprovement {
     static const ValueType default_value;
 };
 
+struct CoefficientOfDetermination {
+    typedef boost::units::quantity<boost::units::si::dimensionless, float> ValueType;
+    typedef boost::units::quantity<boost::units::si::dimensionless, float> OutputType;
+
+    static std::string get_desc();
+    static std::string get_shorthand();
+    static const ValueType default_value;
+};
+
 struct FitResidues {
     typedef boost::units::quantity<boost::units::si::dimensionless, double> ValueType;
     typedef boost::units::quantity<boost::units::si::dimensionless, double> OutputType;
@@ -127,7 +136,8 @@ typedef boost::mpl::vector<
     TwoKernelImprovement,
     FitResidues,
     Fluorophore,
-    LocalBackground> Fields;
+    LocalBackground,
+    CoefficientOfDetermination> Fields;
 
 }
 }

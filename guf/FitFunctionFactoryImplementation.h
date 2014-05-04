@@ -45,6 +45,20 @@ class FitFunctionFactoryImplementation : public FitFunctionFactory, private boos
 
     Kernel& get_gaussian() { assert(kernels.size() == 1); return *kernels[0]; }
     constant_background::Expression& get_background() { return *background; }
+    Spot get_center() const {
+        Spot result;
+        result.x() = (*kernels[0])( gaussian_psf::Mean<0>() );
+        result.y() = (*kernels[0])( gaussian_psf::Mean<1>() );
+        return result;
+    }
+    Spot get_width() const { return kernels[0]->get_sigma(); }
+    double get_constant_background() const {
+        if (use_background) {
+            return (*background)( constant_background::Amount() );
+        } else {
+            return 0;
+        }
+    }
 };
 
 }

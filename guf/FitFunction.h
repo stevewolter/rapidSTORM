@@ -12,6 +12,7 @@ class FitFunction {
     virtual ~FitFunction() {}
     virtual nonlinfit::AbstractFunction<double>* abstract_function() = 0;
     virtual double highest_residue(Spot& spot) const = 0;
+    virtual double r_value(Spot center, Spot width, double constant_background) const = 0;
 };
 
 }

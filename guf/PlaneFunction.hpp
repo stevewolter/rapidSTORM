@@ -56,6 +56,19 @@ struct PlaneFunctionImplementation
         return current_highest;
     }
 
+    double r_value(Spot center, Spot width, double constant_background) const {
+        double sum_of_squared_residues = 0, sum_of_squared_values = 0;
+        for (const typename Tag::Data::DataRow& row : xs.data) {
+            for (int i = 0; i < row.residues.rows(); ++i) {
+                if (((xs.get_coordinate(row, i).template cast<double>() - center).array().abs() < width.array()).all()) {
+                    sum_of_squared_residues += row.residues[i] * row.residues[i];
+                    sum_of_squared_values += pow(row.output[i] - row.background[i] - constant_background, 2);
+                }
+            }
+        }
+        return 1.0 - sum_of_squared_residues / sum_of_squared_values;
+    }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 

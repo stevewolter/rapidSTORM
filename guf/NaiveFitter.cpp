@@ -37,7 +37,7 @@ NaiveFitter::NaiveFitter(
     plane_combiner = boost::in_place<nonlinfit::sum::AbstractFunction>(variable_map);
 }
 
-double NaiveFitter::fit(fit_window::PlaneStack& data, bool mle, Spot* residue_centroid) {
+double NaiveFitter::fit(fit_window::PlaneStack& data, bool mle, Spot* residue_centroid, double* r_value) {
     typedef nonlinfit::AbstractFunction<double> AbstractFunction;
     std::vector<std::unique_ptr<FitFunction>> functions;
     for ( fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {
@@ -47,6 +47,15 @@ double NaiveFitter::fit(fit_window::PlaneStack& data, bool mle, Spot* residue_ce
 
     nonlinfit::terminators::StepLimit step_limit(this->step_limit);
     double chi_sq = lm.fit( *plane_combiner, step_limit );
+
+    *r_value = 0;
+    for (size_t i = 0; i < functions.size(); ++i) {
+        *r_value += functions[i]->r_value(
+                function_creators[i]->get_center(),
+                function_creators[i]->get_width(),
+                function_creators[i]->get_constant_background()) / functions.size();
+    }
+
     if (residue_centroid) {
         double highest_residue = std::numeric_limits<double>::min();
         for ( fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {

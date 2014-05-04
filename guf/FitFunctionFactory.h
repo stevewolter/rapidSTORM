@@ -24,6 +24,9 @@ class FitFunctionFactory {
     virtual MultiKernelModel fit_position() = 0;
     virtual std::unique_ptr<FitFunction> create_function(
         const fit_window::Plane& plane, bool mle) = 0;
+    virtual Spot get_center() const = 0;
+    virtual Spot get_width() const = 0;
+    virtual double get_constant_background() const = 0;
 };
 
 }

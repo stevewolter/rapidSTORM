@@ -59,16 +59,17 @@ int Fitter::fitSpot(
         MultiKernelModelStack& one_kernel = one_kernel_fitter.fit_position();
         double mle_result = 0;
         double improvement = 0;
+        double r_value = 0;
         initial_value_finder( one_kernel, spot, data );
-        double lsq_result = one_kernel_fitter.fit( data, false, centroid );
+        double lsq_result = one_kernel_fitter.fit( data, false, centroid, &r_value );
         if ( ! is_good_localization( one_kernel, spot ) ) { DEBUG("No good spot"); return -1; }
         if ( mle )
-            mle_result = one_kernel_fitter.fit( data, true, centroid );
+            mle_result = one_kernel_fitter.fit( data, true, centroid, &r_value );
         if ( two_kernel_analysis ) {
             try {
                 MultiKernelModelStack& two_kernel_model = two_kernels_fitter->fit_position();
                 add_new_kernel( two_kernel_model, one_kernel, *centroid);
-                double two_kernel_result = two_kernels_fitter->fit( data, false, nullptr );
+                double two_kernel_result = two_kernels_fitter->fit( data, false, nullptr, &r_value );
                 if ( is_good_localization( two_kernel_model, spot ) )
                     improvement = 1.0 - two_kernel_result / lsq_result;
             } catch ( const nonlinfit::levmar::SingularMatrix&) {
@@ -86,6 +87,7 @@ int Fitter::fitSpot(
         create_localization( loc, one_kernel, result, data );
         loc.frame_number = im.frame_number();
         loc.two_kernel_improvement = improvement;
+        loc.coefficient_of_determination = r_value;
         if ( loc.children.is_initialized() )
             for ( std::vector<Localization>::iterator i = loc.children->begin(); i != loc.children->end(); ++i )
                 i->frame_number = im.frame_number();

@@ -71,6 +71,10 @@ std::string TwoKernelImprovement::get_desc() { return "two kernel improvement"; 
 const TwoKernelImprovement::ValueType TwoKernelImprovement::default_value = 0;
 std::string TwoKernelImprovement::get_shorthand() { return "fishy"; }
 
+std::string CoefficientOfDetermination::get_desc() { return "coefficient of determination"; }
+const CoefficientOfDetermination::ValueType CoefficientOfDetermination::default_value = 0;
+std::string CoefficientOfDetermination::get_shorthand() { return "rsq"; }
+
 std::string FitResidues::get_desc() { return "fit residue chi square value"; }
 const FitResidues::ValueType FitResidues::default_value = 0;
 std::string FitResidues::get_shorthand() { return "chisq"; }
