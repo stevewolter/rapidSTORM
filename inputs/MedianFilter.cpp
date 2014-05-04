@@ -201,7 +201,11 @@ class ChainLink
     }
 
     input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
-        return new Source( p, config.width(), config.stride() );
+        if (config.apply_filter()) {
+            return new Source( p, config.width(), config.stride() );
+        } else {
+            return p.release();
+        }
     }
 
   public:
@@ -215,9 +219,9 @@ class ChainLink
 
 Config::Config() 
 : name_object(ChainLink::getName(), "Temporal median filter"),
-  apply_filter("ApplyFilter", false),
-  width("Number of images in median", 21 * camera::frame),
-  stride( "Stride between key images", 10 * camera::frame )
+  apply_filter("MedianFilter", "Apply median filter", false),
+  width("MedianWidth", "Number of images in median", 11 * camera::frame),
+  stride("MedianStride", "Stride between key images", 5 * camera::frame )
 {
     apply_filter.set_user_level( simparm::Intermediate ),
     width.set_user_level( simparm::Expert );
