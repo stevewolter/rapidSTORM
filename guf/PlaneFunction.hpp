@@ -6,8 +6,6 @@
 #include "nonlinfit/FunctionConverter.h"
 #include "fit_window/chunkify.hpp"
 
-#include <iostream>
-
 namespace dStorm {
 namespace guf {
 
@@ -99,7 +97,6 @@ PlaneFunction<ComputationWay>::create1(Evaluators e, const fit_window::Plane& da
     } else if (variable_count == 6) {
         return create2<DistanceMetric, 6>(std::move(e), data);
     } else {
-        std::cerr << "Creating variable-sized distance for variable count " << variable_count << std::endl;
         return create2<DistanceMetric, Eigen::Dynamic>(std::move(e), data);
     }
 }
