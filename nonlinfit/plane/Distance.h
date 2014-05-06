@@ -141,7 +141,7 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations, VariableCoun
         for (const auto term : terms) {
             term_variable_count += term->term_variable_count;
         }
-        assert(VariableCount == Eigen::Dynamic || VariableCount == term_variable_count_);
+        assert(VariableCount == Eigen::Dynamic || VariableCount == term_variable_count);
         x_jacobian.resize(Tag::ChunkSize, term_variable_count);
         y_jacobian_row.resize(1, term_variable_count);
         x_gradient.resize(term_variable_count);

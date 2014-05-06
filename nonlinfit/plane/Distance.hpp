@@ -95,7 +95,7 @@ void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations, VariableCount 
 
     int offset = 0;
     for (const auto& term : terms) {
-        auto block = y_jacobian_row.middleCols(offset, term->variable_count);
+        auto block = y_jacobian_row.middleCols(offset, term->term_variable_count);
         term->evaluate_disjoint_chunk(r.inputs, values, block);
         offset += term->term_variable_count;
     }

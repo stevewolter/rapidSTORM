@@ -16,7 +16,7 @@ operator-(const Image<PixelType,Dimensions>& a, const Image<PixelType,Dimensions
 template <typename PixelType, int Dimensions>
 Image<PixelType,Dimensions>
 subtract(const Image<PixelType,Dimensions>& a, const Image<PixelType,Dimensions>& b) {
-    assert(a.sizes() == b.sizes());
+    assert((a.sizes() == b.sizes()).all());
     Image<PixelType,Dimensions> result = a.deep_copy();
 
     for (auto i = a.begin(), j = b.begin(), k = result.begin(); i != a.end(); ++i, ++j, ++k) {
