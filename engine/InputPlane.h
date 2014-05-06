@@ -11,9 +11,11 @@ namespace engine {
 struct InputPlane {
     image::MetaInfo<2> image;
     traits::Optics optics;
+    bool has_background_estimate;
     const traits::Projection& projection() const { return *projection_; }
     void create_projection();
 
+    InputPlane() : has_background_estimate(false) {}
     ~InputPlane();
 
 private:

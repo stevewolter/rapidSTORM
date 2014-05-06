@@ -28,6 +28,32 @@ struct BaseExpression
 
     void allow_leaving_ROI( bool do_allow ) { may_leave_roi = do_allow; }
 
+    void set_negligible_step_length(double position_delta) {
+        this->absolute_position_epsilon = position_delta;
+    }
+
+    void set_relative_epsilon(double relative_epsilon) {
+        this->relative_epsilon = relative_epsilon;
+    }
+
+    template <int Dimension>
+    bool change_is_negligible(nonlinfit::Xs<Dimension> tag, double from, double to) const {
+        return true;
+    }
+
+    template <int Dimension>
+    bool change_is_negligible(Mean<Dimension> tag, double from, double to) const {
+        return position_step_is_negligible(from, to);
+    }
+
+    bool change_is_negligible(Amplitude tag, double from, double to) const {
+        return relative_step_is_negligible(from, to);
+    }
+
+    bool change_is_negligible(Prefactor tag, double from, double to) const {
+        return relative_step_is_negligible(from, to);
+    }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   protected:
@@ -59,6 +85,15 @@ struct BaseExpression
     bool mean_within_range( const Bound& lower, const Bound& upper ) const;
     bool sigma_is_negligible( double pixel_size ) const;
 
+    bool position_step_is_negligible(double from, double to) const {
+        return std::abs(to - from) < absolute_position_epsilon;
+    }
+
+    bool relative_step_is_negligible(double from, double to) const;
+
+  private:
+    double absolute_position_epsilon;
+    double relative_epsilon;
 };
 
 }

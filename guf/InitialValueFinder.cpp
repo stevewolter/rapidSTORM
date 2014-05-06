@@ -132,7 +132,7 @@ class InitialValueFinder::set_parameter {
 void InitialValueFinder::operator()( 
     MultiKernelModelStack& position, 
     const Spot& spot,
-    const fit_window::Stack& data
+    const fit_window::PlaneStack& data
 ) const {
     std::vector<PlaneEstimate> e = estimate_bg_and_amp(spot,data);
     if ( ! disjoint_amplitudes ) join_amp_estimates( e );
@@ -172,7 +172,7 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
         v[i].amp = mean_amplitude;
 }
 
-void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<PlaneEstimate>& v ) const
+void InitialValueFinder::estimate_z( const fit_window::PlaneStack& s, std::vector<PlaneEstimate>& v ) const
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
     boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
@@ -185,25 +185,30 @@ void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<Pla
 
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
     const Spot&,
-    const fit_window::Stack & s
+    const fit_window::PlaneStack & s
 ) const {
     std::vector<PlaneEstimate> rv( s.size() );
     for (int i = 0; i < int(s.size()); ++i) {
         const traits::Optics& o = info.traits.optics(i);
-        /* Value of perfectly sharp PSF at Z = 0 */
-        double pif = o.transmission_coefficient(info.fluorophore);
             
-        /* Solution of equation system:
-            * peak_intensity == bg_estimate + pif * amp_estimate
-            * integral == pixel_count * bg_estimate + amp_estimate */
-        if ( pif > 1E-20 ) {
-            rv[i].bg = s[i].background_estimate;
-            rv[i].amp = std::max( 
-                (s[i].integral - rv[i].bg * double(s[i].pixel_count)) / pif,
-                1.0 );
+        if (s[i].has_per_pixel_background) {
+            rv[i].bg = 0;
+            rv[i].amp = s[i].integral;
         } else {
-            rv[i].amp = 0;
-            rv[i].bg = s[i].integral / s[i].pixel_count;
+            /* Value of perfectly sharp PSF at Z = 0 */
+            double pif = o.transmission_coefficient(info.fluorophore);
+            /* Solution of equation system:
+                * peak_intensity == bg_estimate + pif * amp_estimate
+                * integral == pixel_count * bg_estimate + amp_estimate */
+            if ( pif > 1E-20 ) {
+                rv[i].bg = s[i].background_estimate;
+                rv[i].amp = std::max( 
+                    (s[i].integral - rv[i].bg * double(s[i].points.size())) / pif,
+                    1.0 );
+            } else {
+                rv[i].amp = 0;
+                rv[i].bg = s[i].integral / s[i].points.size();
+            }
         }
     }
 

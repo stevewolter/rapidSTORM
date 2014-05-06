@@ -1,6 +1,4 @@
-#include <boost/test/unit_test.hpp>
 #include "gaussian_psf/No3D.h"
-#include "gaussian_psf/check_evaluator.hpp"
 #include "nonlinfit/InvalidPositionError.h"
 
 namespace dStorm {
@@ -25,6 +23,5 @@ Eigen::Vector2d No3D::get_sigma() const
 template class Parameters< double, No3D >;
 template class Parameters< float, No3D >;
 
-template boost::unit_test::test_suite* check_evaluator<No3D>( const char* name );
 }
 }

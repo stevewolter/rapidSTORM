@@ -1,7 +1,6 @@
 #ifndef DSTORM_GUF_PSF_IS_PLANE_DEPENDENT_H
 #define DSTORM_GUF_PSF_IS_PLANE_DEPENDENT_H
 
-#include <nonlinfit/TermParameter.h>
 #include "constant_background/model.hpp"
 #include "gaussian_psf/parameters.h"
 
@@ -32,9 +31,6 @@ class is_plane_independent
     bool operator()( ZPosition<Dim> ) { return false; }
     template <int Dim, int Term>
     bool operator()( DeltaSigma<Dim,Term> ) { return universal_prefactors; }
-
-    template <class SubFunction, typename Base>
-    bool operator()( nonlinfit::TermParameter<SubFunction,Base> ) { return operator()(Base()); }
 };
 
 struct is_fluorophore_dependent 
@@ -44,9 +40,6 @@ struct is_fluorophore_dependent
     template <int Dim>
     bool operator()( BestSigma<Dim> ) { return true; }
     bool operator()( Prefactor ) { return true; }
-
-    template <class SubFunction, typename Base>
-    bool operator()( nonlinfit::TermParameter<SubFunction,Base> ) { return operator()(Base()); }
 
     template <typename Parameter> 
     bool operator()( Parameter ) { return false; }

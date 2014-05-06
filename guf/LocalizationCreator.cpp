@@ -3,7 +3,6 @@
 #include "debug.h"
 #include <Eigen/StdVector>
 #include "engine/InputTraits.h"
-#include "fit_window/Stack.h"
 #include "fit_window/Plane.h"
 #include "guf/LocalizationCreator.h"
 #include "engine/JobInfo.h"
@@ -24,7 +23,7 @@ LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::en
 {
 }
 
-void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelStack& pos, double chi_sq, const fit_window::Stack& data ) const
+void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelStack& pos, double chi_sq, const fit_window::PlaneStack& data ) const
 {
     assert( ! pos.empty() );
 
@@ -38,7 +37,7 @@ void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelS
         for ( int plane = 0; plane < plane_count; ++plane ) {
             by_plane.push_back( Localization() );
             write_parameters( by_plane.back(), pos[plane], chi_sq, data[plane] );
-            if ( ! data[plane].optics.can_compute_localization_precision() )
+            if ( ! data[plane].optics->can_compute_localization_precision() )
                 weight_by_uncertainty = false;
         }
         join_localizations( loc, by_plane, weight_by_uncertainty );
@@ -78,9 +77,9 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
     double N = m[0]( gaussian_psf::Amplitude() ) * m[0]( gaussian_psf::Prefactor() );
     double B = m.background_model()( constant_background::Amount() );
     double background_variance = 
-        ( p.optics.background_is_poisson_distributed() )
+        ( p.optics->background_is_poisson_distributed() )
         ? B
-        : p.optics.background_noise_variance();
+        : p.optics->background_noise_variance();
     /* Compute/get \sigma */
     for (int i = 0; i < 2; ++i) {
         double psf_variance 
@@ -105,19 +104,19 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel );
     if ( threed )
         pos[2] = (*threed)( gaussian_psf::MeanZ() ) * 1E-6 * si::meter;
-    localization::Amplitude::ValueType amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
+    localization::Amplitude::ValueType amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics->photon_response() );
     rv = Localization(pos, amp );
 
     rv.local_background() = 
             quantity< camera::intensity, float >
-                ( m.background_model()( constant_background::Amount() ) * data.optics.photon_response() );
+                ( m.background_model()( constant_background::Amount() ) * data.optics->photon_response() );
     rv.fit_residues = chi_sq;
-    if ( output_sigmas || data.optics.can_compute_localization_precision() ) {
+    if ( output_sigmas || data.optics->can_compute_localization_precision() ) {
         rv.psf_width_x() = quantity<si::length,float>(only_kernel.get_sigma()[0] * 1E-6 * si::meter) * 2.35f;
         rv.psf_width_y() = quantity<si::length,float>(only_kernel.get_sigma()[1] * 1E-6 * si::meter) * 2.35f;
     }
 
-    if ( data.optics.can_compute_localization_precision() )
+    if ( data.optics->can_compute_localization_precision() )
         compute_uncertainty( rv, m, data );
 
     rv.fluorophore = fluorophore;

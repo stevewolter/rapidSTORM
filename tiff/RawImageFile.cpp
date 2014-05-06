@@ -5,6 +5,7 @@
 #include <boost/units/io.hpp>
 #include <stdint.h>
 #include "tiff/TIFFOperation.h"
+#include "image/subtract.hpp"
 #include <boost/scoped_array.hpp>
 
 namespace dStorm {
@@ -24,12 +25,19 @@ void RawImageFile::error_handler( const char* module,
 }
 
 RawImageFile::Config::Config() 
-: outputFile("ToFile", "TIF output file name", ".tif")
+: outputFile("ToFile", "TIF output file name", ".tif"),
+  save_background("OutputType", "Output type")
 {
+    save_background.addChoice(new OutputTypeChoice("Signal", "Signal", Signal));
+    save_background.addChoice(new OutputTypeChoice("CorrectedSignal",
+                "Background-corrected signal", BackgroundCorrectedSignal));
+    save_background.addChoice(new OutputTypeChoice("Background",
+                "Background only", Background));
 }
 
 RawImageFile::RawImageFile(const Config& config)
 : filename( config.outputFile() ),
+  output_type(config.save_background().output_type),
   tif( NULL ),
   next_image(0)
 {
@@ -52,6 +60,12 @@ RawImageFile::announceStormSize(const Announcement &a)
         }
     } else
         throw std::runtime_error("The raw images output needs access to the raw image data, but these are not provided by the preceding modules");
+
+    for (const auto& plane : *a.input_image_traits) {
+        if (output_type != Signal && !plane.has_background_estimate) {
+            throw std::runtime_error("Need a background estimate to store raw images for background or background-corrected signal");
+        }
+    }
 
     TIFFOperation op("in writing TIFF file", current_ui, false);
     if ( tif == NULL ) {
@@ -111,8 +125,9 @@ void RawImageFile::receiveLocalizations(const EngineResult& er)
 void RawImageFile::write_image(const engine::ImageStack& img) {
     assert( img.has_invalid_planes() || (size[0].size.array() == img.plane(0).sizes().array()).all() );
     int lines = 0;
-    for (int p = 0; p < img.plane_count(); ++p)
+    for (int p = 0; p < img.plane_count(); ++p) {
         lines += img.plane(p).height_in_pixels();
+    }
 
     TIFFOperation op("in writing TIFF file", current_ui, false);
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size[0].size.x() / camera::pixel) );
@@ -137,13 +152,28 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
     int current_line = 0;
     for (int p = 0; p < img.plane_count(); ++p)
     {
-        for (int y = 0; y < img.plane(p).height_in_pixels(); ++y)
+        engine::Image2D plane;
+        switch (output_type) {
+            case Signal:
+                plane = img.plane(p);
+                break;
+            case Background:
+                plane = img.background(p);
+                break;
+            case BackgroundCorrectedSignal:
+                plane = img.plane(p) - img.background(p);
+                break;
+            default:
+                throw std::logic_error("Unknown output type");
+        }
+
+        for (int y = 0; y < plane.height_in_pixels(); ++y)
         {
             tdata_t data;
-            if ( img.plane(p).is_invalid() )
+            if ( plane.is_invalid() )
                 data = empty_scanline;
             else
-                data = const_cast<tdata_t>( (const tdata_t)&img.plane(p)(0, y) );
+                data = const_cast<tdata_t>( (const tdata_t)&plane(0, y) );
             tsize_t r = TIFFWriteScanline(tif, data, current_line++, 0);
             if ( r == -1 /* Error occured */ ) 
                 op.throw_exception_for_errors();

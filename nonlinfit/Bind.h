@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_FUNCTION_H
 #define NONLINFIT_FUNCTION_H
 
-#include "nonlinfit/fwd.h"
+#include "nonlinfit/Evaluator.h"
 #include "nonlinfit/Lambda.h"
 
 #include <boost/mpl/size.hpp>

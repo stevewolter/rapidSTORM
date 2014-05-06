@@ -5,9 +5,9 @@
 #include <boost/mpl/vector.hpp>
 #include <nonlinfit/Lambda.h>
 #include <nonlinfit/Bind.h>
-#include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/plane/fwd.h>
 #include <nonlinfit/access_parameters.hpp>
+#include "nonlinfit/AbstractFunction.h"
 
 namespace nonlinfit {
 namespace static_power {
@@ -43,13 +43,13 @@ template <> struct BaseValue::apply< Power > { typedef boost::mpl::false_ type; 
 
 template <int Dimension, int Dimensions>
 struct SimpleFunction 
-: public nonlinfit::Bind< static_power::Expression, BaseValue >
+: public nonlinfit::AbstractFunction<double>
 {
-    typedef nonlinfit::Evaluation<double,Dimensions> Derivatives;
+    typedef nonlinfit::Evaluation<double> Derivatives;
     static_power::Expression* expression;
 
     SimpleFunction( nonlinfit::Bind< Expression, BaseValue >& m ) 
-        : nonlinfit::Bind< Expression, BaseValue >(m), expression(&m)
+        : expression(&m)
     {
     }
     bool evaluate( Derivatives& p ) {
@@ -64,6 +64,11 @@ struct SimpleFunction
 
     static const int VariableCount = 1;
     int variable_count() const { return 1; }
+    void get_position(Position& position) const { position[0] = this->expression->var; }
+    void set_position(const Position& position) { this->expression->var = position[0]; }
+    bool step_is_negligible(const Position& from, const Position& to) const {
+        return false;
+    }
 };
 
 }

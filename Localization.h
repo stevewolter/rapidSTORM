@@ -40,6 +40,7 @@ class Localization  {
     FIELD(localization::FitResidues, fit_residues);
     FIELD(localization::Fluorophore, fluorophore);
     FIELD(localization::LocalBackground, local_background);
+    FIELD(localization::CoefficientOfDetermination, coefficient_of_determination);
 #undef FIELD
 
     typedef std::vector<Localization> Children;

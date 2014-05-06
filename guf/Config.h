@@ -16,6 +16,7 @@ struct Config
 {
     simparm::Group name_object;
     fit_window::Config fit_window_config;
+    simparm::BoolEntry allow_disjoint, double_computation;
     static const int maximum_plane_count = 9;
 
     Config();

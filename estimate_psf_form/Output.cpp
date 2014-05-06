@@ -61,15 +61,15 @@ Output::announceStormSize(const Announcement& a)
     engine = a.engine;
 
     bounds[0] = boost::icl::interval< samplepos::Scalar >::closed(
-        *a.position_x().range().first + samplepos::Scalar(config.fit_window_width().x()),
-        *a.position_x().range().second - samplepos::Scalar(config.fit_window_width().x())
+        *a.position_x().range().first + samplepos::Scalar(config.fit_window_config.fit_window_size()),
+        *a.position_x().range().second - samplepos::Scalar(config.fit_window_config.fit_window_size())
     );
     bounds[1] = boost::icl::interval< samplepos::Scalar >::closed(
-        *a.position_y().range().first + samplepos::Scalar(config.fit_window_width().y()),
-        *a.position_y().range().second - samplepos::Scalar(config.fit_window_width().y())
+        *a.position_y().range().first + samplepos::Scalar(config.fit_window_config.fit_window_size()),
+        *a.position_y().range().second - samplepos::Scalar(config.fit_window_config.fit_window_size())
     );
 
-    input.reset( new Input( config, a, config.fit_window_width().cast<samplepos::Scalar>() ) );
+    input.reset( new Input( config, a, static_cast<samplepos::Scalar>(config.fit_window_config.fit_window_size()) ) );
 
     seen_fluorophores = std::vector<bool>( input->fluorophore_count, false );
 

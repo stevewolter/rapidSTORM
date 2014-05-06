@@ -1,11 +1,12 @@
 #include <Eigen/StdVector>
 #include "calibrate_3d/ParameterLinearizer.h"
 #include "gaussian_psf/Polynomial3D.h"
-#include <nonlinfit/Bind.h>
-#include <nonlinfit/VectorPosition.hpp>
-#include <nonlinfit/sum/AbstractMap.hpp>
-#include <nonlinfit/sum/AbstractFunction.hpp>
-#include <nonlinfit/make_bitset.h>
+#include "nonlinfit/Bind.h"
+#include "nonlinfit/sum/VariableMap.hpp"
+#include "nonlinfit/sum/AbstractFunction.h"
+#include "nonlinfit/make_bitset.h"
+#include "nonlinfit/get_variable.hpp"
+#include "nonlinfit/set_variable.hpp"
 #include "calibrate_3d/Config.h"
 #include "gaussian_psf/is_plane_dependent.h"
 #include "guf/TraitValueFinder.h"
@@ -44,22 +45,25 @@ public:
 };
 
 template <typename Lambda>
-class BoundMoveable {
+class BoundMoveable 
+: public nonlinfit::AbstractFunction<double> {
     Lambda expression;
-    nonlinfit::VectorPosition<Lambda> mover;
 public:
-    typedef nonlinfit::Evaluation< double, boost::mpl::size<typename Lambda::Variables>::value > Derivatives;
-    typedef typename nonlinfit::VectorPosition<Lambda>::Position Position;
+    typedef nonlinfit::Evaluation<double> Derivatives;
+    typedef Derivatives::Vector Position;
 
-    BoundMoveable() : mover(expression) {}
+    BoundMoveable() {}
     BoundMoveable( const BoundMoveable<Lambda>& o )
-        : expression(o.expression), mover(expression) {}
+        : expression(o.expression) {}
     BoundMoveable& operator=( const BoundMoveable<Lambda>& o )
         { expression = o.expression; return *this; }
     Lambda& get_expression() { return expression; }
     const Lambda& get_expression() const { return expression; }
-    void get_position( Position& p ) const { mover.get_position(p); }
-    void set_position( const Position& p ) { mover.set_position(p); }
+    void get_position( Position& p ) const { nonlinfit::get_variable::fill_vector(expression, p); }
+    void set_position( const Position& p ) { nonlinfit::set_variable::read_vector(p, expression); }
+    bool evaluate(Derivatives& p) { assert(false); return false; }
+    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
+    bool step_is_negligible(const Position& from, const Position& to) const { assert(false); return true; }
 };
 
 struct ParameterLinearizer::Pimpl 
@@ -70,9 +74,9 @@ struct ParameterLinearizer::Pimpl
 
     std::pair<int,int> reduce( const int plane, const int parameter ) const;
 
-    std::bitset< VariableCount > reducible, plane_independent, constant;
+    std::vector<bool> reducible, plane_independent, constant;
     mutable std::vector< OnePlane, Eigen::aligned_allocator<OnePlane> > planes;
-    typedef nonlinfit::sum::AbstractFunction< OnePlane, OnePlane, nonlinfit::sum::VariableDropPolicy > MultiPlane;
+    typedef nonlinfit::sum::AbstractFunction MultiPlane;
     mutable boost::optional< MultiPlane > multiplane;
 
 public:
@@ -96,7 +100,7 @@ ParameterLinearizer::Pimpl::Pimpl( const Config& config )
 void ParameterLinearizer::Pimpl::set_plane_count( int plane_count )
 {
     planes.resize( plane_count );
-    nonlinfit::sum::AbstractMap< VariableCount > map;
+    nonlinfit::sum::VariableMap map(VariableCount);
     for (int i = 0; i < plane_count; ++i) 
     {
         map.add_function( boost::bind( &Pimpl::reduce, boost::ref(*this), _1, _2 ) );

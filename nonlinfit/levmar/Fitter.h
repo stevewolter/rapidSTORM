@@ -1,8 +1,9 @@
 #ifndef NONLINFIT_LEVENBERGMARQUARDT_FITTER_H
 #define NONLINFIT_LEVENBERGMARQUARDT_FITTER_H
 
-#include "nonlinfit/levmar/fwd.h"
+#include "nonlinfit/AbstractFunction.h"
 #include "nonlinfit/levmar/Config.h"
+#include "nonlinfit/Terminator.h"
 
 namespace nonlinfit {
 namespace levmar {
@@ -12,9 +13,9 @@ class Fitter {
     const double initial_lambda, wrong_position_adjustment, unsolvable_adjustment,
                  pure_gradient_lambda;
     enum Step { BetterPosition, WorsePosition, InvalidPosition };
-    template <class Function_, class Moveable_> class State;
+    class State;
   public:
-    inline Fitter( const Config& );
+    Fitter( const Config& );
     /** Find the minimum of the provided function with Levenberg-Marquardt.
      *  This method will repeatedly call Function::evaluate() and use the
      *  calculated parameters according to the LM method to find the minimum
@@ -24,23 +25,13 @@ class Fitter {
      *  \pre{ function is in some valid state }
      *  \post{ function is in a locally minimal state }
      *  \param[in] function     The Function model to be minimized.
-     *  \param[in,out] moveable A Moveable model that is used to change the
-     *                          position of #function in the state space.
      *  \param[in] terminator   A model of Terminator that controls when
      *                          fitting should stop.
      *
      *  \return The function value at the minimal position.
      **/
-    template <typename Function_, typename Moveable_, typename _Terminator>
-    double fit( Function_& function, Moveable_& moveable, _Terminator terminator );
+    double fit( AbstractFunction<double>& function, Terminator& terminator );
 };
-
-Fitter::Fitter( const Config& config ) 
-: initial_lambda( config.initial_lambda ),
-  wrong_position_adjustment( 10 ),
-  unsolvable_adjustment( 1.1 ),
-  pure_gradient_lambda( 1E20 )
-{}
 
 }
 }

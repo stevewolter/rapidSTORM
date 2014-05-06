@@ -1,6 +1,3 @@
-#include <Eigen/StdVector>
-#include "helpers/thread.h"
-#include <boost/mpl/vector.hpp>
 #include <boost/test/unit_test.hpp>
 
 namespace dStorm {

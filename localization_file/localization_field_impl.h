@@ -72,6 +72,7 @@ std::string field_identifier(localization::TwoKernelImprovement) { return "TwoKe
 std::string field_identifier(localization::LocalBackground) { return "LocalBackground-0-0"; }
 std::string field_identifier(localization::FitResidues) { return "FitResidues-0-0"; }
 std::string field_identifier(localization::Fluorophore) { return "Fluorophore-0-0"; }
+std::string field_identifier(localization::CoefficientOfDetermination) { return "RSquared-0-0"; }
 
 template <typename Unit, typename Value>
 inline std::string name_string( const quantity<Unit,Value>& );

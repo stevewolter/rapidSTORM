@@ -1,14 +1,16 @@
 #ifndef NONLINFIT_FUNCTIONCONVERTER_H
 #define NONLINFIT_FUNCTIONCONVERTER_H
 
-#include "nonlinfit/fwd.h"
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_same.hpp>
 
+#include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/Evaluation.h"
+
 namespace nonlinfit {
 
-template <class ToType, class Function, 
-    bool Trivial = boost::is_same< ToType, typename Function::Number >::value >
+template <class ToType, class FromType, 
+    bool Trivial = boost::is_same< ToType, FromType >::value >
 class FunctionConverter;
 
 /** Derived Function instance to convert the numeric type of a function.
@@ -17,23 +19,25 @@ class FunctionConverter;
  *  in positions and evaluations to the ToType class. If ToType is the same
  *  type as the underlying function's number type, the conversion is Trivial
  *  and a no-op. */
-template <class ToType, class Function, bool Trivial>
+template <class ToType, class FromType, bool Trivial>
 class FunctionConverter
+: public AbstractFunction<ToType>
 {
-    Function base;
+    typedef typename AbstractFunction<ToType>::Position Position;
+
+    AbstractFunction<FromType>& base;
+    Evaluation<FromType> buffer;
+    mutable typename AbstractFunction<FromType>::Position position_buffer;
+    mutable typename AbstractFunction<FromType>::Position new_position_buffer;
   public:
-    typedef typename Function::Lambda Lambda;
-    typedef typename Function::Data Data;
-    static const int VariableCount = Function::VariableCount;
-    typedef Evaluation< ToType, VariableCount > Derivatives;
-    typedef ToType Number;
+    FunctionConverter( AbstractFunction<FromType>& a )
+        : base(a),
+          buffer(base.variable_count()),
+          position_buffer(base.variable_count()),
+          new_position_buffer(base.variable_count()) {}
 
-    FunctionConverter( Lambda& a ) : base(a) {}
-
-    void set_data( const Data& d ) { base.set_data(d); }
     int variable_count() const { return base.variable_count(); }
-    bool evaluate( Derivatives& d ) {
-        typename Function::Derivatives buffer;
+    bool evaluate( Evaluation<ToType>& d ) {
         if ( base.evaluate(buffer) ) {
             d.value = buffer.value;
             d.gradient = buffer.gradient.template cast<ToType>();
@@ -43,17 +47,43 @@ class FunctionConverter
             return false;
         }
     }
+
+    void get_position( Position& p ) const OVERRIDE {
+        base.get_position(position_buffer);
+        p = position_buffer.template cast<ToType>();
+    }
+
+    void set_position( const Position& p ) OVERRIDE {
+        position_buffer = p.template cast<FromType>();
+        base.set_position(position_buffer);
+    }
+
+    bool step_is_negligible( const Position& old_position,
+                             const Position& new_position ) const OVERRIDE {
+        position_buffer = old_position.template cast<FromType>();
+        new_position_buffer = new_position.template cast<FromType>();
+        return base.step_is_negligible(position_buffer, new_position_buffer);
+    }
 };
 
-/** \cond */
-template <class ToType, class Function>
-struct FunctionConverter< ToType, Function, true >
-: public Function
+template <class ToType, class FromType>
+class FunctionConverter<ToType, FromType, true>
+: public AbstractFunction<ToType>
 {
-    FunctionConverter( typename Function::Lambda& a ) : Function(a) {}
+    typedef typename AbstractFunction<ToType>::Position Position;
 
+    AbstractFunction<FromType>& base;
+  public:
+    FunctionConverter( AbstractFunction<FromType>& a ) : base(a) {}
+    int variable_count() const { return base.variable_count(); }
+    bool evaluate( Evaluation<ToType>& d ) { return base.evaluate(d); }
+    void get_position( Position& p ) const OVERRIDE { base.get_position(p); }
+    void set_position( const Position& p ) OVERRIDE { base.set_position(p); }
+    bool step_is_negligible( const Position& old_position,
+                             const Position& new_position ) const {
+        return base.step_is_negligible(old_position, new_position);
+    }
 };
-/** \endcond */
 
 }
 

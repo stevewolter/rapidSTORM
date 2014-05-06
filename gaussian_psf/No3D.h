@@ -1,6 +1,7 @@
 #ifndef DSTORM_PSF_NO3D_H
 #define DSTORM_PSF_NO3D_H
 
+#include "gaussian_psf/BaseEvaluator.h"
 #include "gaussian_psf/BaseExpression.h"
 #include <nonlinfit/append.h>
 
@@ -33,9 +34,15 @@ class No3D
     // Returns the PSF standard deviation in micrometers.
     Eigen::Vector2d get_sigma() const;
 
+    template <int Dimension>
+    bool change_is_negligible(BestSigma<Dimension> tag, double from, double to) const {
+        return relative_step_is_negligible(from, to);
+    }
+
     typedef No3D PSF;
     using nonlinfit::access_parameters<No3D>::operator();
     using nonlinfit::access_parameters<No3D>::get;
+    using BaseExpression::change_is_negligible;
 };
 
 template <typename Num>

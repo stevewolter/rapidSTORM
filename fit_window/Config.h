@@ -14,7 +14,6 @@ struct Config
     Config();
     void attach_ui( simparm::NodeHandle at );
     dStorm::FloatNanometreEntry fit_window_size;
-    simparm::BoolEntry allow_disjoint, double_computation;
 };
 
 }

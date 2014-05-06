@@ -1,5 +1,4 @@
 #include "gaussian_psf/DepthInfo3D.h"
-#include "gaussian_psf/check_evaluator.hpp"
 #include "nonlinfit/InvalidPositionError.h"
 
 namespace dStorm {
@@ -46,10 +45,6 @@ Eigen::Vector2d DepthInfo3D::get_sigma() const
 
 template class Parameters< double, DepthInfo3D >;
 template class Parameters< float, DepthInfo3D >;
-
-using namespace nonlinfit::plane;
-
-template boost::unit_test::test_suite* check_evaluator<DepthInfo3D>( const char* name );
 
 }
 }

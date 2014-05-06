@@ -8,8 +8,10 @@ using namespace boost::units;
 
 Config::Config() 
 : name_object(getName()),
+  allow_disjoint("DisjointFitting", true),
+  double_computation("DoublePrecision", true),
   theta_dist("ThetaDist", 500 * boost::units::si::nanometre),
-  negligible_x_step("NegligibleStepLength", 1E-2f * boost::units::si::nanometre),
+  negligible_x_step("NegligibleStepLength", 1E-1f * boost::units::si::nanometre),
   marquardtStartLambda("MarquardtStartLambda", 1E2),
   maximumIterationSteps("MaximumIterationSteps", 20),
   relative_epsilon("RelativeFitEpsilon", 1E-3),
@@ -20,6 +22,8 @@ Config::Config()
   two_kernel_fitting("TwoKernelFitting", false),
   mle_fitting("MLEFitting", false)
 {
+    allow_disjoint.set_user_level( (simparm::Expert) );
+    double_computation.set_user_level( (simparm::Intermediate) );
     free_sigmas.set_user_level( simparm::Intermediate );
     output_sigmas.set_user_level( simparm::Intermediate );
     mle_fitting.set_user_level( simparm::Intermediate );
@@ -34,6 +38,8 @@ void Config::attach_ui( simparm::NodeHandle at )
 {
     simparm::NodeHandle m = name_object.attach_ui( at );
     fit_window_config.attach_ui( m );
+    allow_disjoint.attach_ui(m);
+    double_computation.attach_ui(m);
     marquardtStartLambda.attach_ui(m);
     negligible_x_step.attach_ui(m);
     relative_epsilon.attach_ui(m);

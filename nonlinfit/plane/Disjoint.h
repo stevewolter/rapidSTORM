@@ -42,11 +42,13 @@ namespace plane {
  *  \tparam InnerParam The parameter describing the variable-size component.
  *  \sa Joint
  **/
-template <typename Num, int _ChunkSize, typename OuterParam, typename InnerParam>
+template <typename Num, int _ChunkSize, typename OuterParam_, typename InnerParam_>
 struct Disjoint {
     typedef Num Number;
     static const int ChunkSize = _ChunkSize;
     typedef DisjointData<Num,ChunkSize> Data;
+    typedef OuterParam_ OuterParam;
+    typedef InnerParam_ InnerParam;
 
     template <typename Function, typename Parameter>
     struct make_derivative_terms;

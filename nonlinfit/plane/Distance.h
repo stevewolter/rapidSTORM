@@ -1,10 +1,10 @@
 #ifndef NONLINFIT_EVALUATORS_PLANE_GENERIC_H
 #define NONLINFIT_EVALUATORS_PLANE_GENERIC_H
 
+#include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/Evaluation.h"
 #include "nonlinfit/plane/fwd.h"
-#include <nonlinfit/Evaluator.h>
-#include <nonlinfit/Evaluation.h>
-#include "nonlinfit/plane/Jacobian.h"
+#include "nonlinfit/plane/Term.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -21,34 +21,41 @@ namespace plane {
  *  \tparam _Tag      A computation way (Joint or Disjoint)
  *  \tparam _Metric   A metric tag
  **/
-template <typename _Lambda, typename _Tag, typename _Metric>
+template <typename _Tag, typename _Metric, int VariableCount>
 class Distance
+: public nonlinfit::AbstractFunction<typename _Tag::Number>
 {
     typedef _Tag Tag;
-  public:
-    typedef _Lambda Lambda;
     typedef typename _Tag::Number Number;
     typedef typename Tag::Data Data;
-    typedef typename get_evaluation< Lambda, Number >::type Derivatives;
 
-  private:
-    typedef typename Data::ChunkView::value_type DataRow;
-    typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
-    const Data* data;
-  protected:
-    Jacobian< Lambda, Tag > jac;
-    Evaluator evaluator;
+    typedef Evaluation< Number > Derivatives;
+    typedef typename Derivatives::Vector Position;
+    typedef typename Data::DataRow DataRow;
+    const Data* xs;
+    std::vector<Term<Tag>*> terms;
+    int variable_count_;
+
+    mutable Eigen::Matrix<Number, Tag::ChunkSize, VariableCount> jacobian;
 
   public:
-    Distance( Lambda& lambda ) : evaluator(lambda) {}
-    bool evaluate( Derivatives& p );
-    void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
+    Distance( std::vector<Term<Tag>*> terms )
+    : terms(terms) {
+        variable_count_ = 0;
+        for (const auto term : terms) {
+            variable_count_ += term->variable_count;
+        }
+        assert(VariableCount == Eigen::Dynamic || VariableCount == variable_count_);
+        jacobian.resize(Tag::ChunkSize, variable_count_);
+    }
 
-
-    typedef void result_type;
-    inline void operator()( Derivatives&, const DataRow& );
+    bool evaluate( Derivatives& p ) OVERRIDE;
+    void set_data( const Data& xs ) { this->xs = &xs; }
+    int variable_count() const OVERRIDE { return variable_count_; }
+    void get_position( Position& p ) const OVERRIDE;
+    void set_position( const Position& p ) OVERRIDE;
+    bool step_is_negligible( const Position& old_position,
+                             const Position& new_position ) const OVERRIDE;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -89,48 +96,79 @@ class Distance
  *  While this potentially doubles the number of parameters,
  *  the rise in the number of parameters is usually much smaller.
  **/
-template <typename _Lambda, typename Num, int _ChunkSize, typename P1, typename P2>
-class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
+template <typename Num, int _ChunkSize, typename P1, typename P2, int VariableCount>
+class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations, VariableCount >
+: public nonlinfit::AbstractFunction<Num>
 {
     typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
   public:
-    typedef _Lambda Lambda;
+    // These typedefs are used by nonlinfit::BoundFunction
     typedef Num Number;
     typedef typename Tag::Data Data;
-    typedef typename get_evaluation< Lambda, Num >::type Derivatives;
-  private:
-    typedef typename Data::ChunkView::value_type DataRow;
-    typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
-        OuterTerms;
-    typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 
-        InnerTerms;
-    static const int TermCount = boost::mpl::size<OuterTerms>::size::value ;
 
+  private:
+    typedef Evaluation< Num > Derivatives;
+    typedef typename Evaluation< Num >::Vector Position;
+    typedef typename Data::DataRow DataRow;
+
+    Eigen::Matrix<int, VariableCount, 1> reduction;
+
+    /** The x-dependent parts of the jacobian. */
+    mutable Eigen::Matrix<Number, Tag::ChunkSize, VariableCount> x_jacobian;
+    /** The y-dependent parts of the jacobian. */
+    mutable Eigen::Matrix<Number, 1, VariableCount> y_jacobian_row;
     /** Accumulator for the derivative terms for Evaluation::gradient.
      *  This variable is necessary because a variable might have multiple
      *  terms, making a post-processing step necessary. */
-    mutable Eigen::Matrix<Num, TermCount, 1> gradient_accum;
+    mutable Eigen::Matrix<Num, VariableCount, 1> x_gradient;
+    mutable Eigen::Matrix<Num, VariableCount, 1> gradient_accum;
+    /** Accumulator for the X parts of the hessian. */
+    mutable Eigen::Matrix<Num, VariableCount, VariableCount> x_hessian;
     /** Accumulator for the Y parts of the hessian. */
-    mutable Eigen::Matrix<Num, TermCount, TermCount> y_hessian;
+    mutable Eigen::Matrix<Num, VariableCount, VariableCount> y_hessian;
+    mutable Eigen::Matrix<Num, VariableCount, VariableCount> hessian;
 
-    typedef nonlinfit::Jacobian<Num, _ChunkSize,OuterTerms> OuterJacobian;
+    const Data* xs;
+    std::vector<Term<Tag>*> terms;
+    int output_variable_count_;
 
-    typedef typename get_evaluator< Lambda, Tag >::type
-        Evaluator;
-    Evaluator evaluator;
-    const Data* data;
-    typename Tag::template get_derivative_combiner<Lambda>::type combiner;
+    inline void evaluate_chunk( Derivatives&, const DataRow& );
 
   public:
-    Distance( Lambda& l ) : evaluator(l) {}
-    bool evaluate( Derivatives& p );
-    void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
+    Distance( std::vector<Term<Tag>*> terms )
+    : terms(terms) {
+        int term_variable_count = 0;
+        for (const auto term : terms) {
+            term_variable_count += term->term_variable_count;
+        }
+        assert(VariableCount == Eigen::Dynamic || VariableCount == term_variable_count);
+        x_jacobian.resize(Tag::ChunkSize, term_variable_count);
+        y_jacobian_row.resize(1, term_variable_count);
+        x_gradient.resize(term_variable_count);
+        gradient_accum.resize(term_variable_count);
+        x_hessian.resize(term_variable_count, term_variable_count);
+        y_hessian.resize(term_variable_count, term_variable_count);
+        hessian.resize(term_variable_count, term_variable_count);
+        reduction.resize(term_variable_count);
 
-    typedef void result_type;
-    inline void operator()( Derivatives&, 
-        const OuterJacobian&, const DataRow& );
+        int offset = 0;
+        output_variable_count_ = 0;
+        for (const auto term : terms) {
+            auto block = reduction.segment(offset, term->term_variable_count);
+            block = term->get_reduction_term();
+            block.array() += output_variable_count_;
+            offset += term->term_variable_count;
+            output_variable_count_ += term->variable_count;
+        }
+    }
+
+    bool evaluate( Derivatives& p ) OVERRIDE;
+    void set_data( const Data& xs ) { this->xs = &xs; }
+    int variable_count() const OVERRIDE { return output_variable_count_; }
+    void get_position( Position& p ) const OVERRIDE;
+    void set_position( const Position& p ) OVERRIDE;
+    bool step_is_negligible( const Position& old_position,
+                             const Position& new_position ) const OVERRIDE;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

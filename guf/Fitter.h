@@ -1,5 +1,6 @@
 #include "guf/Config.h"
 #include "guf/NaiveFitter.h"
+#include "engine/JobInfo.h"
 #include "engine/SpotFitter.h"
 #include "traits/optics.h"
 #include <boost/smart_ptr/scoped_ptr.hpp>
@@ -8,7 +9,7 @@
 #include "guf/LocalizationCreator.h"
 #include "guf/LocalizationChecker.h"
 #include "guf/KernelCreator.h"
-#include "fit_window/Stack.h"
+#include "fit_window/FitWindowCutter.h"
 
 namespace dStorm {
 namespace guf {
@@ -23,9 +24,10 @@ class Fitter
 {
     const dStorm::engine::InputTraits& traits;
     dStorm::engine::JobInfo info;
-    fit_window::StackCreator data_creator;
+    fit_window::FitWindowCutter data_creator;
     InitialValueFinder initial_value_finder;
-    boost::scoped_ptr<NaiveFitter > one_kernel_fitter, two_kernels_fitter;
+    NaiveFitter one_kernel_fitter;
+    boost::optional<NaiveFitter> two_kernels_fitter;
     LocalizationCreator create_localization;
     LocalizationChecker is_good_localization;
     KernelCreator add_new_kernel;

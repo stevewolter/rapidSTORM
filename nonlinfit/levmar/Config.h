@@ -1,8 +1,6 @@
 #ifndef NONLINFIT_LEVENBERGMARQUARDT_CONFIG_H
 #define NONLINFIT_LEVENBERGMARQUARDT_CONFIG_H
 
-#include "nonlinfit/levmar/fwd.h"
-
 namespace nonlinfit {
 namespace levmar {
 

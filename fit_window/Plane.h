@@ -1,37 +1,29 @@
 #ifndef DSTORM_GUF_DATAPLANE_H
 #define DSTORM_GUF_DATAPLANE_H
 
-#include <memory>
+#include <vector>
+
+#include "fit_window/DataPoint.h"
 #include "fit_window/Spot.h"
 
 namespace dStorm {
 namespace fit_window {
 
-class Centroid;
 class Optics;
 
-class Plane {
-public:
-    const Optics& optics;
-    int tag_index;
-    Spot highest_pixel;
+struct Plane {
+    const Optics* optics;
     float integral, peak_intensity, background_estimate;
     double pixel_size;
+    double min_coordinate[2], max_coordinate[2];
     double standard_deviation[2];
-    int pixel_count;
-
-protected:
-    Plane( const Optics& optics ) : optics(optics), tag_index(-1) {}
-private:
-    virtual std::auto_ptr<Centroid> _residue_centroid() const = 0;
-
-public:
-    virtual ~Plane() {}
-
-    std::auto_ptr<Centroid> residue_centroid() const
-        { return _residue_centroid(); }
-
+    int window_width;
+    std::vector<DataPoint> points;
+    int highest_pixel_index;
+    bool has_per_pixel_background;
 };
+
+typedef std::vector<Plane> PlaneStack;
 
 }
 }

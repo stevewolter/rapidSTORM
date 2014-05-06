@@ -4,8 +4,7 @@
 #include "nonlinfit/plane/fwd.h"
 #include <nonlinfit/Lambda.h>
 #include <nonlinfit/Evaluation.hpp>
-#include <nonlinfit/BoundFunction.hpp>
-#include <nonlinfit/plane/JointData.hpp>
+#include <nonlinfit/plane/JointData.h>
 #include <nonlinfit/plane/Distance.hpp>
 #include <cassert>
 
@@ -13,26 +12,11 @@ namespace nonlinfit {
 namespace plane {
 
 /** Tests whether two tagged invocations of Distance yield the same result. */
-template <
-    class Metric,
-    class Tag,
-    class RefTag,
-    class Function>
+template <typename Number>
 bool compare_evaluators( 
-    const Function& model,
-    const typename Tag::Data& data
-)
-{
-    BoundFunction< Distance< Function, Tag, Metric > > test;
-    BoundFunction< Distance< Function, RefTag, Metric > > ref;
-    test.get_data() = data;
-    ref.get_data() = data;
-    test.get_expression() = model;
-    ref.get_expression() = test.get_expression();
-
-    typedef typename Tag::Number Num;
-    typename get_evaluation< Function, Num >::type
-        test_result, reference_result;
+    AbstractFunction<Number>& test,
+    AbstractFunction<Number>& ref) {
+    Evaluation<Number> test_result(test.variable_count()), reference_result(ref.variable_count());
     test.evaluate( test_result );
     ref.evaluate( reference_result );
 

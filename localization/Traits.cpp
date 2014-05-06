@@ -26,6 +26,7 @@ Traits<dStorm::Localization>::Traits( const Traits<Localization>& i )
   localization::MetaInfo<localization::ImageNumber>(i),
   localization::MetaInfo<localization::Fluorophore>(i),
   localization::MetaInfo<localization::LocalBackground>(i),
+  localization::MetaInfo<localization::CoefficientOfDetermination>(i),
   source_traits(i.source_traits),
   in_sequence(i.in_sequence),
   repetitions(i.repetitions)

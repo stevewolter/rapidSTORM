@@ -1,7 +1,6 @@
 #ifndef NONLINFIT_ABSTRACTFUNCTION_H
 #define NONLINFIT_ABSTRACTFUNCTION_H
 
-#include "nonlinfit/fwd.h"
 #include <Eigen/Core>
 #include <boost/static_assert.hpp>
 #include "nonlinfit/Evaluation.h"
@@ -18,11 +17,12 @@ namespace nonlinfit {
  *  \tparam MaxVarCount gives an upper bound on the number of variables
  *          if Vars is set to Eigen::Dynamic
  **/
-template <class Derivatives_>
+template <typename Number>
 class AbstractFunction {
   public:
     /** \copydoc nonlinfit::Evaluation */
-    typedef Derivatives_ Derivatives;
+    typedef Evaluation<Number> Derivatives;
+    typedef typename Evaluation<Number>::Vector Position;
 
     virtual ~AbstractFunction() {}
     /** The runtime number of parameters. Equal to Vars for non-dynamic 
@@ -37,15 +37,13 @@ class AbstractFunction {
      *               function's support. */
     virtual bool evaluate( Derivatives& p ) = 0;
 
-};
+    /** Store the variable values of the Lambda in the provided vector. */
+    virtual void get_position( Position& ) const = 0;
+    /** Change the variable values of the Lambda to the provided values. */
+    virtual void set_position( const Position& ) = 0;
 
-/** Metafunction to get an instance of AbstractFunction for
- *  a model of Function. */
-template <typename _Lambda, typename _Number>
-struct get_abstract_function {
-    typedef AbstractFunction<
-        typename get_evaluation< _Lambda, _Number >::type 
-    > type;
+    virtual bool step_is_negligible( const Position& old_position,
+                                     const Position& new_position ) const = 0;
 };
 
 }

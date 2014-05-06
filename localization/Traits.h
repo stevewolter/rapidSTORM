@@ -67,7 +67,8 @@ struct Traits< Localization >
   public localization::MetaInfo<localization::FitResidues>,
   public localization::MetaInfo<localization::ImageNumber>,
   public localization::MetaInfo<localization::Fluorophore>,
-  public localization::MetaInfo<localization::LocalBackground>
+  public localization::MetaInfo<localization::LocalBackground>,
+  public localization::MetaInfo<localization::CoefficientOfDetermination>
 {
     Traits();
     Traits( const Traits& );
@@ -94,6 +95,7 @@ struct Traits< Localization >
     ACCESSORS(localization::ImageNumber,image_number)
     ACCESSORS(localization::Fluorophore,fluorophore)
     ACCESSORS(localization::LocalBackground,local_background)
+    ACCESSORS(localization::CoefficientOfDetermination,coefficient_of_determination)
 #undef ACCESSORS
 
     typedef std::vector< boost::shared_ptr< Traits > > Sources;

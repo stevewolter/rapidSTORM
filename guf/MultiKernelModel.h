@@ -11,9 +11,6 @@ namespace dStorm {
 namespace guf {
 
 struct MultiKernelModel {
-    template <typename Expression>
-    MultiKernelModel( Expression& expression );
-
     typedef boost::indirect_iterator< 
         std::vector<gaussian_psf::BaseExpression*>::const_iterator,
         const gaussian_psf::BaseExpression&> const_iterator;
@@ -31,6 +28,9 @@ struct MultiKernelModel {
     const gaussian_psf::BaseExpression& operator[]( int i ) const { return *gauss[i]; }
     constant_background::Expression& background_model() { return *constant; }
     const constant_background::Expression& background_model() const { return *constant; }
+
+    void add_kernel(gaussian_psf::BaseExpression* kernel) { gauss.push_back(kernel); }
+    void set_constant(constant_background::Expression* background) { constant = background; }
     
   private:
     std::vector<gaussian_psf::BaseExpression*> gauss;

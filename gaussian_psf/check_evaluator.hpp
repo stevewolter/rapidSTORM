@@ -3,41 +3,53 @@
 
 #include <Eigen/StdVector>
 #include <boost/test/unit_test.hpp>
-#include <nonlinfit/plane/DisjointData.hpp>
-#include <nonlinfit/plane/Joint.h>
-#include <nonlinfit/plane/Distance.hpp>
-#include "gaussian_psf/JointEvaluator.h"
+
+#include "fit_window/chunkify.hpp"
 #include "gaussian_psf/DisjointEvaluator.h"
-#include <nonlinfit/plane/check_evaluator.hpp>
-#include "gaussian_psf/ReferenceEvaluation.h"
+#include "gaussian_psf/JointEvaluator.h"
 #include "gaussian_psf/mock_model.h"
+#include "gaussian_psf/ReferenceEvaluation.h"
+#include "guf/PlaneFunction.hpp"
+#include "nonlinfit/plane/check_evaluator.hpp"
+#include "nonlinfit/plane/create_term.hpp"
+#include "nonlinfit/plane/DisjointData.h"
+#include "nonlinfit/plane/Distance.hpp"
+#include "nonlinfit/plane/Joint.h"
 
 namespace dStorm {
 namespace gaussian_psf {
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
     typedef typename boost::mpl::at_c< Info, 0 >::type Model;
-    typedef typename boost::mpl::at_c< Info, 1 >::type Distance;
+    typedef typename boost::mpl::at_c< Info, 1 >::type MLE;
     typedef typename boost::mpl::at_c< Info, 2 >::type Data;
     typedef nonlinfit::plane::xs_joint<double, 1>::type RefTag;
-    MockDataTag::Data data = mock_data();
+
+    fit_window::Plane plane = mock_data();
     Model z = mock_model<Model>();
-    bool is_same = nonlinfit::plane::compare_evaluators< Distance, Data, RefTag >(z, data);
+    typename guf::PlaneFunction<RefTag>::Evaluators ref_evaluators;
+    ref_evaluators.push_back(nonlinfit::plane::create_term(z, RefTag()));
+    typename guf::PlaneFunction<Data>::Evaluators tested_evaluators;
+    tested_evaluators.push_back(nonlinfit::plane::create_term(z, Data()));
+    std::unique_ptr<guf::FitFunction> ref =
+        guf::PlaneFunction<RefTag>::create(std::move(ref_evaluators), plane, MLE::value);
+    std::unique_ptr<guf::FitFunction> test =
+        guf::PlaneFunction<Data>::create(std::move(tested_evaluators), plane, MLE::value);
+
+    bool is_same = nonlinfit::plane::compare_evaluators<double>(*ref->abstract_function(), *test->abstract_function());
     BOOST_CHECK( is_same );
 }
 
 template <typename Model>
-boost::unit_test::test_suite* check_evaluator( const char* name ) {
+void check_evaluator( boost::unit_test::test_suite* suite ) {
     typedef nonlinfit::plane::xs_joint<double, 8>::type Joint;
     typedef boost::mpl::vector< 
-        boost::mpl::vector<Model, nonlinfit::plane::squared_deviations, Joint>,
-        boost::mpl::vector<Model, nonlinfit::plane::negative_poisson_likelihood, Joint>,
-        boost::mpl::vector<Model, nonlinfit::plane::squared_deviations, MockDataTag>,
-        boost::mpl::vector<Model, nonlinfit::plane::negative_poisson_likelihood, MockDataTag>
+        boost::mpl::vector<Model, boost::mpl::false_, Joint>,
+        boost::mpl::vector<Model, boost::mpl::true_, Joint>,
+        boost::mpl::vector<Model, boost::mpl::false_, MockDataTag>,
+        boost::mpl::vector<Model, boost::mpl::true_, MockDataTag>
     > DataTags;
-    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( name );
-    rv->add( BOOST_TEST_CASE_TEMPLATE( check_evaluator_with_tag, DataTags ) );
-    return rv;
+    suite->add( BOOST_TEST_CASE_TEMPLATE( check_evaluator_with_tag, DataTags ) );
 }
 
 
