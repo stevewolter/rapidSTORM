@@ -15,26 +15,22 @@ namespace dStorm {
 
 namespace localization {
 
-template <typename Tag>
+template <typename ValueType>
 struct MetaInfo {
     MetaInfo() : is_given(false) {}
-    MetaInfo& operator=(const Tag& tag) {
-        static_cast<Tag&>(*this) = tag;
-        return *this;
-    }
 
-    typedef boost::optional<typename Tag::ValueType> RangeBoundType;
-    typedef std::pair< boost::optional<typename Tag::ValueType>, boost::optional<typename Tag::ValueType> > RangeType;
+    typedef boost::optional<ValueType> RangeBoundType;
+    typedef std::pair< boost::optional<ValueType>, boost::optional<ValueType> > RangeType;
 
     static const bool has_range = true;
 
     bool is_given;
-    boost::optional<typename Tag::ValueType> static_value;
+    boost::optional<ValueType> static_value;
 
     const RangeType& range() const { return range_; }
     RangeType& range() { return range_; }
 
-    bool is_in_range( const typename Tag::ValueType& t) const {
+    bool is_in_range( const ValueType& t) const {
       return range_.first <= t && range_.second >= t;
     }
 
@@ -61,12 +57,12 @@ struct Traits< Localization >
 
 #define TRAITS_FOR_FIELD(x,n) \
   private: \
-    localization::MetaInfo<x> n ## _; \
+    localization::MetaInfo<typename x::ValueType> n ## _; \
   public: \
-    localization::MetaInfo<x>& n() { return n ## _; } \
-    const localization::MetaInfo<x>& n() const { return n ## _; } \
-    const localization::MetaInfo<x>& field(x tag) const { return n ## _; } \
-    localization::MetaInfo<x>& field(x tag) { return n ## _; }
+    localization::MetaInfo<typename x::ValueType>& n() { return n ## _; } \
+    const localization::MetaInfo<typename x::ValueType>& n() const { return n ## _; } \
+    const localization::MetaInfo<typename x::ValueType>& field(x tag) const { return n ## _; } \
+    localization::MetaInfo<typename x::ValueType>& field(x tag) { return n ## _; }
 
     TRAITS_FOR_FIELD(localization::PositionX,position_x)
     TRAITS_FOR_FIELD(localization::PositionY,position_y)

@@ -131,7 +131,7 @@ class Localization<Tag, InteractivelyScaledToInterval> : public Localization<Tag
 
   private:
     std::bitset<2> not_given, user;
-    typename localization::MetaInfo<Tag>::RangeType orig_range;
+    typename localization::MetaInfo<typename Tag::ValueType>::RangeType orig_range;
 };
 
 }
