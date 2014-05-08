@@ -175,18 +175,18 @@ template <typename Tag>
 void Localization<Tag,Bounded>::announce(const output::Output::Announcement& a) 
 { 
     Base::announce(a);
-    const TraitsType& traits = a;
-    if ( ! traits.range().first.is_initialized() || ! traits.range().second.is_initialized() ) {
+    const auto& range = a.field(Tag()).range();
+    if ( ! range.first.is_initialized() || ! range.second.is_initialized() ) {
         std::stringstream message;
-        if ( ! traits.range().first.is_initialized() ) message << "lower";
-        if ( ! traits.range().first.is_initialized() && ! traits.range().second.is_initialized() )
+        if ( ! range.first.is_initialized() ) message << "lower";
+        if ( ! range.first.is_initialized() && ! range.second.is_initialized() )
             message << " and ";
-        if ( ! traits.range().second.is_initialized() ) message << "upper";
+        if ( ! range.second.is_initialized() ) message << "upper";
         message << " bound not set for field " << Tag::get_shorthand();
         throw std::runtime_error(message.str());
     }
-    range[0] = *traits.range().first; 
-    range[1] = *traits.range().second; 
+    this->range[0] = *range.first;
+    this->range[1] = *range.second;
 }
 
 template <typename Tag>
@@ -200,7 +200,7 @@ void Localization<Tag,ScaledToInterval>::announce(const output::Output::Announce
 template <typename Tag>
 void Localization<Tag,InteractivelyScaledToInterval>::announce(const output::Output::Announcement& a) 
 { 
-    orig_range = static_cast<const TraitsType&>(a).range();
+    orig_range = a.field(Tag()).range();
     if ( orig_range.first.is_initialized() && ! user.test(0) ) 
         { Base::range[0] = * orig_range.first; not_given.reset(0); }
     if ( orig_range.second.is_initialized() && ! user.test(1) ) 
@@ -250,14 +250,14 @@ traits::ImageResolution Localization<Tag,ScaledByResolution>::resolution() const
 template <typename Tag>
 bool Localization<Tag,IsUnscaled>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
-    return static_cast<const TraitsType&>(t).is_given;
+    return t.field(Tag()).is_given;
 } 
 
 template <typename Tag>
 bool Localization<Tag,Bounded>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
-  const TraitsType& traits = t;
-  return Base::can_work_with(t) && traits.range().first.is_initialized() && traits.range().second.is_initialized();
+  const auto& range = t.field(Tag()).range();
+  return Base::can_work_with(t) && range.first.is_initialized() && range.second.is_initialized();
 }
 
 template <typename Tag>
@@ -275,7 +275,7 @@ bool Localization<Tag,ScaledToInterval>::can_work_with( const input::Traits<dSto
 template <typename Tag>
 bool Localization<Tag,InteractivelyScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t )
 {
-    return static_cast<const TraitsType&>(t).is_given;
+    return t.field(Tag()).is_given;
 }
 
 template <typename Tag>

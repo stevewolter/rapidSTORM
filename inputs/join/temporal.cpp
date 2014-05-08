@@ -69,11 +69,11 @@ struct merge_localization_traits {
     void operator()( localization::ImageNumber, GenTraits& _onto, const GenTraits& _with ) {}
 
     template <typename Tag>
-    void operator()( Tag, GenTraits& onto_traits, const GenTraits& with_traits )
+    void operator()( Tag tag, GenTraits& onto_traits, const GenTraits& with_traits )
     {
         typedef localization::MetaInfo<Tag> Traits;
-        Traits& onto = onto_traits;
-        const Traits& with = with_traits;
+        Traits& onto = onto_traits.field(tag);
+        const Traits& with = with_traits.field(tag);
         if ( ! Traits::has_range ) return;
 
         if ( ! with.is_given ) {

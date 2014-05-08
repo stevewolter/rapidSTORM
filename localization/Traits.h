@@ -53,49 +53,36 @@ namespace input {
 template <>
 struct Traits< Localization > 
 : public input::BaseTraits,
-  public DataSetTraits,
-  public localization::MetaInfo<localization::PositionX>,
-  public localization::MetaInfo<localization::PositionY>,
-  public localization::MetaInfo<localization::PositionZ>,
-  public localization::MetaInfo<localization::PositionUncertaintyX>,
-  public localization::MetaInfo<localization::PositionUncertaintyY>,
-  public localization::MetaInfo<localization::PositionUncertaintyZ>,
-  public localization::MetaInfo<localization::Amplitude>,
-  public localization::MetaInfo<localization::PSFWidth<0>>,
-  public localization::MetaInfo<localization::PSFWidth<1>>,
-  public localization::MetaInfo<localization::TwoKernelImprovement>,
-  public localization::MetaInfo<localization::FitResidues>,
-  public localization::MetaInfo<localization::ImageNumber>,
-  public localization::MetaInfo<localization::Fluorophore>,
-  public localization::MetaInfo<localization::LocalBackground>,
-  public localization::MetaInfo<localization::CoefficientOfDetermination>
+  public DataSetTraits
 {
     Traits();
-    Traits( const Traits& );
     Traits* clone() const;
     std::string desc() const;
 
-#define ACCESSORS(x,n) \
-    localization::MetaInfo<x>& n() { return *this; } \
-    const localization::MetaInfo<x>& n() const { return *this; } \
-    const localization::MetaInfo<x>& field(x tag) const { return *this; } \
-    localization::MetaInfo<x>& field(x tag) { return *this; }
+#define TRAITS_FOR_FIELD(x,n) \
+  private: \
+    localization::MetaInfo<x> n ## _; \
+  public: \
+    localization::MetaInfo<x>& n() { return n ## _; } \
+    const localization::MetaInfo<x>& n() const { return n ## _; } \
+    const localization::MetaInfo<x>& field(x tag) const { return n ## _; } \
+    localization::MetaInfo<x>& field(x tag) { return n ## _; }
 
-    ACCESSORS(localization::PositionX,position_x)
-    ACCESSORS(localization::PositionY,position_y)
-    ACCESSORS(localization::PositionZ,position_z)
-    ACCESSORS(localization::PositionUncertaintyX,position_uncertainty_x)
-    ACCESSORS(localization::PositionUncertaintyY,position_uncertainty_y)
-    ACCESSORS(localization::PositionUncertaintyZ,position_uncertainty_z)
-    ACCESSORS(localization::Amplitude,amplitude)
-    ACCESSORS(localization::PSFWidthX,psf_width_x)
-    ACCESSORS(localization::PSFWidthY,psf_width_y)
-    ACCESSORS(localization::TwoKernelImprovement,two_kernel_improvement)
-    ACCESSORS(localization::FitResidues,fit_residues)
-    ACCESSORS(localization::ImageNumber,image_number)
-    ACCESSORS(localization::Fluorophore,fluorophore)
-    ACCESSORS(localization::LocalBackground,local_background)
-    ACCESSORS(localization::CoefficientOfDetermination,coefficient_of_determination)
+    TRAITS_FOR_FIELD(localization::PositionX,position_x)
+    TRAITS_FOR_FIELD(localization::PositionY,position_y)
+    TRAITS_FOR_FIELD(localization::PositionZ,position_z)
+    TRAITS_FOR_FIELD(localization::PositionUncertaintyX,position_uncertainty_x)
+    TRAITS_FOR_FIELD(localization::PositionUncertaintyY,position_uncertainty_y)
+    TRAITS_FOR_FIELD(localization::PositionUncertaintyZ,position_uncertainty_z)
+    TRAITS_FOR_FIELD(localization::Amplitude,amplitude)
+    TRAITS_FOR_FIELD(localization::PSFWidthX,psf_width_x)
+    TRAITS_FOR_FIELD(localization::PSFWidthY,psf_width_y)
+    TRAITS_FOR_FIELD(localization::TwoKernelImprovement,two_kernel_improvement)
+    TRAITS_FOR_FIELD(localization::FitResidues,fit_residues)
+    TRAITS_FOR_FIELD(localization::ImageNumber,image_number)
+    TRAITS_FOR_FIELD(localization::Fluorophore,fluorophore)
+    TRAITS_FOR_FIELD(localization::LocalBackground,local_background)
+    TRAITS_FOR_FIELD(localization::CoefficientOfDetermination,coefficient_of_determination)
 #undef ACCESSORS
 
     typedef std::vector< boost::shared_ptr< Traits > > Sources;
