@@ -39,7 +39,11 @@ class FakeImageSource : public input::Source<engine::ImageStack> {
     }
 
     void set_thread_count(int num_threads) { assert(num_threads == 1); }
-    void dispatch(Messages m) { assert(!m.any()); }
+    void dispatch(Messages m) {
+        if (m.test(RepeatInput)) {
+            current = images.begin();
+        }
+    }
     Capabilities capabilities() const { return Capabilities(); }
 
     std::vector<engine::ImageStack> images;
@@ -77,9 +81,19 @@ void TestRandomSequence(int window_width, int stride, int frames) {
     filter->get_traits(input::BaseSource::Wishes());
 
     bool all_equal = true;
+    bool did_reset = false;
     engine::ImageStack output;
     for (int i = 0; i < frames; ++i) {
         BOOST_CHECK(filter->GetNext(0, &output));
+
+        if (i == frames / 2 && !did_reset) {
+            i = -1;
+            did_reset = true;
+            input::BaseSource::Messages m;
+            m.set(input::BaseSource::RepeatInput);
+            filter->dispatch(m);
+            continue;
+        }
 
         for (int p = 0; p < planes; ++p) {
 	    for (int x = 0; x < image_width; ++x) {
