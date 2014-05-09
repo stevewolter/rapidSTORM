@@ -408,7 +408,7 @@ rapidstorm_SOURCES += \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
     test-plugin/Verbose.h \
-    test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
+    test-plugin/RepeatTrigger.h \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 
