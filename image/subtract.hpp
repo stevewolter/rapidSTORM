@@ -22,7 +22,7 @@ subtract(const Image<PixelType,Dimensions>& a, const Image<PixelType,Dimensions>
     for (auto i = a.begin(), j = b.begin(), k = result.begin(); i != a.end(); ++i, ++j, ++k) {
         assert(j != b.end());
         assert(k != result.end());
-        if (boost::is_unsigned<PixelType>::value && *i < *j) {
+        if (std::is_unsigned<PixelType>::value && *i < *j) {
             *k = 0;
         } else {
             *k = *i - *j;
