@@ -55,8 +55,7 @@ class Source
     void dispatch(Messages m);
     TraitsPtr get_traits( input::BaseSource::Wishes );
     BaseSource& upstream() { return *base; }
-    Capabilities capabilities() const 
-        { return base->capabilities().reset( ConcurrentIterators ); }
+    Capabilities capabilities() const { return base->capabilities(); }
 };
 
 }

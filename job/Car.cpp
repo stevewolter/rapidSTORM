@@ -51,7 +51,7 @@ Car::Car (const Config &config)
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
   input(NULL),
   output(NULL),
-  piston_count( config.pistonCount() ),
+  piston_count( config.thread_count() ),
   control( config.auto_terminate() )
 {
     used_output_filenames = config.get_meta_info().forbidden_filenames;
@@ -116,8 +116,6 @@ void Car::drive() {
   bool run_successful = false;
   try {
     input::BaseSource::Wishes requirements;
-    if ( piston_count > 1 )
-        requirements.set( input::BaseSource::ConcurrentIterators );
 
     DEBUG("Getting input traits from " << input.get());
     Input::TraitsPtr traits = input->get_traits(requirements);
@@ -172,9 +170,7 @@ void Car::drive() {
         return;
     }
 
-    int number_of_threads = 1;
-    if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) )
-        number_of_threads = piston_count;
+    int number_of_threads = piston_count;
     bool run_succeeded = false;
     while ( ! run_succeeded && control.continue_computing() ) {
         current_run = boost::make_shared<Run>

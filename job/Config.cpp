@@ -42,27 +42,27 @@ Config::Config( bool localization_replay_mode )
   outputBox("Output", "Output options"),
   configTarget("SaveConfigFile", "Job options file", "-settings.txt"),
   auto_terminate("AutoTerminate", "Automatically terminate finished jobs", false),
-  pistonCount("CPUNumber", "Number of CPUs to use", 1)
+  thread_count_("CPUNumber", "Number of CPUs to use", 1)
 {
     configTarget.set_user_level(simparm::Beginner);
     auto_terminate.set_user_level(simparm::Expert);
 
-    pistonCount.set_user_level(simparm::Expert);
-    pistonCount.setHelpID( "#CPUNumber" );
-    pistonCount.setHelp("Use this many parallel threads to compute the "
-                        "STORM result. If you notice a low CPU usage, "
-                        "raise this value to the number of cores you "
-                        "have.");
+    thread_count_.set_user_level(simparm::Expert);
+    thread_count_.setHelpID( "#CPUNumber" );
+    thread_count_.setHelp("Use this many parallel threads to compute the "
+                          "STORM result. If you notice a low CPU usage, "
+                          "raise this value to the number of cores you "
+                          "have.");
 #if defined(_SC_NPROCESSORS_ONLN)
     int pn = sysconf(_SC_NPROCESSORS_ONLN);
-    pistonCount = (pn == 0) ? 8 : pn;
+    thread_count_ = (pn == 0) ? 8 : pn;
 #elif defined(HAVE_WINDOWS_H)
     SYSTEM_INFO info;
     GetSystemInfo(&info);
-    pistonCount = info.dwNumberOfProcessors;
+    thread_count_ = info.dwNumberOfProcessors;
 #else
-    pistonCount.set_user_level(simparm::Beginner);
-    pistonCount = 8;
+    thread_count_.set_user_level(simparm::Beginner);
+    thread_count_ = 8;
 #endif
 
     if ( localization_replay_mode )
@@ -80,7 +80,7 @@ Config::Config(const Config &c)
   outputBox(c.outputBox),
   configTarget(c.configTarget),
   auto_terminate(c.auto_terminate),
-  pistonCount(c.pistonCount)
+  thread_count_(c.thread_count_)
 {
     if ( c.input.get() )
         create_input( std::auto_ptr<input::Link>(c.input->clone()) );
@@ -108,7 +108,7 @@ simparm::NodeHandle Config::attach_ui( simparm::NodeHandle at ) {
 void Config::attach_children_ui( simparm::NodeHandle at ) {
     input->registerNamedEntries( at );
     if ( ! localization_replay_mode )
-        pistonCount.attach_ui(  at  );
+        thread_count_.attach_ui(  at  );
     simparm::NodeHandle b = outputBox.attach_ui( at );
     outputRoot->attach_full_ui( b );
     if ( ! localization_replay_mode )

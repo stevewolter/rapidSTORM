@@ -18,7 +18,6 @@ template <typename InputType>
 typename Source<InputType>::TraitsPtr
 Source<InputType>::get_traits( Wishes w )
 {
-    w.reset( input::BaseSource::ConcurrentIterators );
     input::Source<Localization>::TraitsPtr traits  = base->get_traits( w );
     auto& r = traits->image_number().range();
     this->in_sequence = traits->in_sequence;
