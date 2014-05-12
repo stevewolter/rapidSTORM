@@ -25,9 +25,9 @@ namespace input {
     class BaseSource 
     {
       public:
-        enum Capability { Repeatable, ConcurrentIterators, InputStandardDeviation };
-        typedef std::bitset<3> Capabilities;
-        typedef std::bitset<3> Wishes;
+        enum Capability { Repeatable, ConcurrentIterators };
+        typedef std::bitset<2> Capabilities;
+        typedef std::bitset<2> Wishes;
         enum Message {RepeatInput, WillNeverRepeatAgain};
         typedef std::bitset<2> Messages;
 
