@@ -116,12 +116,12 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     return rvt;
 }
 
-Engine::TraitsPtr Engine::get_traits(Wishes w) {
+Engine::TraitsPtr Engine::get_traits() {
     if ( &config.spotFittingMethod() == NULL )
         throw std::runtime_error("No spot fitter selected");
 
     if ( imProp.get() == NULL )
-        imProp = input->get_traits(w);
+        imProp = input->get_traits();
     DEBUG("Retrieved input traits");
 
     input::Traits<output::LocalizedImage>::Ptr prv =

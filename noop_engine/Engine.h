@@ -27,8 +27,7 @@ namespace noop_engine {
       public:
         Engine(std::auto_ptr<Input> input);
         void dispatch(Messages m);
-        TraitsPtr get_traits(Wishes);
-        Capabilities capabilities() const { return input->capabilities(); }
+        TraitsPtr get_traits();
 
         static TraitsPtr convert_traits( const Input::Traits& i );
    };

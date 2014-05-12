@@ -53,8 +53,7 @@ namespace Reader {
         Source(const File& file);
 
         bool GetNext(int thread, localization::Record* output) OVERRIDE;
-        TraitsPtr get_traits(BaseSource::Wishes);
-        Capabilities capabilities() const { return Capabilities().set( Repeatable ); }
+        TraitsPtr get_traits();
 
       private:
         typedef std::list< std::vector<Localization> > TraceBuffer;

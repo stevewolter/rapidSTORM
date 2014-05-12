@@ -115,8 +115,7 @@ class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
     Source(const Config&, std::auto_ptr<OpenFile> of);
     ~Source();
 
-    TraitsPtr get_traits( Wishes );
-    Capabilities capabilities() const { return Capabilities(); }
+    TraitsPtr get_traits();
 };
 
 class Method
@@ -163,7 +162,7 @@ Source::Source(const Config& config, std::auto_ptr<OpenFile> of)
 Source::~Source() {}
 
 Source::TraitsPtr
-Source::get_traits( Wishes )
+Source::get_traits()
 {
     assert( of.get() );
     return TraitsPtr( dynamic_cast< Traits* >(of->getTraits().release()) );

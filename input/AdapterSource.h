@@ -24,14 +24,10 @@ class AdapterSource
   public:
     void set_thread_count(int num_threads) OVERRIDE { _base->set_thread_count(num_threads); }
     bool GetNext(int thread, Type* target) OVERRIDE { return _base->GetNext(thread, target); }
-    typename Source<Type>::TraitsPtr get_traits() { return _base->get_traits(); }
-    void dispatch(typename Source<Type>::Messages m) { _base->dispatch(m); }
-    typename Source<Type>::Capabilities capabilities() const 
-        { return _base->capabilities(); }
-    typename Source<Type>::TraitsPtr
-        get_traits(typename Source<Type>::Wishes r) 
+    void dispatch(typename Source<Type>::Messages m) OVERRIDE { _base->dispatch(m); }
+    typename Source<Type>::TraitsPtr get_traits() OVERRIDE
     { 
-        typename Source<Type>::TraitsPtr p = _base->get_traits(r);
+        typename Source<Type>::TraitsPtr p = _base->get_traits();
         modify_traits( *p );
         return p;
     }

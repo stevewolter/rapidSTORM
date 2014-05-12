@@ -31,10 +31,7 @@ class Source : public AdapterSource<Ty>
 
     void dispatch(BaseSource::Messages m);
 
-    BaseSource::Capabilities capabilities() const {
-        return this->base().capabilities().set(BaseSource::Repeatable);
-    }
-    typename input::Source<Ty>::TraitsPtr get_traits( BaseSource::Wishes );
+    typename input::Source<Ty>::TraitsPtr get_traits();
 
   protected:
     void init( std::auto_ptr< Source<Ty> > );
@@ -114,9 +111,9 @@ void Source<Object>::dispatch(BaseSource::Messages m) {
 
 template<typename Object>
 typename input::Source<Object>::TraitsPtr
-Source<Object>::get_traits( BaseSource::Wishes w ) 
+Source<Object>::get_traits() 
 {
-    return this->base().get_traits(w);
+    return this->base().get_traits();
 }
 
 class ChainLink 

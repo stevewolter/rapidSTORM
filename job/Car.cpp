@@ -115,10 +115,8 @@ void Car::run() {
 void Car::drive() {
   bool run_successful = false;
   try {
-    input::BaseSource::Wishes requirements;
-
     DEBUG("Getting input traits from " << input.get());
-    Input::TraitsPtr traits = input->get_traits(requirements);
+    Input::TraitsPtr traits = input->get_traits();
     first_output = *traits->image_number().range().first;
     DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());

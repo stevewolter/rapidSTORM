@@ -53,9 +53,8 @@ class Source
     ~Source();
 
     void dispatch(Messages m);
-    TraitsPtr get_traits( input::BaseSource::Wishes );
+    TraitsPtr get_traits();
     BaseSource& upstream() { return *base; }
-    Capabilities capabilities() const { return base->capabilities(); }
 };
 
 }

@@ -25,7 +25,7 @@ class FakeImageSource : public input::Source<engine::ImageStack> {
 	}
     }
 
-    TraitsPtr get_traits(BaseSource::Wishes wishes) OVERRIDE {
+    TraitsPtr get_traits() OVERRIDE {
 	TraitsPtr result(new Traits());
         for (int plane = 0; plane < current->plane_count(); ++plane) {
             image::MetaInfo<2> meta_info;
@@ -44,7 +44,6 @@ class FakeImageSource : public input::Source<engine::ImageStack> {
             current = images.begin();
         }
     }
-    Capabilities capabilities() const { return Capabilities(); }
 
     std::vector<engine::ImageStack> images;
     std::vector<engine::ImageStack>::const_iterator current;
@@ -78,7 +77,7 @@ void TestRandomSequence(int window_width, int stride, int frames) {
                 new FakeImageSource(images)),
             frame_index::from_value(window_width),
             frame_index::from_value(stride)));
-    filter->get_traits(input::BaseSource::Wishes());
+    filter->get_traits();
 
     bool all_equal = true;
     bool did_reset = false;

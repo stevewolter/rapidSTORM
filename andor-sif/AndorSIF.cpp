@@ -34,7 +34,7 @@ Source::~Source()
 }
 
 typename Source::TraitsPtr 
-Source::get_traits( typename BaseSource::Wishes )
+Source::get_traits()
 {
    return Source::TraitsPtr( file->getTraits().release() );
 }

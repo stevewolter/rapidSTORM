@@ -125,14 +125,13 @@ struct DummyImageSource : public input::Source<engine::ImageStack>
     void dispatch(Messages m) {}
     void set_thread_count(int num_threads) {}
     bool GetNext(int thread, engine::ImageStack* target) OVERRIDE { return false; }
-    TraitsPtr get_traits( Wishes ) { 
+    TraitsPtr get_traits() { 
         return TraitsPtr( 
             new TraitsPtr::element_type(
                 image::MetaInfo<2>()
             )
         ); 
     }
-    Capabilities capabilities() const { return Capabilities(); }
 };
 
 struct MoreSpecialized : public dStorm::input::Link {
@@ -203,7 +202,7 @@ struct Check {
             throw std::runtime_error("Source could not be built");
 
         boost::shared_ptr< const dStorm::input::Traits<engine::ImageStack> > source_traits
-            = source->get_traits( dStorm::input::BaseSource::Wishes() );
+            = source->get_traits();
 
         resolution_close_to(correct.plane(0).image.image_resolutions(), 
             source_traits->plane(0).image.image_resolutions());

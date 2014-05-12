@@ -19,9 +19,9 @@ class Source : public input::Source<engine::ImageStack> {
 
     Source( std::vector<std::unique_ptr<Base>> sources ) : sources(std::move(sources)) {}
 
-    Base::TraitsPtr get_traits( Wishes r ) {
+    Base::TraitsPtr get_traits() {
         for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i) {
-            base_traits.push_back( (*i)->get_traits(r) );
+            base_traits.push_back( (*i)->get_traits() );
         }
         return Base::TraitsPtr(merge_traits(base_traits, tag()).release());
     }
@@ -29,15 +29,6 @@ class Source : public input::Source<engine::ImageStack> {
     void dispatch(BaseSource::Messages m) {
         for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i)
             (*i)->dispatch(m);
-    }
-
-    Capabilities capabilities() const {
-        Capabilities rv;
-        rv.set();
-        for (const auto& source : sources) {
-            rv = rv.to_ulong() & source->capabilities().to_ulong();
-        }
-        return rv;
     }
 
     bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;

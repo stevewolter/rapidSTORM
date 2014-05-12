@@ -155,7 +155,7 @@ std::auto_ptr<Source> ChainLink::read_file( simparm::FileEntry& name, const inpu
     }
 }
 
-Source::TraitsPtr Source::get_traits(input::BaseSource::Wishes r) { 
+Source::TraitsPtr Source::get_traits() { 
     TraitsPtr tp( file.getTraits().release() ); 
     return tp;
 }
