@@ -606,8 +606,7 @@ rapidstorm_SOURCES += \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
-    tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
-    tiff/augment_config.h tiff/augment_config.cpp
+    tiff/TIFFOperation.h tiff/TIFFOperation.cpp
 
 rapidstorm_SOURCES += \
     simparm/Node.h simparm/Node.cpp \
