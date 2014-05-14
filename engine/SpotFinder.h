@@ -22,11 +22,10 @@ namespace spot_finder {
 
 class Job {
     const InputPlane& traits;
-    const FluorophoreTraits& fluorophore;
 
   public:
-    Job( const InputPlane& traits, const FluorophoreTraits& fluorophore )
-        : traits(traits), fluorophore(fluorophore) {}
+    Job( const InputPlane& traits )
+        : traits(traits) {}
 
     ImageTypes<2>::Size size() const;
 };

@@ -59,9 +59,7 @@ public:
         { ui_element_changed.connect(listener); }
 
     void set_context( const traits::Optics&, int fluorophore_count, bool multilayer );
-    void set_context( const input::Traits<Localization>&, int fluorophore_count );
     void write_traits( traits::Optics& ) const;
-    void write_traits( input::Traits<Localization>& ) const;
     void read_traits( const traits::Optics& );
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
@@ -89,10 +87,8 @@ class MultiPlaneConfig
         { ui_element_listener.connect(listener); }
 
     void set_context( const input::Traits<engine::ImageStack>& );
-    void set_context( const input::Traits<Localization>& );
     void read_traits( const input::Traits<engine::ImageStack>& );
     void write_traits( input::Traits<engine::ImageStack>&) const;
-    void write_traits( input::Traits<Localization>&) const;
     image::MetaInfo<2>::Resolutions get_resolution() const;
 
     void show() { name_object.show(); }

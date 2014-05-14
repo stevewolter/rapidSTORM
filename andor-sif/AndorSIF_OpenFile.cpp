@@ -9,7 +9,6 @@
 #include <boost/units/systems/si/time.hpp>
 #include <boost/units/io.hpp>
 #include <boost/units/systems/temperature/celsius.hpp>
-#include "DataSetTraits.h"
 #include "engine/Image.h"
 #include <boost/smart_ptr/scoped_array.hpp>
 
@@ -87,23 +86,6 @@ OpenFile::getTraits()
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second =
         (readsif_numberOfImages(dataSet) - 1) * camera::frame;
-
-    boost::units::quantity<boost::units::celsius::temperature,int> temp
-        = (int(dataSet->instaImage.temperature) * boost::units::celsius::degrees);
-    Reader r(rv->infos[DataSetTraits::CameraTemperature]);
-    static_cast<std::ostream&>(r) << temp;
-
-    if ( dataSet->instaImage.OutputAmp == 0 )
-        rv->infos[DataSetTraits::OutputAmplifierType] = "Electron multiplication";
-    else
-        rv->infos[DataSetTraits::OutputAmplifierType] = "Conventional amplification";
-
-    Reader(rv->infos[DataSetTraits::VerticalShiftSpeed]) 
-        << dataSet->instaImage.data_v_shift_speed*1E6 << " µs";
-    Reader(rv->infos[DataSetTraits::HorizontalShiftSpeed]) 
-        << 1E-6/dataSet->instaImage.pixel_readout_time << " MHz";
-    Reader(rv->infos[DataSetTraits::PreamplifierGain]) 
-        << dataSet->instaImage.PreAmpGain;
 
     return rv;
 }

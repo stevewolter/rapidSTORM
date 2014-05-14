@@ -71,8 +71,8 @@ class ChainLink
     Source<Type>* make_source( std::auto_ptr< input::Source<Type> > upstream ) { 
         return new resolution::Source<Type>(upstream, config); 
     }
-    template <typename Type>
-    void update_traits( MetaInfo& i, Traits<Type>& traits ) { 
+    void update_traits( MetaInfo& i, Traits<output::LocalizedImage>& traits ) {}
+    void update_traits( MetaInfo& i, Traits<engine::ImageStack>& traits ) { 
         i.get_signal< signals::ResolutionChange >()( config.get_resolution() );
         config.set_context( traits );
         config.write_traits(traits); 

@@ -104,14 +104,14 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     rvt->candidate_tree_is_set = true;
     rvt->input_image_traits.reset( imProp.clone() );
 
-    for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophores.size(); ++fluorophore) {
+    for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophore_count; ++fluorophore) {
         JobInfo info( rvt->input_image_traits, fluorophore, config.fit_judging_method() );
         config.spotFittingMethod().set_traits( *rvt, info );
     }
 
-    rvt->fluorophore().is_given = imProp.fluorophores.size() > 1;
+    rvt->fluorophore().is_given = imProp.fluorophore_count > 1;
     rvt->fluorophore().range().first = 0;
-    rvt->fluorophore().range().second = imProp.fluorophores.size() - 1;
+    rvt->fluorophore().range().second = imProp.fluorophore_count - 1;
 
     return rvt;
 }
@@ -189,14 +189,14 @@ Engine::WorkHorse::WorkHorse( Engine& engine )
         throw std::runtime_error("No spot finding method selected.");
     if ( meta_info->plane_count() < 1 )
         throw std::runtime_error("Zero or less optical paths given for input, cannot compute.");
-    if ( meta_info->fluorophores.size() < 1 )
+    if ( meta_info->fluorophore_count < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
-    spot_finder::Job job( meta_info->plane(0), meta_info->fluorophores[0]);
+    spot_finder::Job job( meta_info->plane(0));
     finder = config.spotFindingMethod().make(job);
 
-    DEBUG("Building spot fitter with " << meta_info->fluorophores.size() << " fluorophores");
-    for (unsigned int fluorophore = 0; fluorophore < meta_info->fluorophores.size(); ++fluorophore) {
+    DEBUG("Building spot fitter with " << meta_info->fluorophore_count << " fluorophores");
+    for (unsigned int fluorophore = 0; fluorophore < meta_info->fluorophore_count; ++fluorophore) {
         JobInfo info(meta_info, fluorophore, config.fit_judging_method() );
         fitter.push_back( config.spotFittingMethod().make(info) );
     }

@@ -9,10 +9,6 @@ namespace input {
 namespace sample_info {
 
 std::auto_ptr<Link> makeLink();
-class Config;
-class Source;
-template <typename ForwardedType>
-class Input;
 
 }
 }

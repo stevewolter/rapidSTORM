@@ -6,9 +6,9 @@
 #include "engine/Image_decl.h"
 #include "input/Traits.h"
 #include "Localization_decl.h"
-#include "DataSetTraits.h"
 
 #include <vector>
+#include <boost/optional/optional.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
@@ -53,7 +53,6 @@ namespace input {
 template <>
 struct Traits< Localization > 
 : public input::BaseTraits,
-  public DataSetTraits,
   public localization::MetaInfo<localization::PositionX>,
   public localization::MetaInfo<localization::PositionY>,
   public localization::MetaInfo<localization::PositionZ>,

@@ -15,7 +15,7 @@ Input::Input(const Config& c, const output::Output::Announcement& a, samplepos::
                 "access to the raw source images, but these are not supplied "
                 "at its current position in the output tree.");
     }
-    fluorophore_count = std::max(1, int(traits->fluorophores.size()));
+    fluorophore_count = std::max(1, traits->fluorophore_count);
 }
 
 }

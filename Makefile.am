@@ -91,7 +91,6 @@ rapidstorm_SOURCES = \
     InsertionPlace.h \
     Localization_decl.h Localization.h \
     Pixel.h \
-    DataSetTraits.h \
     Job.h UnitEntries.h \
     base/Config.h \
     base/Engine.h types/samplepos.h types/fluorophore.h \
@@ -200,7 +199,7 @@ rapidstorm_SOURCES += \
 rapidstorm_SOURCES += \
     Localization.cpp \
     UnitEntries.cpp \
-    DataSetTraits.cpp units/units.cpp image/MetaInfo.cpp \
+    units/units.cpp image/MetaInfo.cpp \
     localization/Field.cpp \
     localization/Traits.cpp \
     image/instantiate.cpp \

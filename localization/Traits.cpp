@@ -11,7 +11,6 @@ Traits<dStorm::Localization>::Traits()
 
 Traits<dStorm::Localization>::Traits( const Traits<Localization>& i )
 : input::BaseTraits(i),
-  DataSetTraits(i),
   localization::MetaInfo<localization::PositionX>(i),
   localization::MetaInfo<localization::PositionY>(i),
   localization::MetaInfo<localization::PositionZ>(i),
