@@ -12,11 +12,12 @@ namespace engine {
     *  more coordinate pairs, giving the arithmethic mean of all added
     *  positions at its position. */
    class Spot { 
-      private:
-         float _x, _y, n_;
+      public:
          typedef boost::units::quantity<boost::units::camera::length,int>
             CameraOffset;
          typedef Eigen::Matrix< CameraOffset, 2, 1 > CameraPosition;
+      private:
+         float _x, _y, n_;
          float x() const { return _x / n_; }
          float y() const { return _y / n_; }
       public:
