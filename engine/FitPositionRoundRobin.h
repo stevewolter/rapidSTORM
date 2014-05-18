@@ -6,6 +6,7 @@
 #include "engine/FitPositionGenerator.h"
 #include "engine/InputTraits.h"
 #include "engine/SpotFinder.h"
+#include "image/subtract.hpp"
 
 namespace dStorm {
 namespace engine {
@@ -23,7 +24,10 @@ class FitPositionRoundRobin {
         current_plane_ = 0;
         fitted_positions_.clear();
         for (int plane = 0; plane < image.plane_count(); ++plane) {
-            generators_[plane]->compute_positions(image.plane(plane));
+            Image2D signal = image.background(plane).is_valid() ?
+                subtract(image.plane(plane), image.background(plane)) :
+                image.plane(plane);
+            generators_[plane]->compute_positions(signal);
         }
     }
 
