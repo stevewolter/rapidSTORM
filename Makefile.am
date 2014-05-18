@@ -304,7 +304,6 @@ rapidstorm_SOURCES += \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
-    engine/PlaneFlattener.h engine/PlaneFlattener.cpp \
     engine/FitPositionGenerator.h engine/FitPositionGenerator.cpp
 
 rapidstorm_SOURCES += \

@@ -11,7 +11,7 @@
 #include <boost/thread/locks.hpp>
 
 #include "input/Source.h"
-#include "engine/FitPositionGenerator.h"
+#include "engine/FitPositionRoundRobin.h"
 #include "engine/SpotFitterFactory.h"
 #include "engine/SpotFitter.h"
 #include "output/Traits.h"
@@ -22,7 +22,6 @@
 #include "image/slice.h"
 #include "helpers/back_inserter.h"
 #include "traits/Projection.h"
-#include "engine/PlaneFlattener.h"
 #include "engine/Config.h"
 #include "simparm/dummy_ui/fwd.h"
 
@@ -34,9 +33,8 @@ class Engine::WorkHorse {
     Config& config;
     Input::TraitsPtr meta_info;
 
-    PlaneFlattener flattener;
     boost::ptr_vector<spot_fitter::Implementation> fitter;
-    FitPositionGenerator position_generator;
+    FitPositionRoundRobin position_generator;
     int origMotivation;
 
     bool compute_if_enough_positions(const ImageStack& image,
@@ -160,9 +158,8 @@ Engine::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
   meta_info( engine.imProp ),
-  flattener( *meta_info, engine.make_plane_weight_vector() ),
-  position_generator(engine.config, engine.imProp->plane(0)),
-  origMotivation( config.motivation() )
+  position_generator(engine.config, *meta_info),
+  origMotivation( config.motivation() + meta_info->plane_count() - 1 )
 {
     DEBUG("Started piston");
     if ( meta_info->plane_count() < 1 )
@@ -175,8 +172,6 @@ Engine::WorkHorse::WorkHorse( Engine& engine )
         JobInfo info(meta_info, fluorophore, config.fit_judging_method() );
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
-
-    resultStructure.smoothed = position_generator.getSmoothedImage();
 };
 
 void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage* target ) 
@@ -198,8 +193,7 @@ void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage
     }
 
     DEBUG("Compression (" << image.frame_number() << ")");
-    const Image2D flattened = flattener.flatten_image( image );
-    position_generator.compute_positions(flattened);
+    position_generator.compute_positions(image);
 
     while (!compute_if_enough_positions(image, target)) {
         position_generator.extend_range();
