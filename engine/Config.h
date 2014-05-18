@@ -8,6 +8,7 @@
 #include <simparm/Group.h>
 #include <simparm/Entry.h>
 #include "UnitEntries.h"
+#include "UnitEntries/Nanometre.h"
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
@@ -43,9 +44,7 @@ namespace engine {
         Config();
         ~Config();
 
-        typedef Eigen::Matrix< quantity<camera::length,int>, 2, 1, Eigen::DontAlign > 
-            PixelVector2D;
-        Entry< PixelVector2D > nms;
+        FloatNanometreEntry fit_position_epsilon;
 
         /** The method to use for spot detection. */
         simparm::ManagedChoiceEntry<spot_finder::Factory> spotFindingMethod;

@@ -16,7 +16,7 @@ namespace engine {
 
 Config::Config()
 :   name_object("rapidSTORM", "rapidSTORM engine"),
-    nms("NonMaximumSuppression", PixelVector2D::Constant(3 * camera::pixel) ),
+    fit_position_epsilon("FitPositionEpsilon", 250 * si::nanometre),
     spotFindingMethod("SpotFindingMethod"),
     weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod"),
@@ -25,8 +25,6 @@ Config::Config()
 {
     DEBUG("Building dStorm Config");
 
-    nms.set_user_level(simparm::Intermediate);
-    
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
     motivation.set_user_level(simparm::Intermediate);
@@ -50,7 +48,7 @@ Config::~Config() {
 
 void Config::attach_ui( simparm::NodeHandle n ) {
     simparm::NodeHandle at = name_object.attach_ui( n );
-    nms.attach_ui(at);
+    fit_position_epsilon.attach_ui(at);
     fit_judging_method.attach_ui(at);
 
     spotFindingMethod.attach_ui(at);
@@ -73,10 +71,4 @@ void Config::set_variables( output::Basename& bn ) const
 }
 
 }
-}
-
-namespace simparm {
-
-template class Entry< dStorm::engine::Config::PixelVector2D >;
-
 }

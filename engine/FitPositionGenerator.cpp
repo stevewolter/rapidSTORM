@@ -7,9 +7,7 @@ namespace engine {
 FitPositionGenerator::FitPositionGenerator(
     const Config& config, const InputPlane& plane)
   : maximumLimit(20),
-    maximums(config.nms().x() / camera::pixel,
-             config.nms().y() / camera::pixel,
-             1, 1),
+    maximums(1, 1, 1, 1),
     projection(plane.projection()) {
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
