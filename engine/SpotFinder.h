@@ -53,8 +53,6 @@ class Job {
         virtual void smooth( const Image2D &image ) = 0;
         virtual void findCandidates( Candidates& into );
 
-        const SmoothedImage& getSmoothedImage() const
-            { return smoothed; }
    };
 
     /** The SpotFinderFactory is a generalization of a simparm 

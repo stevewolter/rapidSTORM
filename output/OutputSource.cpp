@@ -48,8 +48,6 @@ std::ostream &operator<<(std::ostream &o,
     std::string rv = "", sep = ", ";
     if ( data.test( Capabilities::SourceImage ) )
         rv += sep + "SourceImage";
-    if ( data.test( Capabilities::SmoothedImage ) )
-        rv += sep + "SmoothedImage";
     if ( data.test( Capabilities::InputBuffer) )
         rv += sep + "InputBuffer";
     if ( data.test( Capabilities::ClustersWithSources) )

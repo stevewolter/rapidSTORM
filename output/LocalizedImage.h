@@ -19,7 +19,6 @@ struct LocalizedImage
         *  this pointer points to the image the localizations
         *  were computed in. */
     boost::optional<dStorm::engine::ImageStack> source;
-    dStorm::engine::SmoothedImage smoothed;
 
     LocalizedImage();
     LocalizedImage(frame_index);

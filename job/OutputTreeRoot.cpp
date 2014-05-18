@@ -8,7 +8,6 @@ OutputTreeRoot::OutputTreeRoot()
   name_object("EngineOutput", "dSTORM engine output"),
   cap( output::Capabilities()
             .set_source_image()
-            .set_smoothed_image()
             .set_input_buffer() )
 {
     {
@@ -32,7 +31,6 @@ OutputTreeRoot::OutputTreeRoot( const OutputTreeRoot& other )
 void OutputTreeRoot::set_trace_capability( const input::Traits<output::LocalizedImage>& t )
 {
     cap.set_source_image( t.source_image_is_set );
-    cap.set_smoothed_image( t.smoothed_image_is_set );
     cap.set_cluster_sources( ! t.source_traits.empty() );
     this->set_source_capabilities( cap );
 }

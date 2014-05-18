@@ -15,7 +15,7 @@ LocalizedImage::LocalizedImage(frame_index i)
 }
 
 LocalizedImage::LocalizedImage(const LocalizedImage& o) 
-: results(o.results), forImage(o.forImage), source(o.source), smoothed(o.smoothed)
+: results(o.results), forImage(o.forImage), source(o.source)
 {
 }
 
@@ -27,7 +27,6 @@ LocalizedImage& LocalizedImage::operator=( const LocalizedImage& o ) {
     forImage = o.forImage;
     results = o.results;
     source = o.source;
-    smoothed = o.smoothed;
     return *this;
 }
 

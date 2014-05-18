@@ -18,8 +18,6 @@ class FitPositionGenerator {
     bool next_position(FitPosition* fit_position);
     void extend_range();
 
-    SmoothedImage getSmoothedImage() { return finder->getSmoothedImage(); }
-
   private:
     int maximumLimit;
     const traits::Projection& projection;

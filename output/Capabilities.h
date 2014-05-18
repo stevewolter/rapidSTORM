@@ -8,9 +8,9 @@ namespace output {
 
 class Capabilities 
 {
-    std::bitset<4> base;
+    std::bitset<3> base;
     int src_lvls;
-    Capabilities(const std::bitset<4>& base, int levels_of_cl_s = 0) 
+    Capabilities(const std::bitset<3>& base, int levels_of_cl_s = 0) 
         : base(base), src_lvls(levels_of_cl_s)
             {}
 
@@ -18,7 +18,7 @@ class Capabilities
     Capabilities() : src_lvls(0) {}
 
     enum Capability {
-        SourceImage, SmoothedImage,
+        SourceImage,
         InputBuffer,
         ClustersWithSources
     };
@@ -27,8 +27,6 @@ class Capabilities
 
     Capabilities& set_source_image(bool has_cap = true)
         { base.set( SourceImage, has_cap ); return *this; }
-    Capabilities& set_smoothed_image(bool has_cap = true)
-        { base.set( SmoothedImage, has_cap ); return *this; }
     Capabilities& set_input_buffer(bool has_cap = true)
         { base.set( InputBuffer, has_cap ); return *this; }
     Capabilities& set_cluster_sources(bool has_cap = true)

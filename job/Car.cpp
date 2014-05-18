@@ -150,8 +150,6 @@ void Car::drive() {
         m.send( current_ui );
         return;
     } else if (
-        ( data.test( output::Capabilities::SmoothedImage ) && 
-          ! announcement.smoothed_image_is_set ) ||
         ( data.test( output::Capabilities::InputBuffer ) && 
           ! announcement.carburettor ) )
     {
