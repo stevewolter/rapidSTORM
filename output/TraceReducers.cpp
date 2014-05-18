@@ -2,7 +2,7 @@
 #include <boost/units/Eigen/Array>
 #include "units/amplitude.h"
 #include "units/frame_count.h"
-#include <boost/units/systems/camera/intensity.hpp>
+#include "boost/units/systems/camera/intensity.hpp"
 
 namespace dStorm {
 namespace output {

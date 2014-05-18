@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_IMAGETRAITS_H
 
 #include <Eigen/Core>
-#include <boost/units/systems/camera/length.hpp>
+#include "boost/units/systems/camera/length.hpp"
 #include <boost/units/quantity.hpp>
 #include <boost/units/Eigen/Core>
 #include "image/fwd.h"

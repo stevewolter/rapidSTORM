@@ -5,7 +5,7 @@
 #include "input/Traits.h"
 #include "engine/Image_decl.h"
 #include "localization/Traits.h"
-#include <boost/units/systems/camera/frame_rate.hpp>
+#include "boost/units/systems/camera/frame_rate.hpp"
 
 namespace dStorm {
 namespace input {

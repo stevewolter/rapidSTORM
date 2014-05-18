@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <boost/units/quantity.hpp>
-#include <boost/units/systems/camera/intensity.hpp>
+#include "boost/units/systems/camera/intensity.hpp"
 #include "simparm/Choice.h"
 
 #include "engine/JobInfo_decl.h"

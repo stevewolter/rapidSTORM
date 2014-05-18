@@ -13,7 +13,7 @@
 #include "engine/JobInfo_decl.h"
 
 #include <boost/units/quantity.hpp>
-#include <boost/units/systems/camera/length.hpp>
+#include "boost/units/systems/camera/length.hpp"
 #include "make_clone_allocator.hpp"
 
 namespace dStorm {

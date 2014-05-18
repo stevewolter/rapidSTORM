@@ -7,7 +7,7 @@
 #include "UnitEntries/Nanometre.h"
 #include "UnitEntries/PixelSize.h"
 #include <boost/units/systems/si/io.hpp>
-#include <boost/units/systems/camera/resolution.hpp>
+#include "boost/units/systems/camera/resolution.hpp"
 
 #include "simparm/Entry.hpp"
 #include "simparm/Attribute.hpp"

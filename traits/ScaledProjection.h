@@ -4,7 +4,7 @@
 #include "traits/Projection.h"
 #include <Eigen/Geometry>
 #include <boost/array.hpp>
-#include <boost/units/systems/camera/resolution.hpp>
+#include "boost/units/systems/camera/resolution.hpp"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
