@@ -7,7 +7,7 @@
 #include "InsertionPlace.h"
 #include "Job.h"
 #include <memory>
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 
 namespace dStorm {
 namespace output { class OutputSource; }

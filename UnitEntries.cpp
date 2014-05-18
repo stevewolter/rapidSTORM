@@ -1,4 +1,4 @@
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include "UnitEntries.h"
 #include "UnitEntries/Hertz.h"
 #include "UnitEntries/FrameEntry.h"
@@ -9,8 +9,8 @@
 #include <boost/units/systems/si/io.hpp>
 #include <boost/units/systems/camera/resolution.hpp>
 
-#include <simparm/Entry.hpp>
-#include <simparm/Attribute.hpp>
+#include "simparm/Entry.hpp"
+#include "simparm/Attribute.hpp"
 #include "units/microlength.h"
 #include "units/permicrolength.h"
 #include "units/camera_response.h"

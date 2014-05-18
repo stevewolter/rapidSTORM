@@ -2,14 +2,14 @@
 #include <algorithm>
 #include <cassert>
 
-#include <simparm/BoostUnits.h>
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
+#include "simparm/BoostUnits.h"
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
 
 #include "engine/SpotFinder.h"
 #include "engine/SpotFinderBuilder.h"
 #include "engine/Image.h"
-#include <simparm/GUILabelTable.h>
+#include "simparm/GUILabelTable.h"
 
 namespace dStorm {
 namespace median_smoother {

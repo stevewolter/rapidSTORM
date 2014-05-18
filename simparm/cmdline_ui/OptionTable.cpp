@@ -1,5 +1,5 @@
 #include "simparm/cmdline_ui/OptionTable.h"
-#include <simparm/BaseAttribute.h>
+#include "simparm/BaseAttribute.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <iostream>

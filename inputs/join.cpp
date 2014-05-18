@@ -1,11 +1,11 @@
 #include "debug.h"
 #include "inputs/join.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
-#include <simparm/Entry.h>
-#include <simparm/TabGroup.h>
-#include <simparm/ObjectChoice.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/Entry.h"
+#include "simparm/TabGroup.h"
+#include "simparm/ObjectChoice.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>

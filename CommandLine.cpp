@@ -3,7 +3,7 @@
 /* wxWidgets includes must come first, lest they conflict with -DBOOST_USE_WINDOWS_H */
 #include "config_file.h"
 
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 #include "CommandLine.h"
 #include <vector>
 #include <string>
@@ -12,7 +12,7 @@
 #include "output/OutputSource.h"
 #include "output/FilterSource.h"
 #include "InputStream.h"
-#include <simparm/cmdline_ui/RootNode.h>
+#include "simparm/cmdline_ui/RootNode.h"
 #include "display/Manager.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/condition.hpp>

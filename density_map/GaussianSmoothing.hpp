@@ -5,8 +5,8 @@
 #include "density_map/Interpolator.h"
 #include "density_map/InterpolatorFactory.h"
 #include <bitset>
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
 #include <boost/range/numeric.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/foreach.hpp>

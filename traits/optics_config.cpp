@@ -1,4 +1,4 @@
-#include <simparm/Node.h>
+#include "simparm/Node.h"
 #include "debug.h"
 #include "traits/optics_config.h"
 #include <boost/lexical_cast.hpp>

@@ -12,8 +12,8 @@
 #include "engine/Image_decl.h"
 #include "units/microlength.h"
 
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ProgressEntry.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ProgressEntry.h"
 #include <boost/ptr_container/ptr_list.hpp>
 #include "traits/optics_config.h"
 #include "engine/InputTraits.h"

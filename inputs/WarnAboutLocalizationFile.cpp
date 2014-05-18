@@ -1,5 +1,5 @@
 #include "localization_file/reader.h"
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 
 namespace dStorm {
 namespace inputs {

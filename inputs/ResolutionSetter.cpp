@@ -1,5 +1,5 @@
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
 
 #include "inputs/ResolutionSetter.h"
 #include "debug.h"
@@ -17,9 +17,9 @@
 #include "Localization.h"
 #include "traits/optics_config.h"
 #include "units/nanolength.h"
-#include <simparm/Eigen.h>
-#include <simparm/text_stream/RootNode.h>
-#include <simparm/dummy_ui/fwd.h>
+#include "simparm/Eigen.h"
+#include "simparm/text_stream/RootNode.h"
+#include "simparm/dummy_ui/fwd.h"
 #include "dejagnu.h"
 
 namespace dStorm {

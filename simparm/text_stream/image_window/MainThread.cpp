@@ -9,7 +9,7 @@
 #endif
 
 #include <boost/foreach.hpp>
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 #include "simparm/text_stream/image_window/Window.h"
 #include "display/SharedDataSource.h"
 

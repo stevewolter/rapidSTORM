@@ -1,8 +1,8 @@
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include "calibrate_3d/fwd.h"
 #include "output/Output.h"
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -14,7 +14,7 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/weighted_mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
-#include <simparm/dummy_ui/fwd.h>
+#include "simparm/dummy_ui/fwd.h"
 
 #include <gsl/gsl_bspline.h>
 #include <gsl/gsl_multifit.h>

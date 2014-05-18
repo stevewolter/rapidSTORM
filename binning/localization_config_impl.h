@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_IMPL_H
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_IMPL_H
 
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include "binning/localization_config.h"
 #include "binning/localization_impl.h"
 #include "binning/binning.hpp"

@@ -1,6 +1,6 @@
 #include "simparm/ManagedChoiceEntry.h"
 #include "simparm/Object.h"
-#include <simparm/dummy_ui/fwd.h>
+#include "simparm/dummy_ui/fwd.h"
 
 namespace simparm {
 

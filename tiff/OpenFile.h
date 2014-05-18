@@ -2,8 +2,8 @@
 #define DSTORM_TIFF_OPEN_FILE_H
 
 #include "input/Traits.h"
-#include <simparm/NodeHandle.h>
-#include <simparm/Entry.h>
+#include "simparm/NodeHandle.h"
+#include "simparm/Entry.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

@@ -1,6 +1,6 @@
 #include "test-plugin/BasenamePrinter.h"
 
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "output/Output.h"
 #include "output/FileOutputBuilder.h"
 #include <iostream>

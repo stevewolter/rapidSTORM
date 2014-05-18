@@ -2,7 +2,7 @@
 #define SIMPARM_TEXT_STREAM_LAUNCHER_H
 
 #include "job/Config.h"
-#include <simparm/TriggerEntry.h>
+#include "simparm/TriggerEntry.h"
 
 namespace simparm {
 namespace text_stream {

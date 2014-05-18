@@ -3,8 +3,8 @@
 
 #include "output/FilterSource.h"
 #include <stdexcept>
-#include <simparm/Object.h>
-#include <simparm/TreeEntry.h>
+#include "simparm/Object.h"
+#include "simparm/TreeEntry.h"
 
 namespace dStorm {
 namespace output {

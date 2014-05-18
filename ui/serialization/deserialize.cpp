@@ -1,5 +1,5 @@
 #include "ui/serialization/deserialize.h"
-#include <simparm/text_stream/RootNode.h>
+#include "simparm/text_stream/RootNode.h"
 #include <fstream>
 #include <boost/smart_ptr/make_shared.hpp>
 

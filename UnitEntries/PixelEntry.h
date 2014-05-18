@@ -2,7 +2,7 @@
 #define DSTORM_UNITENTRIES_PIXELENTRY_H
 
 #include "namespaces.h"
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "units/nanolength.h"
 #include <boost/units/systems/camera/length.hpp>
 #include <boost/units/systems/camera/area.hpp>

@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include <simparm/Attribute.h>
+#include "simparm/Attribute.h"
 
 namespace dStorm {
 namespace output {

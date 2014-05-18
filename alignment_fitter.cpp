@@ -12,10 +12,10 @@
 #include <boost/units/Eigen/Array>
 #include <boost/lexical_cast.hpp>
 #include <iomanip>
-#include <simparm/text_stream/RootNode.h>
-#include <simparm/Group.h>
-#include <simparm/TriggerEntry.h>
-#include <simparm/ProgressEntry.h>
+#include "simparm/text_stream/RootNode.h"
+#include "simparm/Group.h"
+#include "simparm/TriggerEntry.h"
+#include "simparm/ProgressEntry.h"
 #include <fstream>
 
 typedef std::list<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > PositionList;

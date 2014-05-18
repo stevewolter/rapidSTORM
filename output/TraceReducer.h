@@ -2,7 +2,7 @@
 #define DSTORM_TRACE_REDUCER
 
 #include "Localization.h"
-#include <simparm/Object.h>
+#include "simparm/Object.h"
 #include <Eigen/Core>
 #include "helpers/make_boost_clone.h"
 #include <vector>

@@ -12,8 +12,8 @@
 #include <boost/units/Eigen/Array>
 #include <boost/bind/bind.hpp>
 
-#include <simparm/FileEntry.h>
-#include <simparm/Message.h>
+#include "simparm/FileEntry.h"
+#include "simparm/Message.h"
 
 #include "localization/Traits.h"
 #include "output/Output.h"

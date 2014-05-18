@@ -1,12 +1,12 @@
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include "engine/SpotFinder.h"
 #include "engine/SpotFinderBuilder.h"
 #include "engine/Image.h"
 #include "spotFinders/averageSmooth.h"
 
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
-#include <simparm/GUILabelTable.h>
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
+#include "simparm/GUILabelTable.h"
 
 namespace dStorm {
 namespace spalttiefpass_smoother {

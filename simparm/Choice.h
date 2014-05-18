@@ -2,7 +2,7 @@
 #define SIMPARM_CHOICE_H
 
 #include <string>
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 
 namespace simparm {
 

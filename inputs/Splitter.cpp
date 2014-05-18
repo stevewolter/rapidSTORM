@@ -7,12 +7,12 @@
 #include "input/AdapterSource.h"
 #include "input/Method.hpp"
 #include "input/Source.h"
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
-#include <simparm/Entry.h>
-#include <simparm/Message.h>
-#include <simparm/Object.h>
-#include <simparm/ObjectChoice.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/Entry.h"
+#include "simparm/Message.h"
+#include "simparm/Object.h"
+#include "simparm/ObjectChoice.h"
 #include "make_clone_allocator.hpp"
 
 using namespace dStorm::engine;

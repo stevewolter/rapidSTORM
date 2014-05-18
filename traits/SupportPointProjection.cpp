@@ -2,11 +2,11 @@
 #include <set>
 #include <fstream>
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Object.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Object.h"
 
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>

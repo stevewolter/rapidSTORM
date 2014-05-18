@@ -4,8 +4,8 @@
 #include "output/Output.h"
 #include "output/Basename.h"
 #include <memory>
-#include <simparm/Choice.h>
-#include <simparm/TriggerEntry.h>
+#include "simparm/Choice.h"
+#include "simparm/TriggerEntry.h"
 #include "output/SourceFactory_decl.h"
 #include "output/BasenameAdjustedFileEntry_decl.h"
 #include "make_clone_allocator.hpp"

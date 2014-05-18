@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUT_OF_MEMORY_H
 #define DSTORM_OUT_OF_MEMORY_H
 
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 
 namespace dStorm {
 

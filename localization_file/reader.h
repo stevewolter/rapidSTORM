@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 #include "input/FileInput.h"
-#include <simparm/FileEntry.h>
+#include "simparm/FileEntry.h"
 #include "input/Source.h"
 #include "engine/Image.h"
 #include "localization/Traits.h"

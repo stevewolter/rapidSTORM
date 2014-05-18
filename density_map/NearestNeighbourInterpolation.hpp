@@ -5,7 +5,7 @@
 #include "density_map/Interpolator.h"
 #include "density_map/InterpolatorFactory.h"
 #include <bitset>
-#include <simparm/Object.h>
+#include "simparm/Object.h"
 
 namespace dStorm {
 namespace density_map {

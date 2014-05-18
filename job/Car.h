@@ -8,7 +8,7 @@
 #include "job/Config.h"
 #include "output/OutputSource.h"
 #include <cassert>
-#include <simparm/TriggerEntry.h>
+#include "simparm/TriggerEntry.h"
 #include "engine/Input_decl.h"
 #include "input/fwd.h"
 #include <boost/utility.hpp>

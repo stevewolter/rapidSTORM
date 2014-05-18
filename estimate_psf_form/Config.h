@@ -2,13 +2,13 @@
 #define DSTORM_FORMFITTER_CONFIG_H
 
 #include <boost/units/Eigen/Array>
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Group.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Group.h"
 #include "output/Capabilities.h"
 #include <boost/array.hpp>
 #include <boost/optional/optional.hpp>

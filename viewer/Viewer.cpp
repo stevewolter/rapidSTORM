@@ -6,7 +6,7 @@
 #include <cassert>
 #include "engine/Image.h"
 
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 #include "display/Manager.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>

@@ -3,7 +3,7 @@
 #include "test-plugin/DummyFileInput.h"
 #include "input/Source.h"
 #include "engine/Image.h"
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "input/FileInput.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/thread/locks.hpp>

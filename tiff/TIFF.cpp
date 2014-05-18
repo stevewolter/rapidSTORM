@@ -22,10 +22,10 @@
 
 #include <boost/units/base_units/us/inch.hpp>
 
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
-#include <simparm/TriggerEntry.h>
-#include <simparm/text_stream/RootNode.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/TriggerEntry.h"
+#include "simparm/text_stream/RootNode.h"
 
 #include "engine/Image.h"
 #include "image/Image.h"

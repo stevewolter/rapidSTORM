@@ -10,7 +10,7 @@
 #include <string>
 #include <stdexcept>
 #include <stdio.h>
-#include <simparm/FileEntry.h>
+#include "simparm/FileEntry.h"
 #include "helpers/thread.h"
 #include "image/Image.h"
 #include <boost/utility.hpp>

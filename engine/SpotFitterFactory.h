@@ -4,12 +4,12 @@
 #include "engine/JobInfo_decl.h"
 #include "engine/SpotFitter_decl.h"
 #include "engine/Image.h"
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 #include <memory>
 #include "output/Traits_decl.h"
 #include "output/Basename_decl.h"
-#include <simparm/BaseAttribute.h>
-#include <simparm/Choice.h>
+#include "simparm/BaseAttribute.h"
+#include "simparm/Choice.h"
 
 namespace dStorm {
 namespace engine {

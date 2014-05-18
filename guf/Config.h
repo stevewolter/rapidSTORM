@@ -4,7 +4,7 @@
 #include "guf/Config_decl.h"
 
 #include "UnitEntries/Nanometre.h"
-#include <simparm/Group.h>
+#include "simparm/Group.h"
 #include <nonlinfit/levmar/Config.h>
 #include "fit_window/Config.h"
 

@@ -1,11 +1,11 @@
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include "engine/Image.h"
 #include "engine/SpotFinder.h"
 #include "engine/SpotFinderBuilder.h"
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "image/dilation.h"
-#include <simparm/Object.h>
-#include <simparm/GUILabelTable.h>
+#include "simparm/Object.h"
+#include "simparm/GUILabelTable.h"
 
 namespace dStorm {
 namespace erosion_smoother {

@@ -1,15 +1,15 @@
 #include <boost/math/constants/constants.hpp>
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/Object.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
-#include <simparm/Entry.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/Object.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
+#include "simparm/Entry.h"
 
 #include "engine/SpotFinder.h"
 #include "engine/SpotFinderBuilder.h"
 #include "Direction.h"
-#include <simparm/GUILabelTable.h>
+#include "simparm/GUILabelTable.h"
 
 using namespace std;
 using namespace dStorm::engine;

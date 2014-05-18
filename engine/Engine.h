@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_ENGINE_H
 #define DSTORM_ENGINE_ENGINE_H
 
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include <memory>
 #include <boost/thread/mutex.hpp>
 #include "engine/Config_decl.h"

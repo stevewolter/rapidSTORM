@@ -2,7 +2,7 @@
 #define DSTORM_EXPRESSION_CONFIG_H
 
 #include "expression/SimpleFilters.h"
-#include <simparm/TriggerEntry.h>
+#include "simparm/TriggerEntry.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/units/systems/camera/intensity.hpp>
 #include "expression/Config_decl.h"

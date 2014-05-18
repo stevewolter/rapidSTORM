@@ -6,11 +6,11 @@
 #include "input/Link.h"
 #include <memory>
 #include <list>
-#include <simparm/Group.h>
-#include <simparm/Menu.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Entry.h>
-#include <simparm/Message.h>
+#include "simparm/Group.h"
+#include "simparm/Menu.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Entry.h"
+#include "simparm/Message.h"
 #include "output/BasenameAdjustedFileEntry.h"
 #include <boost/function/function1.hpp>
 

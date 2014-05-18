@@ -3,10 +3,10 @@
 
 #include "viewer/DensityMapConfig.h"
 
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
 #include "output/BasenameAdjustedFileEntry.h"
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "output/Output.h"
 #include "units/microlength.h"
 

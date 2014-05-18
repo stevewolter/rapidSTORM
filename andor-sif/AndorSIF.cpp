@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 
 #include "andor-sif/AndorSIF.h"
 #include "input/Source.h"

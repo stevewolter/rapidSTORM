@@ -1,17 +1,17 @@
 #ifndef DSTORM_CONFIG_H
 #define DSTORM_CONFIG_H
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/BoostOptional.h>
-#include <simparm/Eigen.h>
-#include <simparm/Group.h>
-#include <simparm/Entry.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/BoostOptional.h"
+#include "simparm/Eigen.h"
+#include "simparm/Group.h"
+#include "simparm/Entry.h"
 #include "UnitEntries.h"
 #include "UnitEntries/Nanometre.h"
-#include <simparm/Entry.h>
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
 #include <boost/units/cmath.hpp>
 #include "output/Basename_decl.h"
 #include <boost/smart_ptr/shared_ptr.hpp>

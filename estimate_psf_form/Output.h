@@ -3,7 +3,7 @@
 
 #include "traits/optics_config.h"
 #include "estimate_psf_form/decl.h"
-#include <simparm/ProgressEntry.h>
+#include "simparm/ProgressEntry.h"
 #include "estimate_psf_form/Config.h"
 #include "engine/Input.h"
 #include "output/Output.h"

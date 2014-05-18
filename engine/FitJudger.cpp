@@ -1,7 +1,7 @@
 #include "engine/FitJudger.h"
 #include "engine/FitJudgerFactory.h"
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
 #include "engine/InputPlane.h"
 
 namespace dStorm {

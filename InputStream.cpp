@@ -10,7 +10,7 @@
 #include "alignment_fitter.h"
 #include "shell/ReplayJob.h"
 
-#include <simparm/text_stream/BackendRoot.h>
+#include "simparm/text_stream/BackendRoot.h"
 #include <ui/serialization/serialize.h>
 
 namespace dStorm {

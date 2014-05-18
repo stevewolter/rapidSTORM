@@ -1,7 +1,7 @@
 #include "debug.h"
 
 #include "output/FilterSource.h"
-#include <simparm/ChoiceEntry.h>
+#include "simparm/ChoiceEntry.h"
 #include "outputs/Crankshaft.h"
 #include "output/OutputSource.h"
 #include "output/SourceFactory.h"

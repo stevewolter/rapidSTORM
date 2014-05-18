@@ -1,17 +1,17 @@
 #ifndef DSTORM_TRAITS_OPTICS_CONFIG_H
 #define DSTORM_TRAITS_OPTICS_CONFIG_H
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
 #include "engine/InputTraits.h"
-#include <simparm/Object.h>
-#include <simparm/TabGroup.h>
-#include <simparm/Group.h>
-#include <simparm/BoostOptional.h>
+#include "simparm/Object.h"
+#include "simparm/TabGroup.h"
+#include "simparm/Group.h"
+#include "simparm/BoostOptional.h"
 #include "UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/ManagedChoiceEntry.h"
 
 #include "localization/Fields.h"
 #include "traits/ProjectionConfig.h"

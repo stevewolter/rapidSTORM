@@ -1,7 +1,7 @@
 #ifndef DSTORM_DENSITY_MAP_INTERPOLATOR_FACTORY_H
 #define DSTORM_DENSITY_MAP_INTERPOLATOR_FACTORY_H
 
-#include <simparm/Choice.h>
+#include "simparm/Choice.h"
 #include "make_clone_allocator.hpp"
 
 namespace dStorm {

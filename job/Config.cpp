@@ -19,10 +19,10 @@
 #include "output/SourceFactory.h"
 #include "signals/UseSpotFinder.h"
 #include "signals/UseSpotFitter.h"
-#include <simparm/Menu.h>
-#include <simparm/text_stream/RootNode.h>
-#include <simparm/TreeRoot.h>
-#include <simparm/TreeEntry.h>
+#include "simparm/Menu.h"
+#include "simparm/text_stream/RootNode.h"
+#include "simparm/TreeRoot.h"
+#include "simparm/TreeEntry.h"
 #include <ui/serialization/Node.h>
 
 #include "job/Car.h"

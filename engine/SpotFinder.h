@@ -1,8 +1,8 @@
 #ifndef DSTORM_SPOTFINDER_H
 #define DSTORM_SPOTFINDER_H
 
-#include <simparm/NodeHandle.h>
-#include <simparm/Choice.h>
+#include "simparm/NodeHandle.h"
+#include "simparm/Choice.h"
 #include <memory>
 
 #include "engine/Image.h"

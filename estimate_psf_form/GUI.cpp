@@ -1,6 +1,6 @@
 #include "debug.h"
 #include "estimate_psf_form/GUI.h"
-#include <simparm/Node.h>
+#include "simparm/Node.h"
 #include "display/Manager.h"
 #include "display/display_normalized.hpp"
 #include "image/crop.h"
