@@ -38,7 +38,7 @@ struct Traits<output::LocalizedImage>
     typedef boost::shared_ptr<Traits> Ptr;
     typedef boost::shared_ptr<const Traits> ConstPtr;
 
-    bool source_image_is_set, smoothed_image_is_set, candidate_tree_is_set;
+    bool source_image_is_set, smoothed_image_is_set;
     boost::shared_ptr< const engine::InputTraits > input_image_traits;
     std::string name, description;
 };

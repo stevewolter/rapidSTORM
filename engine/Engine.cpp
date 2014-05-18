@@ -87,8 +87,6 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
         new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
     rvt->source_image_is_set = true;
-    rvt->smoothed_image_is_set = true;
-    rvt->candidate_tree_is_set = true;
     rvt->input_image_traits.reset( imProp.clone() );
 
     for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophore_count; ++fluorophore) {

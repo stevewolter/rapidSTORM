@@ -50,8 +50,6 @@ std::ostream &operator<<(std::ostream &o,
         rv += sep + "SourceImage";
     if ( data.test( Capabilities::SmoothedImage ) )
         rv += sep + "SmoothedImage";
-    if ( data.test( Capabilities::CandidateTree ) )
-        rv += sep + "CandidateTree";
     if ( data.test( Capabilities::InputBuffer) )
         rv += sep + "InputBuffer";
     if ( data.test( Capabilities::ClustersWithSources) )

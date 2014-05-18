@@ -48,7 +48,6 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
     target->forImage = image.frame_number();
     target->clear();
     target->source = image; 
-    target->candidates = NULL;
     return true;
 }
 

@@ -152,8 +152,6 @@ void Car::drive() {
     } else if (
         ( data.test( output::Capabilities::SmoothedImage ) && 
           ! announcement.smoothed_image_is_set ) ||
-        ( data.test( output::Capabilities::CandidateTree ) && 
-          ! announcement.candidate_tree_is_set ) ||
         ( data.test( output::Capabilities::InputBuffer ) && 
           ! announcement.carburettor ) )
     {
