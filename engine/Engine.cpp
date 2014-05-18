@@ -39,6 +39,9 @@ class Engine::WorkHorse {
     FitPositionGenerator position_generator;
     int origMotivation;
 
+    bool compute_if_enough_positions(const ImageStack& image,
+                                     output::LocalizedImage* target);
+
   public:
     WorkHorse( Engine& engine );
     ~WorkHorse() {}
@@ -198,14 +201,26 @@ void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage
     const Image2D flattened = flattener.flatten_image( image );
     position_generator.compute_positions(flattened);
 
-    int motivation;
-    recompress:  /* We jump here if maximum limit proves too small */
-    DEBUG("Found spots");
+    while (!compute_if_enough_positions(image, target)) {
+        position_generator.extend_range();
+        target->clear();
+    }
 
+    DEBUG("Found " << target->size() << " localizations");
+    target->forImage = image.frame_number();
+    target->source = image;
+}
+
+bool Engine::WorkHorse::compute_if_enough_positions(
+    const ImageStack& image, output::LocalizedImage* target) {
     /* Motivational fitting */
-    motivation = origMotivation;
-    FitPosition fit_position;
-    while (position_generator.next_position(&fit_position)) {
+    int motivation = origMotivation;
+    while (motivation > 0) {
+        FitPosition fit_position;
+        if (!position_generator.next_position(&fit_position)) {
+            DEBUG("Not enough positions saved in position generator");
+            return false;
+        }
         DEBUG("Trying candidate " << fit_position.transpose() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
         int candidate = target->size(), start = candidate;
@@ -241,21 +256,10 @@ void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage
             motivation += best_found;
             DEBUG("No localizations, decreased motivation by " << -best_found 
                   << " to " << motivation);
-            if ( motivation <= 0 ) break;
         }
     }
-    if (motivation > 0) {
-        position_generator.extend_range();
-        target->clear();
-        goto recompress;
-    }
 
-    DEBUG("Found " << target->size() << " localizations");
-    IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
-
-    DEBUG("Power with " << target->size() << " localizations");
-    target->forImage = image.frame_number();
-    target->source = image;
+    return true;
 }
 
 void Engine::restart() { throw std::logic_error("Not implemented."); }
