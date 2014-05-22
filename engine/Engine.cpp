@@ -111,7 +111,7 @@ void Engine::dispatch(Messages m) {
 
 void Engine::set_thread_count(int num_threads) {
     while (int(work_horses.size()) < num_threads) {
-        work_horses.emplace_back(new EngineThread(*this, config, imProp));
+        work_horses.push_back(SingleThreadedLocalizer::create(*this, config, imProp));
     }
 }
 

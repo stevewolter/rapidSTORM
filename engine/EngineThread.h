@@ -6,6 +6,7 @@
 #include "engine/Config.h"
 #include "engine/FitPositionRoundRobin.h"
 #include "engine/Input.h"
+#include "engine/SingleThreadedLocalizer.h"
 #include "engine/SpotFitter.h"
 #include "output/LocalizedImage.h"
 
@@ -14,7 +15,7 @@ namespace engine {
 
 class Engine;
 
-class EngineThread {
+class EngineThread : public SingleThreadedLocalizer {
     Engine& engine;
     Config& config;
     Input::TraitsPtr meta_info;
@@ -30,8 +31,6 @@ class EngineThread {
     EngineThread( Engine& engine, Config& config, Input::TraitsPtr meta_info );
     ~EngineThread() {}
     void compute(const ImageStack& image, output::LocalizedImage* target);
-
-    output::LocalizedImage resultStructure;
 };
 
 }

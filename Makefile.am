@@ -303,6 +303,7 @@ rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.h engine/Engine.cpp \
     engine/EngineThread.h engine/EngineThread.cpp \
+    engine/SingleThreadedLocalizer.h engine/SingleThreadedLocalizer.cpp \
     engine/EngineDebug.h \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/FitPositionGenerator.h engine/FitPositionGenerator.cpp

@@ -12,7 +12,7 @@
 #include "input/Source.h"
 #include "base/Engine.h"
 #include "engine/Config.h"
-#include "engine/EngineThread.h"
+#include "engine/SingleThreadedLocalizer.h"
 
 namespace dStorm {
 namespace engine {
@@ -35,7 +35,7 @@ namespace engine {
         Input::TraitsPtr imProp, last_run_meta_info;
 
         Config config;
-        std::vector<std::unique_ptr<EngineThread>> work_horses;
+        std::vector<std::unique_ptr<SingleThreadedLocalizer>> work_horses;
         boost::mutex mutex;
         simparm::Entry<unsigned long> errors;
 
