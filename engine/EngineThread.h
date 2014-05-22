@@ -13,10 +13,7 @@
 namespace dStorm {
 namespace engine {
 
-class Engine;
-
 class EngineThread : public SingleThreadedLocalizer {
-    Engine& engine;
     Config& config;
     Input::TraitsPtr meta_info;
 
@@ -28,7 +25,7 @@ class EngineThread : public SingleThreadedLocalizer {
                                      output::LocalizedImage* target);
 
   public:
-    EngineThread( Engine& engine, Config& config, Input::TraitsPtr meta_info );
+    EngineThread( Config& config, Input::TraitsPtr meta_info );
     ~EngineThread() {}
     void compute(const ImageStack& image, output::LocalizedImage* target);
 };

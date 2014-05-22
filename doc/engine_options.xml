@@ -21,6 +21,14 @@
     <para>High values will ensure a higher noise tolerance at the cost
         of some missed localizations.</para>
 </et:elem>
+<et:elem desc="Fit planes separately" topic="SeparatePlaneFitting">
+    <para>If this option is set, all planes are fit independently of each
+        other. Spot finding and spot fitting will happen in each plane,
+        and the results will be put into one large localization vector.
+        The fluorophore field in the output indicates in which plane a
+        localization was found.</para>
+    <para>Set the number of fluorophores to 1 if you do separate fitting.</para>
+</et:elem>
 <et:elem desc="Fit judging method" topic="FitJudgingMethod">
     <para>The fit judging method controls the decision whether a set of
         fitted PSF parameters is a localization or just background noise.</para>

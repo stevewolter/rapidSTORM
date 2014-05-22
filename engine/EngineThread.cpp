@@ -1,6 +1,5 @@
 #include "engine/EngineThread.h"
 
-#include "engine/Engine.h"
 #include "engine/JobInfo.h"
 #include "engine/SpotFitterFactory.h"
 #include "engine/SpotFitter.h"
@@ -11,9 +10,8 @@
 namespace dStorm {
 namespace engine {
 
-EngineThread::EngineThread( Engine& engine, Config& config, Input::TraitsPtr meta_info )
-: engine(engine),
-  config(config),
+EngineThread::EngineThread( Config& config, Input::TraitsPtr meta_info )
+: config(config),
   meta_info( meta_info ),
   position_generator(config, *meta_info),
   origMotivation( config.motivation() + meta_info->plane_count() - 1 )
@@ -34,29 +32,12 @@ EngineThread::EngineThread( Engine& engine, Config& config, Input::TraitsPtr met
 void EngineThread::compute( const ImageStack& image, output::LocalizedImage* target ) 
 {
     target->clear();
-
-    DEBUG("Intake (" << image.frame_number() << ")");
-
-    if ( image.has_invalid_planes() ) {
-        target->forImage = image.frame_number();
-        target->source = image;
-        engine.increment_error_count();
-        return;
-    } else {
-        DEBUG("Image " << image.frame_number() << " is valid");
-    }
-
-    DEBUG("Compression (" << image.frame_number() << ")");
     position_generator.compute_positions(image);
 
     while (!compute_if_enough_positions(image, target)) {
         position_generator.extend_range();
         target->clear();
     }
-
-    DEBUG("Found " << target->size() << " localizations");
-    target->forImage = image.frame_number();
-    target->source = image;
 }
 
 bool EngineThread::compute_if_enough_positions(

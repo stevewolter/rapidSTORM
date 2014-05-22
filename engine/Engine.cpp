@@ -63,14 +63,26 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     rvt->source_image_is_set = true;
     rvt->input_image_traits.reset( imProp.clone() );
 
-    for (int fluorophore = 0; fluorophore < imProp.fluorophore_count; ++fluorophore) {
-        JobInfo info( rvt->input_image_traits, fluorophore, config.fit_judging_method() );
-        config.spotFittingMethod().set_traits( *rvt, info );
-    }
+    if (config.separate_plane_fitting()) {
+        rvt->fluorophore().is_given = true;
+        rvt->fluorophore().range().first = 0;
+        rvt->fluorophore().range().second = imProp.plane_count();
 
-    rvt->fluorophore().is_given = imProp.fluorophore_count > 1;
-    rvt->fluorophore().range().first = 0;
-    rvt->fluorophore().range().second = imProp.fluorophore_count - 1;
+        boost::shared_ptr<InputTraits> first_plane(new InputTraits(imProp));
+        first_plane->clear();
+        first_plane->push_back(imProp.plane(0));
+        JobInfo info( first_plane, 0, config.fit_judging_method() );
+        config.spotFittingMethod().set_traits( *rvt, info );
+    } else {
+        for (int fluorophore = 0; fluorophore < imProp.fluorophore_count; ++fluorophore) {
+            JobInfo info( rvt->input_image_traits, fluorophore, config.fit_judging_method() );
+            config.spotFittingMethod().set_traits( *rvt, info );
+        }
+
+        rvt->fluorophore().is_given = imProp.fluorophore_count > 1;
+        rvt->fluorophore().range().first = 0;
+        rvt->fluorophore().range().second = imProp.fluorophore_count - 1;
+    }
 
     return rvt;
 }
@@ -111,7 +123,7 @@ void Engine::dispatch(Messages m) {
 
 void Engine::set_thread_count(int num_threads) {
     while (int(work_horses.size()) < num_threads) {
-        work_horses.push_back(SingleThreadedLocalizer::create(*this, config, imProp));
+        work_horses.push_back(SingleThreadedLocalizer::create(config, imProp));
     }
 }
 
@@ -122,7 +134,13 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
     }
 
     DEBUG("Pushing image " << image.frame_number() << " into engine");
-    work_horses[thread]->compute(image, target);
+    target->forImage = image.frame_number();
+    target->source = image;
+    if (image.has_invalid_planes()) {
+        increment_error_count();
+    } else {
+        work_horses[thread]->compute(image, target);
+    }
     return true;
 }
 

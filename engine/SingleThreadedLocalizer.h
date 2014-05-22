@@ -8,12 +8,10 @@
 namespace dStorm {
 namespace engine {
 
-class Engine;
-
 class SingleThreadedLocalizer {
   public:
     static std::unique_ptr<SingleThreadedLocalizer> create(
-        Engine& engine, Config& config, Input::TraitsPtr meta_info);
+        Config& config, Input::TraitsPtr meta_info);
     virtual ~SingleThreadedLocalizer() {}
     virtual void compute(const ImageStack& image, output::LocalizedImage* target) = 0;
 };

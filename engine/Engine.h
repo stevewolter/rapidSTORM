@@ -42,6 +42,7 @@ namespace engine {
         void attach_ui_( simparm::NodeHandle );
         bool GetNext(int thread, output::LocalizedImage* target) OVERRIDE;
         void set_thread_count(int num_threads) OVERRIDE;
+        void increment_error_count();
 
       public:
         Engine(const Config& config, std::auto_ptr<Input> input);
@@ -63,8 +64,6 @@ namespace engine {
         std::auto_ptr<EngineBlock> block() ;
         std::auto_ptr<EngineBlock> block_termination() 
             { throw std::logic_error("Not implemented"); }
-
-        void increment_error_count();
    };
 }
 }
