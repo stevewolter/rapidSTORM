@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "output/Output.h"
 #include "output/OutputBuilder.h"
-#include <simparm/ProgressEntry.h>
+#include "simparm/ProgressEntry.h"
 
 #include "outputs/ProgressMeter.h"
 

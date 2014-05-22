@@ -91,7 +91,6 @@ rapidstorm_SOURCES = \
     InsertionPlace.h \
     Localization_decl.h Localization.h \
     Pixel.h \
-    DataSetTraits.h \
     Job.h UnitEntries.h \
     base/Config.h \
     base/Engine.h types/samplepos.h types/fluorophore.h \
@@ -200,7 +199,7 @@ rapidstorm_SOURCES += \
 rapidstorm_SOURCES += \
     Localization.cpp \
     UnitEntries.cpp \
-    DataSetTraits.cpp units/units.cpp image/MetaInfo.cpp \
+    units/units.cpp image/MetaInfo.cpp \
     localization/Field.cpp \
     localization/Traits.cpp \
     image/instantiate.cpp \
@@ -305,7 +304,7 @@ rapidstorm_SOURCES += \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
-    engine/PlaneFlattener.h engine/PlaneFlattener.cpp
+    engine/FitPositionGenerator.h engine/FitPositionGenerator.cpp
 
 rapidstorm_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
@@ -408,7 +407,7 @@ rapidstorm_SOURCES += \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
     test-plugin/Verbose.h \
-    test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
+    test-plugin/RepeatTrigger.h \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 
@@ -607,8 +606,7 @@ rapidstorm_SOURCES += \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
-    tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
-    tiff/augment_config.h tiff/augment_config.cpp
+    tiff/TIFFOperation.h tiff/TIFFOperation.cpp
 
 rapidstorm_SOURCES += \
     simparm/Node.h simparm/Node.cpp \

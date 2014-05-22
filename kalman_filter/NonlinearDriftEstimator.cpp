@@ -3,9 +3,9 @@
 #endif
 
 #include "output/Output.h"
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Node.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Node.h"
 #include <fstream>
 #include <memory>
 #include "output/FileOutputBuilder.h"

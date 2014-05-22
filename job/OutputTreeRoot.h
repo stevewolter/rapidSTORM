@@ -1,8 +1,8 @@
 #ifndef DSTORM_JOB_OUTPUTTREEROOT_H
 #define DSTORM_JOB_OUTPUTTREEROOT_H
 
-#include <simparm/TreeRoot.h>
-#include <simparm/TreeEntry.h>
+#include "simparm/TreeRoot.h"
+#include "simparm/TreeEntry.h"
 #include "output/Config.h"
 #include "output/Output.h"
 #include "output/FilterSource.h"

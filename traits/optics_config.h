@@ -1,17 +1,17 @@
 #ifndef DSTORM_TRAITS_OPTICS_CONFIG_H
 #define DSTORM_TRAITS_OPTICS_CONFIG_H
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
 #include "engine/InputTraits.h"
-#include <simparm/Object.h>
-#include <simparm/TabGroup.h>
-#include <simparm/Group.h>
-#include <simparm/BoostOptional.h>
+#include "simparm/Object.h"
+#include "simparm/TabGroup.h"
+#include "simparm/Group.h"
+#include "simparm/BoostOptional.h"
 #include "UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/ManagedChoiceEntry.h"
 
 #include "localization/Fields.h"
 #include "traits/ProjectionConfig.h"
@@ -59,9 +59,7 @@ public:
         { ui_element_changed.connect(listener); }
 
     void set_context( const traits::Optics&, int fluorophore_count, bool multilayer );
-    void set_context( const input::Traits<Localization>&, int fluorophore_count );
     void write_traits( traits::Optics& ) const;
-    void write_traits( input::Traits<Localization>& ) const;
     void read_traits( const traits::Optics& );
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
@@ -89,10 +87,8 @@ class MultiPlaneConfig
         { ui_element_listener.connect(listener); }
 
     void set_context( const input::Traits<engine::ImageStack>& );
-    void set_context( const input::Traits<Localization>& );
     void read_traits( const input::Traits<engine::ImageStack>& );
     void write_traits( input::Traits<engine::ImageStack>&) const;
-    void write_traits( input::Traits<Localization>&) const;
     image::MetaInfo<2>::Resolutions get_resolution() const;
 
     void show() { name_object.show(); }

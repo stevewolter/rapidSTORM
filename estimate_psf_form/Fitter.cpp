@@ -86,7 +86,7 @@ class Fitter
 template <class Lambda>
 Fitter<Lambda>::Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 : config(config), window_cutter(config.fit_window_config, traits, std::set<int>(), 0),
-  traits(traits), table( config, traits.fluorophores.size(), traits.plane_count() > 1, images * traits.plane_count() )
+  traits(traits), table( config, traits.fluorophore_count, traits.plane_count() > 1, images * traits.plane_count() )
 {
     DEBUG("Creating form fitter");
 }
@@ -148,7 +148,7 @@ void Fitter<Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simpa
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
             new_traits.optics(j).set_depth_info( dir, get_3d( result(0,j), j, dir ) );
     }
-    for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
+    for (size_t i = 0; i < traits.fluorophore_count; ++i) {
         if ( ! table.has_fluorophore( i ) ) {
             std::cerr << "Have seen no examples of fluorophore " << i << " and left its parameters unchanged." << std::endl;
             continue;

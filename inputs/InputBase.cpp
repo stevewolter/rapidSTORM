@@ -1,5 +1,5 @@
 #include "inputs/InputBase.h"
-#include <simparm/Group.h>
+#include "simparm/Group.h"
 #include "input/Forwarder.h"
 
 namespace dStorm {

@@ -4,7 +4,7 @@
 #include "estimate_psf_form/Config.h"
 #include "estimate_psf_form/Fitter.h"
 
-#include <simparm/Node.h>
+#include "simparm/Node.h"
 
 #include "output/OutputSource.h"
 #include "output/OutputBuilder.h"

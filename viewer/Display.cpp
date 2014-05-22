@@ -1,7 +1,7 @@
 #include <boost/units/io.hpp>
 #include "image/MetaInfo.h"
 #include "output/Traits.h"
-#include <simparm/Node.h>
+#include "simparm/Node.h"
 #include "viewer/ColourScheme.h"
 #include "viewer/Config.h"
 #include "viewer/Display.h"

@@ -1,8 +1,8 @@
 #ifndef DSTORM_SPOTFINDER_H
 #define DSTORM_SPOTFINDER_H
 
-#include <simparm/NodeHandle.h>
-#include <simparm/Choice.h>
+#include "simparm/NodeHandle.h"
+#include "simparm/Choice.h"
 #include <memory>
 
 #include "engine/Image.h"
@@ -13,7 +13,7 @@
 #include "engine/JobInfo_decl.h"
 
 #include <boost/units/quantity.hpp>
-#include <boost/units/systems/camera/length.hpp>
+#include "boost/units/systems/camera/length.hpp"
 #include "make_clone_allocator.hpp"
 
 namespace dStorm {
@@ -22,11 +22,10 @@ namespace spot_finder {
 
 class Job {
     const InputPlane& traits;
-    const FluorophoreTraits& fluorophore;
 
   public:
-    Job( const InputPlane& traits, const FluorophoreTraits& fluorophore )
-        : traits(traits), fluorophore(fluorophore) {}
+    Job( const InputPlane& traits )
+        : traits(traits) {}
 
     ImageTypes<2>::Size size() const;
 };
@@ -54,8 +53,6 @@ class Job {
         virtual void smooth( const Image2D &image ) = 0;
         virtual void findCandidates( Candidates& into );
 
-        const SmoothedImage& getSmoothedImage() const
-            { return smoothed; }
    };
 
     /** The SpotFinderFactory is a generalization of a simparm 

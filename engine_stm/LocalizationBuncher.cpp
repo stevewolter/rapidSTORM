@@ -16,10 +16,9 @@ enum VisitResult { KeepComing, IAmFinished, FinishedAndReject };
 
 template <typename InputType>
 typename Source<InputType>::TraitsPtr
-Source<InputType>::get_traits( Wishes w )
+Source<InputType>::get_traits()
 {
-    w.reset( input::BaseSource::ConcurrentIterators );
-    input::Source<Localization>::TraitsPtr traits  = base->get_traits( w );
+    input::Source<Localization>::TraitsPtr traits  = base->get_traits();
     auto& r = traits->image_number().range();
     this->in_sequence = traits->in_sequence;
     DEBUG("Localizations are " << ((this->in_sequence) ? "" : "not") << " in sequence");

@@ -1,8 +1,8 @@
 #ifndef DSTORM_OUTPUTS_BINNEDLOCALIZATIONS_STRATEGIES_CONFIG_H
 #define DSTORM_OUTPUTS_BINNEDLOCALIZATIONS_STRATEGIES_CONFIG_H
 
-#include <simparm/Object.h>
-#include <simparm/ChoiceEntry.h>
+#include "simparm/Object.h"
+#include "simparm/ChoiceEntry.h"
 #include "binning/config.h"
 #include "binning/binning_decl.h"
 #include <boost/ptr_container/ptr_array.hpp>

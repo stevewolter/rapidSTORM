@@ -4,7 +4,7 @@
 #include <cassert>
 #include <sstream>
 #include <list>
-#include <simparm/FileEntry.h>
+#include "simparm/FileEntry.h"
 
 namespace dStorm {
 namespace output {
@@ -48,10 +48,6 @@ std::ostream &operator<<(std::ostream &o,
     std::string rv = "", sep = ", ";
     if ( data.test( Capabilities::SourceImage ) )
         rv += sep + "SourceImage";
-    if ( data.test( Capabilities::SmoothedImage ) )
-        rv += sep + "SmoothedImage";
-    if ( data.test( Capabilities::CandidateTree ) )
-        rv += sep + "CandidateTree";
     if ( data.test( Capabilities::InputBuffer) )
         rv += sep + "InputBuffer";
     if ( data.test( Capabilities::ClustersWithSources) )

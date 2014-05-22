@@ -2,7 +2,7 @@
 #define DSTORM_SHELL_JOB_FACTORY_H
 
 #include <memory>
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 #include "base/Config.h"
 #include "shell/JobStarter.h"
 

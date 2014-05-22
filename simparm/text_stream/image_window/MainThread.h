@@ -6,8 +6,8 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/thread.hpp>
 #include "stack_realign.h"
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
 
 namespace simparm {
 namespace text_stream {

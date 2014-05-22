@@ -1,7 +1,7 @@
-#include <simparm/Object.h>
+#include "simparm/Object.h"
 #include "engine/SpotFinder.h"
 #include "engine/SpotFinderBuilder.h"
-#include <simparm/FileEntry.h>
+#include "simparm/FileEntry.h"
 #include "output/Output.h"
 #include "output/OutputBuilder.h"
 #include "output/FileOutputBuilder.h"
@@ -15,7 +15,7 @@
 
 #include "image/convert.h"
 #include "image/constructors.h"
-#include <simparm/GUILabelTable.h>
+#include "simparm/GUILabelTable.h"
 
 namespace dStorm {
 namespace fillhole_smoother {

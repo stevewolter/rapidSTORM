@@ -3,7 +3,7 @@
 
 #include <string>
 #include <boost/array.hpp>
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "polynomial_3d.h"
 #include "Direction.h"
 

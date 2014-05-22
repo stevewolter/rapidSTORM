@@ -6,7 +6,7 @@
 #include <string>
 #include "display/DataSource.h"
 #include <boost/thread/recursive_mutex.hpp>
-#include <simparm/wx_ui/ProtocolNode.h>
+#include "simparm/wx_ui/ProtocolNode.h"
 
 namespace dStorm {
 namespace display {

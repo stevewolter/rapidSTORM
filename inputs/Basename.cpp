@@ -3,7 +3,7 @@
 #include "input/InputMutex.h"
 #include "signals/BasenameChange.h"
 #include "input/Forwarder.h"
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "input/MetaInfo.h"
 
 namespace dStorm {

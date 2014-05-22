@@ -6,8 +6,8 @@
 #include "output/OutputBuilder.h"
 #include "output/FileOutputBuilder.h"
 
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
 
 #include <Eigen/Core>
 
@@ -23,8 +23,8 @@
 
 #include <memory>
 
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
 
 #include <Eigen/Core>
 #include <Eigen/SVD>

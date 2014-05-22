@@ -1,6 +1,6 @@
 #include "viewer/Status.h"
 #include "viewer/Config.h"
-#include <simparm/dummy_ui/fwd.h>
+#include "simparm/dummy_ui/fwd.h"
 
 namespace dStorm {
 namespace viewer {

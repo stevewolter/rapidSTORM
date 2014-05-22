@@ -5,18 +5,17 @@ namespace dStorm {
 namespace output {
 
 LocalizedImage::LocalizedImage() 
-: forImage(0 * camera::frame), candidates(NULL)
+: forImage(0 * camera::frame)
 {
 }
 
 LocalizedImage::LocalizedImage(frame_index i) 
-: forImage(i), candidates(NULL)
+: forImage(i)
 {
 }
 
 LocalizedImage::LocalizedImage(const LocalizedImage& o) 
-: results(o.results), forImage(o.forImage), source(o.source), smoothed(o.smoothed), 
-  candidates(o.candidates)
+: results(o.results), forImage(o.forImage), source(o.source)
 {
 }
 
@@ -28,8 +27,6 @@ LocalizedImage& LocalizedImage::operator=( const LocalizedImage& o ) {
     forImage = o.forImage;
     results = o.results;
     source = o.source;
-    smoothed = o.smoothed;
-    candidates = o.candidates;
     return *this;
 }
 

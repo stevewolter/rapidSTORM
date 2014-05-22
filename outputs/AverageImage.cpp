@@ -6,7 +6,7 @@
 #include "output/FileOutputBuilder.h"
 #include "engine/Image.h"
 #include "engine/Input.h"
-#include <simparm/FileEntry.h>
+#include "simparm/FileEntry.h"
 #include <memory>
 
 #include <iostream>

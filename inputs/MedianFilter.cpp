@@ -2,7 +2,7 @@
 
 #include <queue>
 
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/io.hpp>
@@ -179,6 +179,20 @@ class Source
             median_values.emplace_back(size);
 
             p.plane(i).has_background_estimate = true;
+        }
+    }
+
+    void dispatch(Messages m) {
+        base().dispatch(m);
+        if (m.test(RepeatInput)) {
+            initial_median_computed = false;
+            upstream_is_empty = false;
+	    while (!output_buffer.empty()) {
+                output_buffer.pop();
+            }
+	    while (!median_buffer.empty()) {
+                median_buffer.pop();
+            }
         }
     }
 };

@@ -51,15 +51,7 @@ class Source
             (*i)->dispatch(m);
     }
 
-    typename Base::TraitsPtr get_traits( input::BaseSource::Wishes r );
-
-    input::BaseSource::Capabilities capabilities() const {
-        input::BaseSource::Capabilities rv;
-        rv.set();
-        for (typename Sources::const_iterator i = sources.begin(); i != sources.end(); ++i)
-            rv = rv.to_ulong() & (*i)->capabilities().to_ulong();
-        return rv;
-    }
+    typename Base::TraitsPtr get_traits();
 };
 
 struct merge_localization_traits {
@@ -120,9 +112,9 @@ void merge_size( input::Traits<Localization>& onto, const input::Traits<Localiza
 }
 
 template <typename Type>
-typename Source<Type>::Base::TraitsPtr Source<Type>::get_traits( input::BaseSource::Wishes r ) {
+typename Source<Type>::Base::TraitsPtr Source<Type>::get_traits() {
     for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i) {
-        base_traits.push_back( (*i)->get_traits(r) );
+        base_traits.push_back( (*i)->get_traits() );
     }
     traits.reset(merge_traits(base_traits, tag()).release());
     return traits;

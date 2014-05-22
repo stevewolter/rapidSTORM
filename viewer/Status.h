@@ -2,9 +2,9 @@
 #define DSTORM_STATUS_H
 
 #include "viewer/Config.h"
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
-#include <simparm/TriggerEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/TriggerEntry.h"
 #include <boost/thread/mutex.hpp>
 #include "base/Engine.h"
 

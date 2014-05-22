@@ -1,7 +1,7 @@
 #include "outputs/DriftRemover.h"
 
-#include <simparm/Object.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Object.h"
+#include "simparm/FileEntry.h"
 
 #include "output/Filter.h"
 #include "output/FilterBuilder.h"

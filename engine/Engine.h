@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_ENGINE_H
 #define DSTORM_ENGINE_ENGINE_H
 
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include <memory>
 #include <boost/thread/mutex.hpp>
 #include "engine/Config_decl.h"
@@ -49,10 +49,9 @@ namespace engine {
         virtual ~Engine();
 
         void dispatch(Messages m);
-        TraitsPtr get_traits(Wishes);
+        TraitsPtr get_traits();
 
         BaseSource& upstream() { return *input; }
-        Capabilities capabilities() const { return input->capabilities(); }
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >
             convert_traits( Config&, const input::Traits<engine::ImageStack>& );

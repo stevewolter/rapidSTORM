@@ -4,7 +4,7 @@
 #include <memory>
 #include "shell/JobFactory.h"
 #include "shell/JobMetaFactory.h"
-#include <simparm/text_stream/Node.h>
+#include "simparm/text_stream/Node.h"
 
 namespace dStorm {
 

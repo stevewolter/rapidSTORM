@@ -2,7 +2,7 @@
 
 #include "output/Config.h"
 #include "output/OutputSource.h"
-#include <simparm/ChoiceEntry.h>
+#include "simparm/ChoiceEntry.h"
 
 namespace dStorm {
 namespace output {

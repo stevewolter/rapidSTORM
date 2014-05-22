@@ -5,7 +5,7 @@
 #include "CommandLine.h"
 #include "Localization.h"
 #include "localization/Traits.h"
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include <boost/mpl/for_each.hpp>
 #include "output/FilterBuilder.h"
 #include "output/Capabilities.h"

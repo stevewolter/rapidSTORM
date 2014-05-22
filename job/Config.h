@@ -6,11 +6,11 @@
 #include "input/Link.h"
 #include <memory>
 #include <list>
-#include <simparm/Group.h>
-#include <simparm/Menu.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Entry.h>
-#include <simparm/Message.h>
+#include "simparm/Group.h"
+#include "simparm/Menu.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Entry.h"
+#include "simparm/Message.h"
 #include "output/BasenameAdjustedFileEntry.h"
 #include <boost/function/function1.hpp>
 
@@ -35,6 +35,7 @@ class Config : public dStorm::Config
     input::Link::Connection input_listener;
     bool localization_replay_mode;
     simparm::Group outputBox;
+    simparm::Entry<unsigned long> thread_count_;
 
     void traits_changed( boost::shared_ptr<const input::MetaInfo> );
     void create_input( std::auto_ptr<input::Link> );
@@ -51,8 +52,6 @@ public:
 
     output::BasenameAdjustedFileEntry configTarget;
     simparm::BoolEntry auto_terminate;
-    /** Number of parallel computation threads to run. */
-    simparm::Entry<unsigned long> pistonCount;
 
     const output::OutputSource& output_tree() const { return *outputRoot; }
 
@@ -65,6 +64,8 @@ public:
     std::auto_ptr<input::BaseSource> makeSource() const;
 
     std::auto_ptr< Job > make_job();
+
+    int thread_count() const { return (localization_replay_mode) ? 1 : thread_count_(); }
 };
 
 }

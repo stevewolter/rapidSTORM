@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 
 #include "andor-sif/AndorSIF.h"
 #include "input/Source.h"
@@ -34,7 +34,7 @@ Source::~Source()
 }
 
 typename Source::TraitsPtr 
-Source::get_traits( typename BaseSource::Wishes )
+Source::get_traits()
 {
    return Source::TraitsPtr( file->getTraits().release() );
 }

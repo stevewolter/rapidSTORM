@@ -6,7 +6,7 @@
 #include <cmath>
 #include <boost/ptr_container/ptr_list.hpp>
 #include "image/slice.h"
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 #include <stdio.h>
 #include <string>
 #include "Pixel.h"

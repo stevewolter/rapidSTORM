@@ -1,5 +1,5 @@
 #include "base/Config.h"
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 
 namespace simparm {
 namespace serialization_ui {

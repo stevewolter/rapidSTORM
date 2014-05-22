@@ -10,7 +10,7 @@
 #include <string>
 #include <stdexcept>
 #include <stdio.h>
-#include <simparm/FileEntry.h>
+#include "simparm/FileEntry.h"
 #include "helpers/thread.h"
 #include "image/Image.h"
 #include <boost/utility.hpp>
@@ -39,11 +39,9 @@ namespace andor_sif {
         Source(std::auto_ptr<OpenFile> file);
         virtual ~Source();
 
-        TraitsPtr get_traits( typename BaseSource::Wishes );
+        TraitsPtr get_traits();
 
         void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
-        typename BaseSource::Capabilities capabilities() const
-            { return typename BaseSource::Capabilities(); }
         void set_thread_count(int num_threads) OVERRIDE {
             assert(num_threads == 1);
         }

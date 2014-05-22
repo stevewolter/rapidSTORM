@@ -1,4 +1,4 @@
-#include <simparm/Node.h>
+#include "simparm/Node.h"
 #include "debug.h"
 #include "traits/optics_config.h"
 #include <boost/lexical_cast.hpp>
@@ -109,11 +109,6 @@ void PlaneConfig::set_fluorophore_count( int fluorophore_count, bool multiplane 
         boost::bind( &simparm::Object::set_visibility, _1, false ) );
 }
 
-void PlaneConfig::set_context( const input::Traits<Localization>& t, int fluorophore_count ) {
-    set_fluorophore_count( fluorophore_count, false );
-    three_d().set_context();
-}
-
 void PlaneConfig::set_context( const traits::Optics& o, int fluorophore_count, bool multilayer)
 {
     set_fluorophore_count( fluorophore_count, multilayer );
@@ -146,11 +141,6 @@ void PlaneConfig::read_traits( const traits::Optics& t )
         three_d().read_traits( *t.depth_info(Direction_X), *t.depth_info(Direction_Y) );
     }
 }
-
-void PlaneConfig::write_traits( input::Traits<Localization>& t ) const
-{
-}
-
 
 MultiPlaneConfig::MultiPlaneConfig( PlaneConfig::Purpose purpose ) 
 : name_object("Optics", "Optical pathway properties"),
@@ -222,11 +212,6 @@ void MultiPlaneConfig::write_traits( input::Traits<engine::ImageStack>& t ) cons
     }
 }
 
-void MultiPlaneConfig::write_traits( input::Traits<Localization>& t ) const
-{
-    layers[0].write_traits( t );
-}
-
 void MultiPlaneConfig::read_traits( const input::Traits<engine::ImageStack>& t )
 {
     set_context(t);
@@ -240,16 +225,9 @@ void MultiPlaneConfig::set_context( const input::Traits<engine::ImageStack>& t )
     DEBUG( "Setting context on " << this );
     set_number_of_planes( t.plane_count() );
     for (int i = 0; i < t.plane_count(); ++i) {
-        layers[i].set_context( t.optics(i), t.fluorophores.size(), (t.plane_count() > 1) );
+        layers[i].set_context( t.optics(i), t.fluorophore_count, (t.plane_count() > 1) );
     }
 }
-
-void MultiPlaneConfig::set_context( const input::Traits<Localization>& t ) 
-{
-    set_number_of_planes( 1 );
-    layers[0].set_context( t, t.fluorophores.size() );
-}
-
 
 bool MultiPlaneConfig::ui_is_attached() { return current_ui && current_ui->isActive(); }
 

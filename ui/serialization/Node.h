@@ -1,7 +1,7 @@
 #ifndef SIMPARM_SERIALIZATION_UI_NODE_H
 #define SIMPARM_SERIALIZATION_UI_NODE_H
 
-#include <simparm/Node.h>
+#include "simparm/Node.h"
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 

@@ -12,8 +12,8 @@
 #include "engine/Image_decl.h"
 #include "units/microlength.h"
 
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ProgressEntry.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ProgressEntry.h"
 #include <boost/ptr_container/ptr_list.hpp>
 #include "traits/optics_config.h"
 #include "engine/InputTraits.h"
@@ -122,9 +122,7 @@ namespace input_simulation {
         const boost::ptr_list<Fluorophore>& getFluorophores() const
             { return fluorophores; }
 
-        typename Source::TraitsPtr get_traits( typename Source::Wishes );
-        typename Source::Capabilities capabilities() const 
-            { return typename Source::Capabilities(); }
+        typename Source::TraitsPtr get_traits();
         void set_thread_count(int num_threads) OVERRIDE {}
         bool GetNext(int thread, dStorm::engine::ImageStack* output) OVERRIDE;
     };

@@ -9,8 +9,8 @@
 #include "input/MetaInfo.h"
 #include "input/Choice.h"
 #include "input/Forwarder.h"
-#include <simparm/FileEntry.h>
-#include <simparm/Group.h>
+#include "simparm/FileEntry.h"
+#include "simparm/Group.h"
 
 #include "inputs/FileMethod.h"
 #include "signals/InputFileNameChange.h"
@@ -131,7 +131,7 @@ std::auto_ptr<Link> makeLink() {
 #include "tiff/TIFF.h"
 #include "test-plugin/DummyFileInput.h"
 #include "dejagnu.h"
-#include <simparm/text_stream/RootNode.h>
+#include "simparm/text_stream/RootNode.h"
 
 namespace dStorm {
 namespace input {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRAITS_PROJECTION_CONFIG_H
 #define DSTORM_TRAITS_PROJECTION_CONFIG_H
 
-#include <simparm/ObjectChoice.h>
+#include "simparm/ObjectChoice.h"
 #include <memory>
 #include "make_clone_allocator.hpp"
 

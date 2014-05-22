@@ -1,8 +1,8 @@
 #ifndef DSTORM_VIEWER_COLOURSCHEMEFACTORY_H
 #define DSTORM_VIEWER_COLOURSCHEMEFACTORY_H
 
-#include <simparm/ObjectChoice.h>
-#include <simparm/BaseAttribute.h>
+#include "simparm/ObjectChoice.h"
+#include "simparm/BaseAttribute.h"
 #include <memory>
 #include "viewer/Backend.h"
 #include "make_clone_allocator.hpp"

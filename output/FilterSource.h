@@ -1,8 +1,8 @@
 #ifndef DSTORM_BASETRANSMISSIONCONFIGS
 #define DSTORM_BASETRANSMISSIONCONFIGS
 
-#include <simparm/TriggerEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/TriggerEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
 #include "output/OutputSource.h"
 #include <map>
 #include <boost/utility.hpp>

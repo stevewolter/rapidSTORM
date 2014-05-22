@@ -251,7 +251,7 @@ bool NoiseSource::GetNext(int thread, dStorm::engine::ImageStack* output)
 }
 
 NoiseSource::Source::TraitsPtr
-NoiseSource::get_traits( typename Source::Wishes ) {
+NoiseSource::get_traits() {
     simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
     simparm::NodeHandle ui = progress.attach_ui( current_ui );
     for ( boost::ptr_list< FluorophoreSetConfig >::const_iterator

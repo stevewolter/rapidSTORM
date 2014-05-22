@@ -12,11 +12,12 @@
    <title>rapidSTORM engine options</title>
 <glossary>
    <title/>
-<et:elem desc="Minimum spot distance" topic="NonMaximumSuppression">
+<et:elem desc="Minimum spot distance" topic="FitPositionEpsilon">
     <para>The minimum distance between local maxima of the smoothed image
-        that will be used as fit start locations. In other terms, this
-        entry gives the size of a local maximum suppression window that
-        selects the spots.</para>
+        that will be used as fit start locations. If a weak maximum occurs
+        within this distance of a strong maximum inside the smoothed image,
+        the weak maximum is ignored and no fitting is attempted at the
+        weak maximum.</para>
     <para>High values will ensure a higher noise tolerance at the cost
         of some missed localizations.</para>
 </et:elem>

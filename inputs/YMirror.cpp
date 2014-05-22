@@ -6,8 +6,8 @@
 #include "image/mirror.h"
 #include "input/AdapterSource.h"
 #include "input/Method.hpp"
-#include <simparm/Entry.h>
-#include <simparm/Object.h>
+#include "simparm/Entry.h"
+#include "simparm/Object.h"
 
 namespace dStorm {
 namespace YMirror {

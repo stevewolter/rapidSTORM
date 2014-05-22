@@ -1,7 +1,7 @@
 #ifndef TESTPLUGIN_REPEATTRIGGER_H
 #define TESTPLUGIN_REPEATTRIGGER_H
 
-#include <simparm/TriggerEntry.h>
+#include "simparm/TriggerEntry.h"
 #include "output/Output.h"
 #include "output/OutputBuilder.h"
 #include "base/Engine.h"

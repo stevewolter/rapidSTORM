@@ -11,7 +11,7 @@
 #include <boost/thread/locks.hpp>
 
 #include "input/Source.h"
-#include "engine/SpotFinder.h"
+#include "engine/FitPositionRoundRobin.h"
 #include "engine/SpotFitterFactory.h"
 #include "engine/SpotFitter.h"
 #include "output/Traits.h"
@@ -22,14 +22,8 @@
 #include "image/slice.h"
 #include "helpers/back_inserter.h"
 #include "traits/Projection.h"
-#include "engine/PlaneFlattener.h"
 #include "engine/Config.h"
-#include <simparm/dummy_ui/fwd.h>
-
-#ifdef DSTORM_MEASURE_TIMES
-#include <time.h>
-clock_t smooth_time = 0, search_time = 0, fit_time = 0;
-#endif
+#include "simparm/dummy_ui/fwd.h"
 
 namespace dStorm {
 namespace engine {
@@ -39,23 +33,16 @@ class Engine::WorkHorse {
     Config& config;
     Input::TraitsPtr meta_info;
 
-    int maximumLimit;
-    PlaneFlattener flattener;
-    std::auto_ptr<spot_finder::Base> finder;
     boost::ptr_vector<spot_fitter::Implementation> fitter;
-    CandidateTree<SmoothedPixel> maximums;
+    FitPositionRoundRobin position_generator;
     int origMotivation;
-    FitPosition get_fit_position( const Spot& ) const;
+
+    bool compute_if_enough_positions(const ImageStack& image,
+                                     output::LocalizedImage* target);
 
   public:
     WorkHorse( Engine& engine );
-    ~WorkHorse() {
-        DEBUG("Destructing spot finder");
-        finder.reset();
-        DEBUG("Destructing spot fitters");
-        fitter.clear();
-        DEBUG("Destructing rest");
-    }
+    ~WorkHorse() {}
     void compute(const ImageStack& image, output::LocalizedImage* target);
 
     output::LocalizedImage resultStructure;
@@ -100,28 +87,26 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
         new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
     rvt->source_image_is_set = true;
-    rvt->smoothed_image_is_set = true;
-    rvt->candidate_tree_is_set = true;
     rvt->input_image_traits.reset( imProp.clone() );
 
-    for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophores.size(); ++fluorophore) {
+    for (int fluorophore = 0; fluorophore < imProp.fluorophore_count; ++fluorophore) {
         JobInfo info( rvt->input_image_traits, fluorophore, config.fit_judging_method() );
         config.spotFittingMethod().set_traits( *rvt, info );
     }
 
-    rvt->fluorophore().is_given = imProp.fluorophores.size() > 1;
+    rvt->fluorophore().is_given = imProp.fluorophore_count > 1;
     rvt->fluorophore().range().first = 0;
-    rvt->fluorophore().range().second = imProp.fluorophores.size() - 1;
+    rvt->fluorophore().range().second = imProp.fluorophore_count - 1;
 
     return rvt;
 }
 
-Engine::TraitsPtr Engine::get_traits(Wishes w) {
+Engine::TraitsPtr Engine::get_traits() {
     if ( &config.spotFittingMethod() == NULL )
         throw std::runtime_error("No spot fitter selected");
 
     if ( imProp.get() == NULL )
-        imProp = input->get_traits(w);
+        imProp = input->get_traits();
     DEBUG("Retrieved input traits");
 
     input::Traits<output::LocalizedImage>::Ptr prv =
@@ -156,13 +141,6 @@ void Engine::set_thread_count(int num_threads) {
     }
 }
 
-FitPosition Engine::WorkHorse::get_fit_position( const Spot& spot ) const
-{
-    return
-        boost::units::value(meta_info->plane(0).projection().
-            pixel_in_sample_space( spot.position() ).head<2>()).cast<double>() * 1E6;
-}
-
 bool Engine::GetNext(int thread, output::LocalizedImage* target) {
     ImageStack image;
     if (!input->GetNext(thread, &image)) {
@@ -178,34 +156,20 @@ Engine::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
   meta_info( engine.imProp ),
-  maximumLimit(20),
-  flattener( *meta_info, engine.make_plane_weight_vector() ),
-  maximums(config.nms().x() / camera::pixel, config.nms().y() / camera::pixel,
-         1, 1),
-  origMotivation( config.motivation() )
+  position_generator(engine.config, *meta_info),
+  origMotivation( config.motivation() + meta_info->plane_count() - 1 )
 {
     DEBUG("Started piston");
-    if ( ! config.spotFindingMethod.isValid() )
-        throw std::runtime_error("No spot finding method selected.");
     if ( meta_info->plane_count() < 1 )
         throw std::runtime_error("Zero or less optical paths given for input, cannot compute.");
-    if ( meta_info->fluorophores.size() < 1 )
+    if ( meta_info->fluorophore_count < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
-    spot_finder::Job job( meta_info->plane(0), meta_info->fluorophores[0]);
-    finder = config.spotFindingMethod().make(job);
-
-    DEBUG("Building spot fitter with " << meta_info->fluorophores.size() << " fluorophores");
-    for (unsigned int fluorophore = 0; fluorophore < meta_info->fluorophores.size(); ++fluorophore) {
+    DEBUG("Building spot fitter with " << meta_info->fluorophore_count << " fluorophores");
+    for (int fluorophore = 0; fluorophore < meta_info->fluorophore_count; ++fluorophore) {
         JobInfo info(meta_info, fluorophore, config.fit_judging_method() );
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
-
-    DEBUG("Building maximums");
-    maximums.setLimit(maximumLimit);
-
-    resultStructure.smoothed = finder->getSmoothedImage();
-    resultStructure.candidates = &maximums;
 };
 
 void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage* target ) 
@@ -227,24 +191,28 @@ void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage
     }
 
     DEBUG("Compression (" << image.frame_number() << ")");
-    IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
-    const Image2D flattened = flattener.flatten_image( image );
-    finder->smooth(flattened);
-    IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
+    position_generator.compute_positions(image);
 
-    int motivation;
-    recompress:  /* We jump here if maximum limit proves too small */
-    IF_DSTORM_MEASURE_TIMES( clock_t pre = clock() );
-    finder->findCandidates( maximums );
-    DEBUG("Found spots");
+    while (!compute_if_enough_positions(image, target)) {
+        position_generator.extend_range();
+        target->clear();
+    }
 
-    IF_DSTORM_MEASURE_TIMES( clock_t search_start = clock() );
-    IF_DSTORM_MEASURE_TIMES( search_time += search_start - pre );
+    DEBUG("Found " << target->size() << " localizations");
+    target->forImage = image.frame_number();
+    target->source = image;
+}
 
+bool Engine::WorkHorse::compute_if_enough_positions(
+    const ImageStack& image, output::LocalizedImage* target) {
     /* Motivational fitting */
-    motivation = origMotivation;
-    for ( CandidateTree<SmoothedPixel>::const_iterator cM = maximums.begin(), cE = maximums.end(); cM != cE; ++cM){
-        FitPosition fit_position = get_fit_position( cM->spot() );
+    int motivation = origMotivation;
+    while (motivation > 0) {
+        FitPosition fit_position;
+        if (!position_generator.next_position(&fit_position)) {
+            DEBUG("Not enough positions saved in position generator");
+            return false;
+        }
         DEBUG("Trying candidate " << fit_position.transpose() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
         int candidate = target->size(), start = candidate;
@@ -280,23 +248,10 @@ void Engine::WorkHorse::compute( const ImageStack& image, output::LocalizedImage
             motivation += best_found;
             DEBUG("No localizations, decreased motivation by " << -best_found 
                   << " to " << motivation);
-            if ( motivation <= 0 ) break;
         }
     }
-    if (motivation > 0 && maximums.reached_size_limit()) {
-        maximumLimit *= 2;
-        DEBUG("Raising maximumLimit to " << maximumLimit);
-        maximums.setLimit(maximumLimit);
-        target->clear();
-        goto recompress;
-    }
 
-    DEBUG("Found " << target->size() << " localizations");
-    IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
-
-    DEBUG("Power with " << target->size() << " localizations");
-    target->forImage = image.frame_number();
-    target->source = image;
+    return true;
 }
 
 void Engine::restart() { throw std::logic_error("Not implemented."); }

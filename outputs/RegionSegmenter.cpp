@@ -1,6 +1,6 @@
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
 
 #include <boost/thread/locks.hpp>
 #include <boost/ptr_container/ptr_array.hpp>
@@ -14,13 +14,13 @@
 #include "output/TraceReducer.h"
 #include "display/Manager.h"
 #include <boost/thread/mutex.hpp>
-#include <simparm/Entry.h>
-#include <simparm/ChoiceEntry.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/ChoiceEntry.h"
+#include "simparm/FileEntry.h"
 #include <cassert>
-#include <simparm/ObjectChoice.h>
-#include <simparm/ManagedChoiceEntry.h>
-#include <simparm/Node.h>
+#include "simparm/ObjectChoice.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/Node.h"
 
 #include "outputs/RegionSegmenter.h"
 #include <limits>

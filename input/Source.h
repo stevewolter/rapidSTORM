@@ -8,7 +8,7 @@
 #include <memory>
 #include <limits>
 #include <bitset>
-#include <simparm/Object.h>
+#include "simparm/Object.h"
 
 #include "input/Traits.h"
 
@@ -25,9 +25,6 @@ namespace input {
     class BaseSource 
     {
       public:
-        enum Capability { Repeatable, ConcurrentIterators, InputStandardDeviation };
-        typedef std::bitset<3> Capabilities;
-        typedef std::bitset<3> Wishes;
         enum Message {RepeatInput, WillNeverRepeatAgain};
         typedef std::bitset<2> Messages;
 
@@ -43,7 +40,6 @@ namespace input {
         }
         virtual void set_thread_count(int num_threads) = 0;
         virtual void dispatch(Messages m) = 0;
-        virtual Capabilities capabilities() const = 0;
 
         template <typename Type> bool can_provide() const;
         template <typename Type> Source<Type>& downcast() const;
@@ -70,7 +66,7 @@ namespace input {
         typedef boost::shared_ptr<const Traits> ConstTraitsPtr;
 
         virtual bool GetNext(int thread, Type* output) = 0;
-        virtual TraitsPtr get_traits(BaseSource::Wishes) = 0;
+        virtual TraitsPtr get_traits() = 0;
     };
 
     template <typename Type>

@@ -1,5 +1,5 @@
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
 
 #include "inputs/ResolutionSetter.h"
 #include "debug.h"
@@ -17,9 +17,9 @@
 #include "Localization.h"
 #include "traits/optics_config.h"
 #include "units/nanolength.h"
-#include <simparm/Eigen.h>
-#include <simparm/text_stream/RootNode.h>
-#include <simparm/dummy_ui/fwd.h>
+#include "simparm/Eigen.h"
+#include "simparm/text_stream/RootNode.h"
+#include "simparm/dummy_ui/fwd.h"
 #include "dejagnu.h"
 
 namespace dStorm {
@@ -71,8 +71,8 @@ class ChainLink
     Source<Type>* make_source( std::auto_ptr< input::Source<Type> > upstream ) { 
         return new resolution::Source<Type>(upstream, config); 
     }
-    template <typename Type>
-    void update_traits( MetaInfo& i, Traits<Type>& traits ) { 
+    void update_traits( MetaInfo& i, Traits<output::LocalizedImage>& traits ) {}
+    void update_traits( MetaInfo& i, Traits<engine::ImageStack>& traits ) { 
         i.get_signal< signals::ResolutionChange >()( config.get_resolution() );
         config.set_context( traits );
         config.write_traits(traits); 
@@ -125,14 +125,13 @@ struct DummyImageSource : public input::Source<engine::ImageStack>
     void dispatch(Messages m) {}
     void set_thread_count(int num_threads) {}
     bool GetNext(int thread, engine::ImageStack* target) OVERRIDE { return false; }
-    TraitsPtr get_traits( Wishes ) { 
+    TraitsPtr get_traits() { 
         return TraitsPtr( 
             new TraitsPtr::element_type(
                 image::MetaInfo<2>()
             )
         ); 
     }
-    Capabilities capabilities() const { return Capabilities(); }
 };
 
 struct MoreSpecialized : public dStorm::input::Link {
@@ -203,7 +202,7 @@ struct Check {
             throw std::runtime_error("Source could not be built");
 
         boost::shared_ptr< const dStorm::input::Traits<engine::ImageStack> > source_traits
-            = source->get_traits( dStorm::input::BaseSource::Wishes() );
+            = source->get_traits();
 
         resolution_close_to(correct.plane(0).image.image_resolutions(), 
             source_traits->plane(0).image.image_resolutions());

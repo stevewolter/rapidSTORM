@@ -7,7 +7,6 @@
 #include "test-plugin/BasenamePrinter.h"
 #include "test-plugin/DummyFileInput.h"
 #include "test-plugin/RepeatTrigger.h"
-#include "test-plugin/SmoothedImageSave.h"
 
 using namespace dStorm::output;
 
@@ -24,7 +23,6 @@ void output_modules( dStorm::Config* config ) {
     config->add_output( new dStorm::output::OutputBuilder< Delayer::Config, Delayer >() );
     config->add_output( make_basename_printer_source().release() );
     config->add_output( new dStorm::output::OutputBuilder< Repeat::Config, Repeat >() );
-    config->add_output( new dStorm::output::OutputBuilder< SmoothedImageSave::Config, SmoothedImageSave >() );
 }
 
 }

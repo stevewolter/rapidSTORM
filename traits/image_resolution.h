@@ -3,8 +3,8 @@
 
 #include <string>
 #include <boost/optional.hpp>
-#include <boost/units/systems/camera/resolution.hpp>
-#include <boost/units/systems/camera/length.hpp>
+#include "boost/units/systems/camera/resolution.hpp"
+#include "boost/units/systems/camera/length.hpp"
 #include <boost/units/io.hpp>
 #include <boost/units/systems/si/io.hpp>
 

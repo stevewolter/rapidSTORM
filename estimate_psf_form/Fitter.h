@@ -5,7 +5,7 @@
 #include <memory>
 #include "engine/Image.h"
 #include "Localization_decl.h"
-#include <simparm/ProgressEntry.h>
+#include "simparm/ProgressEntry.h"
 
 namespace dStorm {
 namespace estimate_psf_form {

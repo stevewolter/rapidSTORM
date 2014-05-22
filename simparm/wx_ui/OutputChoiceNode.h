@@ -1,4 +1,4 @@
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 
 namespace simparm {
 namespace wx_ui {

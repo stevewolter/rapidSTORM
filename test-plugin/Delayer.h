@@ -5,8 +5,8 @@
 #include "config.h"
 #endif
 
-#include <simparm/Entry.h>
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
+#include "simparm/Entry.h"
 #include "output/Output.h"
 #include "output/OutputBuilder.h"
 #include <iostream>

@@ -19,8 +19,8 @@ Engine::Engine( std::auto_ptr<Input> input )
 {
 }
 
-Engine::TraitsPtr Engine::get_traits(Wishes w) {
-    Engine::TraitsPtr rv = convert_traits( *input->get_traits(w) );
+Engine::TraitsPtr Engine::get_traits() {
+    Engine::TraitsPtr rv = convert_traits( *input->get_traits() );
     rv->carburettor = input.get();
     return rv;
 }
@@ -48,7 +48,6 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
     target->forImage = image.frame_number();
     target->clear();
     target->source = image; 
-    target->candidates = NULL;
     return true;
 }
 
