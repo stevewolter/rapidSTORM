@@ -15,12 +15,12 @@ FitPositionGenerator::FitPositionGenerator(
     finder = config.spotFindingMethod().make(job);
 
     maximums.setLimit(maximumLimit);
-    current = maximums.begin();
 }
 
 void FitPositionGenerator::compute_positions(const Image2D& image) {
     finder->smooth(image);
     finder->findCandidates( maximums );
+    current = maximums.begin();
 }
 
 bool FitPositionGenerator::next_position(FitPosition* fit_position) {
