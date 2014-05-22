@@ -16,7 +16,7 @@ namespace engine {
 
 Config::Config()
 :   name_object("rapidSTORM", "rapidSTORM engine"),
-    fit_position_epsilon("FitPositionEpsilon", 250 * si::nanometre),
+    fit_position_epsilon("FitPositionEpsilon", 500 * si::nanometre),
     separate_plane_fitting("SeparatePlaneFitting", false),
     spotFindingMethod("SpotFindingMethod"),
     spotFittingMethod("SpotFittingMethod"),

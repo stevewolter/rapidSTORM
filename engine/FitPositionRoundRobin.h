@@ -34,11 +34,10 @@ class FitPositionRoundRobin {
     bool next_position(FitPosition* fit_position) {
         bool found_duplicate;
         do {
-            if (!generators_[current_plane_++ % generators_.size()]
-                ->next_position(fit_position)) {
+            if (!next_position_or_duplicate(fit_position)) {
                 return false;
             }
-            
+
             found_duplicate = false;
             for (const FitPosition& previous : fitted_positions_) {
                 if ((previous - *fit_position).squaredNorm() < epsilon_ * epsilon_) {
@@ -60,11 +59,35 @@ class FitPositionRoundRobin {
         }
     }
 
+    bool reached_size_limit() const {
+        for (auto& generator : generators_) {
+            if (generator->reached_size_limit()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
   private:
     const double epsilon_;
     int current_plane_;
     std::vector<std::unique_ptr<FitPositionGenerator>> generators_;
     std::vector<FitPosition> fitted_positions_;
+
+    bool next_position_or_duplicate(FitPosition* fit_position) {
+        for (int ignored = 0; ignored < int(generators_.size()); ++ignored) {
+            FitPositionGenerator* generator =
+                generators_[current_plane_ % generators_.size()].get();
+            ++current_plane_;
+            if (generator->next_position(fit_position)) {
+                return true;
+            } else if (generator->reached_size_limit()) {
+                return false;
+            }
+        }
+
+        return false;
+    }
 };
 
 }

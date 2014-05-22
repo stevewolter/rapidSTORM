@@ -17,6 +17,7 @@ class FitPositionGenerator {
     void compute_positions(const Image2D& image);
     bool next_position(FitPosition* fit_position);
     void extend_range();
+    bool reached_size_limit() const { return maximums.reached_size_limit(); }
 
   private:
     int maximumLimit;

@@ -47,9 +47,15 @@ bool EngineThread::compute_if_enough_positions(
     while (motivation > 0) {
         FitPosition fit_position;
         if (!position_generator.next_position(&fit_position)) {
-            DEBUG("Not enough positions saved in position generator");
-            return false;
+            if (position_generator.reached_size_limit()) {
+                DEBUG("Not enough positions saved in position generator");
+                return false;
+            } else {
+                DEBUG("No maximums left in input");
+                return true;
+            }
         }
+
         DEBUG("Trying candidate " << fit_position.transpose() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
         int candidate = target->size(), start = candidate;
