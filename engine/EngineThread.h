@@ -4,7 +4,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "engine/Config.h"
-#include "engine/FitPositionRoundRobin.h"
+#include "engine/FitPositionDeduplicater.h"
 #include "engine/Input.h"
 #include "engine/SingleThreadedLocalizer.h"
 #include "engine/SpotFitter.h"
@@ -18,7 +18,7 @@ class EngineThread : public SingleThreadedLocalizer {
     Input::TraitsPtr meta_info;
 
     boost::ptr_vector<spot_fitter::Implementation> fitter;
-    FitPositionRoundRobin position_generator;
+    FitPositionDeduplicater position_generator;
     int origMotivation;
 
     bool compute_if_enough_positions(const ImageStack& image,

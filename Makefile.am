@@ -309,7 +309,9 @@ rapidstorm_SOURCES += \
     engine/PlaneSeparator.h engine/PlaneSeparator.cpp \
     engine/EngineDebug.h \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
-    engine/FitPositionGenerator.h engine/FitPositionGenerator.cpp
+    engine/FitPositionGenerator.h engine/FitPositionGenerator.cpp \
+    engine/FitPositionRoundRobin.h \
+    engine/FitPositionDeduplicater.h
 
 rapidstorm_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
