@@ -138,6 +138,7 @@ rapidstorm_SOURCES = \
     input/fwd.h input/Link.h \
     input/Forwarder.h \
     input/DefaultFilterTypes.h \
+    input/FakeSource.h \
     input/MetaInfo.h \
     input/Source.h \
     input/Traits.h  \
@@ -278,6 +279,7 @@ rapidstorm_SOURCES += \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
     inputs/join.h inputs/join.cpp \
+    inputs/join_test.h inputs/join_test.cpp \
     inputs/join/spatial.h inputs/join/spatial.cpp \
     inputs/join/temporal.h inputs/join/temporal.cpp \
     inputs/Splitter.h inputs/Splitter.cpp \

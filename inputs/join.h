@@ -5,10 +5,10 @@
 #include <memory>
 
 namespace dStorm {
-namespace input {
+namespace inputs {
 namespace join {
 
-std::auto_ptr<Link> create_link();
+std::auto_ptr<input::Link> create_link();
 
 }
 }
