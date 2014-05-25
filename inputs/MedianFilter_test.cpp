@@ -5,49 +5,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include "engine/InputTraits.h"
+#include "input/FakeSource.h"
 #include "inputs/MedianFilter.h"
 
 namespace dStorm {
 namespace median_filter {
-
-class FakeImageSource : public input::Source<engine::ImageStack> {
-  public:
-    FakeImageSource(const std::vector<engine::ImageStack>& images) : images(images), current(this->images.begin()) {}
-
-  private:
-    bool GetNext(int thread, engine::ImageStack* output) OVERRIDE {
-	if (current != images.end()) {
-	    *output = *current;
-	    ++current;
-	    return true;
-	} else {
-	    return false;
-	}
-    }
-
-    TraitsPtr get_traits() OVERRIDE {
-	TraitsPtr result(new Traits());
-        for (int plane = 0; plane < current->plane_count(); ++plane) {
-            image::MetaInfo<2> meta_info;
-            meta_info.size = current->plane(plane).sizes();
-            result->push_back(meta_info, traits::Optics());
-        }
-        return result;
-    }
-
-    void attach_ui_( simparm::NodeHandle ) OVERRIDE {
-    }
-
-    void set_thread_count(int num_threads) { assert(num_threads == 1); }
-    void dispatch(Messages m) {
-        if (m.test(RepeatInput)) {
-            current = images.begin();
-        }
-    }
-
-    std::vector<engine::ImageStack> images;
-    std::vector<engine::ImageStack>::const_iterator current;
-};
 
 void TestRandomSequence(int window_width, int stride, int frames) {
     int planes = 4;
@@ -55,6 +17,16 @@ void TestRandomSequence(int window_width, int stride, int frames) {
     int image_height = 50;
 
     srand(0);
+
+    input::Traits<engine::ImageStack> meta_info;
+    for (int plane = 0; plane < planes; ++plane) {
+        image::MetaInfo<2> plane_meta_info;
+        plane_meta_info.size = engine::Image2D::Size(
+            image_width * boost::units::camera::pixel,
+            image_height * boost::units::camera::pixel);
+        meta_info.push_back(plane_meta_info, traits::Optics());
+    }
+
     std::vector<engine::ImageStack> images;
     for (int image = 0; image < frames; ++image) {
 	engine::ImageStack three_d;
@@ -71,10 +43,11 @@ void TestRandomSequence(int window_width, int stride, int frames) {
 	images.push_back(three_d);
     }
 
+
     std::auto_ptr<input::Source<engine::ImageStack>> filter(
         make_source(
             std::auto_ptr<input::Source<engine::ImageStack>>(
-                new FakeImageSource(images)),
+                new input::FakeSource<engine::ImageStack>(meta_info, images)),
             frame_index::from_value(window_width),
             frame_index::from_value(stride)));
     filter->get_traits();
