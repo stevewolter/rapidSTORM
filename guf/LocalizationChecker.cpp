@@ -16,6 +16,8 @@ namespace guf {
 
 LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::engine::JobInfo& info )
 : info(info),
+  spot_distance_threshold(
+          pow(ToLengthUnit(config.maximum_distance_from_spot()), 2.0)),
   theta_dist_sq( pow(ToLengthUnit(config.theta_dist()), 2.0) ),
   allowed_z_positions()
 {
@@ -52,9 +54,7 @@ bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, c
     Eigen::Array2d final_distance;
     final_distance.x() = k( gaussian_psf::Mean<0>() ) - s.x();
     final_distance.y() = k( gaussian_psf::Mean<1>() ) - s.y();
-    final_distance = final_distance.abs();
-    final_distance = final_distance / k.get_sigma().array();
-    if (final_distance.matrix().squaredNorm() > 4.0) {
+    if (final_distance.abs().matrix().squaredNorm() > spot_distance_threshold) {
         return false;
     }
 

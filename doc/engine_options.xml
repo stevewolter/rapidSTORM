@@ -56,6 +56,11 @@
     comparison, see <xref linkend="WolterDiplomarbeit"/>
     and <xref linkend="Wolter2010"/>.</para>
 </et:elem>
+<et:elem desc="Maximum lateral movement" topic="MaximumDistanceFromSpot">
+    <para>The maximum distance between the start X/Y position and the final
+        X/Y position for the fit over the entire fit process. If the positions
+        differ more than this amount, the localization is discarded.</para>
+</et:elem>
 <et:elem desc="Spot search eagerness" topic="Motivation">
     <para>The rapidSTORM engine uses dynamical thresholding, i.e.
         fits the spots with at the most intense positions in the
