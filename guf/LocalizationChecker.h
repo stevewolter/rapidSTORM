@@ -19,8 +19,6 @@ class LocalizationChecker {
     const double theta_dist_sq;
     AllowedZPositions allowed_z_positions;
 
-    template <int Dim>
-    bool check_kernel_dimension( const gaussian_psf::BaseExpression&, const guf::Spot&, int plane ) const;
     bool check_kernel( const gaussian_psf::BaseExpression&, const guf::Spot&, int plane ) const;
 
   public:
