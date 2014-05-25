@@ -117,6 +117,9 @@ void Car::drive() {
   try {
     DEBUG("Getting input traits from " << input.get());
     Input::TraitsPtr traits = input->get_traits();
+    if (traits->group_field != input::GroupFieldSemantic::ImageNumber) {
+        throw std::runtime_error("Result of engine must be grouped by image number");
+    }
     first_output = *traits->image_number().range().first;
     DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());

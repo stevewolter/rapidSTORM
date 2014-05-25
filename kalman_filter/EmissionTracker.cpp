@@ -185,6 +185,10 @@ Output::~Output() {
 output::Output::AdditionalData
 Output::announceStormSize(const Announcement &a) 
 {
+    if (a.group_field != input::GroupFieldSemantic::ImageNumber) {
+        throw std::runtime_error("Input to emission tracker must be grouped "
+                                 "by image number");
+    }
     if ( ! a.position_uncertainty_x().is_given || ! a.position_uncertainty_y().is_given )
         throw std::runtime_error("Localization precision is not known to Track Emissions. Either explicitly set the "
                                  "sigmaposx and sigmaposy variables in a Expression Filter or set the optics parameters "
@@ -304,7 +308,7 @@ Output::update_positional( TracedObject& object )
 void
 Output::receiveLocalizations(const EngineResult &er)
 {
-    int imNum = er.forImage / frame;
+    int imNum = er.group;
     TrackingInformation &current = tracking[imNum % track_modulo];
 
     current.prepare( imNum );
@@ -336,7 +340,7 @@ void Output::finalizeImage(int imNum) {
     TrackingInformation &data = tracking[imNum % track_modulo];
 
     EngineResult er;
-    er.forImage = imNum * frame;
+    er.group = imNum;
 
     for ( std::set<TracedObject*>::const_iterator i = data.emissions.begin(), end = data.emissions.end();
           i != end; i++ ) 

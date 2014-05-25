@@ -105,7 +105,7 @@ void Run::compute_input(int thread) {
     try {
         output::LocalizedImage image;
         while (input.GetNext(thread, &image)) {
-            DEBUG("Processed image " << image.forImage);
+            DEBUG("Processed image " << image.group);
             queue.push_back(image);
         }
     } catch ( const boost::thread_interrupted& e ) {

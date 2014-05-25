@@ -27,6 +27,7 @@ Engine::TraitsPtr Engine::get_traits() {
 
 Engine::TraitsPtr Engine::convert_traits( const Input::Traits& p ) {
     Base::TraitsPtr prv( new input::Traits<output::LocalizedImage>("Noop", "Dummy engine data") );
+    prv->group_field = input::GroupFieldSemantic::ImageNumber;
     prv->in_sequence = true;
     prv->source_image_is_set = true;
     prv->image_number() = p.image_number();
@@ -45,7 +46,7 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
         return false;
     }
 
-    target->forImage = image.frame_number();
+    target->group = image.frame_number().value();
     target->clear();
     target->source = image; 
     return true;

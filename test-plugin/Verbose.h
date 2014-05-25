@@ -35,7 +35,7 @@ struct Verbose
     }
     void receiveLocalizations(const EngineResult& er) {
         log = "Verbose plugin got " + boost::lexical_cast<std::string>( er.size() ) 
-            + " localizations for " + boost::lexical_cast<std::string>( er.forImage );
+            + " localizations for " + boost::lexical_cast<std::string>( er.group ) + " fr";
         if ( er.source.is_initialized() && er.source->plane(0).is_valid() ) {
             log = "Source image is attached with size " +
                 boost::lexical_cast<std::string>( er.source->plane(0).sizes().transpose() );

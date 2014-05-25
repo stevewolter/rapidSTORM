@@ -58,14 +58,14 @@ class Localizations {
 };
 
 class LocalizedImage : private Localizations {
-    frame_index for_image;
+    int group;
   public:
     LocalizedImage( const output::LocalizedImage& i, StoreTree& n )
-        : Localizations( i.begin(), i.end(), n ), for_image( i.forImage ) {}
+        : Localizations( i.begin(), i.end(), n ), group(i.group) {}
     void recall( output::LocalizedImage& to, const StoreTree& n ) const {
         to.resize( count );
         Localizations::recall( to.begin(), n );
-        to.forImage = for_image;
+        to.group = group;
     }
 };
 

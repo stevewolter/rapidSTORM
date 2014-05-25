@@ -61,6 +61,7 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
         new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
     rvt->source_image_is_set = true;
+    rvt->group_field = input::GroupFieldSemantic::ImageNumber;
     rvt->input_image_traits.reset( imProp.clone() );
 
     if (config.separate_plane_fitting()) {
@@ -134,7 +135,7 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
     }
 
     DEBUG("Pushing image " << image.frame_number() << " into engine");
-    target->forImage = image.frame_number();
+    target->group = image.frame_number().value();
     target->source = image;
     if (image.has_invalid_planes()) {
         increment_error_count();

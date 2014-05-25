@@ -26,8 +26,8 @@ struct Exception
     AdditionalData announceStormSize(const Announcement&)
         { if ( onAnnouncement ) segfault(); return AdditionalData(); }
     void receiveLocalizations(const EngineResult& er) {
-        std::cerr << "Got " << er.forImage.value() << " " << onImageNumber << "\n";
-        if ( er.forImage.value() == onImageNumber )
+        std::cerr << "Got " << er.group << " " << onImageNumber << "\n";
+        if ( er.group == onImageNumber )
             segfault();
     }
 

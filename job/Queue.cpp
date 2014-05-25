@@ -5,7 +5,7 @@ namespace dStorm {
 namespace job {
 
 Queue::Queue( frame_index i, int producer_count ) 
-: next_output(i), producer_count(producer_count), interruption( false )
+: next_output(i.value()), producer_count(producer_count), interruption( false )
 {
     DEBUG("Starting queue " << this << " with first output " << next_output);
 }
@@ -37,20 +37,19 @@ void Queue::rethrow_exception() {
 
 void Queue::push( const output::LocalizedImage& r ) {
     boost::unique_lock<boost::mutex> lock(ring_buffer_mutex);
-    DEBUG("Pushing image " << r.forImage << " into " << this);
-    while ( (r.forImage - next_output).value() >=
-            int(ring_buffer.size()) ) 
+    DEBUG("Pushing image " << r.group << " into " << this);
+    while ( r.group - next_output >= int(ring_buffer.size()) ) 
     {
         if ( interruption ) throw boost::thread_interrupted();
-        DEBUG("Waiting for space for " << r.forImage);
+        DEBUG("Waiting for space for " << r.group);
         producer_can_continue.wait(lock);
     }
 
-    DEBUG("Inserting image " << r.forImage << " into queue " << this);
-    int ring = r.forImage.value() % ring_buffer.size();
+    DEBUG("Inserting image " << r.group << " into queue " << this);
+    int ring = r.group % ring_buffer.size();
     assert( ! ring_buffer[ring].is_initialized() );
     ring_buffer[ring] = r;
-    if ( r.forImage == next_output )
+    if ( r.group == next_output )
         consumer_can_continue.notify_all();
 
     if ( interruption ) throw boost::thread_interrupted();
@@ -77,7 +76,7 @@ void Queue::pop() {
     DEBUG("Removed image " << ring());
     boost::lock_guard<boost::mutex> lock(ring_buffer_mutex);
     ring_buffer[ring()].reset();
-    next_output += 1 * camera::frame;
+    next_output += 1;
     producer_can_continue.notify_all();
 }
 

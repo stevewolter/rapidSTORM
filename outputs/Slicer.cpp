@@ -169,6 +169,10 @@ void Slicer::check_for_duplicate_filenames
 Output::AdditionalData
 Slicer::announceStormSize(const Announcement& a)
 {
+    if (a.group_field != input::GroupFieldSemantic::ImageNumber) {
+        throw std::runtime_error("Input to Slice Localizations must be grouped "
+                                 "by image number");
+    }
     announcement.reset( new Announcement(a) );
 
     return outputs[0]->announceStormSize(a);
@@ -195,7 +199,7 @@ void Slicer::receiveLocalizations(const EngineResult& er)
 {
     frame_count one_frame( 1 * camera::frame );
     frame_index
-        cur_image = er.forImage, 
+        cur_image = er.group * camera::frame, 
         back_image = (cur_image >= slice_size) 
                 ? (cur_image - (slice_size-one_frame))
                 : 0;
