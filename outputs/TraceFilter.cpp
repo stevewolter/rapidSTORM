@@ -45,14 +45,14 @@ class TraceCountFilter : public output::Filter
   private:
     const int min_count;
 
-    AdditionalData announceStormSize(const Announcement &a) {
+    void announceStormSize(const Announcement &a) OVERRIDE {
         if (a.group_field == input::GroupFieldSemantic::ImageNumber) {
             throw std::runtime_error("Input to trace count filter is not sorted");
         }
-        return output::Filter::announceStormSize(a);
+        output::Filter::announceStormSize(a);
     }
 
-    void receiveLocalizations(const EngineResult& e) {
+    void receiveLocalizations(const EngineResult& e) OVERRIDE {
         if (int(e.size()) >= min_count) {
             output::Filter::receiveLocalizations(e);
         }

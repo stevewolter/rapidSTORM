@@ -74,9 +74,9 @@ class Slicer : public Output {
     Slicer( const Config&, std::auto_ptr< output::FilterSource > );
     ~Slicer();
 
-    AdditionalData announceStormSize(const Announcement&);
-    RunRequirements announce_run(const RunAnnouncement& a);
-    void receiveLocalizations(const EngineResult&);
+    void announceStormSize(const Announcement&) OVERRIDE;
+    RunRequirements announce_run(const RunAnnouncement& a) OVERRIDE;
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
 };
 
 class Slicer::Config {
@@ -166,16 +166,14 @@ void Slicer::check_for_duplicate_filenames
     avoid_filenames = &present_filenames;
 }
 
-Output::AdditionalData
-Slicer::announceStormSize(const Announcement& a)
-{
+void Slicer::announceStormSize(const Announcement& a) {
     if (a.group_field != input::GroupFieldSemantic::ImageNumber) {
         throw std::runtime_error("Input to Slice Localizations must be grouped "
                                  "by image number");
     }
     announcement.reset( new Announcement(a) );
 
-    return outputs[0]->announceStormSize(a);
+    outputs[0]->announceStormSize(a);
 }
 
 Output::RunRequirements

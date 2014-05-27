@@ -129,37 +129,11 @@ void Car::drive() {
     announcement.name = "Job" + ident;
     announcement.description = "Result image for Job " + ident;
     DEBUG("Sending announcement");
-    Output::AdditionalData data;
     {
         boost::lock_guard<boost::recursive_mutex> lock(mutex);
-        data = output->announceStormSize(announcement);
+        output->announceStormSize(announcement);
     }
     DEBUG("Sent announcement");
-
-    if ( data.test( output::Capabilities::SourceImage ) &&
-                ! announcement.source_image_is_set )
-    {
-        simparm::Message m("Unable to provide data",
-                   "One of your output modules needs access to the raw " +
-                   std::string("images of the acquisition. These are not present in ") +
-                   "the input. Either remove the output or " +
-                   "choose a different input file or method.");
-        m.send( current_ui );
-        return;
-    } else if (
-        ( data.test( output::Capabilities::InputBuffer ) && 
-          ! announcement.carburettor ) )
-    {
-        std::stringstream ss;
-        ss << 
-            "A selected data processing function "
-            "requires data about the input data ("
-            << data << ") that are not "
-            "present in the current input.";
-        simparm::Message m("Unable to provide data", ss.str());
-        m.send( current_ui );
-        return;
-    }
 
     int number_of_threads = piston_count;
     bool run_succeeded = false;

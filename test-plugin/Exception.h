@@ -23,9 +23,9 @@ struct Exception
     Exception(const Config& config) ;
     Exception* clone() const;
 
-    AdditionalData announceStormSize(const Announcement&)
-        { if ( onAnnouncement ) segfault(); return AdditionalData(); }
-    void receiveLocalizations(const EngineResult& er) {
+    void announceStormSize(const Announcement&) OVERRIDE
+        { if ( onAnnouncement ) segfault(); }
+    void receiveLocalizations(const EngineResult& er) OVERRIDE {
         std::cerr << "Got " << er.group << " " << onImageNumber << "\n";
         if ( er.group == onImageNumber )
             segfault();

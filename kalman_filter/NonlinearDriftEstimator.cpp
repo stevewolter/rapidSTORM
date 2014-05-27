@@ -294,12 +294,11 @@ public:
     RunRequirements announce_run(const RunAnnouncement&) {
         return RunRequirements();
     }
-    AdditionalData announceStormSize(const Announcement &a) {
+    void announceStormSize(const Announcement &a) OVERRIDE {
         if (a.group_field != input::GroupFieldSemantic::Molecule) {
             throw std::runtime_error("Input to drift estimator must be grouped "
                                      "by molecule");
         }
-        return AdditionalData();
     }
     void receiveLocalizations(const EngineResult& er) {
         for (const Localization& l : er) {

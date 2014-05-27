@@ -30,7 +30,7 @@ class Source
     boost::optional<Announcement> my_announcement;
 
     ~Source();
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     void receiveLocalizations(const EngineResult&);
     void expression_changed( std::string ident, std::auto_ptr<source::LValue> expression );
 

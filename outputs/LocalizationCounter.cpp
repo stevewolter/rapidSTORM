@@ -55,13 +55,12 @@ public:
 
         return RunRequirements();
     }
-    AdditionalData announceStormSize(const Announcement &a) {
+    void announceStormSize(const Announcement &a) OVERRIDE {
         update.set_user_level(simparm::Beginner);
         config_increment = 10;
 
         count = 0; 
         index = 0;
-        return AdditionalData();
     }
     void receiveLocalizations(const EngineResult& er) {
         count += er.size(); 

@@ -23,7 +23,7 @@ private:
 
 public:
     LinearAlignment( const Config&, std::auto_ptr< Output > );
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     void receiveLocalizations(const EngineResult&);
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -56,8 +56,7 @@ LinearAlignment::LinearAlignment( const Config& c, std::auto_ptr< Output > sub )
     }
 }
 
-LinearAlignment::AdditionalData
-LinearAlignment::announceStormSize(const Announcement& a) {
+void LinearAlignment::announceStormSize(const Announcement& a) {
     return Filter::announceStormSize( a );
 }
 

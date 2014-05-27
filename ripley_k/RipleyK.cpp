@@ -51,9 +51,9 @@ class Output : public dStorm::output::Output {
 
   public:
     Output( const Config& );
-    AdditionalData announceStormSize(const Announcement&);
-    void receiveLocalizations(const EngineResult&);
-    RunRequirements announce_run(const RunAnnouncement&) { 
+    void announceStormSize(const Announcement&) OVERRIDE;
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
+    RunRequirements announce_run(const RunAnnouncement&) OVERRIDE { 
         histogram->clear();
         localization_count = 0;
         return RunRequirements(); 
@@ -80,7 +80,7 @@ Output::Output( const Config& config )
           binning::Localization< localization::PositionY, binning::ScaledByResolution >(v) ));
 }
 
-Output::AdditionalData Output::announceStormSize(const Announcement& a) {
+void Output::announceStormSize(const Announcement& a) {
     for (int i = 0; i < 2; ++i )
         scalers[i].announce(a);
     boost::array< float, 2 > range;
@@ -90,7 +90,6 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
     measured_area = 
         ( *a.position_x().range().second - *a.position_x().range().first ) *
         ( *a.position_y().range().second - *a.position_y().range().first );
-    return Output::AdditionalData();
 }
 
 void Output::receiveLocalizations(const EngineResult& e) {

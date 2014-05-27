@@ -14,9 +14,6 @@ struct LocalizedImage
     std::vector<Localization> results;
   public:
     int group;
-    /** If the SourceImage AdditionalData field was set,
-        *  this pointer points to the image the localizations
-        *  were computed in. */
     boost::optional<dStorm::engine::ImageStack> source;
 
     LocalizedImage();

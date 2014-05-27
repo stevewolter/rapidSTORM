@@ -65,7 +65,7 @@ public:
 
     ~DensityMap();
     
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement&) 
         { clear(); return RunRequirements(); }
     void receiveLocalizations(const EngineResult&);

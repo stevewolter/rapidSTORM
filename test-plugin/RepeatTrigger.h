@@ -29,12 +29,11 @@ struct Repeat
         { repeat.hide();  }
     Repeat* clone() const { return new Repeat(*this); }
 
-    AdditionalData announceStormSize(const Announcement& a) { 
+    void announceStormSize(const Announcement& a) OVERRIDE { 
         r = a.engine;
         repeat.set_visibility( r );
-        return AdditionalData(); 
     }
-    void receiveLocalizations(const EngineResult&) {}
+    void receiveLocalizations(const EngineResult&) OVERRIDE {}
 
 private:
     void repeat_results() {

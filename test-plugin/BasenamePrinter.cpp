@@ -15,9 +15,8 @@ struct BasenamePrinter
     BasenamePrinter(const Config& config);
     BasenamePrinter* clone() const;
 
-    AdditionalData announceStormSize(const Announcement& a) 
-        { return AdditionalData(); }
-    void receiveLocalizations(const EngineResult&) {}
+    void announceStormSize(const Announcement& a) OVERRIDE {}
+    void receiveLocalizations(const EngineResult&) OVERRIDE {}
 
 };
 

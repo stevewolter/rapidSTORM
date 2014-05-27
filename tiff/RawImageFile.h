@@ -53,8 +53,8 @@ class RawImageFile : public Output {
         throw std::runtime_error(
             "RawImageFile::clone not implemented"); }
 
-    AdditionalData announceStormSize(const Announcement &a);
-    void receiveLocalizations(const EngineResult&);
+    void announceStormSize(const Announcement &a) OVERRIDE;
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)

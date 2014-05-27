@@ -61,15 +61,12 @@ void DensityMap<Listener,Dim>::set_base_image_size()
 }
 
 template <typename Listener, int Dim>
-output::Output::AdditionalData
-DensityMap<Listener,Dim>
-::announceStormSize(const Announcement& a)
+void DensityMap<Listener,Dim>::announceStormSize(const Announcement& a)
 {
     announcement.reset( new Announcement(a) );
     this->strategy->announce( a );
     this->listener->announce( a );
     set_base_image_size();
-    return AdditionalData();
 }
 
 template <typename Listener, int Dim>

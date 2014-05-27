@@ -95,7 +95,7 @@ public:
         {throw std::logic_error("Emission tracker is not cloneable.");}
     Output& operator=( const Output& );
 
-    AdditionalData announceStormSize(const Announcement &);
+    void announceStormSize(const Announcement &) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement &);
     void receiveLocalizations(const EngineResult &);
 
@@ -176,9 +176,7 @@ Output::Output(
 Output::~Output() {
 }
 
-output::Output::AdditionalData
-Output::announceStormSize(const Announcement &a) 
-{
+void Output::announceStormSize(const Announcement &a) {
     if (a.group_field != input::GroupFieldSemantic::ImageNumber) {
         throw std::runtime_error("Input to emission tracker must be grouped "
                                  "by image number");
@@ -201,10 +199,7 @@ Output::announceStormSize(const Announcement &a)
     positional = Positional(sizes);
     while ( int(tracking.size()) < track_modulo )
         tracking.push_back( new TrackingInformation() );
-    AdditionalData childData = Filter::announceStormSize(my_announcement);
-    Output::check_additional_data_with_provided
-        ( Config::get_name(), AdditionalData(), childData );
-    return AdditionalData();
+    Filter::announceStormSize(my_announcement);
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement & a) {

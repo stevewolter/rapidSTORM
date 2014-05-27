@@ -38,10 +38,10 @@ class Output : public output::Output {
  public:
   Output(const OutputConfig& config)
       : filename(config.outputFile()), file_descriptor(-1), molecule(0) {}
-  AdditionalData announceStormSize(const Announcement &a);
-  RunRequirements announce_run(const RunAnnouncement&);
-  void receiveLocalizations(const EngineResult&);
-  void store_results_(bool);
+  void announceStormSize(const Announcement &a) OVERRIDE;
+  RunRequirements announce_run(const RunAnnouncement&) OVERRIDE;
+  void receiveLocalizations(const EngineResult&) OVERRIDE;
+  void store_results_(bool) OVERRIDE;
 
   void check_for_duplicate_filenames
           (std::set<std::string>& present_filenames) { 
@@ -68,10 +68,8 @@ void Output::CloseFileIfOpen() {
   }
 }
 
-Output::AdditionalData
-Output::announceStormSize(const Announcement &a) {
+void Output::announceStormSize(const Announcement &a) {
   traits = a;
-  return AdditionalData();
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement&) {

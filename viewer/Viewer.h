@@ -29,9 +29,9 @@ class Viewer : public Status,
     Viewer(const Viewer&);
     virtual ~Viewer();
 
-    AdditionalData announceStormSize(const Announcement &a);
-    RunRequirements announce_run(const RunAnnouncement&) ;
-    void receiveLocalizations(const EngineResult&);
+    void announceStormSize(const Announcement &a) OVERRIDE;
+    RunRequirements announce_run(const RunAnnouncement&) OVERRIDE;
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames);

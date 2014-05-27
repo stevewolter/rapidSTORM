@@ -47,9 +47,7 @@ RawImageFile::RawImageFile(const Config& config)
             "No file name supplied for raw image output");
 }
 
-Output::AdditionalData
-RawImageFile::announceStormSize(const Announcement &a) 
-{
+void RawImageFile::announceStormSize(const Announcement &a) {
     last_frame = a.image_number().range().second;
     if ( a.input_image_traits.get() ) {
         size.clear();
@@ -79,8 +77,6 @@ RawImageFile::announceStormSize(const Announcement &a)
     strip_size = TIFFTileSize( tif );
     strips_per_image = TIFFNumberOfTiles( tif );
     next_image = *a.image_number().range().first;
-
-    return AdditionalData().set_source_image();
 }
 
 void RawImageFile::receiveLocalizations(const EngineResult& er)

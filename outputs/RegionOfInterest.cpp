@@ -31,9 +31,8 @@ class ROIFilter : public dStorm::output::Filter
                      std::auto_ptr<dStorm::output::Output> output);
     ~ROIFilter() {}
 
-    AdditionalData announceStormSize(const Announcement &a);
-
-    void receiveLocalizations(const EngineResult& e);
+    void announceStormSize(const Announcement &a) OVERRIDE;
+    void receiveLocalizations(const EngineResult& e) OVERRIDE;
 };
 
 class ROIFilter::Config 
@@ -68,8 +67,7 @@ ROIFilter::ROIFilter(
     }
 }
 
-dStorm::output::Output::AdditionalData
-ROIFilter::announceStormSize(const Announcement &a)
+void ROIFilter::announceStormSize(const Announcement &a)
 {
     is_3d = a.position_z().is_given;
     Announcement my_announcement = a;
@@ -79,7 +77,7 @@ ROIFilter::announceStormSize(const Announcement &a)
     my_announcement.position_x().range().second = to.x();
     my_announcement.position_y().range().second = to.y();
     my_announcement.position_z().range().second = to.z();
-    return Filter::announceStormSize(my_announcement);
+    Filter::announceStormSize(my_announcement);
 }
 
 bool ROIFilter::not_within_ROI( const dStorm::Localization& l ) const {

@@ -118,8 +118,8 @@ class PrecisionEstimator
         EstimationResult estimate_deviation_from_initial_estimate(
             const PointSet& all_data, const SubSet& estimate );
 
-        AdditionalData announceStormSize(const Announcement&); 
-        void receiveLocalizations(const EngineResult&);
+        void announceStormSize(const Announcement&) OVERRIDE; 
+        void receiveLocalizations(const EngineResult&) OVERRIDE;
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };
@@ -284,17 +284,12 @@ PrecisionEstimator::PrecisionEstimator
     variance_correction = 2.5 / gsl_sf_erf( config.confidence_interval() / sqrt(2) );
 }
 
-//using namespace Precision;
-
-Output::AdditionalData
-PrecisionEstimator::announceStormSize(const Announcement& a)
-{
+void PrecisionEstimator::announceStormSize(const Announcement& a) {
     if (a.group_field != input::GroupFieldSemantic::Molecule) {
         throw std::runtime_error("Input to precision estimator must be sorted "
                 "by molecule");
     }
     used_dimensions = a.position_z().is_given;
-    return AdditionalData();
 }
 
 

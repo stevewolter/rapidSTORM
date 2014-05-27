@@ -45,15 +45,13 @@ public:
         : binSize(config.modulus()), 
             output_file(config.outputFile()) {}
 
-    AdditionalData announceStormSize(const Announcement&)
-        { return AdditionalData(); }
-    RunRequirements announce_run(const RunAnnouncement&) {
+    void announceStormSize(const Announcement&) OVERRIDE {}
+    RunRequirements announce_run(const RunAnnouncement&) OVERRIDE {
         countMap.clear();
         return RunRequirements();
     }
-    void receiveLocalizations(const EngineResult &er) 
 
-    {
+    void receiveLocalizations(const EngineResult &er) OVERRIDE {
         for (EngineResult::const_iterator i = er.begin(); i != er.end(); ++i) {
             double realAmp = i->amplitude() / camera::ad_count;
             int bin = int(realAmp / binSize) * binSize;

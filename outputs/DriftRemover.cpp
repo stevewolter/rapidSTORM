@@ -58,7 +58,7 @@ private:
 
 public:
     DriftRemover( const Config&, std::auto_ptr< Output > );
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     void receiveLocalizations(const EngineResult&);
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -104,9 +104,8 @@ DriftRemover::DriftRemover( const Config& c, std::auto_ptr< Output > sub )
     }
 }
 
-DriftRemover::AdditionalData
-DriftRemover::announceStormSize(const Announcement& a) {
-    return Filter::announceStormSize( a );
+void DriftRemover::announceStormSize(const Announcement& a) {
+    Filter::announceStormSize( a );
 }
 
 void DriftRemover::receiveLocalizations(const EngineResult& upstream) {

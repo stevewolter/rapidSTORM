@@ -132,7 +132,7 @@ class Output
     Output(const Config&, std::auto_ptr<output::Output> output);
     ~Output();
 
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement& r) ;
     void receiveLocalizations(const EngineResult& e);
 
@@ -247,9 +247,7 @@ void Output::reemit_localizations(const int my_count) {
     }
 }
 
-Output::AdditionalData
-Output::announceStormSize(const Announcement& a) 
-{ 
+void Output::announceStormSize(const Announcement& a) { 
     boost::lock_guard<boost::mutex> lock(output_mutex);
     upstream = a.engine;
     master_bunch.reset( new Bunch(a) );
@@ -261,11 +259,10 @@ Output::announceStormSize(const Announcement& a)
 
     Announcement my_announcement(a);
     my_announcement.engine = this;
+    my_announcement.source_image_is_set = false;
+    my_announcement.input_image_traits.reset();
     boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-    AdditionalData data = Filter::announceStormSize(my_announcement); 
-    Output::check_additional_data_with_provided(
-        "MemoryCache", AdditionalData(), data );
-    return data;
+    Filter::announceStormSize(my_announcement); 
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement& r) {

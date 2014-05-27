@@ -63,15 +63,11 @@ void Crankshaft::_add( Output *tm, bool imp, bool man )
         clutches.back().attach_ui( *current_ui );
 }
 
-Output::AdditionalData
-Crankshaft::announceStormSize(const Announcement &a) 
- 
+void Crankshaft::announceStormSize(const Announcement &a) 
 {
-    AdditionalData data;
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++){
-        data |= (*i)->announceStormSize(a);
+        (*i)->announceStormSize(a);
     }
-    return data;
 }
 
 Output::RunRequirements 

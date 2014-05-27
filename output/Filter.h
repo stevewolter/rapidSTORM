@@ -21,8 +21,8 @@ class Filter : public Output
   public:
     Filter( std::auto_ptr<Output> downstream ) : fwd(downstream) {}
 
-    AdditionalData announceStormSize(const Announcement& a) 
-        { return fwd->announceStormSize(a); }
+    void announceStormSize(const Announcement& a) OVERRIDE
+        { fwd->announceStormSize(a); }
     RunRequirements announce_run(const RunAnnouncement& r) 
         { return fwd->announce_run(r); }
     void receiveLocalizations(const EngineResult& er);

@@ -34,15 +34,15 @@ public:
     DensityMap( const DensityMapOutputConfig& config ) 
         : density( &dummy_listener, config.binned_dimensions.make(), config.interpolator.make(), config.crop_border() ),
           filename( config.outputFile() ) {}
-    AdditionalData announceStormSize(const Announcement &a) {
-        return density.announceStormSize( a );
+    void announceStormSize(const Announcement &a) OVERRIDE {
+        density.announceStormSize( a );
     }
-    RunRequirements announce_run(const RunAnnouncement& a) 
+    RunRequirements announce_run(const RunAnnouncement& a) OVERRIDE
         { return density.announce_run( a ); }
-    void receiveLocalizations(const EngineResult& er) 
+    void receiveLocalizations(const EngineResult& er) OVERRIDE
         { density.receiveLocalizations(er); }
 private:
-    void store_results_( bool job_successful ) {
+    void store_results_( bool job_successful ) OVERRIDE {
         density.store_results( job_successful );
         if ( job_successful ) {
             std::ofstream o( filename.c_str() );

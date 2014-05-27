@@ -104,8 +104,8 @@ public:
     Segmenter( const Segmenter & );
     ~Segmenter();
 
-    AdditionalData announceStormSize(const Announcement &a) ;
-    void receiveLocalizations(const EngineResult& er) {
+    void announceStormSize(const Announcement &a) OVERRIDE;
+    void receiveLocalizations(const EngineResult& er) OVERRIDE {
         std::copy(er.begin(), er.end(), back_inserter(points));
         bins.receiveLocalizations(er);
     }
@@ -214,16 +214,14 @@ Segmenter::Segmenter(
 Segmenter::~Segmenter() {
 }
 
-Output::AdditionalData Segmenter::announceStormSize
-            (const Announcement &a) 
-{
+void Segmenter::announceStormSize(const Announcement &a) {
     boost::lock_guard<boost::mutex> lock( mutex );
     for (int i = 0; i < 2; ++i)
         binners[i].announce( a );
     announcement.reset( new Announcement(a) );
     announcement->group_field = input::GroupFieldSemantic::Molecule;
     bins.announceStormSize( a );
-    return Filter::announceStormSize( *announcement );
+    Filter::announceStormSize( *announcement );
 }
 
 void Segmenter::segment_locked()

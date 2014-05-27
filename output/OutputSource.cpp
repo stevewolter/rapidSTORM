@@ -43,34 +43,6 @@ OutputSource::set_output_file_basename(const Basename& new_basename)
     }
 }
 
-std::ostream &operator<<(std::ostream &o, 
-                         Capabilities data) {
-    std::string rv = "", sep = ", ";
-    if ( data.test( Capabilities::SourceImage ) )
-        rv += sep + "SourceImage";
-    if ( data.test( Capabilities::InputBuffer) )
-        rv += sep + "InputBuffer";
-
-    if ( rv != "" )
-        rv = rv.substr( sep.size() );
-    size_t pos = rv.rfind(',');
-    if ( pos != std::string::npos )
-        rv.replace( pos, 1, " and" );
-    return (o << rv);
-}
-
-void Output::check_additional_data_with_provided
-(std::string name, AdditionalData can_provide, AdditionalData are_desired)
-{
-    if ( ( (~can_provide) & are_desired ).any() ) {
-        std::stringstream ss;
-        ss << "The data " << are_desired << " cannot be provided by "
-           << "the data source " << name << ", which can only provide "
-           << can_provide;
-        throw std::logic_error(ss.str());
-    }
-}
-
 void Output::insert_filename_with_check(
     std::string file, std::set<std::string>& present_filenames )
 {
