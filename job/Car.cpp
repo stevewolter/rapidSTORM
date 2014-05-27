@@ -136,13 +136,7 @@ void Car::drive() {
     }
     DEBUG("Sent announcement");
 
-    if ( data.test( output::Capabilities::ClustersWithSources ) ) {
-        simparm::Message m("Unable to provide data",
-                "The selected input module cannot provide localization traces. "
-                "Please select an appropriate output.");
-        m.send( current_ui );
-        return;
-    } else if ( data.test( output::Capabilities::SourceImage ) &&
+    if ( data.test( output::Capabilities::SourceImage ) &&
                 ! announcement.source_image_is_set )
     {
         simparm::Message m("Unable to provide data",

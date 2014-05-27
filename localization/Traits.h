@@ -78,10 +78,9 @@ struct Traits< Localization >
     TRAITS_FOR_FIELD(localization::Fluorophore,fluorophore)
     TRAITS_FOR_FIELD(localization::LocalBackground,local_background)
     TRAITS_FOR_FIELD(localization::CoefficientOfDetermination,coefficient_of_determination)
+    TRAITS_FOR_FIELD(localization::Molecule,molecule)
 #undef ACCESSORS
 
-    typedef std::vector< boost::shared_ptr< Traits > > Sources;
-    Sources source_traits;
     bool in_sequence;
     boost::optional<int> repetitions;
 };

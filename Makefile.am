@@ -118,7 +118,6 @@ rapidstorm_SOURCES = \
     output/Output_decl.h output/Output.h output/Filter.h \
     output/OutputSource.h \
     output/Traits_decl.h output/Traits.h \
-    output/TraceReducer.h \
     output/LocalizedImage_decl.h output/LocalizedImage.h output/LocalizedImage_traits.h \
     engine/Candidate_decl.h engine/Candidate.h \
     engine/CandidateTree_decl.h engine/CandidateTree.h \
@@ -230,7 +229,6 @@ rapidstorm_SOURCES += \
     output/FilterSource.cpp \
     output/OutputSource.cpp \
     output/Traits.cpp \
-    output/TraceReducers.cpp \
     output/SourceFactory.cpp  \
     output/LocalizedImage_traits.cpp \
     output/Filter.cpp \

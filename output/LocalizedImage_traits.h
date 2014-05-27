@@ -20,6 +20,7 @@ namespace input {
 enum class GroupFieldSemantic {
     None,
     ImageNumber,
+    Molecule,
 };
 
 template <>

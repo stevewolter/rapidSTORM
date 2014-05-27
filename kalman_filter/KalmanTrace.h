@@ -40,7 +40,7 @@ struct KalmanMetaInfo {
 };
 
 template <int Dimensions>
-class KalmanTrace : public std::vector<dStorm::Localization> {
+class KalmanTrace {
     static const int State = 2*Dimensions;
     static const int Obs = Dimensions;
 
@@ -63,6 +63,7 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
 
     Eigen::Matrix<double,State,State> system_covar;
 
+    bool have_position_estimate;
     int position;
     Eigen::Matrix<double,State,1>      position_estimate;
     Eigen::Matrix<double,State,State>  estimation_precision;
@@ -91,7 +92,6 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
 
     float sq_distance_in_sigmas( const dStorm::Localization& position ) ; 
     void add( const dStorm::Localization& l );
-    void clear();
 
     int getPosition() const { return position; }
     Eigen::Matrix<double,2,1> getPositionEstimate() const { return position_estimate.template head<2>(); }
@@ -103,13 +103,11 @@ template <int Dimensions>
 KalmanTrace<Dimensions>::KalmanTrace(
     const KalmanMetaInfo<Dimensions>& meta
 )
-: meta(meta)
+: meta(meta), have_position_estimate(false), have_prediction(false)
 {
     state_transition.setIdentity();
     observation_matrix.setZero();
     for (int i = 0; i < Dimensions; i++) observation_matrix(i,i) = 1;
-
-    clear();
 }
 
 template <int Dimensions>
@@ -202,10 +200,9 @@ template <int Dimensions>
 void KalmanTrace<Dimensions>::add( const dStorm::Localization& l )
 {
     Observation obs(l);
-    bool previous_observations_available = (size() > 0);
-    if ( previous_observations_available )
+    if ( have_position_estimate ) {
         update_position( obs, l.frame_number() / camera::frame );
-    else {
+    } else {
         position_estimate = observation_matrix.transpose() * obs.position;
         position = l.frame_number() / camera::frame;
         estimation_precision = 
@@ -213,15 +210,8 @@ void KalmanTrace<Dimensions>::add( const dStorm::Localization& l )
                                         * observation_matrix;
         for (int i = Dimensions; i < 2*Dimensions; i++)
             estimation_precision(i,i) = 0;
+        have_position_estimate = true;
     }
-    this->push_back( l );
-}
-
-template <int Dimensions>
-void KalmanTrace<Dimensions>::clear() 
-{
-    have_prediction = false;
-    std::vector<dStorm::Localization>::clear();
 }
 
 }

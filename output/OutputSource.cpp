@@ -50,8 +50,6 @@ std::ostream &operator<<(std::ostream &o,
         rv += sep + "SourceImage";
     if ( data.test( Capabilities::InputBuffer) )
         rv += sep + "InputBuffer";
-    if ( data.test( Capabilities::ClustersWithSources) )
-        rv += sep + "LocalizationSources";
 
     if ( rv != "" )
         rv = rv.substr( sep.size() );

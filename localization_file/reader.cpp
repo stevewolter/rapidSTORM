@@ -96,7 +96,6 @@ File::File(std::string filename, const File::Traits& traits )
   input( (stream_store.get()) ? *stream_store : std::cin),
   traits(traits)
 {
-    this->traits.source_traits.clear();
     std::string line;
     std::getline(input, line);
     if ( ! input ) 

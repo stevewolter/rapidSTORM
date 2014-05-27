@@ -105,10 +105,6 @@ void merge_size( input::Traits<Localization>& onto, const input::Traits<Localiza
     boost::mpl::for_each< localization::Fields >(boost::bind( 
         merge_localization_traits(), 
         _1, boost::ref(onto), boost::ref(with) ) );
-    int children_count = std::min( onto.source_traits.size(), with.source_traits.size() );
-    onto.source_traits.resize( children_count );
-    for ( int i = 0; i < children_count; ++i)
-        merge_size( *onto.source_traits[i], *with.source_traits[i], i );
 }
 
 template <typename Type>

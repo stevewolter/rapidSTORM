@@ -131,8 +131,7 @@ public:
     dStorm::output::BasenameAdjustedFileEntry outputFile;
 
     Config();
-    bool can_work_with( dStorm::output::Capabilities cap )
-        { return cap.test_cluster_sources() ; }
+    bool can_work_with( dStorm::output::Capabilities cap ) { return true; }
     static std::string get_name() { return "SVDPrecision"; }
     static std::string get_description() { return "Robust SVD estimate of localization precision"; }
     static simparm::UserLevel get_user_level() { return simparm::Expert; }
@@ -291,31 +290,25 @@ PrecisionEstimator::PrecisionEstimator
 Output::AdditionalData
 PrecisionEstimator::announceStormSize(const Announcement& a)
 {
+    if (a.group_field != input::GroupFieldSemantic::Molecule) {
+        throw std::runtime_error("Input to precision estimator must be sorted "
+                "by molecule");
+    }
     used_dimensions = a.position_z().is_given;
-    return AdditionalData().set_cluster_sources();
+    return AdditionalData();
 }
 
 
 void PrecisionEstimator::receiveLocalizations( const EngineResult &er )
 {
-    for (EngineResult::const_iterator loc = er.begin(); loc != er.end(); ++loc) {
-        assert( loc->children.is_initialized() );
-
-        typedef std::vector<dStorm::Localization> Trace;
-	const Trace& trace = *loc->children;
-	int size = trace.size();
-	PrecisionEstimator::PointSet m(size, Dimensions);
-
-	int i = 0;
-	// get every point of the cluster
-	for(Trace::const_iterator it = trace.begin(); it != trace.end(); it++ ) {
-		const dStorm::Localization& point = *it;
-                for (int j = 0; j < 3; ++j)
-                    m(i,j) = point.position()[j].value();
-                for (int j = used_dimensions; j < 3; ++j)
-                    m(i,j) = 0;
-		++i;
-	}
+    PrecisionEstimator::PointSet m(er.size(), Dimensions);
+    int i = 0;
+    for (const Localization& point : er) {
+        for (int j = 0; j < 3; ++j)
+            m(i,j) = point.position()[j].value();
+        for (int j = used_dimensions; j < 3; ++j)
+            m(i,j) = 0;
+        ++i;
 
 	// remove clusters to small for the fmcd calculation
 	if(i >= Dimensions + 2){
