@@ -8,7 +8,6 @@
 #include "simparm/Entry.h"
 #include <boost/mpl/for_each.hpp>
 #include "output/FilterBuilder.h"
-#include "output/Capabilities.h"
 #include <boost/lexical_cast.hpp>
 
 namespace dStorm {

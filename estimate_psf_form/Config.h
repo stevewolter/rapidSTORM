@@ -9,7 +9,6 @@
 #include "simparm/Entry.h"
 #include "simparm/FileEntry.h"
 #include "simparm/Group.h"
-#include "output/Capabilities.h"
 #include <boost/array.hpp>
 #include <boost/optional/optional.hpp>
 #include "Direction.h"

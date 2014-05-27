@@ -15,7 +15,6 @@ class OutputTreeRoot : public output::FilterSource
     simparm::TreeRoot tree_root;
     simparm::TreeObject name_object;
     output::Config* my_config;
-    output::Capabilities cap;
 
     std::string getName() const { return name_object.getName(); }
     std::string getDesc() const { return name_object.getDesc(); }

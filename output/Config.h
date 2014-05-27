@@ -17,7 +17,6 @@ namespace output {
     : public SourceFactory
     {
         simparm::ManagedChoiceEntry<OutputSource> choice;
-        Capabilities my_capabilities;
         default_on_copy< boost::signals2::signal<void()> > source_available;
         simparm::BaseAttribute::ConnectionStore listening;
       public:

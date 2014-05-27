@@ -114,11 +114,6 @@ public:
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::mobility_unit> > mobility;
     simparm::Entry<float> distance_threshold;
-
-    bool determine_output_capabilities
-        ( dStorm::output::Capabilities& cap ) { 
-        return true;
-    }
 };
 
 

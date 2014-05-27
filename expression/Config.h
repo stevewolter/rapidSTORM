@@ -7,7 +7,6 @@
 #include "boost/units/systems/camera/intensity.hpp"
 #include "expression/Config_decl.h"
 #include "CommandLine.h"
-#include "output/Capabilities.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
@@ -28,7 +27,6 @@ struct Config : public config::ExpressionManager
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     void commit_line_count();
-    bool determine_output_capabilities( output::Capabilities& cap ) { return true; }
 
   private:
     friend class Source;

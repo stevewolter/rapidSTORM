@@ -77,8 +77,6 @@ class Config {
         : drift_file("DriftFile", "Drift correction file", ""),
           smoothing("Smoothing", "Smoothing width", 5.0f * bu::camera::frame) {}
 
-    bool determine_output_capabilities( output::Capabilities& cap ) 
-        { return true; }
     void attach_ui( simparm::NodeHandle at ) { drift_file.attach_ui( at ); smoothing.attach_ui(at); }
 };
 

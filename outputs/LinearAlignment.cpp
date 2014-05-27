@@ -40,8 +40,6 @@ class LinearAlignment::Config {
     Config() 
         : calibration_file("AlignmentFile", "Plane alignment file", "") {}
 
-    bool determine_output_capabilities( Capabilities& cap ) 
-        { return true; }
     void attach_ui( simparm::NodeHandle at ) { calibration_file.attach_ui( at ); }
 };
 

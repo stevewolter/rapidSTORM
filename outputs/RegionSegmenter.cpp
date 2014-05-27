@@ -172,11 +172,6 @@ struct Segmenter::Config {
 
     Config();
     void attach_ui( simparm::NodeHandle at );
-    bool determine_output_capabilities
-        ( dStorm::output::Capabilities& cap ) 
-    { 
-        return true;
-    }
 };
 
 using namespace std;

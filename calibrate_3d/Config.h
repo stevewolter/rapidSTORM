@@ -8,7 +8,6 @@
 #include "simparm/Object.h"
 #include "simparm/Entry.h"
 #include <string>
-#include "output/Capabilities.h"
 #include "calibrate_3d/FormCalibrationConfig.h"
 #include "calibrate_3d/ZTruthConfig.h"
 #include "units/microlength.h"

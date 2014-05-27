@@ -3,7 +3,6 @@
 
 #include "simparm/Object.h"
 #include <set>
-#include "output/Capabilities.h"
 #include <boost/utility.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/slot.hpp>

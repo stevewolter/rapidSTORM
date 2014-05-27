@@ -41,9 +41,6 @@ class SigmaDiff3D::Config {
         calibration_file.setHelpID( "SigmaDiff3D_CalibrationFile" );
     }
     void attach_ui( simparm::NodeHandle at ) { calibration_file.attach_ui( at ); }
-
-    bool determine_output_capabilities( Capabilities& cap ) 
-        { return true; }
 };
 
 SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )

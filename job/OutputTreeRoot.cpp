@@ -5,10 +5,7 @@ namespace job {
 
 OutputTreeRoot::OutputTreeRoot()
 : output::FilterSource(),
-  name_object("EngineOutput", "dSTORM engine output"),
-  cap( output::Capabilities()
-            .set_source_image()
-            .set_input_buffer() )
+  name_object("EngineOutput", "dSTORM engine output")
 {
     {
         output::Config exemplar;

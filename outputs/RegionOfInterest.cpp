@@ -52,9 +52,6 @@ class ROIFilter::Config
         lower.attach_ui(at); 
         upper.attach_ui(at);
     }
-
-    bool determine_output_capabilities( dStorm::output::Capabilities& )
-        { return true; }
 };
 
 ROIFilter::ROIFilter(

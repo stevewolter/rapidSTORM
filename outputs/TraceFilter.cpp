@@ -29,10 +29,6 @@ class TraceCountConfig
     static std::string get_name() { return "TraceFilter"; }
     static std::string get_description() { return "Trace filter"; }
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
-
-    bool determine_output_capabilities( output::Capabilities& cap ) {
-        return true;
-    }
 };
 
 TraceCountConfig::TraceCountConfig()
