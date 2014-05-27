@@ -187,6 +187,8 @@ void Output::announceStormSize(const Announcement &a) {
                                  "for counts per photons and dark current.");
     Announcement my_announcement(a);
     my_announcement.in_sequence = false;
+    my_announcement.source_image_is_set = false;
+    my_announcement.input_image_traits.reset();
     my_announcement.group_field = input::GroupFieldSemantic::Molecule;
 
     dStorm::ImageTypes<2>::Size sizes;
