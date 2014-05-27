@@ -220,7 +220,6 @@ void Segmenter::announceStormSize(const Announcement &a) {
         binners[i].announce( a );
     announcement.reset( new Announcement(a) );
     announcement->group_field = input::GroupFieldSemantic::Molecule;
-    announcement->source_image_is_set = false;
     announcement->input_image_traits.reset();
     bins.announceStormSize( a );
     Filter::announceStormSize( *announcement );

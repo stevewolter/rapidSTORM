@@ -105,7 +105,7 @@ AverageImage::RunRequirements AverageImage::announce_run( const RunAnnouncement&
 void AverageImage::announceStormSize(const Announcement &a)
 {
     boost::shared_ptr<const engine::InputTraits> t = a.input_image_traits;
-    if (!a.source_image_is_set || !t) {
+    if (!t) {
         throw std::runtime_error("Input images are not passed to the output "
                 + Config::get_description() + ", but are required");
     }

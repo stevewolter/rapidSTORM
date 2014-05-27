@@ -259,7 +259,6 @@ void Output::announceStormSize(const Announcement& a) {
 
     Announcement my_announcement(a);
     my_announcement.engine = this;
-    my_announcement.source_image_is_set = false;
     my_announcement.input_image_traits.reset();
     boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
     Filter::announceStormSize(my_announcement); 

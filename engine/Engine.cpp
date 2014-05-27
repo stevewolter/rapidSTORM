@@ -60,7 +60,6 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
         new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
-    rvt->source_image_is_set = true;
     rvt->group_field = input::GroupFieldSemantic::ImageNumber;
     rvt->input_image_traits.reset( imProp.clone() );
 

@@ -5,7 +5,6 @@ namespace input {
 
 Traits<output::LocalizedImage>::Traits( const std::string& name, const std::string& description )
 : carburettor(NULL), engine(NULL), 
-  source_image_is_set(false),
   name(name), description(description) {}
 
 Traits<output::LocalizedImage>::Traits(
@@ -17,7 +16,6 @@ Traits<output::LocalizedImage>::Traits(
 : Traits<Localization>(traits),
     carburettor(carburettor),
     engine(repeater),
-    source_image_is_set(false),
     name(name), description(desc)
     {}
 
