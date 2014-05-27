@@ -14,8 +14,6 @@ struct Repeat
         static std::string get_description() { return "Repeat trigger"; }
         static simparm::UserLevel get_user_level() { return simparm::Debug; }
         void attach_ui( simparm::NodeHandle ) {}
-        bool can_work_with(const dStorm::output::Capabilities&)
-            {return true;}
     };
     dStorm::Engine *r;
     simparm::TriggerEntry repeat;

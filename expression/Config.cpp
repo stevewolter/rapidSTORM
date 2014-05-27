@@ -62,10 +62,6 @@ void Config::commit_line_count()
         lines.pop_back();
 }
 
-bool Config::can_work_with(output::Capabilities)
- { return true; }
-
-
 std::auto_ptr<output::OutputSource> make_output_source()
 {
     return std::auto_ptr<output::OutputSource>( new output::FilterBuilder<Config,Source>() );

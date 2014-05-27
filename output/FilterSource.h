@@ -88,8 +88,6 @@ class FilterSource
      *  element. */
     virtual void set_output_factory(const SourceFactory& f);
 
-    virtual void set_source_capabilities( Capabilities );
-
     /** Explicitely set the output element. Circumvents the 
      *  \c factory. */
     void add(std::auto_ptr<OutputSource> src);

@@ -109,7 +109,6 @@ rapidstorm_SOURCES = \
     localization/Fields.h localization/Fields.cpp \
     output/Basename_decl.h output/Basename.h \
     output/BasenameAdjustedFileEntry_decl.h output/BasenameAdjustedFileEntry.h \
-    output/Capabilities.h \
     output/FileOutputBuilder.h \
     output/FilterBuilder.h output/FilterBuilder_impl.h \
     output/FilterSource.h \

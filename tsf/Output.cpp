@@ -32,10 +32,6 @@ class OutputConfig {
   }
 
   OutputConfig() : outputFile("ToFile", "Write TSF file to", ".tsf") {}
-
-  bool can_work_with(output::Capabilities cap) { 
-      return true; 
-  }
 };
 
 class Output : public output::Output {

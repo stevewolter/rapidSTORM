@@ -36,7 +36,6 @@ public:
 
     void attach_ui( simparm::NodeHandle at );
     void backend_needs_changing( simparm::BaseAttribute::Listener );
-    static bool can_work_with(output::Capabilities) { return true; }
 
     static std::string get_name() { return "Image"; }
     static std::string get_description() { return "Image display"; }

@@ -39,10 +39,6 @@ class Config {
         xyztI.attach_ui( at );
     }
     Config();
-
-    bool can_work_with(output::Capabilities cap) { 
-        return true; 
-    }
 };
 
 class Output : public output::Output {

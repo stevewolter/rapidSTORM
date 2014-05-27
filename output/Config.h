@@ -20,8 +20,6 @@ namespace output {
         Capabilities my_capabilities;
         default_on_copy< boost::signals2::signal<void()> > source_available;
         simparm::BaseAttribute::ConnectionStore listening;
-      protected:
-        void set_source_capabilities(Capabilities src_cap);
       public:
         Config();
         virtual Config* clone() const;

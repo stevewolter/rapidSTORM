@@ -39,7 +39,6 @@ public:
         simparm::FileEntry output_file;
 
         Config(); 
-        bool can_work_with(Capabilities) { return true; }
         void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); }
         static std::string get_name() { return "Count"; }
         static std::string get_description() { return "Count localizations"; }

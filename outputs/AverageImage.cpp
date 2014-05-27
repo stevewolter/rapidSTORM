@@ -53,9 +53,6 @@ class AverageImage::Config {
   public:
     BasenameAdjustedFileEntry outputFile;
     Config();
-    bool can_work_with(Capabilities cap) 
-        { return cap.test( Capabilities::SourceImage ) && 
-                 cap.test( Capabilities::InputBuffer ); }
 
     static std::string get_name() { return "AverageImage"; }
     static std::string get_description() { return "Average images"; }

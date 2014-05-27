@@ -44,10 +44,6 @@ class Configuration {
         outputFile.attach_ui( at );
         step_number.attach_ui( at );
     }
-
-    bool can_work_with(output::Capabilities cap) { 
-        return true; 
-    }
 };
 
 class Output : public output::Output {

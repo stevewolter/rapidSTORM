@@ -283,7 +283,6 @@ public:
 
         Config() : output_file("ToFile", "Write localization count to file", "-drift.txt"),
                    slice_size("SectionSize", "Section size", 200 * camera::frame) {}
-        bool can_work_with(output::Capabilities) { return true; }
         void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); slice_size.attach_ui( at ); }
         static std::string get_name() { return "NonlinearDrift"; }
         static std::string get_description() { return "Nonlinear drift estimator"; }

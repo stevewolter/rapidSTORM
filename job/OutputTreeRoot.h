@@ -29,8 +29,6 @@ public:
     OutputTreeRoot* clone() const { return new OutputTreeRoot(*this); }
     output::Config &root_factory() { return *my_config; }
 
-    void set_trace_capability( const input::Traits<output::LocalizedImage>& t ); 
-
     void attach_full_ui( simparm::NodeHandle at );
     void hide_in_tree() { name_object.show_in_tree = false; }
 };

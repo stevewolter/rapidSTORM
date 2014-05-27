@@ -152,8 +152,6 @@ void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
     else
         configTarget.value = "";
     outputRoot->set_output_file_basename( traits->suggested_output_basename );
-    if ( traits->provides<output::LocalizedImage>() ) 
-        outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );
 }
 
 std::auto_ptr< Job > Config::make_job() {

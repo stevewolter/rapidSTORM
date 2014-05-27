@@ -28,7 +28,6 @@ struct Config : public config::ExpressionManager
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     void commit_line_count();
-    bool can_work_with(output::Capabilities);
     bool determine_output_capabilities( output::Capabilities& cap ) { return true; }
 
   private:

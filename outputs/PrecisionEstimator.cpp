@@ -131,7 +131,6 @@ public:
     dStorm::output::BasenameAdjustedFileEntry outputFile;
 
     Config();
-    bool can_work_with( dStorm::output::Capabilities cap ) { return true; }
     static std::string get_name() { return "SVDPrecision"; }
     static std::string get_description() { return "Robust SVD estimate of localization precision"; }
     static simparm::UserLevel get_user_level() { return simparm::Expert; }

@@ -43,7 +43,6 @@ class ProgressMeter : public Output
 class ProgressMeter::Config 
 { 
   public:
-    bool can_work_with(Capabilities) { return true; }
     void attach_ui( simparm::NodeHandle ) {}
     static std::string get_name() { return "Progress"; }
     static std::string get_description() { return "Display progress"; }

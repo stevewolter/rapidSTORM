@@ -42,8 +42,6 @@ struct Delayer::Config
     static std::string get_description() { return "Delayer"; }
     static simparm::UserLevel get_user_level() { return simparm::Debug; }
     void attach_ui( simparm::NodeHandle ) {}
-    bool can_work_with(const dStorm::output::Capabilities&)
-        {return true;}
 };
 
 Delayer* Delayer::clone() const { 

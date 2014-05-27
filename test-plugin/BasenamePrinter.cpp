@@ -32,8 +32,6 @@ struct BasenamePrinter::Config
 
     Config();
     void attach_ui(simparm::NodeHandle);
-    bool can_work_with(const dStorm::output::Capabilities&)
-        {return true;}
     void print() {
         std::cerr << this << ": Displaying output file name "
                   << outputFile.unformatted_name() << "\n";

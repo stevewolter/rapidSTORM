@@ -28,8 +28,6 @@ class Config : public FormCalibrationConfig, public ZTruthConfig {
 public:
     Config();
     void attach_ui( simparm::NodeHandle );
-    bool can_work_with(output::Capabilities cap) 
-        { return cap.test( output::Capabilities::SourceImage ); }
     static std::string get_name() { return "Calibrate3D"; }
     static std::string get_description() { return "Calibrate 3D on known data"; }
     static simparm::UserLevel get_user_level() { return simparm::Expert; }

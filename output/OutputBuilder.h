@@ -22,11 +22,6 @@ public:
         { return new OutputBuilder(*this); }
     ~OutputBuilder() {}
 
-    void set_source_capabilities( Capabilities cap ) 
-    {
-        choice_object.set_visibility( config.can_work_with( cap ) );
-    }
-
     std::auto_ptr<output::Output> make_output() 
     {
         return std::auto_ptr<output::Output>( new Output(config) );

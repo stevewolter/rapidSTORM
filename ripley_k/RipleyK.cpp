@@ -33,7 +33,6 @@ struct Config
           max_distance("MaximumDistance", "Maximum considered distance", 1E3 * si::nanometre),
           outputFile("ToFile", "Output file", "-ripley-k.txt") {}
     void attach_ui( simparm::NodeHandle at ) { periodic_boundary.attach_ui(at); bin_size.attach_ui(at); max_distance.attach_ui(at); outputFile.attach_ui( at ); }
-    bool can_work_with( dStorm::output::Capabilities ) { return true; }
     static std::string get_name() { return "RipleyK"; }
     static std::string get_description() { return "Compute Ripley's K function"; }
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }

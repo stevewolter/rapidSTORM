@@ -16,8 +16,6 @@ public:
     DensityMapOutputConfig()
         : outputFile("ToFile", "Output file", "-density.txt") {}
 
-    static bool can_work_with(output::Capabilities) { return true; }
-
     static std::string get_name() { return "DensityMap"; }
     static std::string get_description() { return "Density map"; }
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }

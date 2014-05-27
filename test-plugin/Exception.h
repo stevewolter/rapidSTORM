@@ -44,8 +44,6 @@ struct Exception::Config
         onAnnouncement.attach_ui( at );
         onImageNumber.attach_ui( at );
     }
-    bool can_work_with(const dStorm::output::Capabilities&)
-        {return true;}
     static std::string get_name() { return "Exception"; }
     static std::string get_description() { return "Exception"; }
     static simparm::UserLevel get_user_level() { return simparm::Debug; }
