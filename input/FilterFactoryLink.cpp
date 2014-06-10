@@ -56,7 +56,7 @@ void FilterFactoryLink<InputType, OutputType>::traits_changed( TraitsRef upstrea
     boost::shared_ptr< MetaInfo > my_info( new MetaInfo(*upstream) );
     boost::shared_ptr<const Traits<InputType>> input_traits =
         upstream->traits<InputType>();
-    boost::shared_ptr<Traits<OutputType>> output_traits =
+    boost::shared_ptr<const Traits<OutputType>> output_traits =
         filter_->make_meta_info(*my_info, input_traits);
     my_info->set_traits(output_traits);
     this->update_current_meta_info(my_info);
