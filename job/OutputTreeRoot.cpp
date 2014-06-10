@@ -30,7 +30,7 @@ OutputTreeRoot::OutputTreeRoot( const OutputTreeRoot& other )
 
 void OutputTreeRoot::set_trace_capability( const input::Traits<output::LocalizedImage>& t )
 {
-    cap.set_source_image( t.source_image_is_set );
+    cap.set_source_image( t.input_image_traits );
     cap.set_cluster_sources( ! t.source_traits.empty() );
     this->set_source_capabilities( cap );
 }

@@ -140,7 +140,7 @@ void Car::drive() {
         m.send( current_ui );
         return;
     } else if ( data.test( output::Capabilities::SourceImage ) &&
-                ! announcement.source_image_is_set )
+                ! announcement.input_image_traits )
     {
         simparm::Message m("Unable to provide data",
                    "One of your output modules needs access to the raw " +

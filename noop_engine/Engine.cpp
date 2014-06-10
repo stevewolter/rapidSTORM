@@ -28,7 +28,6 @@ Engine::TraitsPtr Engine::get_traits() {
 Engine::TraitsPtr Engine::convert_traits( const Input::Traits& p ) {
     Base::TraitsPtr prv( new input::Traits<output::LocalizedImage>("Noop", "Dummy engine data") );
     prv->in_sequence = true;
-    prv->source_image_is_set = true;
     prv->image_number() = p.image_number();
     prv->input_image_traits.reset( p.clone() );
 
