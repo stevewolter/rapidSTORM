@@ -99,7 +99,7 @@ class StrategistImplementation
         std::auto_ptr<BaseTraits> base( merge_traits( traits, Tag() ).release() );
         if ( ! base.get() ) return;
         std::auto_ptr< MetaInfo > rv(new MetaInfo(*v[0]) );
-        rv->set_traits( base );
+        rv->set_traits( base.release() );
         result.reset( rv.release() );
     }
 

@@ -22,26 +22,22 @@ struct MetaInfo {
   private:
     struct Signals;
     std::auto_ptr<Signals> _signals;
-    boost::shared_ptr<BaseTraits> _traits;
+    boost::shared_ptr<const BaseTraits> _traits;
   public:
     dStorm::output::Basename suggested_output_basename;
     std::set<std::string> forbidden_filenames;
     std::list< std::pair<std::string,std::string> > accepted_basenames;
 
-    void set_traits( boost::shared_ptr<BaseTraits> t ) { _traits = (t); }
-    void set_traits( BaseTraits* t ) { _traits.reset(t); }
-    void set_traits( std::auto_ptr<BaseTraits> t ) { _traits.reset(t.release()); }
+    void set_traits( boost::shared_ptr<const BaseTraits> t ) { _traits = (t); }
+    void set_traits( const BaseTraits* t ) { _traits.reset(t); }
+    void set_traits( std::auto_ptr<const BaseTraits> t ) { _traits.reset(t.release()); }
     template <typename Type>
     bool provides() const 
-        { return dynamic_cast< Traits<Type>* >( _traits.get() ) != NULL; }
-    BaseTraits& base_traits() { return *_traits; }
+        { return dynamic_cast< const Traits<Type>* >( _traits.get() ) != NULL; }
     const BaseTraits& base_traits() const { return *_traits; }
     template <typename Type>
-    boost::shared_ptr< Traits<Type> > traits() 
-        { return boost::dynamic_pointer_cast< Traits<Type>, BaseTraits >(_traits); }
-    template <typename Type>
     boost::shared_ptr< const Traits<Type> > traits() const
-        { return boost::dynamic_pointer_cast< const Traits<Type>, BaseTraits >(_traits); }
+        { return boost::dynamic_pointer_cast< const Traits<Type>, const BaseTraits >(_traits); }
     bool provides_nothing() const { return _traits.get() == NULL; }
 
     template <typename Type> Type& get_signal();
