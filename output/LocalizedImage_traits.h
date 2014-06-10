@@ -10,8 +10,6 @@
 #include <vector>
 #include "base/Engine.h"
 
-namespace boost { struct recursive_mutex; }
-
 namespace dStorm {
 class Engine;
 
