@@ -228,6 +228,8 @@ rapidstorm_SOURCES += \
     input/Link.cpp input/Choice.cpp \
     input/Forwarder.cpp \
     input/Method.hpp \
+    input/FilterFactory.h \
+    input/FilterFactoryLink.h input/FilterFactoryLink.cpp \
     engine/CandidateTree.cpp engine/SpotFinder.cpp engine/SpotFitterFactory.cpp engine/Image.cpp \
     engine/JobInfo.cpp engine/InputTraits.cpp \
     engine/InputPlane.cpp \
