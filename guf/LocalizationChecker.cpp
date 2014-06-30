@@ -16,6 +16,8 @@ namespace guf {
 
 LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::engine::JobInfo& info )
 : info(info),
+  spot_distance_threshold(
+          pow(ToLengthUnit(config.maximum_distance_from_spot()), 2.0)),
   theta_dist_sq( pow(ToLengthUnit(config.theta_dist()), 2.0) ),
   allowed_z_positions()
 {
@@ -47,27 +49,18 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
     return makes_it_in_one_plane;
 }
 
-template <int Dim>
-bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::BaseExpression& k, const guf::Spot& spot, int plane ) const
-{
-    /* TODO: Make this 3.0 configurable */
-    bool close_to_original = 
-        abs( k( gaussian_psf::Mean<Dim>() ) - spot[Dim] ) 
-            < k.get_sigma()[Dim] * 3.0;
-    DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
-    return close_to_original;
-}
-
 bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, const guf::Spot& s, int plane ) const
 {
-    bool kernels_ok =
-        check_kernel_dimension<0>(k,s, plane) &&
-        check_kernel_dimension<1>(k,s, plane);
+    Eigen::Array2d final_distance;
+    final_distance.x() = k( gaussian_psf::Mean<0>() ) - s.x();
+    final_distance.y() = k( gaussian_psf::Mean<1>() ) - s.y();
+    if (final_distance.abs().matrix().squaredNorm() > spot_distance_threshold) {
+        return false;
+    }
+
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &k );
-    bool z_ok = (!threed || 
-        contains(allowed_z_positions, 
-             (*threed)( gaussian_psf::MeanZ() ) ) );
-    return kernels_ok && z_ok;
+    return !threed || contains(allowed_z_positions,
+                               (*threed)(gaussian_psf::MeanZ()));
 }
 
 }

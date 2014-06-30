@@ -17,6 +17,7 @@ struct Config
     simparm::Group name_object;
     fit_window::Config fit_window_config;
     simparm::BoolEntry allow_disjoint, double_computation;
+    dStorm::FloatNanometreEntry maximum_distance_from_spot;
     static const int maximum_plane_count = 9;
 
     Config();

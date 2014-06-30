@@ -15,9 +15,8 @@ struct BasenamePrinter
     BasenamePrinter(const Config& config);
     BasenamePrinter* clone() const;
 
-    AdditionalData announceStormSize(const Announcement& a) 
-        { return AdditionalData(); }
-    void receiveLocalizations(const EngineResult&) {}
+    void announceStormSize(const Announcement& a) OVERRIDE {}
+    void receiveLocalizations(const EngineResult&) OVERRIDE {}
 
 };
 
@@ -32,8 +31,6 @@ struct BasenamePrinter::Config
 
     Config();
     void attach_ui(simparm::NodeHandle);
-    bool can_work_with(const dStorm::output::Capabilities&)
-        {return true;}
     void print() {
         std::cerr << this << ": Displaying output file name "
                   << outputFile.unformatted_name() << "\n";

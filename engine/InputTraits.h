@@ -38,8 +38,8 @@ public:
 
     std::pair<samplepos,samplepos> size_in_sample_space() const;
 
-    localization::MetaInfo<localization::ImageNumber>& image_number() { return in; }
-    const localization::MetaInfo<localization::ImageNumber>& image_number() const { return in; }
+    localization::MetaInfo<localization::ImageNumber::ValueType>& image_number() { return in; }
+    const localization::MetaInfo<localization::ImageNumber::ValueType>& image_number() const { return in; }
 
     boost::units::quantity<boost::units::camera::frame_rate>
         frame_rate;
@@ -59,7 +59,7 @@ public:
 
 private:
     std::vector< engine::InputPlane > planes_;
-    localization::MetaInfo<localization::ImageNumber> in;
+    localization::MetaInfo<localization::ImageNumber::ValueType> in;
 };
 
 }

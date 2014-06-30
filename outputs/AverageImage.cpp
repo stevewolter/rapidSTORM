@@ -37,7 +37,7 @@ class AverageImage : public Output {
     AverageImage(const Config &config);
     ~AverageImage();
 
-    AdditionalData announceStormSize(const Announcement &a);
+    void announceStormSize(const Announcement &a) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement&); 
     void receiveLocalizations(const EngineResult&);
 
@@ -53,9 +53,6 @@ class AverageImage::Config {
   public:
     BasenameAdjustedFileEntry outputFile;
     Config();
-    bool can_work_with(Capabilities cap) 
-        { return cap.test( Capabilities::SourceImage ) && 
-                 cap.test( Capabilities::InputBuffer ); }
 
     static std::string get_name() { return "AverageImage"; }
     static std::string get_description() { return "Average images"; }
@@ -105,11 +102,14 @@ AverageImage::RunRequirements AverageImage::announce_run( const RunAnnouncement&
     return RunRequirements();
 }
 
-AverageImage::AdditionalData AverageImage::announceStormSize(const Announcement &a)
+void AverageImage::announceStormSize(const Announcement &a)
 {
     boost::shared_ptr<const engine::InputTraits> t = a.input_image_traits;
+    if (!t) {
+        throw std::runtime_error("Input images are not passed to the output "
+                + Config::get_description() + ", but are required");
+    }
     image = Image(t->image(0).size, 0 * camera::frame);
-    return AdditionalData().set_source_image(); 
 }
 
 std::auto_ptr< output::OutputSource > make_average_image_source() {

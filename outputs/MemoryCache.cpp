@@ -32,16 +32,12 @@ struct StoreTree {
     Stores parts;
     boost::optional<int> repetitions;
     typedef std::vector< StoreTree > Children;
-    Children children_parts;
     int current_offset;
 
     StoreTree( const input::Traits<Localization>& traits ) 
         : repetitions( traits.repetitions ), current_offset(0)
     {
         parts = Store::instantiate_necessary_caches( traits );
-        for ( input::Traits<Localization>::Sources::const_iterator 
-            i = traits.source_traits.begin(); i != traits.source_traits.end(); ++i )
-            children_parts.push_back( StoreTree( **i ) );
     }
 };
 
@@ -58,14 +54,14 @@ class Localizations {
 };
 
 class LocalizedImage : private Localizations {
-    frame_index for_image;
+    int group;
   public:
     LocalizedImage( const output::LocalizedImage& i, StoreTree& n )
-        : Localizations( i.begin(), i.end(), n ), for_image( i.forImage ) {}
+        : Localizations( i.begin(), i.end(), n ), group(i.group) {}
     void recall( output::LocalizedImage& to, const StoreTree& n ) const {
         to.resize( count );
         Localizations::recall( to.begin(), n );
-        to.forImage = for_image;
+        to.group = group;
     }
 };
 
@@ -92,10 +88,6 @@ struct Config
     static std::string get_description() { return "Cache localizations"; }
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
     void attach_ui( simparm::NodeHandle ) {}
-    bool determine_output_capabilities( dStorm::output::Capabilities& cap ) { 
-        cap.set_source_image( false );
-        return true;
-    }
 };
 
 class Output 
@@ -140,7 +132,7 @@ class Output
     Output(const Config&, std::auto_ptr<output::Output> output);
     ~Output();
 
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement& r) ;
     void receiveLocalizations(const EngineResult& e);
 
@@ -154,41 +146,11 @@ Localizations::Localizations( ConstInput b, ConstInput last, StoreTree& n )
     for ( StoreTree::Stores::iterator i = n.parts.begin(); i != n.parts.end(); ++i )
         i->store( b, e );
     n.current_offset += count;
-
-    if ( n.children_parts.size() > 0 ) {
-        children = std::vector<Localizations>();
-        children->reserve( n.children_parts.size() * (e-b) );
-        for ( ConstInput i = b; i != e; ++i ) {
-            Localization::Children::const_iterator c = i->children->begin(), ce = i->children->end();
-            StoreTree::Children::iterator part = n.children_parts.begin();
-            for ( ; part != n.children_parts.end(); ++part ) {
-                children->push_back( Localizations( c, ce, *part ) );
-                c += children->back().count;
-            }
-        }
-    }
 }
     
 void Localizations::recall( Input begin, const StoreTree& n ) const {
     std::for_each( n.parts.begin(), n.parts.end(),
         boost::bind( &Store::recall, _1, offset, begin, begin+count ) );
-
-    if ( ! n.children_parts.empty() ) {
-        std::vector< Localizations >::const_iterator offset;
-        offset = children->begin();
-        for ( Input l = begin; l != begin+count; ++l ) {
-            int children_count = 0;
-            for ( std::vector< Localizations >::const_iterator i = offset; i != offset + n.children_parts.size(); ++i )
-                children_count += i->count;
-            l->children = std::vector<Localization>( children_count );
-            std::vector<Localization>::iterator current = l->children->begin();
-            for (StoreTree::Children::const_iterator i = n.children_parts.begin(); i != n.children_parts.end(); ++i) {
-                offset->recall( current, *i );
-                current += offset->count;
-                ++offset;
-            }
-        }
-    }
 }
 
 void Bunch::recall( int index, output::LocalizedImage& into ) const {
@@ -285,9 +247,7 @@ void Output::reemit_localizations(const int my_count) {
     }
 }
 
-Output::AdditionalData
-Output::announceStormSize(const Announcement& a) 
-{ 
+void Output::announceStormSize(const Announcement& a) { 
     boost::lock_guard<boost::mutex> lock(output_mutex);
     upstream = a.engine;
     master_bunch.reset( new Bunch(a) );
@@ -299,11 +259,9 @@ Output::announceStormSize(const Announcement& a)
 
     Announcement my_announcement(a);
     my_announcement.engine = this;
+    my_announcement.input_image_traits.reset();
     boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-    AdditionalData data = Filter::announceStormSize(my_announcement); 
-    Output::check_additional_data_with_provided(
-        "MemoryCache", AdditionalData().set_cluster_sources(), data );
-    return data;
+    Filter::announceStormSize(my_announcement); 
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement& r) {

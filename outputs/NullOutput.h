@@ -9,10 +9,8 @@ namespace outputs {
 struct NullOutput : public output::Output
 {
     NullOutput() {}
-    AdditionalData announceStormSize(const Announcement&) 
-        { return AdditionalData(); }
-    void receiveLocalizations(const EngineResult&) {}
-    void attach_ui( simparm::NodeHandle ) {}
+    void announceStormSize(const Announcement&) OVERRIDE {}
+    void receiveLocalizations(const EngineResult&) OVERRIDE {}
 };
 
 }

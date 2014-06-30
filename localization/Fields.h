@@ -121,6 +121,15 @@ struct ImageNumber {
     static const ValueType default_value;
 };
 
+struct Molecule {
+    typedef dStorm::Fluorophore ValueType;
+    typedef dStorm::Fluorophore OutputType;
+
+    static std::string get_desc();
+    static std::string get_shorthand();
+    static const ValueType default_value;
+};
+
 
 typedef boost::mpl::vector<
     PositionX,
@@ -137,7 +146,8 @@ typedef boost::mpl::vector<
     FitResidues,
     Fluorophore,
     LocalBackground,
-    CoefficientOfDetermination> Fields;
+    CoefficientOfDetermination,
+    Molecule> Fields;
 
 }
 }

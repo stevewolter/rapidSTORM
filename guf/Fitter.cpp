@@ -88,9 +88,6 @@ int Fitter::fitSpot(
         loc.frame_number = im.frame_number();
         loc.two_kernel_improvement = improvement;
         loc.coefficient_of_determination = r_value;
-        if ( loc.children.is_initialized() )
-            for ( std::vector<Localization>::iterator i = loc.children->begin(); i != loc.children->end(); ++i )
-                i->frame_number = im.frame_number();
         return 1;
     } catch ( const fit_window::fit_position_out_of_range& ) {
         DEBUG("Fit position is out of range");

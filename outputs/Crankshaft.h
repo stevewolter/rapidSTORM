@@ -40,7 +40,7 @@ class Crankshaft
     void add( std::auto_ptr<Output> tm, Type type = Yield )
         { if (tm.get() != NULL) _add( tm.release(), (type == Yield), true ); }
 
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement&);
     void receiveLocalizations(const EngineResult&);
 

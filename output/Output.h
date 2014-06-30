@@ -14,7 +14,6 @@
 #include <bitset>
 
 #include "output/Traits.h"
-#include "output/Capabilities.h"
 #include "units/frame_count.h"
 #include "output/LocalizedImage.h"
 #include "output/LocalizedImage_traits.h"
@@ -34,7 +33,6 @@ class Output {
 public:
     struct Announcement;
     struct RunFinished {};
-    typedef Capabilities AdditionalData;
 
     enum RunRequirement {
         MayNeedRestart
@@ -47,11 +45,6 @@ public:
     typedef LocalizedImage EngineResult;
 
 protected:
-    /** Method throws an exception when \c can_provide does not
-        *  cover \c are_desired, and does nothing otherwise. */
-    static void check_additional_data_with_provided
-        (std::string name, AdditionalData can_provide, 
-                            AdditionalData are_desired);
     static void insert_filename_with_check(
         std::string file, std::set<std::string>& present_filenames );
 
@@ -74,7 +67,7 @@ public:
         *  @return A bitfield indicating which additional data (besides the
         *          source image number and the found localizations) should
         *          be transmitted with receiveLocalizations(). */
-    virtual AdditionalData announceStormSize(const Announcement&) = 0;
+    virtual void announceStormSize(const Announcement&) = 0;
     virtual RunRequirements announce_run(const RunAnnouncement&) 
         { return RunRequirements(); }
     virtual void receiveLocalizations(const EngineResult&) = 0;

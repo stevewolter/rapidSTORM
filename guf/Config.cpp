@@ -10,6 +10,7 @@ Config::Config()
 : name_object(getName()),
   allow_disjoint("DisjointFitting", true),
   double_computation("DoublePrecision", true),
+  maximum_distance_from_spot("MaximumDistanceFromSpot", 400 * boost::units::si::nanometre),
   theta_dist("ThetaDist", 500 * boost::units::si::nanometre),
   negligible_x_step("NegligibleStepLength", 1E-1f * boost::units::si::nanometre),
   marquardtStartLambda("MarquardtStartLambda", 1E2),
@@ -27,6 +28,7 @@ Config::Config()
     free_sigmas.set_user_level( simparm::Intermediate );
     output_sigmas.set_user_level( simparm::Intermediate );
     mle_fitting.set_user_level( simparm::Intermediate );
+    maximum_distance_from_spot.set_user_level( simparm::Intermediate );
     theta_dist.set_user_level( simparm::Intermediate );
     negligible_x_step.set_user_level( (simparm::Intermediate) );
     relative_epsilon.set_user_level( (simparm::Intermediate) );

@@ -14,8 +14,6 @@ struct Repeat
         static std::string get_description() { return "Repeat trigger"; }
         static simparm::UserLevel get_user_level() { return simparm::Debug; }
         void attach_ui( simparm::NodeHandle ) {}
-        bool can_work_with(const dStorm::output::Capabilities&)
-            {return true;}
     };
     dStorm::Engine *r;
     simparm::TriggerEntry repeat;
@@ -31,12 +29,11 @@ struct Repeat
         { repeat.hide();  }
     Repeat* clone() const { return new Repeat(*this); }
 
-    AdditionalData announceStormSize(const Announcement& a) { 
+    void announceStormSize(const Announcement& a) OVERRIDE { 
         r = a.engine;
         repeat.set_visibility( r );
-        return AdditionalData(); 
     }
-    void receiveLocalizations(const EngineResult&) {}
+    void receiveLocalizations(const EngineResult&) OVERRIDE {}
 
 private:
     void repeat_results() {

@@ -114,17 +114,6 @@ void FilterSource::set_output_factory (const SourceFactory& o)
     }
 }
 
-void FilterSource::set_source_capabilities( Capabilities cap ) {
-    if ( is_initialized() ) {
-        factory->set_source_capabilities( cap );
-        SuboutputChoice::iterator i;
-        for( i = suboutputs.begin(); i != suboutputs.end(); i++ ) {
-            i->output().set_source_capabilities( cap );
-        }
-    }
-}
-
-
 std::auto_ptr<Output> 
 FilterSource::make_output()
 {

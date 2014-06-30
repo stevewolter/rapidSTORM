@@ -23,8 +23,6 @@ namespace output {
         FilterBuilder(const FilterBuilder&);
         FilterBuilder* clone() const; 
 
-        virtual void set_source_capabilities( Capabilities cap ); 
-
         virtual std::auto_ptr<Output> make_output();
 
         std::string getName() const { return Type::get_name(); }

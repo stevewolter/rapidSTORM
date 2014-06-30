@@ -14,7 +14,7 @@ namespace wx_ui {
 class BaseAttributeHandle {
     mutable boost::recursive_mutex mutex;
     BaseAttribute *a;
-    const ProtocolNode& protocol;
+    const ProtocolNode protocol;
 public:
     BaseAttributeHandle( BaseAttribute& a, const ProtocolNode& protocol ) : a(&a), protocol(protocol) {}
     boost::optional< std::string > get_value() const { 
@@ -65,7 +65,7 @@ template <typename ValueType>
 class AttributeHandle {
     mutable boost::recursive_mutex mutex;
     Attribute<ValueType> *a;
-    const ProtocolNode& protocol;
+    const ProtocolNode protocol;
 public:
     AttributeHandle( Attribute<ValueType>& a, const ProtocolNode& p ) : a(&a), protocol(p) {}
     AttributeHandle( BaseAttribute& a, const ProtocolNode& p ) : a( dynamic_cast< Attribute<ValueType>* >(&a) ), protocol(p) {}

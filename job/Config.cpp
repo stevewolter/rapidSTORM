@@ -40,9 +40,9 @@ Config::Config( bool localization_replay_mode )
   outputRoot( new OutputTreeRoot() ),
   localization_replay_mode( localization_replay_mode ),
   outputBox("Output", "Output options"),
+  thread_count_("CPUNumber", "Number of CPUs to use", 1),
   configTarget("SaveConfigFile", "Job options file", "-settings.txt"),
-  auto_terminate("AutoTerminate", "Automatically terminate finished jobs", false),
-  thread_count_("CPUNumber", "Number of CPUs to use", 1)
+  auto_terminate("AutoTerminate", "Automatically terminate finished jobs", false)
 {
     configTarget.set_user_level(simparm::Beginner);
     auto_terminate.set_user_level(simparm::Expert);
@@ -78,9 +78,9 @@ Config::Config(const Config &c)
   outputRoot(c.outputRoot->clone()),
   localization_replay_mode(c.localization_replay_mode),
   outputBox(c.outputBox),
+  thread_count_(c.thread_count_),
   configTarget(c.configTarget),
-  auto_terminate(c.auto_terminate),
-  thread_count_(c.thread_count_)
+  auto_terminate(c.auto_terminate)
 {
     if ( c.input.get() )
         create_input( std::auto_ptr<input::Link>(c.input->clone()) );
@@ -152,8 +152,6 @@ void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
     else
         configTarget.value = "";
     outputRoot->set_output_file_basename( traits->suggested_output_basename );
-    if ( traits->provides<output::LocalizedImage>() ) 
-        outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );
 }
 
 std::auto_ptr< Job > Config::make_job() {

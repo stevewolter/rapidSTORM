@@ -15,7 +15,6 @@ class OutputTreeRoot : public output::FilterSource
     simparm::TreeRoot tree_root;
     simparm::TreeObject name_object;
     output::Config* my_config;
-    output::Capabilities cap;
 
     std::string getName() const { return name_object.getName(); }
     std::string getDesc() const { return name_object.getDesc(); }
@@ -28,8 +27,6 @@ public:
 
     OutputTreeRoot* clone() const { return new OutputTreeRoot(*this); }
     output::Config &root_factory() { return *my_config; }
-
-    void set_trace_capability( const input::Traits<output::LocalizedImage>& t ); 
 
     void attach_full_ui( simparm::NodeHandle at );
     void hide_in_tree() { name_object.show_in_tree = false; }

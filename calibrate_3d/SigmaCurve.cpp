@@ -44,10 +44,6 @@ class Configuration {
         outputFile.attach_ui( at );
         step_number.attach_ui( at );
     }
-
-    bool can_work_with(output::Capabilities cap) { 
-        return true; 
-    }
 };
 
 class Output : public output::Output {
@@ -141,14 +137,13 @@ public:
     RunRequirements announce_run(const RunAnnouncement&) {
         return RunRequirements();
     }
-    AdditionalData announceStormSize(const Announcement &a) {
+    void announceStormSize(const Announcement &a) OVERRIDE {
         if ( ! a.position_z().is_given )
             throw std::runtime_error("Z ground truth is not given for sigma curve generation");
         if ( ! a.psf_width_x().is_given )
             throw std::runtime_error("PSF width in X is not given for sigma curve generation");
         if ( ! a.psf_width_y().is_given )
             throw std::runtime_error("PSF width in Y is not given for sigma curve generation");
-        return AdditionalData(); 
     }
     void receiveLocalizations(const EngineResult& er) {
         std::copy( er.begin(), er.end(), std::back_inserter( points ) );

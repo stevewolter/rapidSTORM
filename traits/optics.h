@@ -29,11 +29,8 @@ namespace units = boost::units;
 
 struct PlaneConfig;
 
-struct Optics
+class Optics
 {
-    typedef units::quantity< units::camera::resolution, float > Resolution;
-
-  private:
     std::vector<float> tmc;
     boost::shared_ptr< const ProjectionFactory > projection_factory_;
     boost::shared_ptr< const threed_info::DepthInfo > depth_info_[Direction_2D];

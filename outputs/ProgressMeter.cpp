@@ -23,9 +23,9 @@ class ProgressMeter : public Output
     }
 
   protected:
-    AdditionalData announceStormSize(const Announcement &a);
-    void receiveLocalizations(const EngineResult& er);
-    void store_results_( bool success );
+    void announceStormSize(const Announcement &a) OVERRIDE;
+    void receiveLocalizations(const EngineResult& er) OVERRIDE;
+    void store_results_( bool success ) OVERRIDE;
 
   public:
     class Config;
@@ -43,7 +43,6 @@ class ProgressMeter : public Output
 class ProgressMeter::Config 
 { 
   public:
-    bool can_work_with(Capabilities) { return true; }
     void attach_ui( simparm::NodeHandle ) {}
     static std::string get_name() { return "Progress"; }
     static std::string get_description() { return "Display progress"; }
@@ -58,17 +57,15 @@ ProgressMeter::ProgressMeter(const Config &)
         progress.increment = (0.02);
     }
 
-Output::AdditionalData
-ProgressMeter::announceStormSize(const Announcement &a) { 
-        first = *a.image_number().range().first;
-        if ( a.image_number().range().second.is_initialized() )
-            length = *a.image_number().range().second + first
-                        + 1 * camera::frame;
-        else
-            progress.indeterminate = true;
-        max = frame_count::from_value(0);
-        return AdditionalData(); 
-    }
+void ProgressMeter::announceStormSize(const Announcement &a) { 
+    first = *a.image_number().range().first;
+    if ( a.image_number().range().second.is_initialized() )
+        length = *a.image_number().range().second + first
+                    + 1 * camera::frame;
+    else
+        progress.indeterminate = true;
+    max = frame_count::from_value(0);
+}
 
 void ProgressMeter::receiveLocalizations(const EngineResult& er) 
 {

@@ -42,7 +42,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 
     car_config.add_input( make_input_base(), BeforeEngine );
     car_config.add_input( make_insertion_place_link(AfterChannels), AfterChannels );
-    car_config.add_input( input::join::create_link(), AfterChannels );
+    car_config.add_input( inputs::join::create_link(), AfterChannels );
     car_config.add_input( make_insertion_place_link(BeforeChannels), BeforeChannels );
     car_config.add_input( inputs::InputMethods::create(), BeforeChannels );
     car_config.add_input( input::file_method::makeLink(), InputMethod );
@@ -78,7 +78,7 @@ void add_stm_input_modules( dStorm::Config& car_config )
 {
     car_config.add_input( engine_stm::make_STM_engine_link(), AsEngine );
     car_config.add_input( make_input_base(), BeforeEngine );
-    car_config.add_input( input::join::create_link(), AfterChannels );
+    car_config.add_input( inputs::join::create_link(), AfterChannels );
     car_config.add_input( inputs::InputMethods::create(), BeforeChannels );
     car_config.add_input( input::file_method::makeLink(), InputMethod );
 

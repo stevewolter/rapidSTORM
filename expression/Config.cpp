@@ -8,7 +8,6 @@
 #include "simparm/Entry.h"
 #include <boost/mpl/for_each.hpp>
 #include "output/FilterBuilder.h"
-#include "output/Capabilities.h"
 #include <boost/lexical_cast.hpp>
 
 namespace dStorm {
@@ -61,10 +60,6 @@ void Config::commit_line_count()
     while ( c < lines.size() )
         lines.pop_back();
 }
-
-bool Config::can_work_with(output::Capabilities)
- { return true; }
-
 
 std::auto_ptr<output::OutputSource> make_output_source()
 {

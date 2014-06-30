@@ -68,7 +68,7 @@ class Output : public output::Output {
     Output(const Config &config);
     ~Output();
 
-    AdditionalData announceStormSize(const Announcement &);
+    void announceStormSize(const Announcement &) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement&);
     void receiveLocalizations(const EngineResult&);
     void store_results() {}

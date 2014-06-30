@@ -13,15 +13,11 @@ struct LocalizedImage
 {
     std::vector<Localization> results;
   public:
-    /** Number of the image the localizations were found in. */
-    frame_index forImage;
-    /** If the SourceImage AdditionalData field was set,
-        *  this pointer points to the image the localizations
-        *  were computed in. */
+    int group;
     boost::optional<dStorm::engine::ImageStack> source;
 
     LocalizedImage();
-    LocalizedImage(frame_index);
+    LocalizedImage(frame_index frame);
     LocalizedImage( const LocalizedImage& );
     ~LocalizedImage();
     LocalizedImage& operator=( const LocalizedImage& );
@@ -53,7 +49,7 @@ struct LocalizedImage
     iterator erase( iterator f, iterator t );
     bool empty() const;
 
-    frame_index frame_number() const { return forImage; }
+    frame_index frame_number() const { return group * camera::frame; }
     void set_frame_number(frame_index);
 };
 

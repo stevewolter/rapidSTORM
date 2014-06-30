@@ -15,7 +15,7 @@ namespace engine_stm {
 enum VisitResult { KeepComing, IAmFinished, FinishedAndReject };
 
 template <typename InputType>
-typename Source<InputType>::TraitsPtr
+Source<output::LocalizedImage>::TraitsPtr
 Source<InputType>::get_traits()
 {
     input::Source<Localization>::TraitsPtr traits  = base->get_traits();
@@ -29,7 +29,9 @@ Source<InputType>::get_traits()
     last_image = r.second;
     traits->in_sequence = true;
 
-    return TraitsPtr( new TraitsPtr::element_type( *traits, "Buncher", "Localizations" ) );
+    TraitsPtr result( new TraitsPtr::element_type( *traits, "Buncher", "Localizations" ) );
+    result->group_field = input::GroupFieldSemantic::ImageNumber;
+    return result;
 }
 
 template <class InputType>
@@ -76,7 +78,7 @@ frame_index GetImageNumber(const dStorm::localization::Record& input) {
 }
 
 VisitResult AddInputToImage(output::LocalizedImage* target, const Localization& input) {
-    if (input.frame_number() == target->forImage) {
+    if (input.frame_number().value() == target->group) {
         target->push_back(input);
         return KeepComing;
     } else {
@@ -99,7 +101,7 @@ void Source<InputType>::CollectEntireImage(output::LocalizedImage* target) {
     assert(input_left_over);
     while (true) {
         DEBUG("Trying to add localization from " << GetImageNumber(input)
-              << " to image " << target->forImage);
+              << " to image " << target->group);
         switch (AddInputToImage(target, input)) {
             case KeepComing:
                 break;
@@ -112,7 +114,7 @@ void Source<InputType>::CollectEntireImage(output::LocalizedImage* target) {
         }
 
         if (!base->GetNext(0, &input)) {
-            DEBUG("Exhausted input while reading image " << target->forImage);
+            DEBUG("Exhausted input while reading image " << target->group);
             input_exhausted = true;
             input_left_over = false;
             return;
@@ -133,16 +135,16 @@ void Source<InputType>::ReadImage(output::LocalizedImage* target) {
         }
 
         frame_index input_image = GetImageNumber(input);
-        if (in_sequence && target->forImage < input_image) {
+        if (in_sequence && target->group < input_image.value()) {
             return;
         }
-        if (target->forImage > input_image) {
+        if (target->group > input_image.value()) {
             throw std::runtime_error("Duplicate image " +
                     boost::lexical_cast<std::string>(input_image) +
                     " in input");
         }
 
-        if (target->forImage == input_image) {
+        if (target->group == input_image.value()) {
             DEBUG("Immediately delivering image " << input_image);
             CollectEntireImage(target);
             return;

@@ -45,12 +45,10 @@ namespace engine {
         ~Config();
 
         FloatNanometreEntry fit_position_epsilon;
+        simparm::BoolEntry separate_plane_fitting;
 
         /** The method to use for spot detection. */
         simparm::ManagedChoiceEntry<spot_finder::Factory> spotFindingMethod;
-
-        simparm::Object weights;
-        boost::ptr_vector< simparm::Entry<float> > spot_finder_weights;
 
         /** The method to use for spot fitting. */
         simparm::ManagedChoiceEntry< spot_fitter::Factory > spotFittingMethod;

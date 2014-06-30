@@ -11,7 +11,6 @@
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/DummyListener.h"
 #include "engine/Image.h"
-#include "output/TraceReducer.h"
 #include "display/Manager.h"
 #include <boost/thread/mutex.hpp>
 #include "simparm/Entry.h"
@@ -76,7 +75,6 @@ class Segmenter : public dStorm::output::Filter,
     std::auto_ptr< dStorm::display::WindowHandle > display;
 
     std::auto_ptr< dStorm::output::Output > output;
-    std::auto_ptr< dStorm::output::TraceReducer > reducer;
 
     std::string load_segmentation, save_segmentation;
     simparm::BaseAttribute::ConnectionStore listening[2];
@@ -106,8 +104,8 @@ public:
     Segmenter( const Segmenter & );
     ~Segmenter();
 
-    AdditionalData announceStormSize(const Announcement &a) ;
-    void receiveLocalizations(const EngineResult& er) {
+    void announceStormSize(const Announcement &a) OVERRIDE;
+    void receiveLocalizations(const EngineResult& er) OVERRIDE {
         std::copy(er.begin(), er.end(), back_inserter(points));
         bins.receiveLocalizations(er);
     }
@@ -167,7 +165,6 @@ namespace outputs {
 struct Segmenter::Config {
     simparm::ManagedChoiceEntry<SegmentationMethod> method;
     dStorm::density_map::CoordinatesFactory<2> selector;
-    dStorm::output::TraceReducer::Config reducer;
 
     static std::string get_name() { return "Segmenter"; }
     static std::string get_description() { return "Segment target image"; }
@@ -175,13 +172,6 @@ struct Segmenter::Config {
 
     Config();
     void attach_ui( simparm::NodeHandle at );
-    bool determine_output_capabilities
-        ( dStorm::output::Capabilities& cap ) 
-    { 
-        cap.set_intransparency_for_source_data();
-        cap.set_cluster_sources( true );
-        return true;
-    }
 };
 
 using namespace std;
@@ -202,7 +192,6 @@ void Segmenter::Config::attach_ui( simparm::NodeHandle at )
     selector.attach_ui( at );
 
     method.attach_ui( at );
-    reducer.attach_ui( at );
 }
 
 
@@ -215,7 +204,6 @@ Segmenter::Segmenter(
   threshold( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).threshold ),
   dilation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).dilation ),
   bins( &dummy_binning_listener, config.selector.make(), density_map::make_linear_interpolator<2>() ),
-  reducer( config.reducer.make_trace_reducer() ),
   load_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).load_segmentation() ),
   save_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).save_segmentation() ) 
 {
@@ -226,18 +214,15 @@ Segmenter::Segmenter(
 Segmenter::~Segmenter() {
 }
 
-Output::AdditionalData Segmenter::announceStormSize
-            (const Announcement &a) 
-{
+void Segmenter::announceStormSize(const Announcement &a) {
     boost::lock_guard<boost::mutex> lock( mutex );
     for (int i = 0; i < 2; ++i)
         binners[i].announce( a );
     announcement.reset( new Announcement(a) );
-    typedef dStorm::input::Traits<dStorm::Localization> InputTraits;
-    announcement->source_traits.push_back( 
-        boost::shared_ptr<InputTraits>( new InputTraits(a) ) );
+    announcement->group_field = input::GroupFieldSemantic::Molecule;
+    announcement->input_image_traits.reset();
     bins.announceStormSize( a );
-    return Filter::announceStormSize( *announcement ).remove_cluster_sources();
+    Filter::announceStormSize( *announcement );
 }
 
 void Segmenter::segment_locked()
@@ -407,13 +392,14 @@ void Segmenter::segment()
 
     std::list<Trace>::iterator i;
     EngineResult engineResult;
-    for ( i = regions.begin(); i != regions.end(); i++) {
-        reducer->reduce_trace_to_localization( i->begin(), i->end(), boost::back_inserter(engineResult),
-            dStorm::samplepos::Constant( 0 * si::meter ) );
-    }
-
     Filter::announce_run(RunAnnouncement());
-    Filter::receiveLocalizations(engineResult);
+    int group = 0;
+    for (const Trace& trace : regions) {
+        EngineResult result;
+        result.group = group++;
+        std::copy(trace.begin(), trace.end(), std::back_inserter(result));
+        Filter::receiveLocalizations(result);
+    }
     Filter::store_children_results( true );
 }
 
@@ -483,20 +469,17 @@ void Segmenter::maximums() {
         mapper(localization);
     }
 
-    EngineResult engineResult;
+    Filter::announce_run(RunAnnouncement());
 
-    for ( Mapper::Map::const_iterator i = mapper.getMapping().begin();
-          i != mapper.getMapping().end(); i++)
-    {
-        reducer->reduce_trace_to_localization( 
-            i->second->begin(), i->second->end(),
-            boost::back_inserter( engineResult ),
-            dStorm::samplepos::Constant( 0 * si::meter )
-        );
+    int group = 0;
+    for (const auto& entry : mapper.getMapping()) {
+        EngineResult engineResult;
+        engineResult.group = group++;
+        std::copy(entry.second->begin(), entry.second->end(),
+                  std::back_inserter(engineResult));
+        Filter::receiveLocalizations(engineResult);
     }
 
-    Filter::announce_run(RunAnnouncement());
-    Filter::receiveLocalizations(engineResult);
     Filter::store_children_results( true );
 }
 

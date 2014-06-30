@@ -58,7 +58,7 @@ private:
 
 public:
     DriftRemover( const Config&, std::auto_ptr< Output > );
-    AdditionalData announceStormSize(const Announcement&);
+    void announceStormSize(const Announcement&) OVERRIDE;
     void receiveLocalizations(const EngineResult&);
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -77,8 +77,6 @@ class Config {
         : drift_file("DriftFile", "Drift correction file", ""),
           smoothing("Smoothing", "Smoothing width", 5.0f * bu::camera::frame) {}
 
-    bool determine_output_capabilities( output::Capabilities& cap ) 
-        { return true; }
     void attach_ui( simparm::NodeHandle at ) { drift_file.attach_ui( at ); smoothing.attach_ui(at); }
 };
 
@@ -106,9 +104,8 @@ DriftRemover::DriftRemover( const Config& c, std::auto_ptr< Output > sub )
     }
 }
 
-DriftRemover::AdditionalData
-DriftRemover::announceStormSize(const Announcement& a) {
-    return Filter::announceStormSize( a );
+void DriftRemover::announceStormSize(const Announcement& a) {
+    Filter::announceStormSize( a );
 }
 
 void DriftRemover::receiveLocalizations(const EngineResult& upstream) {

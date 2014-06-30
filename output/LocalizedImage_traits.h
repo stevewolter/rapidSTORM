@@ -15,10 +15,18 @@ class Engine;
 
 namespace input {
 
+enum class GroupFieldSemantic {
+    None,
+    ImageNumber,
+    Molecule,
+};
+
 template <>
 struct Traits<output::LocalizedImage>
 : public Traits<Localization>
 {
+    GroupFieldSemantic group_field;
+
     /** If the data source knows which carburettor supplies the
         * images, this pointer is set to it, and NULL otherwise. */
     engine::Input* carburettor;

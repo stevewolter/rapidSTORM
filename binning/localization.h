@@ -17,7 +17,6 @@ class Localization;
 template <typename Tag>
 class Localization<Tag, IsUnscaled> {
   public:
-    typedef typename localization::MetaInfo<Tag> TraitsType;
     typedef typename Tag::ValueType value;
 
     Localization();
@@ -38,7 +37,6 @@ class Localization<Tag, IsUnscaled> {
 template <typename Tag>
 struct Localization<Tag, Bounded> : public Localization<Tag,IsUnscaled> {
     typedef Localization<Tag,IsUnscaled> Base;
-    typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
     Localization();
@@ -70,7 +68,6 @@ class Localization<Tag, ScaledByResolution>
 : public Localization<Tag,Bounded> {
   public:
     typedef Localization<Tag,Bounded> Base;
-    typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
     Localization(value res);
@@ -94,7 +91,6 @@ class Localization<Tag, ScaledToInterval>
 : public Localization<Tag, ScaledByResolution> {
   public:
     typedef Localization<Tag,ScaledByResolution> Base;
-    typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
     Localization(float interval_width);
@@ -114,7 +110,6 @@ template <typename Tag>
 class Localization<Tag, InteractivelyScaledToInterval> : public Localization<Tag, ScaledToInterval> {
   public:
     typedef Localization<Tag,ScaledToInterval> Base;
-    typedef typename Base::TraitsType TraitsType;
     typedef typename Base::value value;
 
     Localization(float interval_width);
@@ -136,7 +131,7 @@ class Localization<Tag, InteractivelyScaledToInterval> : public Localization<Tag
 
   private:
     std::bitset<2> not_given, user;
-    typename TraitsType::RangeType orig_range;
+    typename localization::MetaInfo<typename Tag::ValueType>::RangeType orig_range;
 };
 
 }

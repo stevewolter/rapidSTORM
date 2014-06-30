@@ -61,11 +61,11 @@ struct merge_localization_traits {
     void operator()( localization::ImageNumber, GenTraits& _onto, const GenTraits& _with ) {}
 
     template <typename Tag>
-    void operator()( Tag, GenTraits& onto_traits, const GenTraits& with_traits )
+    void operator()( Tag tag, GenTraits& onto_traits, const GenTraits& with_traits )
     {
-        typedef localization::MetaInfo<Tag> Traits;
-        Traits& onto = onto_traits;
-        const Traits& with = with_traits;
+        typedef localization::MetaInfo<typename Tag::ValueType> Traits;
+        Traits& onto = onto_traits.field(tag);
+        const Traits& with = with_traits.field(tag);
         if ( ! Traits::has_range ) return;
 
         if ( ! with.is_given ) {
@@ -105,10 +105,6 @@ void merge_size( input::Traits<Localization>& onto, const input::Traits<Localiza
     boost::mpl::for_each< localization::Fields >(boost::bind( 
         merge_localization_traits(), 
         _1, boost::ref(onto), boost::ref(with) ) );
-    int children_count = std::min( onto.source_traits.size(), with.source_traits.size() );
-    onto.source_traits.resize( children_count );
-    for ( int i = 0; i < children_count; ++i)
-        merge_size( *onto.source_traits[i], *with.source_traits[i], i );
 }
 
 template <typename Type>

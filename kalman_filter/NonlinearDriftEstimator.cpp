@@ -10,7 +10,6 @@
 #include <memory>
 #include "output/FileOutputBuilder.h"
 #include "units/frame_count.h"
-#include <boost/foreach.hpp>
 
 #if HAVE_EIGEN_SPARSECHOLESKY
 #include <Eigen/Sparse>
@@ -35,8 +34,8 @@ struct BeadPosition {
     int bead_id;
 
     BeadPosition() {}
-    BeadPosition( const Localization& l, const input::Traits<Localization>& t, int bead_id ) 
-    : position( l.position() ), time( l.frame_number() ), bead_id( bead_id )
+    BeadPosition( const Localization& l, const input::Traits<Localization>& t ) 
+    : position( l.position() ), time( l.frame_number() ), bead_id( l.molecule() )
     {
         if ( ! t.position_z().is_given ) {
           position.z() = 0 * si::meter;
@@ -233,16 +232,18 @@ private:
             meta_times.push_back( *slice_start );
 
             int number_of_measurements = 0; std::set<int> active_beads;
-            BOOST_FOREACH( const BeadPosition& position, measurements )
+            for (const BeadPosition& position : measurements) {
                 if ( position.time >= *slice_start && (slice_end == times.end() || position.time < *slice_end ) ) {
                     ++number_of_measurements;
                     active_beads.insert( position.bead_id );
                 }
+            }
 
             DriftSection section( active_beads.size(), number_of_measurements, slice_start, slice_end, *traits );
-            BOOST_FOREACH( const BeadPosition& position, measurements )
+            for (const BeadPosition& position : measurements) {
                 if ( position.time >= *slice_start && (slice_end == times.end() || position.time < *slice_end ) )
                     section.add_measurement( position );
+            }
                     
             intra_slice_positions.push_back( section.get_drift() );
             std::vector< BeadPosition > origins = section.bead_positions();
@@ -252,18 +253,20 @@ private:
         }
 
         std::set<int> active_beads;
-        BOOST_FOREACH( const BeadPosition& position, meta_positions )
+        for (const BeadPosition& position : meta_positions) {
             active_beads.insert( position.bead_id );
+        }
 
         DriftSection meta_section( active_beads.size(), meta_positions.size(), meta_times.begin(), meta_times.end(), *traits );
-        BOOST_FOREACH( const BeadPosition& position, meta_positions )
+        for (const BeadPosition& position : meta_positions) {
             meta_section.add_measurement( position );
+        }
 
         std::vector< BeadPosition > meta_trace = meta_section.get_drift();
 
         std::ofstream output( output_file.c_str() );
         for (int slice = 0; slice < slice_count; ++slice) {
-            BOOST_FOREACH( const BeadPosition& p, intra_slice_positions[slice] ) {
+            for (const BeadPosition& p : intra_slice_positions[slice]) {
                 output << p.time.value();
                 for (int dim = 0; dim < Dimensions; ++dim)
                     output << " " << quantity<si::nanolength>( meta_trace[slice].position[dim] + p.position[dim] ).value() ;
@@ -280,7 +283,6 @@ public:
 
         Config() : output_file("ToFile", "Write localization count to file", "-drift.txt"),
                    slice_size("SectionSize", "Section size", 200 * camera::frame) {}
-        bool can_work_with(output::Capabilities) { return true; }
         void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); slice_size.attach_ui( at ); }
         static std::string get_name() { return "NonlinearDrift"; }
         static std::string get_description() { return "Nonlinear drift estimator"; }
@@ -292,24 +294,18 @@ public:
     RunRequirements announce_run(const RunAnnouncement&) {
         return RunRequirements();
     }
-    AdditionalData announceStormSize(const Announcement &a) {
-        if ( a.source_traits.size() >= 1 && a.source_traits[0].get() )
-            traits = *a.source_traits[0];
-        else
-            throw std::runtime_error("The current input for the nonlinear drift estimator consists only "
-                "of flat localizations without trace information. "
-                "Time traces such as those produced by the emission tracker are needed.");
-        return AdditionalData();
+    void announceStormSize(const Announcement &a) OVERRIDE {
+        if (a.group_field != input::GroupFieldSemantic::Molecule) {
+            throw std::runtime_error("Input to drift estimator must be grouped "
+                                     "by molecule");
+        }
     }
     void receiveLocalizations(const EngineResult& er) {
-        for ( EngineResult::const_iterator bead = er.begin(); bead != er.end(); ++bead ) {
-            int bead_id = bead - er.begin();
-            BOOST_FOREACH( const Localization& l, *bead->children ) {
-                measurements.push_back( BeadPosition( l, *traits, bead_id ) );
-                std::vector< frame_index >::iterator insert_place = boost::range::lower_bound( times, l.frame_number() );
-                if ( insert_place == times.end() || *insert_place != l.frame_number() )
-                    times.insert( insert_place, l.frame_number() );
-            }
+        for (const Localization& l : er) {
+            measurements.push_back( BeadPosition( l, *traits ) );
+            std::vector< frame_index >::iterator insert_place = boost::range::lower_bound( times, l.frame_number() );
+            if ( insert_place == times.end() || *insert_place != l.frame_number() )
+                times.insert( insert_place, l.frame_number() );
         }
     }
 

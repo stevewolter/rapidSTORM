@@ -42,8 +42,7 @@ void Source::attach_ui_( simparm::NodeHandle at ) {
     Filter::attach_children_ui( at );
 }
 
-Source::AdditionalData Source::announceStormSize(const Announcement& a)
-{
+void Source::announceStormSize(const Announcement& a) {
     {
         boost::lock_guard<boost::mutex> guard(mutex);
         repeater = a.engine;
@@ -53,7 +52,7 @@ Source::AdditionalData Source::announceStormSize(const Announcement& a)
             if ( &*i != NULL )
                 i->announce(parser->get_variable_table(), *my_announcement);
     }
-    return Filter::announceStormSize(*my_announcement);
+    Filter::announceStormSize(*my_announcement);
 }
 
 void Source::receiveLocalizations(const EngineResult& er)

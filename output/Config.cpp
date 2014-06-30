@@ -20,16 +20,6 @@ Config* Config::clone() const {
     return new Config(*this);
 }
 
-void Config::set_source_capabilities(Capabilities cap) {
-    DEBUG("Notifying sources of new capabilities");
-    my_capabilities = cap;
-
-    for ( simparm::ManagedChoiceEntry<OutputSource>::iterator i = choice.begin(); i != choice.end(); i++) {
-        i->set_source_capabilities( cap );
-    }
-    DEBUG("Notified sources of new capabilities");
-}
-
 Config::~Config() {
     DEBUG("Destructor");
 }
@@ -45,7 +35,6 @@ Config::make_output_source()
     if ( choice.isValid() ) {
         std::auto_ptr<OutputSource> rv( choice().clone() );
         rv->set_output_factory( *this );
-        rv->set_source_capabilities( my_capabilities );
         choice.value = "";
         return rv;
     } else {
@@ -54,7 +43,6 @@ Config::make_output_source()
 }
 
 void Config::addChoice(OutputSource *toAdd) {
-    toAdd->set_source_capabilities( my_capabilities );
     choice.addChoice( std::auto_ptr<OutputSource>(toAdd) );
 }
 

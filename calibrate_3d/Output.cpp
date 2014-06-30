@@ -51,7 +51,7 @@ Output::RunRequirements Output::announce_run(const RunAnnouncement&)
     return RunRequirements().set(MayNeedRestart); 
 }
 
-Output::AdditionalData Output::announceStormSize(const Output::Announcement &a)
+void Output::announceStormSize(const Output::Announcement &a)
 { 
     DEBUG("Initial data are announced");
     if ( ! a.input_image_traits.get() )
@@ -68,7 +68,6 @@ Output::AdditionalData Output::announceStormSize(const Output::Announcement &a)
     linearizer.set_traits( *initial_traits );
 
     calibration_thread = boost::thread( &Output::run_fitter, this );
-    return AdditionalData(); 
 }
 
 Output::~Output() {

@@ -16,9 +16,9 @@ namespace engine {
 
 Config::Config()
 :   name_object("rapidSTORM", "rapidSTORM engine"),
-    fit_position_epsilon("FitPositionEpsilon", 250 * si::nanometre),
+    fit_position_epsilon("FitPositionEpsilon", 500 * si::nanometre),
+    separate_plane_fitting("SeparatePlaneFitting", false),
     spotFindingMethod("SpotFindingMethod"),
-    weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod"),
     fit_judging_method("FitJudgingMethod"),
     motivation("Motivation", 3)
@@ -28,6 +28,8 @@ Config::Config()
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
     motivation.set_user_level(simparm::Intermediate);
+
+    separate_plane_fitting.set_user_level(simparm::Expert);
 
     spotFindingMethod.set_user_level( simparm::Intermediate );
     spotFittingMethod.set_user_level( simparm::Beginner );
@@ -52,10 +54,7 @@ void Config::attach_ui( simparm::NodeHandle n ) {
     fit_judging_method.attach_ui(at);
 
     spotFindingMethod.attach_ui(at);
-    simparm::NodeHandle w = weights.attach_ui(at );
-    weights_insertion_point = w;
-    std::for_each( spot_finder_weights.begin(), spot_finder_weights.end(),
-        boost::bind( &simparm::Entry<float>::attach_ui, _1, w ) );
+    separate_plane_fitting.attach_ui(at);
     spotFittingMethod.attach_ui(at);
 
     motivation.attach_ui(at);

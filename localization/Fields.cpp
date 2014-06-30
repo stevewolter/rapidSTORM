@@ -88,5 +88,9 @@ const LocalBackground::ValueType LocalBackground::default_value
     = 0 * boost::units::camera::ad_count;
 std::string LocalBackground::get_shorthand() { return "bg"; }
 
+std::string Molecule::get_desc() { return "molecule index"; }
+const Molecule::ValueType Molecule::default_value = 0;
+std::string Molecule::get_shorthand() { return "mol"; }
+
 }
 }

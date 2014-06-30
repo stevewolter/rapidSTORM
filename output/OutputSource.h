@@ -48,10 +48,6 @@ class OutputSource : public simparm::Choice
     virtual ~OutputSource();
     virtual OutputSource* clone() const = 0;
 
-    /** Check whether the Output produced by this OutputSource might 
-     *  work, given the maximal additional data provided by the parent
-     *  source. */
-    virtual void set_source_capabilities( Capabilities ) = 0;
     virtual void set_output_factory(const SourceFactory&) {}
     /** \return A suitable Output object with
      *          all outputs configured. \note The root output

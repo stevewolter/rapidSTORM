@@ -1,31 +1,32 @@
 #include "kalman_filter/fwd.h"
 
+#include <algorithm>
+#include <cassert>
+#include <numeric>
+#include <vector>
+
+#include <boost/optional/optional.hpp>
+#include <boost/ptr_container/ptr_array.hpp>
+#include <boost/ptr_container/ptr_set.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/units/Eigen/Array>
+#include <boost/units/Eigen/Array>
+#include <boost/utility/in_place_factory.hpp>
+#include <Eigen/Core>
+
+#include "binning/binning.h"
+#include "binning/binning.hpp"
+#include "binning/localization_impl.h"
+#include "helpers/back_inserter.h"
+#include "image/iterator.h"
+#include "kalman_filter/KalmanTrace.h"
+#include "output/FilterBuilder.h"
+#include "output/Filter.h"
 #include "simparm/BoostUnits.h"
 #include "simparm/Entry.h"
 #include "simparm/Entry.h"
 #include "simparm/FileEntry.h"
-#include "output/TraceReducer.h"
-#include <cassert>
-#include <Eigen/Core>
-#include <vector>
-#include "kalman_filter/KalmanTrace.h"
-#include "output/FilterBuilder.h"
-#include "binning/binning.h"
-#include "binning/binning.hpp"
 #include "UnitEntries/Nanometre.h"
-#include <boost/ptr_container/ptr_set.hpp>
-#include <boost/ptr_container/ptr_array.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/optional/optional.hpp>
-#include <algorithm>
-#include <numeric>
-#include <boost/units/Eigen/Array>
-#include "helpers/back_inserter.h"
-#include "binning/localization_impl.h"
-#include "output/Filter.h"
-#include "image/iterator.h"
-#include <boost/units/Eigen/Array>
-#include <boost/utility/in_place_factory.hpp>
 
 using namespace std;
 using namespace boost::units::camera;
@@ -49,11 +50,14 @@ private:
     class TracedObject : public KalmanTrace<2> {
       public:
         boost::optional<Eigen::Vector2i> cache_position;
-        TracedObject(const Output &papa);
+        output::LocalizedImage result;
+
+        TracedObject(const KalmanMetaInfo<2>& kalman_info, int molecule_id);
         ~TracedObject();
 
         void add( const dStorm::Localization& l) {
             KalmanTrace<2>::add(l);
+            result.push_back(l);
         }
     };
 
@@ -64,6 +68,7 @@ private:
 
     const int track_modulo;
     frame_index last_seen_frame;
+    int molecule_id;
 
     boost::ptr_set< TracedObject, address_is_less<TracedObject> > traced_objects;
 
@@ -78,8 +83,6 @@ private:
     void update_positional( TracedObject& object );
     void finalizeImage(int i);
 
-    std::auto_ptr<dStorm::output::TraceReducer> reducer;
-
     const double maxDist;
     void store_results_( bool success ); 
 
@@ -92,7 +95,7 @@ public:
         {throw std::logic_error("Emission tracker is not cloneable.");}
     Output& operator=( const Output& );
 
-    AdditionalData announceStormSize(const Announcement &);
+    void announceStormSize(const Announcement &) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement &);
     void receiveLocalizations(const EngineResult &);
 
@@ -110,16 +113,7 @@ public:
     simparm::Entry< quantity<camera::time,int> > allowBlinking;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::mobility_unit> > mobility;
-    dStorm::output::TraceReducer::Config reducer;
     simparm::Entry<float> distance_threshold;
-
-    bool determine_output_capabilities
-        ( dStorm::output::Capabilities& cap ) 
-    { 
-        cap.set_intransparency_for_source_data();
-        cap.set_cluster_sources( true );
-        return true;
-    }
 };
 
 
@@ -138,9 +132,10 @@ struct Output::TrackingInformation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-Output::TracedObject::TracedObject(const Output& papa)
-: KalmanTrace<2>(papa.kalman_info)
+Output::TracedObject::TracedObject(const KalmanMetaInfo<2>& kalman_info, int molecule_id)
+: KalmanTrace<2>(kalman_info)
 {
+    result.group = molecule_id;
 }
 Output::TracedObject::~TracedObject() {
 }
@@ -159,7 +154,6 @@ void Output::Config::attach_ui( simparm::NodeHandle at )
     allowBlinking.attach_ui( at );
     diffusion.attach_ui( at );
     mobility.attach_ui( at );
-    reducer.attach_ui( at );
 }
 
 Output::Output( 
@@ -168,7 +162,7 @@ Output::Output(
 : Filter(output),
   track_modulo( config.allowBlinking().value()+2 ), 
   last_seen_frame( 0 * camera::frame ),
-  reducer( config.reducer.make_trace_reducer() ), 
+  molecule_id(0),
   maxDist( config.distance_threshold() )
 {
     binners[0] = binning::make_BinningAdapter<binning::Scaled>(binning::Localization<localization::PositionX, binning::ScaledToInterval>(100));
@@ -182,23 +176,19 @@ Output::Output(
 Output::~Output() {
 }
 
-output::Output::AdditionalData
-Output::announceStormSize(const Announcement &a) 
-{
+void Output::announceStormSize(const Announcement &a) {
+    if (a.group_field != input::GroupFieldSemantic::ImageNumber) {
+        throw std::runtime_error("Input to emission tracker must be grouped "
+                                 "by image number");
+    }
     if ( ! a.position_uncertainty_x().is_given || ! a.position_uncertainty_y().is_given )
         throw std::runtime_error("Localization precision is not known to Track Emissions. Either explicitly set the "
                                  "sigmaposx and sigmaposy variables in a Expression Filter or set the optics parameters "
                                  "for counts per photons and dark current.");
     Announcement my_announcement(a);
-    static_cast< dStorm::input::Traits<Localization>& >(my_announcement) 
-        = dStorm::input::Traits<Localization>();
-    my_announcement.in_sequence = true;
-    my_announcement.position_x() = a.position_x();
-    my_announcement.position_y() = a.position_y();
-    my_announcement.amplitude() = a.amplitude();
-    my_announcement.image_number() = a.image_number();
-    my_announcement.source_traits.push_back( 
-        boost::shared_ptr< dStorm::input::Traits<Localization> >( new dStorm::input::Traits<Localization>(a) ) );
+    my_announcement.in_sequence = false;
+    my_announcement.input_image_traits.reset();
+    my_announcement.group_field = input::GroupFieldSemantic::Molecule;
 
     dStorm::ImageTypes<2>::Size sizes;
     for (int i = 0; i < 2; ++i) {
@@ -210,11 +200,7 @@ Output::announceStormSize(const Announcement &a)
     positional = Positional(sizes);
     while ( int(tracking.size()) < track_modulo )
         tracking.push_back( new TrackingInformation() );
-    AdditionalData childData = Filter::announceStormSize(my_announcement);
-    Output::check_additional_data_with_provided
-        ( Config::get_name(), AdditionalData().set_cluster_sources(),
-            childData );
-    return AdditionalData();
+    Filter::announceStormSize(my_announcement);
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement & a) {
@@ -304,21 +290,23 @@ Output::update_positional( TracedObject& object )
 void
 Output::receiveLocalizations(const EngineResult &er)
 {
-    int imNum = er.forImage / frame;
+    int imNum = er.group;
     TrackingInformation &current = tracking[imNum % track_modulo];
 
     current.prepare( imNum );
 
-    for (EngineResult::const_iterator loc = er.begin(); loc != er.end(); ++loc) 
+    for (const Localization& localization : er) 
     {
-        TracedObject* trace = search_closest_trace( *loc, current.emissions );
+        TracedObject* trace = search_closest_trace( localization, current.emissions );
         if ( trace == NULL ) {
-            std::auto_ptr<TracedObject> new_trace( new TracedObject(*this) );
+            std::auto_ptr<TracedObject> new_trace( new TracedObject(kalman_info, molecule_id++) );
             trace = new_trace.get();
             traced_objects.insert( new_trace );
         }
 
-        trace->add( *loc );
+        Localization added(localization);
+        added.molecule() = trace->result.group;
+        trace->add( added );
         update_positional( *trace );
         for (int i= 1; i < track_modulo && i <= imNum; ++i) {
             tracking[(imNum-i) % track_modulo].emissions.erase( trace );
@@ -335,24 +323,14 @@ Output::receiveLocalizations(const EngineResult &er)
 void Output::finalizeImage(int imNum) {
     TrackingInformation &data = tracking[imNum % track_modulo];
 
-    EngineResult er;
-    er.forImage = imNum * frame;
-
-    for ( std::set<TracedObject*>::const_iterator i = data.emissions.begin(), end = data.emissions.end();
-          i != end; i++ ) 
-    {
-        TracedObject& o = **i;
-        reducer->reduce_trace_to_localization( 
-            o.begin(), o.end(),
-            boost::back_inserter(er), 
-            dStorm::samplepos::Constant(0*si::meter) );
-        if ( o.cache_position.is_initialized() )
-            positional( o.cache_position->x(), o.cache_position->y() ).erase( &o );
-        traced_objects.erase( o );
+    for ( TracedObject* o : data.emissions ) {
+        Filter::receiveLocalizations(o->result);
+        if ( o->cache_position.is_initialized() )
+            positional( o->cache_position->x(), o->cache_position->y() ).erase( o );
+        traced_objects.erase( *o );
     }
 
     data.emissions.clear();
-    Filter::receiveLocalizations(er);
 }
 
 void Output::store_results_( bool success ) {
