@@ -10,11 +10,12 @@ namespace wx_ui {
 class Notebook;
 
 class TabNode : public InnerNode {
+    boost::shared_ptr<bool> notebook_valid_;
     WindowSpecification window;
     GUIHandle<Notebook> notebook;
 
 public:
-    TabNode( boost::shared_ptr<Node> n, std::string name ) : InnerNode(n, name) {}
+    TabNode( boost::shared_ptr<Node> n, std::string name ) : InnerNode(n, name), notebook_valid_(new bool(true)) {}
     virtual void set_description( std::string d ) { window.name = d; }
     void initialization_finished();
     void add_entry_line( LineSpecification& );

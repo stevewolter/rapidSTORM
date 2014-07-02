@@ -171,11 +171,7 @@ class ChoiceNode::SubNode : public RealNode {
 public:
     SubNode( boost::shared_ptr<ChoiceNode> parent, std::string name )
         : RealNode(parent, name), parent(parent), name(name), showed_choice(false) {}
-    ~SubNode() {
-        if ( showed_choice )
-            run_in_GUI_thread(
-                boost::bind( &remove_choice, parent->choice, this, name, description ) );
-    }
+    ~SubNode() {}
 
     virtual void set_description( std::string d ) { RealNode::set_description(d); description = d; }
     virtual void set_visibility( bool b ) { RealNode::set_visibility(b); show_or_hide_choice();  }

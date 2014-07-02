@@ -11,6 +11,13 @@ namespace wx_ui {
 
 namespace br = boost::range;
 
+class Treebook : public wxTreebook {
+    boost::shared_ptr<bool> valid_;
+  public:
+    Treebook(wxWindow* parent, boost::shared_ptr<bool> valid) : wxTreebook(parent, wxID_ANY), valid_(valid) {}
+    ~Treebook() { *valid_ = false; }
+};
+
 TreeRepresentation::TreeRepresentation() : widget(NULL) {}
 
 void TreeRepresentation::add_as_child( 
@@ -23,6 +30,7 @@ void TreeRepresentation::add_as_child(
     assert( parent );
     this->parent = parent;
     parent->children.push_back( this );
+    widget_valid = parent->widget_valid;
     widget = parent->widget;
     if ( parent->parent ) {
         int index = parent->get_preceding_and_self_count() - 1;
@@ -37,7 +45,8 @@ void TreeRepresentation::add_as_child(
 
 void TreeRepresentation::create_widget(boost::shared_ptr<Window> window_announcement, boost::shared_ptr<Window> parent ) {
     assert( ! this->parent );
-    *window_announcement = widget = new wxTreebook( *parent, wxID_ANY );
+    widget_valid.reset(new bool(true));
+    *window_announcement = widget = new Treebook( *parent, widget_valid );
 }
 
 int TreeRepresentation::get_preceding_and_self_count() const {
@@ -58,7 +67,9 @@ int TreeRepresentation::node_count() const {
 
 void TreeRepresentation::remove_child( boost::shared_ptr<Window> ) {
     int index = get_preceding_and_self_count() - 1;
-    widget->DeletePage( index );
+    if (*widget_valid) {
+        widget->DeletePage( index );
+    }
     boost::range::remove_erase( parent->children, this );
 }
 
