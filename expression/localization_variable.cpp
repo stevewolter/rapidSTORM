@@ -27,7 +27,7 @@ class ValueVariable : public Variable {
 
   DynamicQuantity get(const input::Traits<Localization>& traits) const {
     if (traits.field(Tag()).is_given) {
-      return dynamizer.from_value( std::numeric_limits<double>::quiet_NaN() );
+      return dynamizer.from_value( std::numeric_limits<typename Tag::ValueType::value_type>::quiet_NaN() );
     } else {
       throw std::runtime_error("Tried to read variable " + this->Variable::name + ", but it is not defined.");
     }
