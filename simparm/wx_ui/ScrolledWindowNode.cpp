@@ -64,5 +64,10 @@ void ScrolledWindowNode::stop_job_on_ui_detachment( boost::shared_ptr< dStorm::J
         bl::bind( &ScrolledWindow::set_job, *bl::constant(scrolled_window), m ) );
 }
 
+NodeHandle ScrolledWindowNode::create_trigger( std::string name ) OVERRIDE {
+    std::cerr << "Adding element " << name << std::endl;
+    return WindowNode::create_trigger(name);
+}
+
 }
 }

@@ -44,9 +44,9 @@ void TestRandomSequence(int window_width, int stride, int frames) {
     }
 
 
-    std::auto_ptr<input::Source<engine::ImageStack>> filter(
+    std::unique_ptr<input::Source<engine::ImageStack>> filter(
         make_source(
-            std::auto_ptr<input::Source<engine::ImageStack>>(
+            std::unique_ptr<input::Source<engine::ImageStack>>(
                 new input::FakeSource<engine::ImageStack>(meta_info, images)),
             frame_index::from_value(window_width),
             frame_index::from_value(stride)));

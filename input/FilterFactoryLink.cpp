@@ -20,6 +20,8 @@ class FilterFactoryLink
   public:
     FilterFactoryLink(std::unique_ptr<MyFilterFactory> filter)
         : filter_(std::move(filter)) {}
+    FilterFactoryLink(const FilterFactoryLink& o)
+        : Forwarder(o), filter_(o.filter_->clone()) {}
 
     FilterFactoryLink* clone() const OVERRIDE;
     std::string name() const OVERRIDE { return filter_->getName(); }
@@ -35,9 +37,7 @@ class FilterFactoryLink
 template <typename InputType, typename OutputType>
 FilterFactoryLink<InputType, OutputType>*
 FilterFactoryLink<InputType, OutputType>::clone() const {
-    std::unique_ptr<FilterFactory<InputType, OutputType>> factory(
-        filter_->clone());
-    return new FilterFactoryLink<InputType, OutputType>(std::move(factory));
+    return new FilterFactoryLink(*this);
 }
 
 template <typename InputType, typename OutputType>
@@ -49,7 +49,7 @@ void FilterFactoryLink<InputType, OutputType>::registerNamedEntries( simparm::No
 template <typename InputType, typename OutputType>
 void FilterFactoryLink<InputType, OutputType>::traits_changed( TraitsRef upstream, Link* ) {
     if (!upstream || !upstream->provides<InputType>()) {
-        this->update_current_meta_info(TraitsRef());
+        this->update_current_meta_info(upstream);
         return;
     }
 

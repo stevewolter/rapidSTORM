@@ -13,12 +13,17 @@
 #include "image/Image.h"
 #include "image/slice.h"
 #include "input/AdapterSource.h"
+#include "input/FilterFactory.h"
+#include "input/FilterFactoryLink.h"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
 #include "input/Method.hpp"
 #include "localization/Traits.h"
+#include "make_clone_allocator.hpp"
 #include "output/LocalizedImage.h"
 #include "output/LocalizedImage_traits.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/ObjectChoice.h"
 #include "UnitEntries/FrameEntry.h"
 #include "units/frame_count.h"
 
@@ -27,13 +32,11 @@ namespace median_filter {
 
 struct Config {
     simparm::Object name_object;
-    simparm::BoolEntry apply_filter;
     IntFrameEntry width, stride;
 
     Config();
     void attach_ui( simparm::NodeHandle at ) {
         simparm::NodeHandle r = name_object.attach_ui(at);
-        apply_filter.attach_ui( r );
         width.attach_ui( r ); 
         stride.attach_ui( r ); 
     }
@@ -158,9 +161,9 @@ class Source
     }
 
   public:
-    Source( std::auto_ptr< input::Source<engine::ImageStack> > upstream,
+    Source( std::unique_ptr< input::Source<engine::ImageStack> > upstream,
             frame_index width, frame_index stride)
-        : input::AdapterSource<engine::ImageStack>(upstream),
+        : input::AdapterSource<engine::ImageStack>(std::move(upstream)),
           half_width(width.value() / 2), width(width.value()), stride(stride.value()),
           initial_median_computed(false), upstream_is_empty(false) {
 	if (width.value() % 2 == 0) {
@@ -197,60 +200,92 @@ class Source
     }
 };
 
-class ChainLink 
-: public input::Method<ChainLink>
-{
-    friend class input::Method<ChainLink>;
-
-    Config config;
-
-    template <typename Type>
-    void update_traits( input::MetaInfo&, input::Traits<Type>& traits ) {}
-    template <typename Type>
-    void notice_traits( const input::MetaInfo&, const input::Traits<Type>& ) {}
-
-    template <typename Type>
-    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
-        return p.release();
-    }
-
-    input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
-        if (config.apply_filter()) {
-            return new Source( p, config.width(), config.stride() );
-        } else {
-            return p.release();
-        }
-    }
-
+class BackgroundFilterChoice : public simparm::ObjectChoice {
   public:
-    void attach_ui( simparm::NodeHandle at ) { 
-        config.attach_ui( at ); 
+    BackgroundFilterChoice(std::string name, std::string desc)
+        : simparm::ObjectChoice(name, desc) {}
+    virtual BackgroundFilterChoice* clone() const = 0;
+    virtual std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> input) = 0;
+};
+
+}
+}
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::median_filter::BackgroundFilterChoice);
+
+namespace dStorm {
+namespace median_filter {
+
+class MedianFilterChoice : public BackgroundFilterChoice {
+  public:
+    MedianFilterChoice()
+        : BackgroundFilterChoice("TemporalMedianFilter", "Temporal median filter") {}
+    MedianFilterChoice* clone() const { return new MedianFilterChoice(*this); }
+    void attach_ui(simparm::NodeHandle at) { config.attach_ui(attach_parent(at)); }
+    std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> input) {
+        return std::unique_ptr<input::Source<engine::ImageStack>>(
+            new Source(std::move(input), config.width(), config.stride()));
     }
-    static std::string getName() {
-        return "TemporalMedianFilter";
+
+  private:
+    Config config;
+};
+
+class NoFilterChoice : public BackgroundFilterChoice {
+  public:
+    NoFilterChoice() : BackgroundFilterChoice("None", "No background filter") {}
+    NoFilterChoice* clone() const { return new NoFilterChoice(*this); }
+    void attach_ui(simparm::NodeHandle at) { attach_parent(at); }
+    std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> input) {
+        return std::move(input);
     }
 };
 
+class BackgroundFilterLink : public input::FilterFactory<engine::ImageStack> {
+  public:
+    BackgroundFilterLink() : backend("BackgroundFilter") {
+        backend.addChoice(new NoFilterChoice());
+        backend.addChoice(new MedianFilterChoice());
+        backend.set_user_level( simparm::Intermediate );
+    }
+
+    BackgroundFilterLink* clone() const { return new BackgroundFilterLink(*this); }
+    std::string getName() const { return "BackgroundFilter"; }
+    void attach_ui(simparm::NodeHandle at) { backend.attach_ui(at); }
+    std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> input) {
+        return backend.active_choice().make_source(std::move(input));
+    }
+    boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
+        input::MetaInfo& meta_info,
+        boost::shared_ptr<const input::Traits<engine::ImageStack>> input_meta_info) {
+        return input_meta_info;
+    }
+  private:
+    simparm::ManagedChoiceEntry<BackgroundFilterChoice> backend;
+};
+
 Config::Config() 
-: name_object(ChainLink::getName(), "Temporal median filter"),
-  apply_filter("MedianFilter", "Apply median filter", false),
+: name_object("MedianFilter", "Temporal median filter"),
   width("MedianWidth", "Number of images in median", 11 * camera::frame),
   stride("MedianStride", "Stride between key images", 5 * camera::frame )
 {
-    apply_filter.set_user_level( simparm::Intermediate ),
-    width.set_user_level( simparm::Expert );
-    stride.set_user_level( simparm::Expert );
+    width.set_user_level( simparm::Intermediate );
+    stride.set_user_level( simparm::Intermediate );
 }
 
 std::auto_ptr<input::Link> make_link() {
-    return std::auto_ptr<input::Link>( new ChainLink() );
+    return CreateLink(std::unique_ptr<BackgroundFilterLink>(new BackgroundFilterLink()));
 }
 
-std::auto_ptr<input::Source<engine::ImageStack>> make_source(
-        std::auto_ptr<input::Source<engine::ImageStack>> upstream,
+std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> upstream,
         frame_index width, frame_index stride) {
     return std::auto_ptr<input::Source<engine::ImageStack>>(
-        new Source(upstream, width, stride));
+        new Source(std::move(upstream), width, stride));
 }
 
 }

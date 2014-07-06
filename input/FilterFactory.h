@@ -10,7 +10,7 @@
 namespace dStorm {
 namespace input {
 
-template <typename InputType, typename OutputType>
+template <typename InputType, typename OutputType = InputType>
 class FilterFactory {
   public:
     virtual FilterFactory* clone() const = 0;

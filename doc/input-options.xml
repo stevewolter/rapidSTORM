@@ -272,6 +272,16 @@
             would indicate that 90\% of the photons arrive on the second camera and 10\% on the
             first.</para>
     </et:elem>
+
+    <et:elem desc="Background filtering" topic="BackgroundFilter">
+          <para>This field is used to choose one type of background filter.
+            Background filtering provides information about the intensity of
+            non-interesting background fluorescence to the engine. The engine
+            ignores background fluorescence during the spot finding and fitting.
+            You can use background filtering to enhance imaging precision on
+            samples with inhomogenouos background or to suppress regions with
+            too high fluorophore density.</para>
+    </et:elem>
 </glossdiv>
 </glossary>
 </chapter>
