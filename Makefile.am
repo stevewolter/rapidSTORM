@@ -171,8 +171,7 @@ rapidstorm_SOURCES = \
     UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
     UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
     UnitEntries/TimeEntry.h UnitEntries/ADC.h \
-    signals/UseSpotFinder.h signals/UseSpotFitter.h \
-    signals/InputFileNameChange.h signals/ResolutionChange.h signals/BasenameChange.h \
+    signals/InputFileNameChange.h \
     display/fwd.h \
     display/DataSource.h display/display_normalized.hpp \
     display/Manager.h \
@@ -274,7 +273,6 @@ rapidstorm_SOURCES += \
 rapidstorm_SOURCES += \
     inputs/inputs.h \
     inputs/FileMethod.h inputs/FileMethod.cpp \
-    inputs/InputMethods.h inputs/InputMethods.cpp \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
     inputs/join.h inputs/join.cpp \
@@ -491,7 +489,6 @@ rapidstorm_SOURCES += \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
 rapidstorm_SOURCES += \
-    guf/augment_config.h guf/augment_config.cpp \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
     guf/create_evaluator.h guf/create_evaluator.hpp \
     guf/DistanceMetric.h \
@@ -587,7 +584,6 @@ rapidstorm_SOURCES += \
     dejagnu.h unit_tests.h unit_tests.cpp
 
 rapidstorm_SOURCES += \
-    input_simulation/plugin.cpp input_simulation/plugin.h \
     input_simulation/NoiseSource.h input_simulation/NoiseSource.cpp \
     input_simulation/NoiseGenerator.cpp \
     input_simulation/Fluorophore.cpp \
@@ -722,9 +718,7 @@ else
     SIFSUPPORT =
 endif
 
-rapidstorm_SOURCES += \
-    $(SIFSUPPORT) \
-    andor-sif/augment_config.h andor-sif/augment_config.cpp
+rapidstorm_SOURCES += $(SIFSUPPORT)
 
 rapidstorm_SOURCES += \
     density_map/DensityMap.h density_map/DensityMap.hpp \

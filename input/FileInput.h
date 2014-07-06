@@ -16,14 +16,14 @@ template <typename CRTP, typename FileRepresentation>
 class FileInput 
 : public Terminus
 {
-    boost::optional<std::string> current_file;
+    std::string current_file;
     std::auto_ptr<FileRepresentation> file;
     boost::optional< boost::exception_ptr > error;
     std::auto_ptr< boost::signals2::scoped_connection > filename_change;
 
     void open_file( const std::string& filename ) {
-        DEBUG(this << " got callback for filename " << filename);
-        if ( ! current_file.is_initialized() || *current_file != filename ) {
+        DEBUG(getName() << " got callback for filename " << filename);
+        if ( current_file != filename ) {
             current_file = filename;
             reread_file();
         }
@@ -36,19 +36,19 @@ class FileInput
             return file; 
         else 
             return std::auto_ptr<FileRepresentation>( 
-                static_cast<const CRTP&>(*this).make_file(*current_file) );
+                static_cast<const CRTP&>(*this).make_file(current_file) );
     }
     std::auto_ptr<FileRepresentation> get_file() const {
         return std::auto_ptr<FileRepresentation>( 
-            static_cast<const CRTP&>(*this).make_file(*current_file) );
+            static_cast<const CRTP&>(*this).make_file(current_file) );
     }
 
     void reread_file() {
         file.reset();
         try {
-            DEBUG("Trying to open " << *current_file << " with " << name());
-            if ( *current_file != "" )
-                file.reset( static_cast<CRTP&>(*this).make_file(*current_file) );
+            DEBUG("Trying to open " << current_file << " with " << name());
+            if ( current_file != "" )
+                file.reset( static_cast<CRTP&>(*this).make_file(current_file) );
             else
                 error = boost::copy_exception( std::runtime_error("No input file name") );
         } catch ( const std::runtime_error& e ) {
@@ -62,15 +62,15 @@ class FileInput
         static_cast<CRTP&>(*this).modify_meta_info(*info);
         if ( file.get() )
             info->set_traits( file->getTraits().release() );
-        DEBUG(this << " is unregistering from " << filename_change.get());
+        DEBUG(getName() << " is unregistering from " << filename_change.get());
         filename_change.reset( new boost::signals2::scoped_connection
             ( info->get_signal< signals::InputFileNameChange >().connect
                 (boost::bind( &FileInput::open_file, boost::ref(*this), _1) ) ) );
-        DEBUG(this << " registered as " << filename_change.get() << " to " << info.get());
+        DEBUG(getName() << " registered as " << filename_change.get() << " to " << info.get());
         this->update_current_meta_info( info );
     }
   public:
-    FileInput() {}
+    FileInput() { reread_file(); }
     FileInput( const FileInput& o ) : Terminus(o), 
         current_file(o.current_file), error(o.error) 
     { 

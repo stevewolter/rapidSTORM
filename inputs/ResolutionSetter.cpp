@@ -13,7 +13,6 @@
 #include "localization/Traits.h"
 #include "input/Method.hpp"
 #include "input/Source.h"
-#include "signals/ResolutionChange.h"
 #include "Localization.h"
 #include "traits/optics_config.h"
 #include "units/nanolength.h"
@@ -73,7 +72,6 @@ class ChainLink
     }
     void update_traits( MetaInfo& i, Traits<output::LocalizedImage>& traits ) {}
     void update_traits( MetaInfo& i, Traits<engine::ImageStack>& traits ) { 
-        i.get_signal< signals::ResolutionChange >()( config.get_resolution() );
         config.set_context( traits );
         config.write_traits(traits); 
     }

@@ -22,10 +22,7 @@ Link::Link()
 }
 
 Link::Link(const Link& o) 
-: meta_info(o.meta_info)
-{
-    DEBUG("Cloned " << this << " named " << o.name() << " to have context " << meta_info.get());
-}
+: meta_info(o.meta_info) {}
 
 Link::~Link() {
     DEBUG("Destructed " << this);
@@ -37,14 +34,13 @@ void Link::update_current_meta_info( TraitsRef new_traits )
     if ( new_traits->provides< dStorm::engine::ImageStack >() )
         assert( new_traits->traits< dStorm::engine::ImageStack >()->plane_count() > 0 );
     meta_info = new_traits;
-    DEBUG("Publishing traits for " << this);
+    DEBUG("Publishing traits " << meta_info.get() << " for " << this);
     meta_info_signal( meta_info );
 }
 
 void Terminus::insert_new_node( std::auto_ptr<Link> l, Place ) {
-        throw std::logic_error("No insertion point found for " + l->name());
-    }
-
+    throw std::logic_error("No insertion point found");
+}
 
 Link::Connection
 Link::notify( const TraitsSignal::slot_type& whom ) { 
@@ -53,8 +49,6 @@ Link::notify( const TraitsSignal::slot_type& whom ) {
             meta_info_signal.connect( whom ) ) ); 
 }
 
-
-std::string Link::name() const { throw std::logic_error("Not implemented"); }
 
 std::auto_ptr<BaseSource> Link::make_source() {
     return std::auto_ptr<BaseSource>(makeSource());

@@ -13,10 +13,6 @@ using namespace dStorm::output;
 namespace dStorm {
 namespace test {
 
-void input_modules ( dStorm::Config* config ) {
-    config->add_input( dummy_file_input::make(), dStorm::FileReader );
-}
-
 void output_modules( dStorm::Config* config ) {
     config->add_output( new dStorm::output::OutputBuilder< Exception::Config, Exception >() );
     config->add_output( new dStorm::output::OutputBuilder< Verbose::Config, Verbose >() );

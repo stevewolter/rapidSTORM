@@ -26,8 +26,6 @@ class Method
         Forwarder::registerNamedEntries( node );
         static_cast<CRTP&>(*this).attach_ui( node );
     }
-    std::string name() const
-        { return CRTP::getName(); }
     void republish_traits_locked() { 
         input::InputMutexGuard lock( input::global_mutex() );
         republish_traits();
@@ -117,8 +115,7 @@ BaseSource* Method<CRTP>::makeSource() {
     else if ( static_cast<CRTP&>(*this).ignore_unknown_type() )
         return orig.release();
     else
-        throw std::runtime_error(Forwarder::name() + " cannot process input "
-            "of the current type");
+        throw std::runtime_error("Cannot process input of the current type");
 }
 
 template <typename CRTP>

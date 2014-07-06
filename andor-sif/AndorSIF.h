@@ -75,6 +75,9 @@ namespace andor_sif {
 
         Config* clone() const { return new Config(*this); }
     };
+
+std::auto_ptr< input::Link > make_input();
+
 }
 }
 

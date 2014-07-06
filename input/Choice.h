@@ -12,17 +12,18 @@ class Choice
 {
   public:
     class LinkAdaptor : public simparm::Choice {
+        std::string name_;
         std::auto_ptr<input::Link> _link;
         input::Choice *target;
         Link::Connection connection;
 
       public:
-        LinkAdaptor( std::auto_ptr<input::Link> l );
+        LinkAdaptor( std::string name, std::auto_ptr<input::Link> l );
         ~LinkAdaptor();
         Link& link() { return *_link; }
         const Link& link() const { return *_link; }
         LinkAdaptor* clone() const {
-            std::auto_ptr<LinkAdaptor> rv( new LinkAdaptor( std::auto_ptr<Link>(_link->clone()) ) );
+            std::auto_ptr<LinkAdaptor> rv( new LinkAdaptor(name_, std::auto_ptr<Link>(_link->clone()) ) );
             return rv.release();
         }
         void connect( input::Choice& c ) {
@@ -30,7 +31,7 @@ class Choice
                 &input::Choice::traits_changed, &c, _1, _link.get() ) );
         }
 
-        std::string getName() const { return _link->name(); }
+        std::string getName() const { return name_; }
         void attach_ui( simparm::NodeHandle at ) { _link->registerNamedEntries( at ); }
         void detach_ui( simparm::NodeHandle at ) { throw std::logic_error("Not implemented"); }
     };
@@ -59,7 +60,7 @@ class Choice
     std::string description() const { return choices.getDesc(); }
     void publish_meta_info();
 
-    void add_choice( std::auto_ptr<Link> );
+    void add_choice(std::string name, std::auto_ptr<Link>);
 
     void insert_new_node( std::auto_ptr<Link>, Place );
 

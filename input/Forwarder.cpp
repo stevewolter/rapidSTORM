@@ -52,11 +52,6 @@ void Forwarder::traits_changed( TraitsRef ref, Link* l ) {
     update_current_meta_info(ref);
 }
 
-std::string Forwarder::name() const { 
-    assert( more_specialized.get() );
-    return more_specialized->name();
-}
-
 void Forwarder::insert_here( std::auto_ptr<Link> link ) {
     if ( more_specialized.get() )
         link->insert_new_node( more_specialized, Anywhere );
@@ -69,12 +64,12 @@ void Forwarder::insert_here( std::auto_ptr<Link> link ) {
 
 void Forwarder::publish_meta_info() {
     if ( ! more_specialized.get() )
-        throw std::logic_error(name() + " needs a subinput to publish meta info");
+        throw std::logic_error("Need a subinput to publish meta info");
     DEBUG(name() << " calls for publishment of meta info");
     more_specialized->publish_meta_info();
     DEBUG(name() << " called for publishment of meta info");
     if ( ! current_meta_info().get() )
-        throw std::logic_error(name() + " did not publish meta info on request");
+        throw std::logic_error("Did not publish meta info on request");
 }
 
 }
