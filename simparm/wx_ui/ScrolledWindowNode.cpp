@@ -50,7 +50,8 @@ boost::shared_ptr<Window> ScrolledWindowNode::create_window() {
 
 boost::function0<void> ScrolledWindowNode::get_relayout_function() {
     return boost::function0<void>((
-        bl::bind( &ScrolledWindow::mark_fit_inside, *bl::constant(scrolled_window) )
+        bl::bind( &ScrolledWindow::mark_fit_inside, *bl::constant(scrolled_window) ),
+        bl::bind( get_parent_relayout_function() )
     ));
 }
 

@@ -43,7 +43,7 @@ send "in Car in Output in EngineOutput in Output1 in Table in ToFile in value se
 send "cmd 0 in Car in Run in value set 1\n"
 
 expect {
-   -re "Starting job failed(:|(\r*\nmessage set ))The output file name '.*' was used by multiple(\[^\n\]*\nseverity)?"
+   -re "Starting job failed(:|(\r*\nmessage set ))The output file name '.*' was used by multiple\[^\n\]*\nseverity "
 	 { pass "$test" }
 }
 

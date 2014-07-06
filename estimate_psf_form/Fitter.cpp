@@ -148,7 +148,7 @@ void Fitter<Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simpa
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
             new_traits.optics(j).set_depth_info( dir, get_3d( result(0,j), j, dir ) );
     }
-    for (size_t i = 0; i < traits.fluorophore_count; ++i) {
+    for (int i = 0; i < traits.fluorophore_count; ++i) {
         if ( ! table.has_fluorophore( i ) ) {
             std::cerr << "Have seen no examples of fluorophore " << i << " and left its parameters unchanged." << std::endl;
             continue;
