@@ -15,7 +15,8 @@ class FilterFactory {
   public:
     virtual FilterFactory* clone() const = 0;
     virtual std::string getName() const = 0;
-    virtual void attach_ui(simparm::NodeHandle at) = 0;
+    virtual void attach_ui(simparm::NodeHandle at,
+                           std::function<void()> traits_change_callback) = 0;
     virtual std::unique_ptr<input::Source<OutputType>> make_source(
         std::unique_ptr<input::Source<InputType>> input) = 0;
     virtual boost::shared_ptr<const Traits<OutputType>> make_meta_info(

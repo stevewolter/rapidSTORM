@@ -30,6 +30,14 @@ class FilterFactoryLink
 
   private:
     BaseSource* makeSource() OVERRIDE;
+    void republish_traits_locked() { 
+        input::InputMutexGuard lock( input::global_mutex() );
+        republish_traits();
+    }
+    void republish_traits() { 
+        if ( Forwarder::upstream_traits().get() )
+            traits_changed( Forwarder::upstream_traits(), NULL ); 
+    }
 
     std::unique_ptr<MyFilterFactory> filter_;
 };
@@ -43,7 +51,7 @@ FilterFactoryLink<InputType, OutputType>::clone() const {
 template <typename InputType, typename OutputType>
 void FilterFactoryLink<InputType, OutputType>::registerNamedEntries( simparm::NodeHandle node ) {
     Forwarder::registerNamedEntries( node );
-    filter_->attach_ui( node );
+    filter_->attach_ui( node, boost::bind(&FilterFactoryLink::republish_traits_locked, this) );
 }
 
 template <typename InputType, typename OutputType>

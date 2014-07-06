@@ -254,7 +254,7 @@ class BackgroundFilterLink : public input::FilterFactory<engine::ImageStack> {
 
     BackgroundFilterLink* clone() const { return new BackgroundFilterLink(*this); }
     std::string getName() const { return "BackgroundFilter"; }
-    void attach_ui(simparm::NodeHandle at) { backend.attach_ui(at); }
+    void attach_ui(simparm::NodeHandle at, std::function<void()>) { backend.attach_ui(at); }
     std::unique_ptr<input::Source<engine::ImageStack>> make_source(
         std::unique_ptr<input::Source<engine::ImageStack>> input) {
         return backend.active_choice().make_source(std::move(input));
