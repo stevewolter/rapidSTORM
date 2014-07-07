@@ -3,7 +3,7 @@
 
 namespace dStorm {
 
-enum InsertionPlace { BeforeChannels, AfterChannels, BeforeEngine, AsEngine, Anywhere };
+enum InsertionPlace { Anywhere };
 
 }
 

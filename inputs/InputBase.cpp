@@ -17,12 +17,6 @@ struct InputChainBase
     void registerNamedEntries( simparm::NodeHandle node ) {
         Forwarder::registerNamedEntries( input_config.attach_ui(node) );
     }
-    void insert_new_node( std::auto_ptr<Link> l, Place p ) {
-        if ( p == BeforeEngine ) 
-            Forwarder::insert_here( l );
-        else
-            Forwarder::insert_new_node( l, p );
-    }
 };
 
 std::auto_ptr< input::Link > make_input_base() {
