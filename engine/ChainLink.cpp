@@ -1,16 +1,19 @@
+#include "engine/ChainLink.h"
 #include "debug.h"
 
+#include <boost/lexical_cast.hpp>
+#include <boost/units/io.hpp>
+
+#include "dejagnu.h"
 #include "engine/ChainLink.h"
 #include "engine/Engine.h"
-#include "input/MetaInfo.h"
-#include "output/LocalizedImage_traits.h"
-#include <boost/units/io.hpp>
+#include "guf/Factory.h"
+#include "helpers/make_unique.hpp"
 #include "input/InputMutex.h"
+#include "input/MetaInfo.h"
 #include "input/Method.hpp"
-#include "signals/UseSpotFinder.h"
-#include "signals/UseSpotFitter.h"
-#include <boost/lexical_cast.hpp>
-#include "dejagnu.h"
+#include "output/LocalizedImage_traits.h"
+#include "spotFinders/spotFinders.h"
 
 namespace dStorm {
 namespace engine {
@@ -41,14 +44,6 @@ class ChainLink
         update_meta_info( mi );
         return rt;
     }
-    void update_meta_info( MetaInfo& mi ) {
-        finder_con.reset( new scoped_connection( 
-            mi.get_signal< signals::UseSpotFinder >().connect( 
-                boost::bind( &ChainLink::add_spot_finder, this, _1 ) ) ) );
-        fitter_con.reset( new scoped_connection( 
-            mi.get_signal< signals::UseSpotFitter >().connect( 
-                boost::bind( &ChainLink::add_spot_fitter, this, _1 ) ) ) );
-    }
 
     BaseSource* make_source( std::auto_ptr< Source<ImageStack> > base ) 
         { return new Engine( config, base ); }
@@ -56,6 +51,14 @@ class ChainLink
     void republish_traits_locked() {
         input::InputMutexGuard lock( input::global_mutex() );
         republish_traits();
+    }
+
+    void add_spot_finder( std::unique_ptr<spot_finder::Factory> finder) 
+        { config.spotFindingMethod.addChoice(std::move(finder)); }
+    void add_spot_fitter( std::unique_ptr<spot_fitter::Factory> fitter) { 
+        fitter->register_trait_changing_nodes(
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
+        config.spotFittingMethod.addChoice(std::move(fitter)); 
     }
 
   public:
@@ -76,20 +79,17 @@ class ChainLink
         simparm::NodeHandle a = engine_node.attach_ui(at);
         config.attach_ui( a ); 
     }
-
-    void add_spot_finder( const spot_finder::Factory& finder) 
-        { config.spotFindingMethod.addChoice(finder.clone()); }
-    void add_spot_fitter( const spot_fitter::Factory& fitter) { 
-        std::auto_ptr< spot_fitter::Factory > my_fitter(fitter.clone());
-        my_fitter->register_trait_changing_nodes(
-            boost::bind( &ChainLink::republish_traits_locked, this ) );
-        config.spotFittingMethod.addChoice(my_fitter); 
-    }
 };
 
 ChainLink::ChainLink() 
 : engine_node("Engine", "")
 {
+    add_spot_finder( spalttiefpass_smoother::make_spot_finder_factory() );
+    add_spot_finder( median_smoother::make_spot_finder_factory() );
+    add_spot_finder( erosion_smoother::make_spot_finder_factory() );
+    add_spot_finder( gauss_smoother::make_spot_finder_factory() );
+    add_spot_finder( spaltbandpass_smoother::make_spot_finder_factory() );
+    add_spot_fitter( make_unique<guf::Factory>() );
 }
 
 ChainLink::ChainLink(const ChainLink& c)

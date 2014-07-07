@@ -7,6 +7,7 @@
 #include "simparm/Object.h"
 #include "simparm/Entry.h"
 #include "simparm/GUILabelTable.h"
+#include "helpers/make_unique.hpp"
 
 namespace dStorm {
 namespace spalttiefpass_smoother {
@@ -37,9 +38,8 @@ public:
     }
 };
 
-std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
-    return std::auto_ptr<engine::spot_finder::Factory>(
-        new engine::spot_finder::Builder<Config,Spalttiefpass>()); 
+std::unique_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
+    return make_unique<engine::spot_finder::Builder<Config,Spalttiefpass>>(); 
 }
 
 }

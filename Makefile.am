@@ -172,7 +172,6 @@ rapidstorm_SOURCES = \
     UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
     UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
     UnitEntries/TimeEntry.h UnitEntries/ADC.h \
-    signals/UseSpotFinder.h signals/UseSpotFitter.h \
     signals/InputFileNameChange.h signals/ResolutionChange.h signals/BasenameChange.h \
     display/fwd.h \
     display/DataSource.h display/display_normalized.hpp \
@@ -491,7 +490,6 @@ rapidstorm_SOURCES += \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
 rapidstorm_SOURCES += \
-    guf/augment_config.h guf/augment_config.cpp \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
     guf/create_evaluator.h guf/create_evaluator.hpp \
     guf/DistanceMetric.h \

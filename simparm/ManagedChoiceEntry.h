@@ -32,6 +32,9 @@ public:
             ChoiceEntry<BaseClass>::addChoice(*i);
     }
 
+    void addChoice( std::unique_ptr<BaseClass> choice ) {
+        addChoice(std::auto_ptr<BaseClass>(choice.release()));
+    }
     void addChoice( std::auto_ptr<BaseClass> choice ) {
         ChoiceEntry<BaseClass>::addChoice(*choice);
         choices.push_back(choice);

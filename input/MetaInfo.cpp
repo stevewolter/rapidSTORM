@@ -2,8 +2,6 @@
 #include "signals/InputFileNameChange.h"
 #include "signals/ResolutionChange.h"
 #include "signals/BasenameChange.h"
-#include "signals/UseSpotFinder.h"
-#include "signals/UseSpotFitter.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
@@ -14,9 +12,7 @@ using namespace signals;
 struct MetaInfo::Signals
 : public InputFileNameChange,
   public ResolutionChange,
-  public BasenameChange,
-  public UseSpotFinder,
-  public UseSpotFitter
+  public BasenameChange
 {
     boost::ptr_vector< boost::signals2::scoped_connection > listeners;
 };
@@ -44,8 +40,6 @@ Type& MetaInfo::get_signal() { return *_signals; }
 template InputFileNameChange& MetaInfo::get_signal<InputFileNameChange>();
 template ResolutionChange& MetaInfo::get_signal<ResolutionChange>();
 template BasenameChange& MetaInfo::get_signal<BasenameChange>();
-template UseSpotFinder& MetaInfo::get_signal<UseSpotFinder>();
-template UseSpotFitter& MetaInfo::get_signal<UseSpotFitter>();
 
 void MetaInfo::forward_connections( const MetaInfo& s )
 {
@@ -58,12 +52,6 @@ void MetaInfo::forward_connections( const MetaInfo& s )
     s._signals->listeners.push_back( 
         new boost::signals2::scoped_connection( 
             get_signal<BasenameChange>().connect( static_cast<BasenameChange&>(*s._signals) ) ) );
-    s._signals->listeners.push_back( 
-        new boost::signals2::scoped_connection( 
-            get_signal<UseSpotFinder>().connect( static_cast<UseSpotFinder&>(*s._signals) ) ) );
-    s._signals->listeners.push_back( 
-        new boost::signals2::scoped_connection( 
-            get_signal<UseSpotFitter>().connect( static_cast<UseSpotFitter&>(*s._signals) ) ) );
 }
 
 }

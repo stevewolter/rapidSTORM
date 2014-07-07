@@ -4,13 +4,11 @@
 
 #include "inputs/inputs.h"
 #include "inputs/WarnAboutLocalizationFile.h"
-#include "spotFinders/spotFinders.h"
 #include "outputs/BasicTransmissions.h"
 #include "base/Config.h"
 #include "engine/ChainLink_decl.h"
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
-#include "guf/augment_config.h"
 #include "estimate_psf_form/decl.h"
 #include "localization_file/writer.h"
 
@@ -65,12 +63,6 @@ void add_image_input_modules( dStorm::Config& car_config )
     dStorm::andor_sif::augment_config( car_config );
     car_config.add_input( inputs::make_warn_about_localization_file(), FileReader );
 
-    car_config.add_spot_finder( spalttiefpass_smoother::make_spot_finder_factory() );
-    car_config.add_spot_finder( median_smoother::make_spot_finder_factory() );
-    car_config.add_spot_finder( erosion_smoother::make_spot_finder_factory() );
-    car_config.add_spot_finder( gauss_smoother::make_spot_finder_factory() );
-    car_config.add_spot_finder( spaltbandpass_smoother::make_spot_finder_factory() );
-    guf::augment_config( car_config );
     test::input_modules( &car_config );
 }
 

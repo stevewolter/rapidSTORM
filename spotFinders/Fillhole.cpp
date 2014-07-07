@@ -16,6 +16,7 @@
 #include "image/convert.h"
 #include "image/constructors.h"
 #include "simparm/GUILabelTable.h"
+#include "helpers/make_unique.hpp"
 
 namespace dStorm {
 namespace fillhole_smoother {
@@ -117,11 +118,10 @@ FillholeSmoother::FillholeSmoother(
         buffer[i] = engine::SmoothedImage( job.size().head<2>() );
 }
 
-std::auto_ptr< engine::spot_finder::Factory >
+std::unique_ptr< engine::spot_finder::Factory >
     make_fillhole_smoother()
 {
-    return std::auto_ptr< engine::spot_finder::Factory >(
-        new engine::spot_finder::Builder<Config,FillholeSmoother>() );
+    return make_unique<engine::spot_finder::Builder<Config,FillholeSmoother>>();
 }
 
 }
