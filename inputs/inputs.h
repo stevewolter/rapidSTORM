@@ -15,7 +15,6 @@
 #include "inputs/Basename.h"
 #include "inputs/InsertionPoint.h"
 #include "inputs/InputBase.h"
-#include "inputs/InputMethods.h"
 #include "inputs/FileMethod.h"
 #include "inputs/join.h"
 #include "inputs/LocalizationFile.h"

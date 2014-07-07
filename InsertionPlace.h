@@ -3,7 +3,7 @@
 
 namespace dStorm {
 
-enum InsertionPlace { FileReader, InputMethod, BeforeChannels, AfterChannels, BeforeEngine, AsEngine, Anywhere };
+enum InsertionPlace { FileReader, BeforeChannels, AfterChannels, BeforeEngine, AsEngine, Anywhere };
 
 }
 

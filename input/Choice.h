@@ -60,6 +60,7 @@ class Choice
     void publish_meta_info();
 
     void add_choice( std::auto_ptr<Link> );
+    void add_choice( std::unique_ptr<Link> r ) { add_choice(std::auto_ptr<Link>(r.release())); }
 
     void insert_new_node( std::auto_ptr<Link>, Place );
 

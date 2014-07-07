@@ -274,7 +274,6 @@ rapidstorm_SOURCES += \
 rapidstorm_SOURCES += \
     inputs/inputs.h \
     inputs/FileMethod.h inputs/FileMethod.cpp \
-    inputs/InputMethods.h inputs/InputMethods.cpp \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
     inputs/join.h inputs/join.cpp \
@@ -586,7 +585,6 @@ rapidstorm_SOURCES += \
     dejagnu.h unit_tests.h unit_tests.cpp
 
 rapidstorm_SOURCES += \
-    input_simulation/plugin.cpp input_simulation/plugin.h \
     input_simulation/NoiseSource.h input_simulation/NoiseSource.cpp \
     input_simulation/NoiseGenerator.cpp \
     input_simulation/Fluorophore.cpp \

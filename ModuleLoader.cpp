@@ -1,27 +1,28 @@
-#include "engine/SpotFinder.h"
-#include "engine/SpotFitterFactory.h"
 #include "ModuleLoader.h"
 
-#include "inputs/inputs.h"
-#include "inputs/WarnAboutLocalizationFile.h"
-#include "outputs/BasicTransmissions.h"
+#include "andor-sif/augment_config.h"
 #include "base/Config.h"
+#include "calibrate_3d/fwd.h"
 #include "engine/ChainLink_decl.h"
+#include "engine/SpotFinder.h"
+#include "engine/SpotFitterFactory.h"
 #include "engine_stm/ChainLink.h"
-#include "noop_engine/ChainLink_decl.h"
 #include "estimate_psf_form/decl.h"
-#include "localization_file/writer.h"
-
-#include "test-plugin/plugin.h"
+#include "helpers/make_unique.hpp"
+#include "input_simulation/NoiseSource.h"
+#include "input/Choice.h"
+#include "inputs/inputs.h"
+#include "inputs/MedianFilter.h"
+#include "inputs/WarnAboutLocalizationFile.h"
 #include "kalman_filter/fwd.h"
-#include "input_simulation/plugin.h"
-#include "viewer/plugin.h"
+#include "localization_file/writer.h"
+#include "noop_engine/ChainLink_decl.h"
+#include "outputs/BasicTransmissions.h"
+#include "ripley_k/fwd.h"
+#include "test-plugin/plugin.h"
 #include "tiff/RawImageFile.h"
 #include "tiff/TIFF.h"
-#include "andor-sif/augment_config.h"
-#include "calibrate_3d/fwd.h"
-#include "ripley_k/fwd.h"
-#include "inputs/MedianFilter.h"
+#include "viewer/plugin.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -42,8 +43,11 @@ void add_image_input_modules( dStorm::Config& car_config )
     car_config.add_input( make_insertion_place_link(AfterChannels), AfterChannels );
     car_config.add_input( inputs::join::create_link(), AfterChannels );
     car_config.add_input( make_insertion_place_link(BeforeChannels), BeforeChannels );
-    car_config.add_input( inputs::InputMethods::create(), BeforeChannels );
-    car_config.add_input( input::file_method::makeLink(), InputMethod );
+
+    auto input_methods = make_unique<input::Choice>("InputMethod", false);
+    input_methods->add_choice(input::file_method::makeLink());
+    input_methods->add_choice(make_unique<input_simulation::NoiseConfig>());
+    car_config.add_input( std::move(input_methods), BeforeChannels );
 
     car_config.add_input( ROIFilter::make_link(), BeforeChannels );
     car_config.add_input( YMirror::makeLink(), BeforeChannels );
@@ -56,7 +60,6 @@ void add_image_input_modules( dStorm::Config& car_config )
 
     car_config.add_input( input::sample_info::makeLink(), BeforeEngine );
     car_config.add_input( input::resolution::makeLink(), BeforeEngine );
-    input_simulation::input_simulation( car_config );
 #ifdef HAVE_TIFFIO_H
     car_config.add_input( tiff::make_input(), dStorm::FileReader );
 #endif
@@ -71,8 +74,10 @@ void add_stm_input_modules( dStorm::Config& car_config )
     car_config.add_input( engine_stm::make_STM_engine_link(), AsEngine );
     car_config.add_input( make_input_base(), BeforeEngine );
     car_config.add_input( inputs::join::create_link(), AfterChannels );
-    car_config.add_input( inputs::InputMethods::create(), BeforeChannels );
-    car_config.add_input( input::file_method::makeLink(), InputMethod );
+
+    auto input_methods = make_unique<input::Choice>("InputMethod", false);
+    input_methods->add_choice( input::file_method::makeLink() );
+    car_config.add_input( std::move(input_methods), BeforeChannels );
 
     std::auto_ptr< input::Link > p = engine_stm::make_localization_buncher();
     p->insert_new_node( inputs::LocalizationFile::create(), Anywhere );
