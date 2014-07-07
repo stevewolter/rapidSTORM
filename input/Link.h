@@ -9,7 +9,6 @@
 #include <utility>
 #include <memory>
 #include "simparm/NodeHandle.h"
-#include "InsertionPlace.h"
 #include <boost/ptr_container/clone_allocator.hpp>
 #include <boost/signals2/slot.hpp>
 #include <boost/signals2/signal.hpp>
@@ -47,8 +46,7 @@ class Link {
     virtual void publish_meta_info() = 0;
     TraitsRef current_meta_info() const { return meta_info; }
 
-    typedef dStorm::InsertionPlace Place;
-    virtual void insert_new_node( std::auto_ptr<Link>, Place ) = 0;
+    virtual void insert_new_node( std::auto_ptr<Link> ) = 0;
     virtual std::string name() const = 0;
 
     Connection notify( const TraitsSignal::slot_type& whom );
@@ -61,7 +59,7 @@ class Link {
  *  those that need no further elements up the chain. */
 struct Terminus : public Link {
     virtual Terminus* clone() const = 0;
-    virtual void insert_new_node( std::auto_ptr<Link> l, Place ); 
+    virtual void insert_new_node( std::auto_ptr<Link> l ); 
 };
 
 }

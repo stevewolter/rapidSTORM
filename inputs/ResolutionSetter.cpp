@@ -140,7 +140,7 @@ struct MoreSpecialized : public dStorm::input::Link {
 
     virtual input::BaseSource* makeSource() { return new DummyImageSource(); }
     virtual Link* clone() const { return new MoreSpecialized(*this); }
-    void insert_new_node( std::auto_ptr<dStorm::input::Link>, Place ) {}
+    void insert_new_node( std::auto_ptr<dStorm::input::Link> ) {}
     void registerNamedEntries( simparm::NodeHandle ) { }
     std::string name() const { return node.getName(); }
     std::string description() const { return node.getDesc(); }
@@ -173,7 +173,7 @@ struct Check {
         MoreSpecialized& m(*ms);
         input::resolution::ChainLink l;
 
-        l.insert_new_node( std::auto_ptr<input::Link>(ms), Anywhere );
+        l.insert_new_node( std::auto_ptr<input::Link>(ms) );
 
         dStorm::input::Traits< engine::ImageStack > correct( ( image::MetaInfo<2>() ) );
         l.config.write_traits( correct );

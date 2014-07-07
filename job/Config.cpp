@@ -114,9 +114,9 @@ void Config::attach_children_ui( simparm::NodeHandle at ) {
     auto_terminate.attach_ui(  at  );
 }
 
-void Config::add_input( std::auto_ptr<input::Link> l, InsertionPlace p) {
+void Config::add_input( std::auto_ptr<input::Link> l) {
     if ( input.get() )
-        input->insert_new_node( l, p );
+        input->insert_new_node( l );
     else
         create_input( l );
 }

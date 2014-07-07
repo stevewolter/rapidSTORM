@@ -16,7 +16,7 @@ class Forwarder : public Link {
 
     virtual Forwarder* clone() const = 0;
     virtual BaseSource* makeSource();
-    void insert_new_node( std::auto_ptr<Link>, Place );
+    void insert_new_node( std::auto_ptr<Link> );
     void registerNamedEntries( simparm::NodeHandle );
     std::string name() const;
     void publish_meta_info();

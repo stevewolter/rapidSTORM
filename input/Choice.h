@@ -62,7 +62,7 @@ class Choice
     void add_choice( std::auto_ptr<Link> );
     void add_choice( std::unique_ptr<Link> r ) { add_choice(std::auto_ptr<Link>(r.release())); }
 
-    void insert_new_node( std::auto_ptr<Link>, Place );
+    void insert_new_node( std::auto_ptr<Link> );
 
     void set_help_id( std::string id ) { choices.setHelpID( id ); }
 };

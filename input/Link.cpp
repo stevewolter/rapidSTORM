@@ -41,9 +41,9 @@ void Link::update_current_meta_info( TraitsRef new_traits )
     meta_info_signal( meta_info );
 }
 
-void Terminus::insert_new_node( std::auto_ptr<Link> l, Place ) {
-        throw std::logic_error("No insertion point found for " + l->name());
-    }
+void Terminus::insert_new_node( std::auto_ptr<Link> l ) {
+    throw std::logic_error("No insertion point found for " + l->name());
+}
 
 
 Link::Connection

@@ -52,38 +52,38 @@ void add_image_input_modules( dStorm::Config& car_config )
     input_methods->add_choice(std::move(file_methods));
     input_methods->add_choice(make_unique<input_simulation::NoiseConfig>());
 
-    car_config.add_input( engine::make_rapidSTORM_engine_link(), Anywhere );
-    car_config.add_input( make_input_base(), Anywhere );
+    car_config.add_input( engine::make_rapidSTORM_engine_link() );
+    car_config.add_input( make_input_base() );
 
-    car_config.add_input( input::resolution::makeLink(), Anywhere );
-    car_config.add_input( input::sample_info::makeLink(), Anywhere );
-    car_config.add_input( basename_input_field::makeLink(), Anywhere );
-    car_config.add_input( input_buffer::makeLink(), Anywhere );
-    car_config.add_input( median_filter::make_link(), Anywhere );
-    car_config.add_input( plane_filter::make_link(), Anywhere );
-    car_config.add_input( Splitter::makeLink(), Anywhere );
+    car_config.add_input( input::resolution::makeLink() );
+    car_config.add_input( input::sample_info::makeLink() );
+    car_config.add_input( basename_input_field::makeLink() );
+    car_config.add_input( input_buffer::makeLink() );
+    car_config.add_input( median_filter::make_link() );
+    car_config.add_input( plane_filter::make_link() );
+    car_config.add_input( Splitter::makeLink() );
 
-    car_config.add_input( inputs::join::create_link(), Anywhere );
-    car_config.add_input( YMirror::makeLink(), Anywhere );
-    car_config.add_input( ROIFilter::make_link(), Anywhere );
-    car_config.add_input( std::move(input_methods), Anywhere );
+    car_config.add_input( inputs::join::create_link() );
+    car_config.add_input( YMirror::makeLink() );
+    car_config.add_input( ROIFilter::make_link() );
+    car_config.add_input( std::move(input_methods) );
 }
 
 void add_stm_input_modules( dStorm::Config& car_config )
 {
     auto file_methods = make_unique<inputs::FileMethod>();
     std::auto_ptr< input::Link > p = engine_stm::make_localization_buncher();
-    p->insert_new_node( inputs::LocalizationFile::create(), Anywhere );
+    p->insert_new_node( inputs::LocalizationFile::create() );
     file_methods->add_choice(std::move(p));
 
     auto input_methods = make_unique<input::Choice>("InputMethod", false);
     input_methods->add_choice(std::move(file_methods));
 
-    car_config.add_input( engine_stm::make_STM_engine_link(), Anywhere );
-    car_config.add_input( make_input_base(), Anywhere );
-    car_config.add_input( basename_input_field::makeLink(), Anywhere );
-    car_config.add_input( inputs::join::create_link(), Anywhere );
-    car_config.add_input( std::move(input_methods), Anywhere );
+    car_config.add_input( engine_stm::make_STM_engine_link() );
+    car_config.add_input( make_input_base() );
+    car_config.add_input( basename_input_field::makeLink() );
+    car_config.add_input( inputs::join::create_link() );
+    car_config.add_input( std::move(input_methods) );
 }
 
 void add_output_modules( dStorm::Config& car_config )

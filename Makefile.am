@@ -88,7 +88,6 @@ rapidstorm_SOURCES = \
     installation-directory.h \
     LengthUnit.h \
     polynomial_3d.h \
-    InsertionPlace.h \
     Localization_decl.h Localization.h \
     Pixel.h \
     Job.h UnitEntries.h \
@@ -275,7 +274,6 @@ rapidstorm_SOURCES += \
     inputs/inputs.h \
     inputs/FileMethod.h inputs/FileMethod.cpp \
     inputs/InputBase.cpp inputs/InputBase.h \
-    inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
     inputs/join.h inputs/join.cpp \
     inputs/join_test.h inputs/join_test.cpp \
     inputs/join/spatial.h inputs/join/spatial.cpp \

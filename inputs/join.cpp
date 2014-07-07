@@ -200,7 +200,7 @@ class Link
         assert( current_meta_info().get() );
     }
 
-    void insert_new_node( std::auto_ptr<input::Link>, Place );
+    void insert_new_node( std::auto_ptr<input::Link> );
 };
 
 Link::Link()
@@ -256,7 +256,7 @@ BaseSource* Link::makeSource() {
     }
 }
 
-void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) {
+void Link::insert_new_node( std::auto_ptr<input::Link> l ) {
     if ( children.size() == 0 ) {
         input_traits.push_back( l->current_meta_info() );
         connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
@@ -265,8 +265,8 @@ void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) {
             boost::bind( &Link::traits_changed, this, _1, &children.back() ) ) );
     } else {
         for (size_t i = 1; i < children.size(); ++i)
-            children[i].insert_new_node( std::auto_ptr<input::Link>( l->clone() ), p );
-        children[0].insert_new_node(l,p);
+            children[i].insert_new_node( std::auto_ptr<input::Link>( l->clone() ) );
+        children[0].insert_new_node(l);
     }
 }
 

@@ -55,7 +55,7 @@ public:
 
     const output::OutputSource& output_tree() const { return *outputRoot; }
 
-    void add_input( std::auto_ptr<input::Link>, InsertionPlace );
+    void add_input( std::auto_ptr<input::Link> );
     void add_output( std::auto_ptr<output::OutputSource> );
 
     const input::MetaInfo& get_meta_info() const;

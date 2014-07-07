@@ -117,8 +117,8 @@ Choice::LinkAdaptor::~LinkAdaptor() {
     _link.reset();
 }
 
-void Choice::insert_new_node( std::auto_ptr<Link> l, Place p ) {
-    choices.begin()->link().insert_new_node(l,p); 
+void Choice::insert_new_node( std::auto_ptr<Link> l ) {
+    choices.begin()->link().insert_new_node(l); 
 }
 
 void Choice::publish_meta_info() {

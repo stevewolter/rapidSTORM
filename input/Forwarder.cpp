@@ -35,9 +35,9 @@ BaseSource* Forwarder::makeSource() {
     return upstream_source().release();
 }
 
-void Forwarder::insert_new_node( std::auto_ptr<Link> n, Place p ) {
+void Forwarder::insert_new_node( std::auto_ptr<Link> n ) {
     if ( more_specialized.get() )
-        more_specialized->insert_new_node(n,p);
+        more_specialized->insert_new_node(n);
     else
         insert_here( n );
 }
@@ -59,7 +59,7 @@ std::string Forwarder::name() const {
 
 void Forwarder::insert_here( std::auto_ptr<Link> link ) {
     if ( more_specialized.get() )
-        link->insert_new_node( more_specialized, Anywhere );
+        link->insert_new_node( more_specialized );
     more_specialized = link;
     if ( more_specialized.get() ) {
         connection = more_specialized->notify( 

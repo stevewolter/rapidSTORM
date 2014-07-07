@@ -4,7 +4,6 @@
 #include "input/fwd.h"
 #include "engine/SpotFinder_decl.h"
 #include "engine/SpotFitterFactory_decl.h"
-#include "InsertionPlace.h"
 #include "Job.h"
 #include <memory>
 #include "simparm/NodeHandle.h"
@@ -26,11 +25,11 @@ struct JobConfig : public Job {
 struct Config : public JobConfig
 {
     virtual ~Config() {}
-    virtual void add_input( std::auto_ptr<input::Link>, InsertionPlace ) = 0;
-    void add_input( input::Link* s, InsertionPlace p ) 
-        { add_input( std::auto_ptr<input::Link>(s), p ); }
-    void add_input( std::unique_ptr<input::Link> s, InsertionPlace p ) 
-        { add_input( std::auto_ptr<input::Link>(s.release()), p ); }
+    virtual void add_input( std::auto_ptr<input::Link> ) = 0;
+    void add_input( input::Link* s ) 
+        { add_input( std::auto_ptr<input::Link>(s) ); }
+    void add_input( std::unique_ptr<input::Link> s ) 
+        { add_input( std::auto_ptr<input::Link>(s.release()) ); }
     virtual void add_output( std::auto_ptr<output::OutputSource> ) = 0;
     void add_output( output::OutputSource* s ) 
         { add_output( std::auto_ptr<output::OutputSource>(s) ); }
