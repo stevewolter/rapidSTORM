@@ -24,7 +24,6 @@ class FilterFactoryLink
         : Forwarder(o), filter_(o.filter_->clone()) {}
 
     FilterFactoryLink* clone() const OVERRIDE;
-    std::string name() const OVERRIDE { return filter_->getName(); }
     void registerNamedEntries( simparm::NodeHandle node ) OVERRIDE;
     void traits_changed( TraitsRef, Link* ) OVERRIDE;
 
@@ -76,7 +75,7 @@ BaseSource* FilterFactoryLink<InputType, OutputType>::makeSource() {
     std::unique_ptr<Source<InputType>> typed_upstream(
         dynamic_cast<Source<InputType>*>(upstream.get()));
     if (!typed_upstream) {
-        throw std::runtime_error(name() + " cannot process input "
+        throw std::logic_error("Cannot process input "
             "of the current type");
     } else {
         upstream.release();

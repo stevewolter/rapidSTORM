@@ -42,7 +42,7 @@ public:
         outer_window->initialization_finished();
         WindowNode::initialization_finished();
     }
-    NodeHandle create_trigger( std::string name ) {
+    NodeHandle create_trigger( std::string name ) OVERRIDE {
         if (name == "Run") {
             return outer_window->create_trigger(name);
         } else {
@@ -52,7 +52,6 @@ public:
     boost::function0<void> get_relayout_function() ;
     void set_config( boost::shared_ptr< dStorm::shell::JobFactory > );
     void stop_job_on_ui_detachment( boost::shared_ptr<dStorm::Job> );
-    NodeHandle create_trigger( std::string name ) OVERRIDE;
 };
 
 }

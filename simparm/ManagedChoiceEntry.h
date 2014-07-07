@@ -7,10 +7,17 @@
 namespace simparm {
 
 template <typename BaseClass>
+class VirtualCloneAllocator {
+  public:
+    static BaseClass* allocate_clone(const BaseClass& a) { return a.clone(); }
+    static void deallocate_clone(const BaseClass* a) { delete a; }
+};
+
+template <typename BaseClass>
 class ManagedChoiceEntry 
 : public ChoiceEntry<BaseClass>
 {
-    typedef boost::ptr_vector<BaseClass> Choices;
+    typedef boost::ptr_vector<BaseClass, VirtualCloneAllocator<BaseClass>> Choices;
     Choices choices;
 
     struct equal_address {

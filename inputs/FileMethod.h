@@ -23,8 +23,6 @@ class FileMethod
     bool replacing_file_name;
     TraitsRef traits_after_file_name_replacement;
 
-    void traits_changed( TraitsRef, input::Link* ) OVERRIDE;
-
     FileMethod* clone() const OVERRIDE { return new FileMethod(*this); }
     void registerNamedEntries( simparm::NodeHandle node ) { 
         simparm::NodeHandle r = name_object.attach_ui( node );
