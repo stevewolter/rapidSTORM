@@ -173,7 +173,7 @@ rapidstorm_SOURCES = \
     UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
     UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
     UnitEntries/TimeEntry.h UnitEntries/ADC.h \
-    signals/InputFileNameChange.h signals/ResolutionChange.h signals/BasenameChange.h \
+    signals/InputFileNameChange.h signals/BasenameChange.h \
     display/fwd.h \
     display/DataSource.h display/display_normalized.hpp \
     display/Manager.h \
