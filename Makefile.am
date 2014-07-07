@@ -147,6 +147,7 @@ rapidstorm_SOURCES = \
     helpers/nocopy_ptr.hpp \
     helpers/OutOfMemory.h \
     helpers/clone_ptr.hpp \
+    helpers/make_unique.hpp \
     helpers/back_inserter.h \
     helpers/virtual_clone_allocator.hpp \
     image/Image.h image/Image.hpp \
