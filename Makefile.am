@@ -720,8 +720,7 @@ else
 endif
 
 rapidstorm_SOURCES += \
-    $(SIFSUPPORT) \
-    andor-sif/augment_config.h andor-sif/augment_config.cpp
+    $(SIFSUPPORT)
 
 rapidstorm_SOURCES += \
     density_map/DensityMap.h density_map/DensityMap.hpp \
