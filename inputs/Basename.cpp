@@ -1,6 +1,7 @@
 #include "inputs/Basename.h"
 #include "input/Source.h"
 #include "input/InputMutex.h"
+#include "signals/BasenameChange.h"
 #include "input/Forwarder.h"
 #include "simparm/Entry.h"
 #include "input/MetaInfo.h"
@@ -75,6 +76,8 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
     if ( user_changed_output ) {
         if ( this->traits.get() )
             this->traits->suggested_output_basename.unformatted() = config.output();
+        if ( traits.get() )
+            traits->get_signal< signals::BasenameChange >()( this->traits->suggested_output_basename );
     } else {
         config.output = default_output_basename;
     }
@@ -90,6 +93,7 @@ void ChainLink::republish_traits_locked()
     user_changed_output = ( config.output() != "" && config.output() != default_output_basename );
     if ( traits.get() ) {
         traits->suggested_output_basename.unformatted() = config.output();
+        traits->get_signal< signals::BasenameChange >()( traits->suggested_output_basename );
         update_current_meta_info( this->traits );
     }
 }

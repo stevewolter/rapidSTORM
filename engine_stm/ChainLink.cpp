@@ -36,6 +36,9 @@ class ChainLink : public input::Method< ChainLink >
     template <typename Type>
     input::BaseSource* make_source( std::auto_ptr< input::Source<Type> > p ) 
         { return new Source<Type>( p ); }
+
+  public:
+    std::string name() const { return Forwarder::name(); }
 };
 
 class STMEngine : public input::Forwarder

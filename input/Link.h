@@ -49,11 +49,12 @@ class Link {
 
     typedef dStorm::InsertionPlace Place;
     virtual void insert_new_node( std::auto_ptr<Link>, Place ) = 0;
+    virtual std::string name() const = 0;
 
     Connection notify( const TraitsSignal::slot_type& whom );
  
   protected:
-    virtual void update_current_meta_info( TraitsRef new_traits );
+    void update_current_meta_info( TraitsRef new_traits );
 };
 
 /** Specialized case of Link for terminal nodes, that is,

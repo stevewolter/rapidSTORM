@@ -29,6 +29,12 @@ struct Config : public JobConfig
     virtual void add_input( std::auto_ptr<input::Link>, InsertionPlace ) = 0;
     void add_input( input::Link* s, InsertionPlace p ) 
         { add_input( std::auto_ptr<input::Link>(s), p ); }
+    virtual void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> ) = 0;
+    void add_spot_finder( engine::spot_finder::Factory* f ) 
+            { add_spot_finder( std::auto_ptr<engine::spot_finder::Factory>(f) ); }
+    virtual void add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> ) = 0;
+    void add_spot_fitter( engine::spot_fitter::Factory* f ) 
+            { add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory>(f) ); }
     virtual void add_output( std::auto_ptr<output::OutputSource> ) = 0;
     void add_output( output::OutputSource* s ) 
         { add_output( std::auto_ptr<output::OutputSource>(s) ); }

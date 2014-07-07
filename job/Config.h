@@ -56,6 +56,8 @@ public:
     const output::OutputSource& output_tree() const { return *outputRoot; }
 
     void add_input( std::auto_ptr<input::Link>, InsertionPlace );
+    void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> );
+    void add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> );
     void add_output( std::auto_ptr<output::OutputSource> );
 
     const input::MetaInfo& get_meta_info() const;

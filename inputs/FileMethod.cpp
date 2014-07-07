@@ -7,29 +7,76 @@
 #include "engine/Image.h"
 #include "engine/InputTraits.h"
 #include "input/MetaInfo.h"
+#include "input/Choice.h"
+#include "input/Forwarder.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Group.h"
 
 #include "inputs/FileMethod.h"
 #include "signals/InputFileNameChange.h"
 
 namespace dStorm {
-namespace inputs {
+namespace input {
+namespace file_method {
 
-using namespace input;
+class FileMethod
+: public Forwarder
+{
+    friend void unit_test(TestState&);
+    simparm::Group name_object;
+    simparm::FileEntry input_file;
+    simparm::BaseAttribute::ConnectionStore listening;
+
+    virtual void traits_changed( TraitsRef, Link* );
+
+    FileMethod* clone() const { return new FileMethod(*this); }
+    void registerNamedEntries( simparm::NodeHandle node ) { 
+        simparm::NodeHandle r = name_object.attach_ui( node );
+        input_file.attach_ui(r);
+        Forwarder::registerNamedEntries(r);
+
+        listening = input_file.value.notify_on_value_change( 
+            boost::bind( &FileMethod::republish_traits, this ) );
+    }
+    std::string name() const { return name_object.getName(); }
+    std::string description() const { return name_object.getDesc(); }
+
+    BaseSource* makeSource() { return Forwarder::makeSource(); }
+
+    void republish_traits();
+
+  public:
+    FileMethod();
+};
+
+class FileTypeChoice 
+: public Choice
+{
+    void insert_new_node( std::auto_ptr<Link> l, Place p ) {
+        if ( p == FileReader )
+            Choice::add_choice(l);
+        else
+            Choice::insert_new_node(l,p);
+    }
+
+  public:
+    FileTypeChoice() 
+        : Choice("FileType", true) {}
+};
 
 FileMethod::FileMethod()
-: input::Choice("FileType", true),
+: Forwarder(),
   name_object("FileMethod"),
-  input_file("InputFile", ""),
-  replacing_file_name(false) {}
+  input_file("InputFile", "")
+{
+    Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
+}
 
 void FileMethod::republish_traits()
 {
     InputMutexGuard lock( global_mutex() );
     if ( current_meta_info().get() != NULL ) {
-        replacing_file_name = true;
         current_meta_info()->get_signal< signals::InputFileNameChange >()( input_file() );
-        replacing_file_name = false;
-        update_current_meta_info(traits_after_file_name_replacement);
     }
 }
 
@@ -52,13 +99,13 @@ class BasenameApplier {
     const std::string& get_result() const { return basename; }
 };
 
-void FileMethod::update_current_meta_info( TraitsRef traits )
+void FileMethod::traits_changed( TraitsRef traits, Link* from )
 {
-    if (replacing_file_name) {
-        traits_after_file_name_replacement = traits;
-        return;
-    }
-    if ( traits.get() == NULL ) return input::Choice::update_current_meta_info( traits );
+    if ( traits.get() == NULL ) return update_current_meta_info( traits );
+    traits->get_signal< signals::InputFileNameChange >()( input_file() );
+    /* The signal might have forced a traits update that already did our
+     * work for us. */
+    if ( upstream_traits() != traits ) return;
 
     boost::shared_ptr<MetaInfo> my_traits( new MetaInfo(*traits) );
     if ( my_traits->suggested_output_basename.unformatted()() == "" ) {
@@ -70,13 +117,14 @@ void FileMethod::update_current_meta_info( TraitsRef traits )
         my_traits->suggested_output_basename.unformatted() = new_basename;
     }
     my_traits->forbidden_filenames.insert( input_file() );
-    input::Choice::update_current_meta_info( my_traits );
+    update_current_meta_info( my_traits );
 }
 
 std::auto_ptr<Link> makeLink() {
     return std::auto_ptr<Link>( new FileMethod() );
 }
 
+}
 }
 }
 
@@ -86,14 +134,15 @@ std::auto_ptr<Link> makeLink() {
 #include "simparm/text_stream/RootNode.h"
 
 namespace dStorm {
-namespace inputs {
+namespace input {
+namespace file_method {
 
-void FileMethod::unit_test( TestState& t ) {
+void unit_test( TestState& t ) {
     boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode() );
     FileMethod file_method;
     file_method.registerNamedEntries(io);
 
-    file_method.add_choice("TIFF", tiff::make_input() );
+    file_method.insert_new_node( tiff::make_input(), FileReader );
     file_method.publish_meta_info();
     t.testrun( file_method.current_meta_info().get(), 
         "Test method publishes traits" );
@@ -111,7 +160,7 @@ void FileMethod::unit_test( TestState& t ) {
         "Test method provides correct width for TIFF file name" );
 
     std::auto_ptr<  dStorm::input::Link > foo = dummy_file_input::make();
-    file_method.add_choice( "DummyInput", foo );
+    file_method.insert_new_node( foo, FileReader );
     file_method.publish_meta_info();
     t.testrun( file_method.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
@@ -137,5 +186,6 @@ void FileMethod::unit_test( TestState& t ) {
         "Copied file method is not mutated by original" );
 }
 
+}
 }
 }

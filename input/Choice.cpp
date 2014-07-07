@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "debug.h"
 #include "input/Choice.h"
 #include "simparm/ChoiceEntry.h"
@@ -52,30 +51,23 @@ void Choice::publish_traits_locked()
 
 void Choice::traits_changed( TraitsRef t, Link* from ) {
     bool provides_something = ( t.get() != NULL && ! t->provides_nothing() );
-    DEBUG("Got traits change to " << provides_something);
     if ( auto_select && choices.isValid() && &choices().link() == from && ! provides_something ) {
-        DEBUG("Auto-deselecting value " << choices().getName());
+        DEBUG("Auto-deselecting value other than the current");
         /* Choice can deliver no traits, i.e. is invalid. Find valid one. */
         bool found = false;
         for ( iterator i = choices.begin(); i != choices.end(); ++i ) {
             if ( i->link().current_meta_info().get() != NULL && ! i->link().current_meta_info()->provides_nothing() ) {
-                DEBUG("Using value " << i->getName() << " instead");
                 choices.value = i->getName();
                 found = true;
-            } else {
-                DEBUG("Not using value " << i->getName() << " instead with " << i->link().current_meta_info());
             }
         }
         if ( ! found ) 
             choices.value = "";
     }
     if ( auto_select && ! choices.isValid() && provides_something ) {
-        for ( iterator i = choices.begin(); i != choices.end(); ++i ) {
-            if ( &i->link() == from ) {
-                DEBUG("Auto-selecting value " << i->getName());
+        for ( iterator i = choices.begin(); i != choices.end(); ++i )
+            if ( &i->link() == from )
                 choices.value = i->getName();
-            }
-        }
     }
     if ( ! will_publish_traits )
         publish_traits();
@@ -109,17 +101,16 @@ void Choice::registerNamedEntries( simparm::NodeHandle node ) {
     choices.attach_ui( node );
 }
 
-void Choice::add_choice( std::string name, std::auto_ptr<Link> fresh ) 
+void Choice::add_choice( std::auto_ptr<Link> fresh ) 
 {
-    std::auto_ptr< LinkAdaptor > adaptor( new LinkAdaptor(name, fresh) );
+    std::auto_ptr< LinkAdaptor > adaptor( new LinkAdaptor(fresh) );
     adaptor->connect( *this );
-    Link& link = adaptor->link();
     choices.addChoice( adaptor );
-    traits_changed(link.current_meta_info(), &link);
 }
 
-Choice::LinkAdaptor::LinkAdaptor( std::string name, std::auto_ptr<input::Link> l ) 
-    :  name_(name), _link(l) {
+Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::Link> l ) 
+    :  _link(l) 
+{
 }
 
 Choice::LinkAdaptor::~LinkAdaptor() {
