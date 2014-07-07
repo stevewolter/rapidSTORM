@@ -27,7 +27,6 @@ class ChainLink
     friend class input::Method< ChainLink >;
     typedef boost::mpl::vector< engine::ImageStack > SupportedTypes;
 
-    std::auto_ptr< scoped_connection > finder_con, fitter_con;
     Config config;
     simparm::Object engine_node;
     simparm::BaseAttribute::ConnectionStore listening[4];
