@@ -146,8 +146,9 @@ rapidstorm_SOURCES = \
     helpers/default_on_copy.h \
     helpers/nocopy_ptr.hpp \
     helpers/OutOfMemory.h \
-    helpers/clone_ptr.hpp helpers/make_boost_clone.h \
+    helpers/clone_ptr.hpp \
     helpers/back_inserter.h \
+    helpers/virtual_clone_allocator.hpp \
     image/Image.h image/Image.hpp \
     image/fwd.h image/MetaInfo.h image/MetaInfo.hpp \
     image/constructors.h image/convert.h image/iterator.h image/minmax.h image/slice.h \
@@ -241,8 +242,7 @@ rapidstorm_SOURCES += \
     threed_info/Spline3D.cpp \
     threed_info/No3D.cpp \
     threed_info/Lens3D.cpp \
-    threed_info/look_up_sigma_diff.cpp \
-    make_clone_allocator.hpp
+    threed_info/look_up_sigma_diff.cpp
 
 rapidstorm_SOURCES += dstorm.cpp installation-directory.h \
     config_file.h config_file.cpp \

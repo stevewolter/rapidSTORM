@@ -15,7 +15,6 @@
 #include "simparm/Message.h"
 #include "simparm/Object.h"
 #include "simparm/ObjectChoice.h"
-#include "make_clone_allocator.hpp"
 
 using namespace dStorm::engine;
 
@@ -29,15 +28,6 @@ struct Split : public simparm::ObjectChoice {
         ( std::unique_ptr< input::Source<engine::ImageStack> > p ) = 0;
     virtual int split_dimension() const = 0;
 };
-
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::Splitter::Split)
-
-namespace dStorm {
-namespace Splitter {
-
 
 struct Config 
 {

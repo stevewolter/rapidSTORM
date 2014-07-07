@@ -12,7 +12,6 @@
 #include "input/Source.h"
 #include "input/DefaultFilterTypes.h"
 #include "input/MetaInfo.h"
-#include "make_clone_allocator.hpp"
 
 #include "inputs/join/spatial.h"
 #include "inputs/join/temporal.h"
@@ -39,16 +38,6 @@ struct Strategist
     virtual std::auto_ptr<BaseSource> make_source( Sources sources ) = 0;
     void attach_ui( simparm::NodeHandle to ) { attach_parent(to); }
 };
-
-}
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::inputs::join::Strategist );
-
-namespace dStorm {
-namespace inputs {
-namespace join {
 
 std::auto_ptr< BaseSource > make_specialized_source( 
         std::vector<std::unique_ptr<input::Source<engine::ImageStack>>> v,

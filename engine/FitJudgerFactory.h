@@ -31,7 +31,4 @@ std::auto_ptr< FitJudgerFactory > make_square_root_ratio_judger();
 }
 }
 
-#include "make_clone_allocator.hpp"
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::FitJudgerFactory)
-
 #endif

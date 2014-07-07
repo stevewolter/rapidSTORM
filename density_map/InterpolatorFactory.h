@@ -2,7 +2,6 @@
 #define DSTORM_DENSITY_MAP_INTERPOLATOR_FACTORY_H
 
 #include "simparm/Choice.h"
-#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace density_map {
@@ -20,8 +19,5 @@ public:
 
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::density_map::InterpolatorFactory<3> )
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::density_map::InterpolatorFactory<2> )
 
 #endif

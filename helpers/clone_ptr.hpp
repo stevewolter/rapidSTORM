@@ -4,18 +4,14 @@
 #include <memory>
 #include <cstring>
 
-namespace boost {
-
 template <typename Type>
 class clone_ptr : public std::auto_ptr<Type> {
   public:
     clone_ptr() : std::auto_ptr<Type>() {}
     clone_ptr(const clone_ptr& o) 
-        : std::auto_ptr<Type>( o.get() ? new_clone(*o) : NULL ) {}
+        : std::auto_ptr<Type>( o.get() ? o->clone() : NULL ) {}
     clone_ptr(Type* t) : std::auto_ptr<Type>(t) {}
     clone_ptr(std::auto_ptr<Type> t) : std::auto_ptr<Type>(t) {}
 };
-
-}
 
 #endif

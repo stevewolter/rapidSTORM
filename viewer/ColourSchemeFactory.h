@@ -5,7 +5,6 @@
 #include "simparm/BaseAttribute.h"
 #include <memory>
 #include "viewer/Backend.h"
-#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace viewer {
@@ -23,7 +22,5 @@ struct ColourSchemeFactory : public simparm::ObjectChoice {
 
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::viewer::ColourSchemeFactory)
 
 #endif

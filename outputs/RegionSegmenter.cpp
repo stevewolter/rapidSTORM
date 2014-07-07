@@ -43,8 +43,6 @@
 #include "image/dilation_impl.h"
 #include "binning/binning.h"
 
-#include "make_clone_allocator.hpp"
-
 namespace dStorm { 
 namespace outputs {
 
@@ -153,14 +151,6 @@ struct RegionSegmentationMethod : public SegmentationMethod {
     SegmentationMethod* clone() const { return new RegionSegmentationMethod(*this); }
     Segmenter::SegmentationType type() const { return Segmenter::Region; }
 };
-
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::outputs::SegmentationMethod )
-
-namespace dStorm {
-namespace outputs {
 
 struct Segmenter::Config {
     simparm::ManagedChoiceEntry<SegmentationMethod> method;

@@ -13,7 +13,4 @@ struct FitJudger {
 }
 }
 
-#include "make_clone_allocator.hpp"
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::FitJudger)
-
 #endif

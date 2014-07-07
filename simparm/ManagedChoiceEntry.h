@@ -1,17 +1,12 @@
 #ifndef SIMPARM_MANAGED_CHOICE_ENTRY_HH
 #define SIMPARM_MANAGED_CHOICE_ENTRY_HH
 
-#include "simparm/ChoiceEntry.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
-namespace simparm {
+#include "helpers/virtual_clone_allocator.hpp"
+#include "simparm/ChoiceEntry.h"
 
-template <typename BaseClass>
-class VirtualCloneAllocator {
-  public:
-    static BaseClass* allocate_clone(const BaseClass& a) { return a.clone(); }
-    static void deallocate_clone(const BaseClass* a) { delete a; }
-};
+namespace simparm {
 
 template <typename BaseClass>
 class ManagedChoiceEntry 

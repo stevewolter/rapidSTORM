@@ -1,15 +1,16 @@
 #ifndef DSTORM_ENGINE_SPOTFITTERFACTORY_H
 #define DSTORM_ENGINE_SPOTFITTERFACTORY_H
 
+#include <memory>
+
+#include "engine/Image.h"
 #include "engine/JobInfo_decl.h"
 #include "engine/SpotFitter_decl.h"
-#include "engine/Image.h"
-#include "simparm/NodeHandle.h"
-#include <memory>
-#include "output/Traits_decl.h"
 #include "output/Basename_decl.h"
+#include "output/Traits_decl.h"
 #include "simparm/BaseAttribute.h"
 #include "simparm/Choice.h"
+#include "simparm/NodeHandle.h"
 
 namespace dStorm {
 namespace engine {
@@ -32,8 +33,5 @@ struct Factory : public simparm::Choice {
 }
 }
 }
-
-#include "make_clone_allocator.hpp"
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::spot_fitter::Factory)
 
 #endif

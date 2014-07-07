@@ -6,7 +6,6 @@
 #include <gsl/gsl_rng.h>
 #include <Eigen/Core>
 #include <queue>
-#include "make_clone_allocator.hpp"
 
 namespace input_simulation {
 
@@ -28,7 +27,5 @@ class FluorophoreDistribution : public simparm::ObjectChoice {
 };
 
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(input_simulation::FluorophoreDistribution)
 
 #endif

@@ -19,7 +19,6 @@
 #include "input/Method.hpp"
 #include "UnitEntries/FrameEntry.h"
 #include "units/frame_count.h"
-#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace plane_filter {
@@ -30,15 +29,6 @@ struct PlaneSelection : public simparm::ObjectChoice {
     virtual bool selects_plane() const = 0;
     virtual int plane_index() const = 0;
 };
-
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::plane_filter::PlaneSelection)
-
-namespace dStorm {
-namespace plane_filter {
-
 
 struct AllPlanes : public PlaneSelection {
     AllPlanes() : PlaneSelection("AllPlanes", "All planes") {}

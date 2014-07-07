@@ -25,7 +25,7 @@ private:
 
     boost::ptr_array<ScaledAxis, Dim> xy;
     boost::ptr_array<UnscaledAxis, Dim> xy_uncertainties;
-    boost::clone_ptr<UnscaledAxis> intensity;
+    clone_ptr<UnscaledAxis> intensity;
 
 public:
     Coordinates( boost::ptr_array<ScaledAxis, Dim> dims,

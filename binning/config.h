@@ -8,7 +8,6 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "binning/binning_decl.h"
 #include "localization/Traits.h"
-#include "make_clone_allocator.hpp"
 #include "helpers/default_on_copy.h"
 
 namespace dStorm {
@@ -48,8 +47,5 @@ struct FieldChoice
 
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::binning::FieldConfig)
-
 
 #endif

@@ -19,7 +19,6 @@
 #include "input/MetaInfo.h"
 #include "input/Method.hpp"
 #include "localization/Traits.h"
-#include "make_clone_allocator.hpp"
 #include "output/LocalizedImage.h"
 #include "output/LocalizedImage_traits.h"
 #include "simparm/ManagedChoiceEntry.h"
@@ -208,14 +207,6 @@ class BackgroundFilterChoice : public simparm::ObjectChoice {
     virtual std::unique_ptr<input::Source<engine::ImageStack>> make_source(
         std::unique_ptr<input::Source<engine::ImageStack>> input) = 0;
 };
-
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::median_filter::BackgroundFilterChoice);
-
-namespace dStorm {
-namespace median_filter {
 
 class MedianFilterChoice : public BackgroundFilterChoice {
   public:
