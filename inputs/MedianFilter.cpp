@@ -17,7 +17,6 @@
 #include "input/FilterFactoryLink.h"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
-#include "input/Method.hpp"
 #include "localization/Traits.h"
 #include "output/LocalizedImage.h"
 #include "output/LocalizedImage_traits.h"
