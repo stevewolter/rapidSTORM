@@ -16,7 +16,6 @@
 #include "inputs/WarnAboutLocalizationFile.h"
 #include "kalman_filter/fwd.h"
 #include "localization_file/writer.h"
-#include "noop_engine/ChainLink_decl.h"
 #include "outputs/BasicTransmissions.h"
 #include "ripley_k/fwd.h"
 #include "test-plugin/DummyFileInput.h"

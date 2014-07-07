@@ -294,10 +294,6 @@ rapidstorm_SOURCES += \
     inputs/unit_tests.h inputs/unit_tests.cpp
 
 rapidstorm_SOURCES += \
-	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
-	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
-
-rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.h engine/Engine.cpp \
     engine/EngineThread.h engine/EngineThread.cpp \
