@@ -182,9 +182,7 @@ class FileSelectionButton : public wxButton {
     TextCtrl *text_ctrl;
     void select_file( wxCommandEvent& ) {
         wxFileDialog dialog(this);
-        std::cerr << "Created file dialog" << std::endl;
         int response = dialog.ShowModal();
-        std::cerr << "Got response " << response << std::endl;
         if ( response == wxID_OK ) {
             wxString path = dialog.GetPath();
             text_ctrl->SetFileName( path );
