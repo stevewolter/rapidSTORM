@@ -14,7 +14,7 @@ namespace viewer {
 
 struct Status {
     Status(const Config&);
-    ~Status();
+    virtual ~Status();
 
     Config config;
     simparm::TriggerEntry save;

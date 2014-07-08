@@ -14,6 +14,7 @@ using dStorm::display::ImageChange;
 class Canvas : public wxScrolledWindow {
   public:
     struct Listener {
+        virtual ~Listener() {}
         virtual void drawn_rectangle( wxRect rect ) = 0;
         virtual void zoom_changed( int to ) = 0;
         virtual void mouse_over_pixel( wxPoint, Color ) = 0;

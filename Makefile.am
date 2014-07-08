@@ -773,7 +773,7 @@ rapidstorm_CPPFLAGS = -I$(srcdir)/third_party
 rapidstorm_CPPFLAGS += $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
 # TODO: This flag is only needed for old Eigen3 versions up to the fix of Eigen bug 477
-rapidstorm_CXXFLAGS += -Wno-enum-compare -std=c++0x -Wno-deprecated-declarations
+rapidstorm_CXXFLAGS += -Wno-enum-compare -std=c++0x -Wno-deprecated-declarations -Wnon-virtual-dtor
 rapidstorm_LDADD = $(GraphicsMagick_LIBS) 
 rapidstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 rapidstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)

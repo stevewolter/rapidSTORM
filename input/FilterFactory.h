@@ -13,6 +13,7 @@ namespace input {
 template <typename InputType, typename OutputType = InputType>
 class FilterFactory {
   public:
+    virtual ~FilterFactory() {}
     virtual FilterFactory* clone() const = 0;
     virtual std::string getName() const = 0;
     virtual void attach_ui(simparm::NodeHandle at,
