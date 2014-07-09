@@ -73,11 +73,9 @@ class SourceFactory
         return std::unique_ptr<input::Source<engine::ImageStack>>(
             new Input(std::move(s), config.fluorophore_count()));
     }
-    std::string getName() const OVERRIDE { return get_name(); }
     simparm::BaseAttribute::ConnectionStore listening;
 
   public:
-    static std::string get_name() { return "SampleInfo"; }
     void attach_ui( simparm::NodeHandle at, std::function<void()> cb ) OVERRIDE { 
         listening = config.fluorophore_count.value.notify_on_value_change( cb );
         config.attach_ui( at ); 
@@ -85,7 +83,7 @@ class SourceFactory
 };
 
 Config::Config()
-: name_object( SourceFactory::get_name(), "Sample information"),
+: name_object( "SampleInfo", "Sample information"),
   fluorophore_count("FluorophoreCount", 1)
 {
     fluorophore_count.min = 1;

@@ -105,7 +105,6 @@ class SourceFactory
         return n;
     }
 
-    std::string getName() const OVERRIDE { return "BiplaneSplitter"; }
     void attach_ui(simparm::NodeHandle at,
                    std::function<void()> traits_change_callback) OVERRIDE { 
         listening = config.biplane_split.value.notify_on_value_change(traits_change_callback);

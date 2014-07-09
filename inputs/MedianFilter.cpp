@@ -29,14 +29,12 @@ namespace dStorm {
 namespace median_filter {
 
 struct Config {
-    simparm::Object name_object;
     IntFrameEntry width, stride;
 
     Config();
     void attach_ui( simparm::NodeHandle at ) {
-        simparm::NodeHandle r = name_object.attach_ui(at);
-        width.attach_ui( r ); 
-        stride.attach_ui( r ); 
+        width.attach_ui( at );
+        stride.attach_ui( at );
     }
 };
 
@@ -243,7 +241,6 @@ class BackgroundFilterLink : public input::FilterFactory<engine::ImageStack> {
     }
 
     BackgroundFilterLink* clone() const { return new BackgroundFilterLink(*this); }
-    std::string getName() const { return "BackgroundFilter"; }
     void attach_ui(simparm::NodeHandle at, std::function<void()>) { backend.attach_ui(at); }
     std::unique_ptr<input::Source<engine::ImageStack>> make_source(
         std::unique_ptr<input::Source<engine::ImageStack>> input) {
@@ -258,9 +255,8 @@ class BackgroundFilterLink : public input::FilterFactory<engine::ImageStack> {
     simparm::ManagedChoiceEntry<BackgroundFilterChoice> backend;
 };
 
-Config::Config() 
-: name_object("MedianFilter", "Temporal median filter"),
-  width("MedianWidth", "Number of images in median", 11 * camera::frame),
+Config::Config()
+: width("MedianWidth", "Number of images in median", 11 * camera::frame),
   stride("MedianStride", "Stride between key images", 5 * camera::frame )
 {
     width.set_user_level( simparm::Intermediate );
