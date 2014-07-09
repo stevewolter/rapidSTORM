@@ -25,9 +25,9 @@ namespace engine {
 
 Engine::Engine(
     const Config &config, 
-    std::auto_ptr<Input> input
+    std::unique_ptr<Input> input
 )
-: input(input), 
+: input(std::move(input)), 
   config(config),
   errors("ErrorCount", "Number of dropped images", 0)
 {

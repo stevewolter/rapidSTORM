@@ -10,8 +10,8 @@
 #include "guf/Factory.h"
 #include "helpers/make_unique.hpp"
 #include "input/InputMutex.h"
-#include "input/MetaInfo.h"
-#include "input/Method.hpp"
+#include "input/FilterFactory.h"
+#include "input/FilterFactoryLink.h"
 #include "output/LocalizedImage_traits.h"
 #include "spotFinders/spotFinders.h"
 
@@ -22,95 +22,65 @@ using namespace input;
 using boost::signals2::scoped_connection;
 
 class ChainLink
-: public input::Method< ChainLink >
+: public input::FilterFactory<engine::ImageStack, output::LocalizedImage>
 {
-    friend class input::Method< ChainLink >;
-    typedef boost::mpl::vector< engine::ImageStack > SupportedTypes;
-
     Config config;
     simparm::Object engine_node;
     simparm::BaseAttribute::ConnectionStore listening[4];
 
-    void notice_traits( const MetaInfo&, const Traits< ImageStack >& traits ) {
-        config.separate_plane_fitting.set_visibility(traits.plane_count() > 1);
-    }
-    boost::shared_ptr< BaseTraits > 
-    create_traits( MetaInfo& mi, 
-                const Traits<ImageStack>& upstream )
-    {
-        boost::shared_ptr< input::Traits<output::LocalizedImage> >
-            rt = Engine::convert_traits(config, upstream);
-        update_meta_info( mi );
-        return rt;
+    boost::shared_ptr<const Traits<output::LocalizedImage>> make_meta_info(
+        MetaInfo& meta_info,
+        boost::shared_ptr<const Traits<engine::ImageStack>> traits)
+        OVERRIDE {
+        config.separate_plane_fitting.set_visibility(traits->plane_count() > 1);
+        return Engine::convert_traits(config, *traits);
     }
 
-    BaseSource* make_source( std::auto_ptr< Source<ImageStack> > base ) 
-        { return new Engine( config, base ); }
-
-    void republish_traits_locked() {
-        input::InputMutexGuard lock( input::global_mutex() );
-        republish_traits();
-    }
-
-    void add_spot_finder( std::unique_ptr<spot_finder::Factory> finder) 
-        { config.spotFindingMethod.addChoice(std::move(finder)); }
-    void add_spot_fitter( std::unique_ptr<spot_fitter::Factory> fitter) { 
-        fitter->register_trait_changing_nodes(
-            boost::bind( &ChainLink::republish_traits_locked, this ) );
-        config.spotFittingMethod.addChoice(std::move(fitter)); 
+    std::unique_ptr<input::Source<output::LocalizedImage>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> input) OVERRIDE {
+        return make_unique<Engine>( config, std::move(input) );
     }
 
   public:
     ChainLink();
-    ChainLink(const ChainLink&);
-    ~ChainLink() {}
+    ChainLink* clone() const { return new ChainLink(*this); }
 
-    static std::string getName() { return "Engine"; }
-    void attach_ui( simparm::NodeHandle at ) { 
-        listening[0] = config.fit_judging_method.value.notify_on_value_change( 
-            boost::bind( &ChainLink::republish_traits_locked, this ) );
+    void attach_ui(simparm::NodeHandle at,
+                   std::function<void()> traits_change_callback) OVERRIDE { 
+        listening[0] = config.fit_judging_method.value.notify_on_value_change(
+                traits_change_callback);
         listening[1] = config.spotFittingMethod.value.notify_on_value_change( 
-            boost::bind( &ChainLink::republish_traits_locked, this ) );
+                traits_change_callback);
         listening[2] = config.spotFindingMethod.value.notify_on_value_change( 
-            boost::bind( &ChainLink::republish_traits_locked, this ) );
+                traits_change_callback);
         listening[3] = config.separate_plane_fitting.value.notify_on_value_change( 
-            boost::bind( &ChainLink::republish_traits_locked, this ) );
-        simparm::NodeHandle a = engine_node.attach_ui(at);
-        config.attach_ui( a ); 
+                traits_change_callback);
+        for (auto& spot_fitter_factory : config.spotFittingMethod) {
+            spot_fitter_factory.register_trait_changing_nodes(
+                    traits_change_callback);
+        }
+        config.attach_ui(engine_node.attach_ui(at)); 
     }
 };
 
 ChainLink::ChainLink() 
 : engine_node("Engine", "")
 {
-    add_spot_finder( spalttiefpass_smoother::make_spot_finder_factory() );
-    add_spot_finder( median_smoother::make_spot_finder_factory() );
-    add_spot_finder( erosion_smoother::make_spot_finder_factory() );
-    add_spot_finder( gauss_smoother::make_spot_finder_factory() );
-    add_spot_finder( spaltbandpass_smoother::make_spot_finder_factory() );
-    add_spot_fitter( make_unique<guf::Factory>() );
+    config.spotFindingMethod.addChoice(
+            spalttiefpass_smoother::make_spot_finder_factory() );
+    config.spotFindingMethod.addChoice(
+            median_smoother::make_spot_finder_factory() );
+    config.spotFindingMethod.addChoice(
+            erosion_smoother::make_spot_finder_factory() );
+    config.spotFindingMethod.addChoice(
+            gauss_smoother::make_spot_finder_factory() );
+    config.spotFindingMethod.addChoice(
+            spaltbandpass_smoother::make_spot_finder_factory() );
+    config.spotFittingMethod.addChoice(make_unique<guf::Factory>());
 }
 
-ChainLink::ChainLink(const ChainLink& c)
-: Method<ChainLink>(c),
-  config(c.config),
-  engine_node("Engine", "")
-{
-    for ( simparm::ManagedChoiceEntry< spot_fitter::Factory >::iterator 
-            i = config.spotFittingMethod.begin(); 
-            i != config.spotFittingMethod.end(); ++i )
-    {
-        i->register_trait_changing_nodes( 
-            boost::bind( &ChainLink::republish_traits_locked, this )
-        );
-    }
-}
-
-std::auto_ptr<input::Link>
-make_rapidSTORM_engine_link()
-{
-    std::auto_ptr<input::Link> rv( new ChainLink( ) );
-    return rv;
+std::auto_ptr<input::Link> make_rapidSTORM_engine_link() {
+    return CreateLink(make_unique<ChainLink>());
 }
 
 void unit_test( TestState& state ) {

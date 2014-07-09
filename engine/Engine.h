@@ -31,7 +31,7 @@ namespace engine {
       private:
         typedef input::Source<output::LocalizedImage> Base;
 
-        std::auto_ptr<Input> input;
+        std::unique_ptr<Input> input;
         Input::TraitsPtr imProp, last_run_meta_info;
 
         Config config;
@@ -45,7 +45,7 @@ namespace engine {
         void increment_error_count();
 
       public:
-        Engine(const Config& config, std::auto_ptr<Input> input);
+        Engine(const Config& config, std::unique_ptr<Input> input);
         virtual ~Engine();
 
         void dispatch(Messages m);
