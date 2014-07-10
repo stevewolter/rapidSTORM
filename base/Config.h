@@ -11,7 +11,8 @@
 namespace dStorm {
 namespace output { class OutputSource; }
 
-struct JobConfig : public Job {
+class JobConfig : public Job {
+  public:
     virtual ~JobConfig() {}
     virtual simparm::NodeHandle attach_ui( simparm::NodeHandle ) = 0;
     virtual void attach_children_ui( simparm::NodeHandle ) = 0;
@@ -22,8 +23,9 @@ struct JobConfig : public Job {
     virtual void close_when_finished() {}
 };
 
-struct Config : public JobConfig
+class Config : public JobConfig
 {
+  public:
     virtual ~Config() {}
     virtual void add_input( std::auto_ptr<input::Link> ) = 0;
     void add_input( input::Link* s ) 

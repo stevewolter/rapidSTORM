@@ -66,8 +66,7 @@ public:
     bool step_is_negligible(const Position& from, const Position& to) const { assert(false); return true; }
 };
 
-struct ParameterLinearizer::Pimpl 
-{
+class ParameterLinearizer::Pimpl {
     typedef nonlinfit::Bind< gaussian_psf::Polynomial3D, calibrated_parameter > PSF;
     typedef BoundMoveable<PSF> OnePlane;
     static const int VariableCount = boost::mpl::size< PSF::Variables >::value;

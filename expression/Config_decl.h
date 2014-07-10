@@ -5,10 +5,10 @@ namespace dStorm {
 namespace expression {
 
 namespace config {
-    struct CommandLine;
+    class CommandLine;
 }
 
-struct Config; 
+class Config; 
 
 }
 }

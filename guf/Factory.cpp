@@ -15,7 +15,7 @@ namespace spf = engine::spot_fitter;
 std::auto_ptr<engine::spot_fitter::Implementation>
 Factory::make( const engine::JobInfo& info )
 {
-    check_configuration( info );
+    check_configuration_( info );
     return std::auto_ptr<engine::spot_fitter::Implementation>(
         new Fitter( info, config) );
 }
@@ -88,9 +88,7 @@ void Factory::register_trait_changing_nodes( simparm::BaseAttribute::Listener l 
     traits_changed.connect(l);
 }
 
-void Factory::check_configuration( 
-    const engine::JobInfo& info
-) {
+void Factory::check_configuration_(const engine::JobInfo& info) {
     bool spectral_unmixing = true;
     for (int i = 0; i < info.traits.plane_count(); ++i)
         spectral_unmixing = spectral_unmixing && std::abs( info.traits.optics(i)

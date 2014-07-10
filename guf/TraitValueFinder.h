@@ -27,7 +27,7 @@ struct TraitValueFinder {
     template <int Dim>
     void operator()( gaussian_psf::BestSigma<Dim> p, gaussian_psf::No3D& m ) const { 
         Direction d = static_cast<Direction>(Dim);
-        m(p) = dynamic_cast< const threed_info::No3D&>(*plane.depth_info(d)).sigma;
+        m(p) = dynamic_cast< const threed_info::No3D&>(*plane.depth_info(d)).stddev();
     }
     template <int Dim>
     void operator()( gaussian_psf::BestSigma<Dim> p, gaussian_psf::Polynomial3D& m ) const { 

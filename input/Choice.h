@@ -13,7 +13,6 @@ class Choice
   public:
     class LinkAdaptor : public simparm::Choice {
         std::auto_ptr<input::Link> _link;
-        input::Choice *target;
         Link::Connection connection;
 
       public:

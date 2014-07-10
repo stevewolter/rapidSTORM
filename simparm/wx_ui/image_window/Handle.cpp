@@ -47,7 +47,7 @@ std::auto_ptr< dStorm::display::WindowHandle >
 static void fetch_state( boost::shared_ptr<Window*> handle, const dStorm::display::SaveRequest& r ) {
     try {
         Window& window = **handle;
-        std::auto_ptr<dStorm::display::Change> c = window.getState();
+        auto c = window.getState();
         if ( r.manipulator ) r.manipulator(*c);
         dStorm::display::store_image( r.filename, *c );
     } catch (const std::runtime_error& e) {

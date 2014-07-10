@@ -11,8 +11,7 @@ namespace dStorm {
 namespace engine {
 
 EngineThread::EngineThread( Config& config, Input::TraitsPtr meta_info )
-: config(config),
-  meta_info( meta_info ),
+: meta_info( meta_info ),
   position_generator(config, *meta_info),
   origMotivation( config.motivation() + meta_info->plane_count() - 1 )
 {

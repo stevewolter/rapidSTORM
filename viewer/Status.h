@@ -12,7 +12,8 @@ namespace dStorm {
 namespace display { class Manager; }
 namespace viewer {
 
-struct Status {
+class Status {
+  public:
     Status(const Config&);
     virtual ~Status();
 

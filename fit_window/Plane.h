@@ -11,7 +11,8 @@ namespace fit_window {
 
 class Optics;
 
-struct Plane {
+class Plane {
+  public:
     const Optics* optics;
     float integral, peak_intensity, background_estimate;
     double pixel_size;

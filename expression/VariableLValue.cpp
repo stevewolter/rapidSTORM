@@ -42,8 +42,8 @@ Assignment::evaluate( const variable_table& vt, const input::Traits<Localization
                 iterator begin, iterator end ) const
 {
     DEBUG( "Evaluating announcement " << this << " (was " << original << ") from " << simple );
-    EvaluationResult r[end-begin];
-    ExpressionBasedLValue::evaluate(vt, begin, end, r);
+    std::vector<EvaluationResult> r(end-begin);
+    ExpressionBasedLValue::evaluate(vt, begin, end, r.data());
 
     iterator end_of_good = end;
     for (iterator i = begin; i < end_of_good; ) {

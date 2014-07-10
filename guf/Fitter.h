@@ -20,9 +20,7 @@ class Config;
  *  contract. It provides the high-level glue code for calling the fit window selection, initialization, 
  *  fitting and localization creation routines. */
 class Fitter 
-: public engine::spot_fitter::Implementation
-{
-    const dStorm::engine::InputTraits& traits;
+: public engine::spot_fitter::Implementation {
     dStorm::engine::JobInfo info;
     fit_window::FitWindowCutter data_creator;
     InitialValueFinder initial_value_finder;

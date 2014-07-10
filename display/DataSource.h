@@ -18,10 +18,12 @@ namespace display {
 
 typedef dStorm::Image<dStorm::Pixel,3> Image;
 
-struct ClearChange {
+class ClearChange {
+  public:
     Color background;
 };
-struct KeyDeclaration {
+class KeyDeclaration {
+  public:
     std::string unit, description;
     int size;
     bool can_set_lower_limit, can_set_upper_limit;
@@ -32,7 +34,8 @@ struct KeyDeclaration {
           can_set_lower_limit(false), can_set_upper_limit(false) {}
 };
 
-struct ResizeChange {
+class ResizeChange {
+  public:
     Image::Size size;
     std::vector<KeyDeclaration> keys;
     /* Size of one pixel in meters. */
@@ -43,10 +46,12 @@ struct ResizeChange {
     void set_size( const ImageTypes<2>::Size& sz ) 
         { size.fill( 1 * camera::pixel ); size.head<2>() = sz; }
 };
-struct ImageChange {
+class ImageChange {
+  public:
     Image new_image;
 };
-struct PixelChange : public Image::Position { 
+class PixelChange : public Image::Position { 
+  public:
     Color color;
 
     PixelChange(Image::Position p) : Image::Position(p) {}
@@ -55,7 +60,8 @@ struct PixelChange : public Image::Position {
         Image::Position::head<2>() = p;
     }
 };
-struct KeyChange {
+class KeyChange {
+  public:
     int index;
     Color color;
     float value;
@@ -68,7 +74,8 @@ struct KeyChange {
     static std::vector<KeyChange> make_linear_key( std::pair<float,float> range );
 };
 
-struct Change {
+class Change {
+  public:
     typedef std::vector<PixelChange> PixelQueue;
     typedef std::vector< std::vector<KeyChange> > Keys;
 
@@ -92,10 +99,11 @@ struct Change {
     void make_linear_key(Image::PixelPair range);
 };
 
-struct DataSource {
+class DataSource {
+  public:
     DataSource() {}
     virtual ~DataSource() {}
-    virtual std::auto_ptr<Change> get_changes() = 0;
+    virtual std::unique_ptr<Change> get_changes() = 0;
     virtual void notice_closed_data_window() {}
     /** Only called when notice_drawn_rectangle is set in WindowFlags. */
     virtual void notice_drawn_rectangle

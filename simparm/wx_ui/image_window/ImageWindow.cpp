@@ -114,7 +114,7 @@ Window::~Window()
 }
 
 void Window::update_image() {
-    std::auto_ptr<Change> changes = data_source->get_changes();
+    std::unique_ptr<Change> changes = data_source->get_changes();
     if ( changes.get() )
         commit_changes(*changes);
     else
@@ -235,12 +235,12 @@ BEGIN_EVENT_TABLE(Window, wxFrame)
     EVT_TIMER(wxID_ANY, Window::timer_expired)
 END_EVENT_TABLE()
 
-std::auto_ptr<Change> Window::getState() 
+std::unique_ptr<Change> Window::getState() 
 {
     if ( has_3d ) std::cerr << "Warning: Only the lowest Z layer is saved when images are shown live. (Bug #170)" << std::endl;
     update_image();
 
-    std::auto_ptr<Change> rv( new Change(keys.size()) );
+    std::unique_ptr<Change> rv( new Change(keys.size()) );
     rv->do_resize = true;
     rv->resize_image.size = mkImgSize(canvas->getSize());
     for (int i = 0; i < 2; ++i)

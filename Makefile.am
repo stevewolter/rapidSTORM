@@ -767,7 +767,7 @@ rapidstorm_SOURCES += \
     tsf/TSFProto.pb.cc
 endif
 
-rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
+rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
 rapidstorm_CPPFLAGS = -I$(srcdir)/third_party
 rapidstorm_CPPFLAGS += $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 

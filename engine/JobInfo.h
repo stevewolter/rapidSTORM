@@ -13,20 +13,21 @@ namespace engine {
 class FitJudgerFactory;
 class FitJudger;
 
-struct JobInfo {
-private:
-    boost::ptr_vector< FitJudger, VirtualCloneAllocator<FitJudger> > judgers;
-    boost::shared_ptr<const InputTraits> traits_store;
-
+class JobInfo {
 public:
     const InputTraits& traits;
     int fluorophore;
-public:
+
     JobInfo( boost::shared_ptr<const InputTraits>, int fluorophore, const FitJudgerFactory& );
     JobInfo( const JobInfo& );
     ~JobInfo();
 
     const FitJudger& get_judger( int plane ) const;
+
+private:
+    boost::ptr_vector< FitJudger, VirtualCloneAllocator<FitJudger> > judgers;
+    boost::shared_ptr<const InputTraits> traits_store;
+
 };
 
 

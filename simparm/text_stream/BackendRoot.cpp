@@ -26,7 +26,7 @@ BackendRoot::~BackendRoot() {
 
 const std::string& BackendRoot::get_name() const { throw std::logic_error("Method was thought unneeded"); }
 std::ostream* BackendRoot::get_print_stream() { return out; }
-BackendRoot::Mutex* BackendRoot::get_mutex() { return &mutex; }
+boost::recursive_mutex* BackendRoot::get_mutex() { return &mutex; }
 void BackendRoot::add_child( BackendNode& b ) { 
     children.add(b); 
     if ( attached && out )
@@ -40,7 +40,7 @@ void BackendRoot::remove_child( BackendNode& b ) {
 void BackendRoot::declare( std::ostream& ) { throw std::logic_error("Method was thought unneeded"); }
 
 void BackendRoot::processCommand( std::istream& i ) {
-    boost::lock_guard< Mutex > m( *get_mutex() );
+    boost::lock_guard< boost::recursive_mutex > m( *get_mutex() );
     BackendNode::processCommand_( i );
 }
 

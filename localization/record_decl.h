@@ -16,7 +16,7 @@ boost::variant< dStorm::Localization, EmptyLine > Record;
 
 namespace input {
 template <>
-struct Traits<localization::Record> ;
+class Traits<localization::Record> ;
 }
 
 }

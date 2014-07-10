@@ -27,7 +27,7 @@ class ProjectionFactory;
 
 namespace units = boost::units;
 
-struct PlaneConfig;
+class PlaneConfig;
 
 class Optics
 {

@@ -207,8 +207,9 @@ Output::RunRequirements Output::announce_run(const RunAnnouncement & a) {
     return Filter::announce_run(a);
 }
 
-struct Output::lowest_mahalanobis_distance
+class Output::lowest_mahalanobis_distance
 : public std::binary_function< TracedObject*, TracedObject*, TracedObject* > {
+  public:
     const Localization& to;
     const std::set<TracedObject*>& excluded;
     const double max_sq_distance;

@@ -12,7 +12,7 @@ namespace dStorm {
 namespace estimate_psf_form {
 
 class GUI {
-    std::auto_ptr< display::Change > make_spot_display();
+    std::unique_ptr< display::Change > make_spot_display();
     void mark_fluorophores( display::Image orig_image );
     void show_selection_window();
     dStorm::engine::Image2D::Size get_maximum_tile_size();

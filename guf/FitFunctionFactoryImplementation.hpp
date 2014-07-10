@@ -23,8 +23,9 @@ namespace dStorm {
 namespace guf {
 
 template <class Kernel, class DataTagList>
-struct FitFunctionFactoryImplementation<Kernel, DataTagList>::instantiate
+class FitFunctionFactoryImplementation<Kernel, DataTagList>::instantiate
 {
+  public:
     typedef void result_type;
 
     template <int ChunkSize, typename Num, typename P1, typename P2>

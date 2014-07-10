@@ -1,18 +1,18 @@
 #ifndef DSTORM_OUTPUTS_BINNEDLOCALIZATIONS_STRATEGIES_CONFIG_H
 #define DSTORM_OUTPUTS_BINNEDLOCALIZATIONS_STRATEGIES_CONFIG_H
 
+#include <boost/ptr_container/ptr_array.hpp>
+
 #include "simparm/Object.h"
 #include "simparm/ChoiceEntry.h"
 #include "binning/config.h"
 #include "binning/binning_decl.h"
-#include <boost/ptr_container/ptr_array.hpp>
+#include "density_map/Coordinates.h"
 #include "Localization.h"
 #include "helpers/default_on_copy.h"
 
 namespace dStorm {
 namespace density_map {
-
-template <int Dim> class Coordinates;
 
 template <int Dim>
 class CoordinatesFactory
@@ -31,11 +31,11 @@ class CoordinatesFactory
     ~CoordinatesFactory();
     CoordinatesFactory* clone() const { return new CoordinatesFactory(); }
 
-    std::auto_ptr< Coordinates<Dim> > make() const;
-    std::auto_ptr< binning::Unscaled > make_unscaled(int field) const;
-    std::auto_ptr< binning::Scaled > make_x() const;
-    std::auto_ptr< binning::Scaled > make_y() const;
-    std::auto_ptr< binning::Unscaled > make_i() const;
+    std::unique_ptr< Coordinates<Dim> > make() const;
+    std::unique_ptr< binning::Unscaled > make_unscaled(int field) const;
+    std::unique_ptr< binning::Scaled > make_x() const;
+    std::unique_ptr< binning::Scaled > make_y() const;
+    std::unique_ptr< binning::Unscaled > make_i() const;
     void set_visibility(const input::Traits<Localization>&);
 
     bool is_3d() const { return use_z_axis(); }

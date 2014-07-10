@@ -11,7 +11,8 @@ namespace viewer {
 
 class ColourScheme;
 
-struct ColourSchemeFactory : public simparm::ObjectChoice {
+class ColourSchemeFactory : public simparm::ObjectChoice {
+  public:
     ColourSchemeFactory( std::string name, std::string desc )
         : simparm::ObjectChoice(name,desc) {}
     virtual ColourSchemeFactory* clone() const = 0;

@@ -4,11 +4,11 @@
 namespace dStorm {
 namespace gaussian_psf {
 
-struct BaseExpression;
-struct No3D;
-struct DepthInfo3D;
-struct FixedForm;
-struct FreeForm;
+class BaseExpression;
+class No3D;
+class DepthInfo3D;
+class FixedForm;
+class FreeForm;
 
 template <class Num> class BaseParameters;
 template <class Num, class Expression> class Parameters;

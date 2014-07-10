@@ -24,9 +24,9 @@ Filter::iterator Filter::evaluate( const variable_table& tbl, const input::Trait
                       iterator begin, iterator end ) const
 {
     const int count = end - begin;
-    EvaluationResult r[count];
+    std::vector<EvaluationResult> r(count);
     bool good[count];
-    ExpressionBasedLValue::evaluate(tbl, begin, end, r);
+    ExpressionBasedLValue::evaluate(tbl, begin, end, r.data());
     for ( int i = 0; i < count; ++i )
         /* The result of this evaluation should *always* be a boolean,
          * since our grammar guarantees it. */

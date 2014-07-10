@@ -68,7 +68,6 @@ class Source : public input::Source< engine::ImageStack >
     simparm::NodeHandle current_ui;
     void attach_ui_( simparm::NodeHandle n ) { current_ui = n; }
     std::auto_ptr<OpenFile> file;
-    bool has_been_iterated;
     int count;
 };
 
@@ -93,7 +92,6 @@ class Config
 
 Source::Source(std::auto_ptr<OpenFile> file)
 : file(file),
-  has_been_iterated(false),
   count(0)
 {
 }

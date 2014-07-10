@@ -65,7 +65,7 @@ void reconstruction_by_dilation(dStorm::Image<InstanceType,2>& src,
     dStorm::Image<InstanceType,2>& mask,
     dStorm::Image<InstanceType,2>& target)
 {
-	register int x,y,k;
+	int x,y,k;
 	InstanceType d,q;
         int step = src.width_in_pixels(), width = step,
             height = src.height_in_pixels();

@@ -20,14 +20,14 @@ struct DisplayHandler
     boost::mutex mutex;
     boost::condition_variable is_closed_changed;
     bool is_closed;
-    std::auto_ptr< dStorm::display::Change > next_change;
+    std::unique_ptr< dStorm::display::Change > next_change;
     dStorm::display::Image image;
     boost::ptr_vector<Tile>& tiles;
     int fluorophore_count;
     std::auto_ptr< display::WindowHandle > handle;
 
-    std::auto_ptr<display::Change> get_changes() { 
-        std::auto_ptr< dStorm::display::Change > fresh( new dStorm::display::Change(1) );
+    std::unique_ptr<display::Change> get_changes() { 
+        std::unique_ptr< dStorm::display::Change > fresh( new dStorm::display::Change(1) );
         boost::lock_guard<boost::mutex> lock(mutex);
         std::swap( next_change, fresh );
         return fresh; 
@@ -45,8 +45,8 @@ struct DisplayHandler
     void colour_fluorophore( const Tile& );
 
   public:
-    DisplayHandler( std::auto_ptr< dStorm::display::Change > change, boost::ptr_vector<Tile>& tiles, int fluorophore_count, simparm::NodeHandle ui )
-        : is_closed(false), next_change(change), 
+    DisplayHandler( std::unique_ptr< dStorm::display::Change > change, boost::ptr_vector<Tile>& tiles, int fluorophore_count, simparm::NodeHandle ui )
+        : is_closed(false), next_change(std::move(change)), 
           image( next_change->image_change.new_image), tiles(tiles),
           fluorophore_count( fluorophore_count ) 
     {
@@ -170,7 +170,7 @@ dStorm::engine::Image2D::Size GUI::get_maximum_tile_size()
     return rv;
 }
     
-std::auto_ptr< dStorm::display::Change > 
+std::unique_ptr< dStorm::display::Change > 
 GUI::make_spot_display() {
     typedef dStorm::Image< dStorm::Pixel, display::Image::Dim > TargetImage;
     dStorm::engine::Image2D::Size selection_size = get_maximum_tile_size();
@@ -249,7 +249,7 @@ GUI::make_spot_display() {
         }
     }
 
-    std::auto_ptr<dStorm::display::Change> c( new dStorm::display::Change(0));
+    std::unique_ptr<dStorm::display::Change> c( new dStorm::display::Change(0));
     c->do_clear = true;
     c->clear_image.background = dStorm::Pixel::Black();
     c->do_resize = true;

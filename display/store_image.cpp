@@ -18,7 +18,7 @@
 #endif
 
 static const char *SI_prefixes[]
-= { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
+= { "f", "p", "n", "u", "m", "", "k", "M", "G", "T",
     "E" };
 std::string SIize( float value ) {
     if ( value < 1E-21 ) return "0";

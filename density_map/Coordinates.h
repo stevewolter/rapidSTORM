@@ -30,8 +30,8 @@ private:
 public:
     Coordinates( boost::ptr_array<ScaledAxis, Dim> dims,
                  boost::ptr_array<ScaledAxis, Dim> spatial_uncertainties,
-                 std::auto_ptr<UnscaledAxis> intensity)
-        : xy(dims), xy_uncertainties(spatial_uncertainties), intensity(intensity) {}
+                 std::unique_ptr<UnscaledAxis> intensity)
+        : xy(dims), xy_uncertainties(spatial_uncertainties), intensity(intensity.release()) {}
     Coordinates* clone() const { return new Coordinates(*this); }
     ~Coordinates() {}
 

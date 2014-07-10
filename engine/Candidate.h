@@ -31,9 +31,10 @@ class Candidate {
 };
 
 template <class PixelType>
-struct Candidate<PixelType>::decreasing_strength
+class Candidate<PixelType>::decreasing_strength
 : public std::binary_function< Candidate, Candidate, bool > 
 {
+  public:
     bool operator()( const Candidate& a, const Candidate& b ) const
         { return a.strength_ > b.strength_; }
 };

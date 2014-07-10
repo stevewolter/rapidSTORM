@@ -19,7 +19,7 @@ namespace expression {
 
 namespace fsn = boost::fusion;
 
-struct variable_table_index {
+class variable_table_index {
     int i;
   public:
     variable_table_index( int i = -1 ) : i(i) {}
@@ -28,7 +28,7 @@ struct variable_table_index {
 
 typedef boost::ptr_vector<Variable> variable_table;
 
-struct VariableTable
+class VariableTable
 : public variable_table {};
 
 typedef boost::variant< 
@@ -52,8 +52,8 @@ typedef boost::variant<
     boost::recursive_wrapper< tokens::choice >
 > tree_node;
 
-struct AbstractSyntaxTree 
-{
+class AbstractSyntaxTree {
+  public:
     tree_node root_node;
 };
 

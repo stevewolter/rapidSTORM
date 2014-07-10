@@ -29,9 +29,8 @@ struct Config : public traits::MultiPlaneConfig {
     Config() : traits::MultiPlaneConfig( traits::PlaneConfig::FitterConfiguration ) {}
 };
 
-template <typename ForwardedType>
 class Source 
-: public input::AdapterSource<ForwardedType>
+: public input::AdapterSource<engine::ImageStack>
 {
     Config config;
 
@@ -40,17 +39,13 @@ class Source
         for (int p = 0; p < t.plane_count(); ++p)
             t.plane(p).create_projection();
     }
-    template <typename OtherTypes>
-    void modify_traits( input::Traits<OtherTypes>& t ) { 
-        config.write_traits(t); 
-    }
     void attach_local_ui_( simparm::NodeHandle ) {}
 
   public:
     Source(
-        std::auto_ptr< input::Source<ForwardedType> > backend,
+        std::auto_ptr< input::Source<engine::ImageStack> > backend,
         const Config& config ) 
-        : input::AdapterSource<ForwardedType>( backend ), config(config) { 
+        : input::AdapterSource<engine::ImageStack>( backend ), config(config) { 
             simparm::NodeHandle n = simparm::dummy_ui::make_node();
             this->config.attach_ui( n ); 
         }
@@ -66,9 +61,11 @@ class ChainLink
     void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
     static std::string getName() { return "Optics"; }
 
-    template <typename Type>
-    Source<Type>* make_source( std::auto_ptr< input::Source<Type> > upstream ) { 
-        return new resolution::Source<Type>(upstream, config); 
+    input::Source<output::LocalizedImage>* make_source( std::auto_ptr< input::Source<output::LocalizedImage> > upstream ) { 
+        return upstream.release();
+    }
+    input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > upstream ) { 
+        return new resolution::Source(upstream, config); 
     }
     void update_traits( MetaInfo& i, Traits<output::LocalizedImage>& traits ) {}
     void update_traits( MetaInfo& i, Traits<engine::ImageStack>& traits ) { 
@@ -147,7 +144,8 @@ struct MoreSpecialized : public dStorm::input::Link {
     void publish_meta_info() {}
 };
 
-struct Check {
+class Check {
+  public:
     typedef dStorm::image::MetaInfo<2>::Resolutions Resolutions;
     bool resolution_close_to( Resolutions r, const Resolutions& t ) {
         if ( ! r[0].is_initialized() || ! r[1].is_initialized() )

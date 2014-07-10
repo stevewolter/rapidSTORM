@@ -13,20 +13,21 @@ namespace guf {
  *  It is responsible for publishing meta information for the fields
  *  computed by the Fitter, and for registering appropriate configuration
  *  items. */
-struct Factory
+class Factory
 : public engine::spot_fitter::Factory
 {
+  public:
     Config config;
 
-    std::auto_ptr<engine::spot_fitter::Implementation> make( const engine::JobInfo& );
-    Factory* clone() const { return new Factory(*this); }
-    void set_traits( output::Traits&, const engine::JobInfo& );
-    void set_requirements( input::Traits<engine::ImageStack>& );
-    void register_trait_changing_nodes( simparm::BaseAttribute::Listener );
-    void check_configuration( const engine::JobInfo& );
+    std::auto_ptr<engine::spot_fitter::Implementation> make( const engine::JobInfo& ) OVERRIDE;
+    Factory* clone() const OVERRIDE { return new Factory(*this); }
+    void set_traits( output::Traits&, const engine::JobInfo& ) OVERRIDE;
+    void set_requirements( input::Traits<engine::ImageStack>& ) OVERRIDE;
+    void register_trait_changing_nodes( simparm::BaseAttribute::Listener ) OVERRIDE;
   private:
     bool can_do_3d( const input::Traits<engine::ImageStack>& ) const;
     bool can_compute_uncertainty( const engine::InputPlane& ) const;
+    void check_configuration_( const engine::JobInfo& );
     boost::optional<output::Traits> my_traits;
     default_on_copy< boost::signals2::signal<void()> > traits_changed;
 

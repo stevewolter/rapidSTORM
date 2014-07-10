@@ -57,7 +57,6 @@ struct Reader : public std::stringstream {
     boost::optional<std::string>& target;
 
     Reader(boost::optional<std::string>& target) : target(target) {}
-    operator std::ostream&() { return *this; }
     std::ostream& stream() { return *this; }
     ~Reader() { target = this->str(); }
 };

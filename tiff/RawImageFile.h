@@ -61,7 +61,8 @@ class RawImageFile : public Output {
         { insert_filename_with_check( filename, present_filenames ); }
 };
 
-struct RawImageFile::OutputTypeChoice : public simparm::ObjectChoice {
+class RawImageFile::OutputTypeChoice : public simparm::ObjectChoice {
+  public:
     const OutputType output_type;
     OutputTypeChoice(std::string name, std::string desc, OutputType output_type)
         : simparm::ObjectChoice(name, desc), output_type(output_type) {}

@@ -10,7 +10,7 @@ namespace text_stream {
 BackendNode::~BackendNode() {}
 
 void BackendNode::print( const std::string& s ) {
-    boost::lock_guard< Mutex > m( *get_mutex() );
+    boost::lock_guard< boost::recursive_mutex > m( *get_mutex() );
     std::ostream* o = get_print_stream();
     if ( o ) *o << s << std::endl;
 }
@@ -39,12 +39,12 @@ void BackendNode::processCommand_( std::istream& i ) {
 }
 
 Message::Response BackendNode::send( const Message& m ) {
-    boost::lock_guard< Mutex > lock( *get_mutex() );
+    boost::lock_guard< boost::recursive_mutex > lock( *get_mutex() );
     return send_( m );
 }
 
 std::auto_ptr<BackendNode> BackendNode::make_child( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent ) {
-    boost::lock_guard< Mutex > m( *parent->get_mutex() );
+    boost::lock_guard< boost::recursive_mutex > m( *parent->get_mutex() );
     return std::auto_ptr<BackendNode>( new InnerBackendNode( name, type, frontend, parent ) );
 }
 

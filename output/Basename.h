@@ -9,15 +9,10 @@
 namespace dStorm {
 namespace output {
 
-struct Basename {
-    typedef std::map< std::string, std::string > ReplaceMap;
-  private:
-    simparm::Attribute<std::string> basename;
-    ReplaceMap replacements;
-
-    Basename( const std::string& base,
-              const ReplaceMap& replace );
+class Basename {
   public:
+    typedef std::map< std::string, std::string > ReplaceMap;
+
     Basename( const std::string& base = "" );
     Basename( const Basename& );
     Basename& operator=( const Basename& );
@@ -34,6 +29,13 @@ struct Basename {
     std::string new_basename() const;
 
     const ReplaceMap& replacement_map() const { return replacements; }
+
+  private:
+    simparm::Attribute<std::string> basename;
+    ReplaceMap replacements;
+
+    Basename( const std::string& base,
+              const ReplaceMap& replace );
 };
 
 std::ostream& operator<<( std::ostream&, const Basename& );

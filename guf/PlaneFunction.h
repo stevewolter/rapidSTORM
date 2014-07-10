@@ -13,7 +13,7 @@ namespace fit_window { class Plane; }
 namespace guf {
 
 template <typename ComputationWay>
-struct PlaneFunction {
+class PlaneFunction {
   public:
     typedef std::vector<std::unique_ptr<nonlinfit::plane::Term<ComputationWay>>> Evaluators;
     static std::unique_ptr<FitFunction> 

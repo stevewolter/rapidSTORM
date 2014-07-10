@@ -17,7 +17,8 @@ namespace engine {
 
 class InputPlane;
 
-struct FitJudgerFactory : public simparm::Choice {
+class FitJudgerFactory : public simparm::Choice {
+  public:
     typedef boost::units::quantity< boost::units::camera::intensity > CountsPerPhoton;
     virtual ~FitJudgerFactory() {}
     FitJudgerFactory* clone() const = 0;

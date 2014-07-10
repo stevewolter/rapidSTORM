@@ -16,7 +16,8 @@ class Parser;
 
 namespace config {
 
-struct LValue : public simparm::ObjectChoice {
+class LValue : public simparm::ObjectChoice {
+  public:
     LValue( const std::string& name, const std::string& desc ) : simparm::ObjectChoice(name, desc) {}
     virtual ~LValue() {}
     LValue* clone() const = 0;
@@ -27,12 +28,14 @@ struct LValue : public simparm::ObjectChoice {
 
 inline LValue* new_clone( const LValue& v ) { return v.clone(); }
 
-struct ExpressionManager {
+class ExpressionManager {
+  public:
     virtual ~ExpressionManager() {}
     virtual void expression_changed( std::string ident, std::auto_ptr<source::LValue> expression ) = 0;
 };
 
-struct CommandLine {
+class CommandLine {
+  public:
     CommandLine( std::string node_ident, boost::shared_ptr<Parser> );
     CommandLine* clone() const { return new CommandLine(*this); }
     ~CommandLine();

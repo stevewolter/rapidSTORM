@@ -21,7 +21,6 @@ Display::Display(
   colorizer(colorizer),
   vph(vph), 
   next_change( initial_state ),
-  status( config ),
   current_ui( config.config.outputFile.get_user_interface_handle() )
 {
     assert( config.engine );

@@ -103,9 +103,10 @@ class ChoiceEntryBase
 };
 
 template <typename ChoiceType>
-struct ChoiceEntry 
+class ChoiceEntry 
 : public ChoiceEntryBase
 {
+  public:
     ChoiceEntry(string name, string desc) : ChoiceEntryBase(name,desc) {}
     ChoiceEntry(string name) : ChoiceEntryBase(name) {}
 

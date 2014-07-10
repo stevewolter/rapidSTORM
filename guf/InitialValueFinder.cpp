@@ -101,14 +101,13 @@ float InitialValueFinder::correlation( const SigmaDiff& sd ) const
 
 class InitialValueFinder::set_parameter {
     TraitValueFinder base;
-    const InitialValueFinder& p;
     const Spot& s;
     const PlaneEstimate& e;
 
   public:
     typedef void result_type;
     set_parameter( const InitialValueFinder& p, const Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o ) 
-        : base( p.info.fluorophore, o ), p(p), s(s), e(e) {}
+        : base( p.info.fluorophore, o ), s(s), e(e) {}
 
     template <typename Model>
     void operator()( nonlinfit::Xs<0> p, Model& m ) {}

@@ -62,7 +62,7 @@ class Window : public wxFrame, public Canvas::Listener
     boost::shared_ptr<const Change> detach_from_source();
     void notice_that_source_has_disappeared();
 
-    std::auto_ptr<Change> getState();
+    std::unique_ptr<Change> getState();
 };
 
 }

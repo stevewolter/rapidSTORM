@@ -8,7 +8,8 @@ namespace dStorm {
 namespace traits { class Projection; }
 namespace engine {
 
-struct InputPlane {
+class InputPlane {
+  public:
     image::MetaInfo<2> image;
     traits::Optics optics;
     bool has_background_estimate;
@@ -18,7 +19,7 @@ struct InputPlane {
     InputPlane() : has_background_estimate(false) {}
     ~InputPlane();
 
-private:
+  private:
     boost::shared_ptr< traits::Projection > projection_;
 };
 

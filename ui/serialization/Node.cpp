@@ -4,7 +4,8 @@
 namespace simparm {
 namespace serialization_ui {
 
-struct TreeNode : public Node {
+class TreeNode : public Node {
+  public:
     std::string name;
     std::string parent_path;
     int children;

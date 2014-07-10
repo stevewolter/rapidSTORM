@@ -39,8 +39,5 @@ SaveRequest::SaveRequest()
 
 }
 
-template <>
-const int Image< dStorm::Pixel, 3 >::Dim;
-
 }
 

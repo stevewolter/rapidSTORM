@@ -149,9 +149,10 @@ std::auto_ptr<ProjectionConfig> make_support_point_projection_config() {
 }
 
 
-struct SupportPointProjection::PointOrdering
+class SupportPointProjection::PointOrdering
 : public std::binary_function< ImagePosition, ImagePosition, bool >
 {
+  public:
     bool operator()( const ImagePosition& a, const ImagePosition& b ) {
         for (int i = 0; i < a.rows(); ++i) {
             if ( a[i] < b[i] )

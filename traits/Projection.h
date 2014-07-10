@@ -17,7 +17,8 @@ namespace traits {
 
 namespace units = boost::units;
 
-struct Projection {
+class Projection {
+  public:
     typedef Eigen::Matrix< units::quantity<units::camera::length,float>, 2, 1, Eigen::DontAlign > SubpixelImagePosition;
     typedef Eigen::Matrix< units::quantity<units::camera::length,int>, 2, 1, Eigen::DontAlign > ImagePosition;
     typedef Eigen::Matrix< units::quantity<units::si::length,float>, 2, 1, Eigen::DontAlign > SamplePosition;

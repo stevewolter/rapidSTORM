@@ -24,8 +24,9 @@ boost::variant< dStorm::Localization, EmptyLine > Record;
 
 namespace input {
 template <>
-struct Traits<localization::Record> 
+class Traits<localization::Record> 
 : public Traits<Localization> {
+  public:
     Traits* clone() const { return new Traits(*this); }
 };
 }

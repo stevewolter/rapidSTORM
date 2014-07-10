@@ -14,9 +14,8 @@ namespace gaussian_psf {
 
 using namespace nonlinfit;
 
-struct BaseExpression
-: public nonlinfit::access_parameters< BaseExpression >
-{
+class BaseExpression : public nonlinfit::access_parameters< BaseExpression > {
+  public:
     BaseExpression();
     virtual ~BaseExpression();
     // Returns the PSF standard deviation in micrometers.

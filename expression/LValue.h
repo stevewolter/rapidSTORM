@@ -10,7 +10,8 @@ namespace dStorm {
 namespace expression {
 namespace source {
 
-struct LValue {
+class LValue {
+  public:
     typedef boost::variant<DynamicQuantity, bool> EvaluationResult;
     typedef std::vector<Localization>::iterator iterator;
 
@@ -29,6 +30,7 @@ protected:
 
     void simplify( const variable_table&, const input::Traits<Localization>& ) const;
     void evaluate( const variable_table&, iterator begin, iterator end, EvaluationResult* result ) const;
+    using LValue::evaluate;
 };
 
 }

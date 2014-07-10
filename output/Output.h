@@ -31,7 +31,7 @@ class Engine;
     *  structures which contain localizations to process. */
 class Output {
 public:
-    struct Announcement;
+    class Announcement;
     struct RunFinished {};
 
     enum RunRequirement {

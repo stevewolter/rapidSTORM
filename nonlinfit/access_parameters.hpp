@@ -15,7 +15,8 @@ namespace nonlinfit {
  *  argument and returning a non-const reference to the parameter value.
  **/
 template <typename CRTP>
-struct access_parameters {
+class access_parameters {
+  public:
     /** Get a writeable reference to the parameter value. */
     template <typename Parameter>
     double& operator()( Parameter p )

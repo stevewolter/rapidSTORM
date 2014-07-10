@@ -19,7 +19,7 @@ struct Power {};
 inline std::ostream& operator<<(std::ostream& o, Power)  { return (o << "prefactor"); }
 
 template <int D, int Ds>
-struct SimpleFunction ;
+class SimpleFunction;
 
 struct Expression
 : public access_parameters< Expression >
@@ -42,9 +42,10 @@ template <> struct BaseValue::apply< Variable > { typedef boost::mpl::true_ type
 template <> struct BaseValue::apply< Power > { typedef boost::mpl::false_ type; };
 
 template <int Dimension, int Dimensions>
-struct SimpleFunction 
+class SimpleFunction 
 : public nonlinfit::AbstractFunction<double>
 {
+  public:
     typedef nonlinfit::Evaluation<double> Derivatives;
     static_power::Expression* expression;
 

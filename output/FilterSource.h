@@ -56,7 +56,7 @@ class FilterSource
     dStorm::nocopy_ptr<SourceFactory> factory;
     simparm::NodeHandle my_node;
 
-    struct Suboutput;
+    class Suboutput;
     typedef boost::ptr_vector<Suboutput> SuboutputChoice;
     SuboutputChoice suboutputs;
 

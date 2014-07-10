@@ -21,7 +21,7 @@ class InputStream::Backend : public simparm::text_stream::BackendRoot {
 public:
     Backend(  InputStream& frontend, bool wxWidgets ) 
         : BackendRoot(&std::cout, wxWidgets), frontend(frontend) {}
-    Mutex* get_mutex() { return simparm::text_stream::BackendRoot::get_mutex(); }
+    boost::recursive_mutex* get_mutex() { return simparm::text_stream::BackendRoot::get_mutex(); }
 };
 
 InputStream::InputStream( const JobConfig& config, bool wxWidgets )

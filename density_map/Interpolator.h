@@ -13,7 +13,8 @@ class Localization;
 namespace density_map {
 
 template <int Dim>
-struct Interpolator {
+class Interpolator {
+  public:
     typedef typename dStorm::ImageTypes<Dim>::Position Position;
     typedef std::auto_ptr< Interpolator > Ptr;
     struct ResultPoint {

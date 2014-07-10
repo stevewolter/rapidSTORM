@@ -16,7 +16,7 @@ namespace dStorm {
 namespace engine {
 namespace spot_fitter {
 
-struct Factory : public simparm::Choice {
+class Factory : public simparm::Choice {
   public:
     virtual Factory* clone() const = 0;
     virtual ~Factory();
