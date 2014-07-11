@@ -1,6 +1,7 @@
 #include "simparm/Eigen_decl.h"
 #include "outputs/RegionSegmenter.h"
 
+#include <array>
 #include <cassert>
 #include <limits>
 #include <stdio.h>
