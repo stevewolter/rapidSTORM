@@ -1,16 +1,18 @@
 #ifndef DSTORM_TRANSMISSIONS_COLOURDISPLAY_BASE_H
 #define DSTORM_TRANSMISSIONS_COLOURDISPLAY_BASE_H
 
+#include <array>
+#include <cassert>
 #include <limits>
-#include "Pixel.h"
 #include <stdint.h>
-#include <boost/array.hpp>
+
+#include "Pixel.h"
 
 namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-typedef boost::array<float,3> RGBWeight;
+typedef std::array<float,3> RGBWeight;
 
 inline dStorm::Pixel operator*( const RGBWeight& r, uint8_t brightness );
 inline dStorm::Pixel operator*( uint8_t brightness, const RGBWeight& r );

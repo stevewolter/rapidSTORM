@@ -1,12 +1,14 @@
 #ifndef DSTORM_JOB_QUEUE_H
 #define DSTORM_JOB_QUEUE_H
 
-#include "output/LocalizedImage.h"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/array.hpp>
-#include <boost/optional/optional.hpp>
+#include <array>
+
 #include <boost/exception_ptr.hpp>
+#include <boost/optional/optional.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/mutex.hpp>
+
+#include "output/LocalizedImage.h"
 
 namespace dStorm {
 namespace job {
@@ -15,7 +17,7 @@ class Queue {
     boost::mutex ring_buffer_mutex;
     boost::condition producer_can_continue, consumer_can_continue;
     int next_output;
-    boost::array< boost::optional<output::LocalizedImage>, 64 > ring_buffer;
+    std::array< boost::optional<output::LocalizedImage>, 64 > ring_buffer;
     int producer_count;
     boost::exception_ptr error;
     bool interruption;

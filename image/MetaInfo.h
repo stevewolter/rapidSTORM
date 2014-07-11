@@ -2,11 +2,11 @@
 #define DSTORM_INPUT_IMAGETRAITS_H
 
 #include <Eigen/Core>
+#include <array>
 #include "boost/units/systems/camera/length.hpp"
 #include <boost/units/quantity.hpp>
 #include <boost/units/Eigen/Core>
 #include "image/fwd.h"
-#include <boost/array.hpp>
 #include "traits/image_resolution.h"
 
 namespace dStorm {
@@ -16,7 +16,7 @@ template <int Dimensions>
 class MetaInfo 
 {
 public:
-    typedef boost::array< boost::optional<traits::ImageResolution>,Dimensions> Resolutions;
+    typedef std::array< boost::optional<traits::ImageResolution>,Dimensions> Resolutions;
     typedef Eigen::Matrix< 
             boost::units::quantity<boost::units::camera::length,int>,
             Dimensions,1,Eigen::DontAlign> 

@@ -16,7 +16,7 @@ namespace ripley_k {
 static const int forward_scan_elements[][2] = { {1,0}, {-1,1}, {0,1}, {1,1} };
 
 Histogram::Histogram(
-        boost::array< Length, 2 > max_value, Length max_dist, bool periodic
+        std::array< Length, 2 > max_value, Length max_dist, bool periodic
 ) : bin_size( max_dist ), periodic_boundary(periodic)
 {
     Bins::Size size;

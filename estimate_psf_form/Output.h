@@ -1,20 +1,22 @@
 #ifndef DSTORM_FORMFITTER_H
 #define DSTORM_FORMFITTER_H
 
-#include "traits/optics_config.h"
-#include "estimate_psf_form/decl.h"
-#include "simparm/ProgressEntry.h"
-#include "estimate_psf_form/Config.h"
-#include "engine/Input.h"
-#include "output/Output.h"
+#include <array>
 #include <memory>
-#include <boost/thread/mutex.hpp>
-#include "estimate_psf_form/GUI.h"
-#include "estimate_psf_form/Tile.h"
-#include "estimate_psf_form/Input.h"
-#include <boost/array.hpp>
+
 #include <boost/icl/interval.hpp>
 #include <boost/smart_ptr/scoped_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+
+#include "engine/Input.h"
+#include "estimate_psf_form/Config.h"
+#include "estimate_psf_form/decl.h"
+#include "estimate_psf_form/GUI.h"
+#include "estimate_psf_form/Input.h"
+#include "estimate_psf_form/Tile.h"
+#include "output/Output.h"
+#include "simparm/ProgressEntry.h"
+#include "traits/optics_config.h"
 
 namespace dStorm {
 namespace estimate_psf_form {
@@ -37,7 +39,7 @@ namespace estimate_psf_form {
         boost::unique_future< Tiles > gui_result;
         std::auto_ptr< FittingVariant > fitter;
         dStorm::traits::MultiPlaneConfig result_config;
-        boost::array< boost::icl::interval< samplepos::Scalar >::type, 2 > bounds;
+        std::array< boost::icl::interval< samplepos::Scalar >::type, 2 > bounds;
         std::vector<bool> seen_fluorophores;
         double current_limit;
         simparm::ProgressEntry collection, fit;

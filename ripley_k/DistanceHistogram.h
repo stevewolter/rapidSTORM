@@ -2,11 +2,11 @@
 #define DISTANCE_HISTOGRAM_HISTOGRAM_H
 
 #include <Eigen/StdVector>
-#include <boost/array.hpp>
-#include "localization/Traits.h"
-#include "Localization.h"
+#include <array>
 #include <boost/units/systems/si/length.hpp>
 #include <boost/icl/continuous_interval.hpp>
+#include "localization/Traits.h"
+#include "Localization.h"
 #include "image/Image.h"
 
 namespace dStorm {
@@ -25,7 +25,7 @@ struct Histogram {
     typedef std::vector<Point> Points;
     typedef dStorm::Image< Points, Dim > Bins;
 
-    typedef boost::array< Bins::Position, Dim_power_3_half > ForwardScan;
+    typedef std::array< Bins::Position, Dim_power_3_half > ForwardScan;
     ForwardScan forward_scan;
     Bins bins;
     Eigen::Matrix<Length,Dim,1> area_size;
@@ -41,7 +41,7 @@ struct Histogram {
   public:
     std::vector<int> counts;
 
-    Histogram( boost::array< Length, Dim > max_value, Length max_dist, bool periodic_boundary );
+    Histogram( std::array< Length, Dim > max_value, Length max_dist, bool periodic_boundary );
     ~Histogram();
 
     void push_back( const Point& input );

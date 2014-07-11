@@ -2,19 +2,22 @@
 #define DSTORM_EXPRESSION_TOKENS_H
 
 #include "expression/tokens_decl.h"
-#include "expression/types.h"
+
+#include <array>
+
 #include <boost/fusion/include/at_c.hpp>
 #include <boost/fusion/include/io.hpp>
-#include <boost/array.hpp>
+
+#include "expression/types.h"
 
 namespace dStorm {
 namespace expression {
 
 namespace tokens {
 
-typedef boost::array< tree_node, 1 > unary_op;
-typedef boost::array< tree_node, 2 > binary_op;
-typedef boost::array< tree_node, 3 > trinary_op;
+typedef std::array< tree_node, 1 > unary_op;
+typedef std::array< tree_node, 2 > binary_op;
+typedef std::array< tree_node, 3 > trinary_op;
 
 struct power : public binary_op {
     typedef DynamicQuantity first_argument_type;

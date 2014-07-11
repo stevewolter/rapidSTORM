@@ -1,3 +1,4 @@
+#include <array>
 #include <queue>
 #include <set>
 #include <fstream>
@@ -8,7 +9,6 @@
 #include "simparm/FileEntry.h"
 #include "simparm/Object.h"
 
-#include <boost/array.hpp>
 #include <boost/foreach.hpp>
 #include <boost/spirit/include/phoenix_container.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
@@ -304,7 +304,7 @@ std::vector< Projection::MappedPoint >
 SupportPointProjection::cut_region_of_interest_( const ROISpecification& roi ) const
 {
     std::vector< Projection::MappedPoint > rv;
-    boost::array<ImagePosition,4> neighbours;
+    std::array<ImagePosition,4> neighbours;
     for (int i = 0; i < 4; ++i) 
         neighbours[i] = ImagePosition::Constant(0 * camera::pixel);
     neighbours[0].x() = 1 * camera::pixel;

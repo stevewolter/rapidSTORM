@@ -83,7 +83,7 @@ Output::Output( const Config& config )
 void Output::announceStormSize(const Announcement& a) {
     for (int i = 0; i < 2; ++i )
         scalers[i].announce(a);
-    boost::array< float, 2 > range;
+    std::array< float, 2 > range;
     for (int i = 0; i < 2; ++i) 
         range[i] = scalers[i].get_size();
     histogram = Histogram( range, max_distance / bin_size, periodic );
