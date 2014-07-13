@@ -18,12 +18,12 @@ applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
 bin_PROGRAMS = rapidstorm 
-check_PROGRAMS = rapidstorm image_test traits_test
+check_PROGRAMS = rapidstorm image_test traits_test kalman_filter_test
 applications_DATA=rapidstorm.desktop
 doc_DATA = $(srcdir)/README 
 pkgdata_DATA = dstorm-config.txt
 
-noinst_LIBRARIES = libbase.a libkalman_filter.a libsimparm.a
+noinst_LIBRARIES = libbase.a libkalman_filter.a libsimparm.a libbinning.a
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING
@@ -168,7 +168,7 @@ libbase_a_SOURCES = \
     namespaces.h \
     output/BasenameAdjustedFileEntry_decl.h output/BasenameAdjustedFileEntry.h output/BasenameAdjustedFileEntry.cpp \
     output/Basename_decl.h output/Basename.h output/Basename.cpp \
-    output/Config.cpp \
+    output/Config.h output/Config.cpp \
     output/FileOutputBuilder.h \
     output/FilterBuilder.h output/FilterBuilder_impl.h \
     output/Filter.cpp \
@@ -181,6 +181,7 @@ libbase_a_SOURCES = \
     output/OutputSource.h output/OutputSource.cpp \
     output/SourceFactory_decl.h output/SourceFactory.h output/SourceFactory.cpp  \
     output/Traits_decl.h output/Traits.h output/Traits.cpp \
+    outputs/Crankshaft.h outputs/Crankshaft.cpp \
     Pixel.h Pixel.cpp \
     polynomial_3d.h \
     signals/InputFileNameChange.h \
@@ -255,9 +256,6 @@ rapidstorm_SOURCES += \
     job/OutputTreeRoot.h job/OutputTreeRoot.cpp
 
 rapidstorm_SOURCES += \
-    output/Config.h
-
-rapidstorm_SOURCES += \
     inputs/inputs.h \
     inputs/FileMethod.h inputs/FileMethod.cpp \
     inputs/InputBase.cpp inputs/InputBase.h \
@@ -330,7 +328,6 @@ rapidstorm_SOURCES += \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
     outputs/LinearAlignment.h outputs/LinearAlignment.cpp \
-    outputs/Crankshaft.h outputs/Crankshaft.cpp \
     outputs/RegionOfInterest.h outputs/RegionOfInterest.cpp \
     outputs/SpotMeter.h outputs/SpotMeter.cpp \
     outputs/RegionSegmenter.h outputs/RegionSegmenter.cpp \
@@ -579,10 +576,14 @@ rapidstorm_SOURCES += \
 
 libkalman_filter_a_SOURCES = \
     kalman_filter/EmissionTracker.h kalman_filter/EmissionTracker.cpp \
-    kalman_filter/EmissionTracker_test.h kalman_filter/EmissionTracker_test.cpp \
     kalman_filter/KalmanTrace.h kalman_filter/KalmanTrace.cpp \
     kalman_filter/units.h \
     kalman_filter/NonlinearDriftEstimator.h kalman_filter/NonlinearDriftEstimator.cpp
+
+kalman_filter_test_SOURCES = \
+    kalman_filter/EmissionTracker_test.h kalman_filter/EmissionTracker_test.cpp \
+    kalman_filter/unit_tests.cpp
+kalman_filter_test_LDADD = libkalman_filter.a libbinning.a libbase.a libsimparm.a $(boost_unit_test_LIB)
 
 rapidstorm_SOURCES += \
     ripley_k/DistanceHistogram.h ripley_k/DistanceHistogram.cpp \
@@ -622,7 +623,8 @@ libsimparm_a_SOURCES = \
     simparm/falls_below.hpp simparm/exceeds.hpp \
     simparm/is_numerical.hpp \
     simparm/GUILabelTable.h simparm/GUILabelTable.cpp \
-    simparm/unit_tests.h simparm/unit_tests.cpp
+    simparm/unit_tests.h simparm/unit_tests.cpp \
+    simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
 
 rapidstorm_SOURCES += \
     simparm/text_stream/BackendRoot.h simparm/text_stream/BackendRoot.cpp \
@@ -686,8 +688,7 @@ rapidstorm_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
     simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \
-    simparm/cmdline_ui/ProgressNode.h simparm/cmdline_ui/ProgressNode.cpp \
-    simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
+    simparm/cmdline_ui/ProgressNode.h simparm/cmdline_ui/ProgressNode.cpp
 
 rapidstorm_SOURCES += \
     ui/serialization/Node.h ui/serialization/Node.cpp \
@@ -718,7 +719,7 @@ rapidstorm_SOURCES += \
     density_map/Coordinates.h \
     density_map/CoordinatesFactory.h density_map/CoordinatesFactory.cpp
 
-rapidstorm_SOURCES += \
+libbinning_a_SOURCES = \
     binning/binning.h binning/binning.hpp binning/binning_decl.h binning/binning.cpp \
     binning/inversion.h \
     binning/localization.h \
@@ -761,7 +762,7 @@ rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT)
 rapidstorm_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/third_party
 rapidstorm_CPPFLAGS += $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
-rapidstorm_LDADD = libkalman_filter.a libsimparm.a libbase.a
+rapidstorm_LDADD = libkalman_filter.a libbase.a libsimparm.a
 rapidstorm_LDADD += $(GraphicsMagick_LIBS) 
 rapidstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 rapidstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)
@@ -773,7 +774,7 @@ image_test_SOURCES = image/unit_tests.cpp
 image_test_LDADD = libbase.a $(boost_unit_test_LIB)
 
 traits_test_SOURCES = traits/unit_tests.cpp
-traits_test_LDADD = libsimparm.a libbase.a $(boost_unit_test_LIB)
+traits_test_LDADD = libbase.a libsimparm.a $(boost_unit_test_LIB)
 
 %.pb.cc %.pb.h : %.proto
 	$(PROTOC) --proto_path=$(srcdir) --cpp_out=$(builddir) $<
