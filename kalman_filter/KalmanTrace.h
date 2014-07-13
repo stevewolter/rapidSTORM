@@ -50,7 +50,9 @@ class KalmanTrace {
     void add(const Observation& position);
 
     Eigen::Matrix<double,Dimensions,1> getPositionEstimate() const {
-        return estimate.position.head<Dimensions>(); }
+        assert(have_estimate);
+        return estimate.position.head<Dimensions>();
+    }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

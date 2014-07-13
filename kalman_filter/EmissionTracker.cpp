@@ -56,7 +56,7 @@ class TracedObject {
 
     Localization position_estimate() {
         Localization result;
-        auto position_estimate = trace.getPositionEstimate().cast<float>();
+        Eigen::Vector2f position_estimate = trace.getPositionEstimate().cast<float>();
         result.position_x() = position_estimate.x() * si::meter;
         result.position_y() = position_estimate.y() * si::meter;
         return result;
@@ -276,8 +276,7 @@ Output::receiveLocalizations(const EngineResult &er)
 
     current.prepare( imNum );
 
-    for (const Localization& localization : er) 
-    {
+    for (const Localization& localization : er) {
         TracedObject* trace = search_closest_trace( localization, current.emissions );
         if ( trace == NULL ) {
             std::auto_ptr<TracedObject> new_trace( new TracedObject(kalman_info, molecule_id++) );
