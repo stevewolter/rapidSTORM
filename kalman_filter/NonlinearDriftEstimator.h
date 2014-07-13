@@ -3,9 +3,10 @@
 
 namespace dStorm {
 namespace kalman_filter {
+namespace drift_estimator {
 
 std::auto_ptr< dStorm::output::OutputSource > create();
-std::auto_ptr< dStorm::output::OutputSource > create_drift_correction();
 
+}
 }
 }

@@ -591,9 +591,11 @@ rapidstorm_SOURCES += \
     input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h 
 
 rapidstorm_SOURCES += \
-    kalman_filter/fwd.h kalman_filter/EmissionTracker.cpp \
-    kalman_filter/KalmanTrace.h \
-    kalman_filter/NonlinearDriftEstimator.cpp
+    kalman_filter/EmissionTracker.h kalman_filter/EmissionTracker.cpp \
+    kalman_filter/EmissionTracker_test.h kalman_filter/EmissionTracker_test.cpp \
+    kalman_filter/KalmanTrace.h kalman_filter/KalmanTrace.cpp \
+    kalman_filter/units.h \
+    kalman_filter/NonlinearDriftEstimator.h kalman_filter/NonlinearDriftEstimator.cpp
 
 rapidstorm_SOURCES += \
     ripley_k/DistanceHistogram.h ripley_k/DistanceHistogram.cpp \

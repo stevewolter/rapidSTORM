@@ -27,6 +27,7 @@ namespace br = boost::range;
 
 namespace dStorm {
 namespace kalman_filter {
+namespace drift_estimator {
 
 struct BeadPosition {
     samplepos position, uncertainty;
@@ -312,9 +313,10 @@ public:
 const samplepos::Scalar DriftSection::position_unity = 1E-6f * si::meter;
 const samplepos::Scalar DriftSection::uncertainty_unity = 1E-8f * si::meter;
 
-std::auto_ptr< output::OutputSource > create_drift_correction() {
+std::auto_ptr< output::OutputSource > create() {
     return std::auto_ptr< output::OutputSource >( new output::OutputBuilder< NonlinearDriftEstimator::Config, NonlinearDriftEstimator >() );
 }
 
+}
 }
 }

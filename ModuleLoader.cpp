@@ -14,7 +14,8 @@
 #include "inputs/inputs.h"
 #include "inputs/MedianFilter.h"
 #include "inputs/WarnAboutLocalizationFile.h"
-#include "kalman_filter/fwd.h"
+#include "kalman_filter/EmissionTracker.h"
+#include "kalman_filter/NonlinearDriftEstimator.h"
 #include "localization_file/writer.h"
 #include "outputs/BasicTransmissions.h"
 #include "ripley_k/fwd.h"
@@ -97,8 +98,8 @@ void add_output_modules( dStorm::Config& car_config )
     car_config.add_output( estimate_psf_form::make_output_source() );
     car_config.add_output( calibrate_3d::make_output_source() );
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
-    car_config.add_output( kalman_filter::create() );
-    car_config.add_output( kalman_filter::create_drift_correction() );
+    car_config.add_output( kalman_filter::emission_tracker::create() );
+    car_config.add_output( kalman_filter::drift_estimator::create() );
     car_config.add_output( localization_file::make_output_source() );
     car_config.add_output( ripley_k::make_output_source().release() );
     test::output_modules( &car_config );

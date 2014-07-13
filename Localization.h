@@ -74,6 +74,15 @@ class Localization  {
         return rv;
     }
 
+    const samplepos::Scalar position(int dimension) const {
+        switch (dimension) {
+            case 0: return position_x();
+            case 1: return position_y();
+            case 2: return position_z();
+            default: throw std::logic_error("Unknown position index");
+        }
+    }
+
     void set_position(int dimension, samplepos::Scalar value) {
         switch (dimension) {
             case 0: position_x = value; break;

@@ -1,25 +1,28 @@
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 
 #include "unit_tests.h"
+
+#include <boost/test/unit_test.hpp>
+
+#include "alignment_fitter.h"
+#include "dejagnu.h"
+#include "engine/ChainLink_decl.h"
+#include "estimate_psf_form/unit_test.h"
+#include "fit_window/unit_tests.h"
+#include "gaussian_psf/unit_test.h"
+#include "guf/unit_tests.h"
+#include "helpers/thread.h"
+#include "image/fwd.h"
 #include "inputs/FileMethod.h"
 #include "inputs/ResolutionSetter.h"
-#include "tiff/TIFF.h"
-#include "dejagnu.h"
-#include "helpers/thread.h"
-#include "engine/ChainLink_decl.h"
-#include "guf/unit_tests.h"
-#include "traits/unit_tests.h"
-#include "threed_info/fwd.h"
-#include "image/fwd.h"
-#include <boost/test/unit_test.hpp>
-#include "fit_window/unit_tests.h"
 #include "inputs/unit_tests.h"
-#include "estimate_psf_form/unit_test.h"
-#include "gaussian_psf/unit_test.h"
+#include "kalman_filter/EmissionTracker_test.h"
 #include "nonlinfit/unit_test.h"
 #include "simparm/text_stream/unit_tests.h"
 #include "simparm/unit_tests.h"
-#include "alignment_fitter.h"
+#include "threed_info/fwd.h"
+#include "tiff/TIFF.h"
+#include "traits/unit_tests.h"
 
 namespace dStorm {
 
@@ -55,6 +58,8 @@ bool init_unit_test() {
         add( dStorm::inputs::unit_test_suite() );
     boost::unit_test::framework::master_test_suite().
         add( dStorm::estimate_psf_form::test_unit_tests() );
+    boost::unit_test::framework::master_test_suite().
+        add( dStorm::kalman_filter::emission_tracker::test_suite() );
 
     boost::unit_test::framework::master_test_suite().
         add( BOOST_TEST_CASE( &dStorm::pixel_unit_test ) );
