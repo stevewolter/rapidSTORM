@@ -24,10 +24,11 @@ void Traits< engine::ImageStack >::clear()
     planes_.clear();
 }
 
-Traits< engine::ImageStack >::Traits() {}
+Traits< engine::ImageStack >::Traits()
+    : fluorophore_count(1) {}
 
-Traits< engine::ImageStack >::Traits( const image::MetaInfo<2>& i ) 
-{
+Traits< engine::ImageStack >::Traits( const image::MetaInfo<2>& i )
+    : fluorophore_count(1) {
     push_back( i, traits::Optics() );
 }
 

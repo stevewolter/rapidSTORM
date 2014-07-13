@@ -27,7 +27,7 @@ void KalmanTrace::update_prediction( const int to_prediction ) {
     /* Check if prediction already current. */
     if ( have_prediction && prediction.time == to_prediction ) return;
 
-    int time_delta = to_prediction - prediction.time;
+    int time_delta = to_prediction - estimate.time;
     auto state_transition = this->state_transition(time_delta);
     auto system_covariance = this->system_covariance(time_delta);
 
@@ -84,9 +84,8 @@ float KalmanTrace::sq_distance_in_sigmas (const Observation& observation) {
     Eigen::Matrix<double,Obs,1> difference 
         = expected_observation - observation.position;
 
-    double sq_dist = difference.dot( 
+    return difference.dot( 
         covar_of_next_measurement.inverse() * difference );
-    return sq_dist;
 }
 
 void KalmanTrace::add( const Observation& obs )
