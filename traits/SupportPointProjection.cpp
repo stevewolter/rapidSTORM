@@ -3,38 +3,35 @@
 #include <set>
 #include <fstream>
 
-#include "simparm/Eigen_decl.h"
-#include "simparm/BoostUnits.h"
-#include "simparm/Eigen.h"
-#include "simparm/FileEntry.h"
-#include "simparm/Object.h"
-
 #include <boost/foreach.hpp>
 #include <boost/spirit/include/phoenix_container.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
-#include "boost/units/systems/camera/resolution.hpp"
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
+#include "boost/units/systems/camera/resolution.hpp"
+#include "debug.h"
 #include "image/constructors.h"
 #include "image/corners.h"
-#include "image/MetaInfo.h"
 #include "image/Image.h"
-#include "UnitEntries/PixelSize.h"
-
+#include "image/MetaInfo.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen_decl.h"
+#include "simparm/Eigen.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Object.h"
 #include "traits/optics.h"
 #include "traits/ProjectionConfig.h"
 #include "traits/ProjectionFactory.h"
 #include "traits/Projection.h"
-
-#include "debug.h"
-#include "dejagnu.h"
+#include "UnitEntries/PixelSize.h"
 
 namespace dStorm {
 namespace traits {
@@ -459,8 +456,7 @@ static const char *the_test_file =
 	"20.83560378528304 20.8355318993452 20.83546305021492 20.83539764602915 20.835335678794962 20.835277140519402 20.835222023209496 20.83517031887223 20.8351220195147 20.83507711714389 20.83503560376682 20.83499747139063 20.834962712022232 20.83493131766872 20.8349032803371 20.83487859203442 20.83485724476771 20.834839230544006 20.83482454137036 20.834813169253792 20.83480510620131 20.83480034421995 20.834798875316807 20.834800691498806 20.83480578477309 20.834814147146638 20.83482577062648\n"
     ;
 
-void run_support_point_projection_unit_tests( TestState& state ) 
-{
+void test_support_point_projection() {
     std::stringstream file( the_test_file );
     SupportPointProjection foo( 
         camera::pixel / (17E-9 * si::meter),
@@ -471,32 +467,27 @@ void run_support_point_projection_unit_tests( TestState& state )
 
     Projection::SamplePosition zero = foo.pixel_in_sample_space( 
         Projection::ImagePosition::Constant(0 * camera::pixel) );
-    state( std::abs( zero.x().value() + 0.56763828810267 * 10E-9 ) < 1E-10,
-        "X projection is zeroed correctly" );
-    state( std::abs( zero.y().value() + 7.184975691913245 * 10E-9 ) < 1E-10,
-        "Y projection is zeroed correctly" );
+    BOOST_CHECK_CLOSE(zero.x().value(), -0.567638E-9, 1E-3);
+    BOOST_CHECK_CLOSE(zero.y().value(), -7.184975E-9, 1E-3);
 
     Projection::ImagePosition middle; middle << 13 * camera::pixel, 9 * camera::pixel;
     Projection::SamplePosition middle_sample = foo.pixel_in_sample_space( middle ), middle_norm;
     middle_norm << 2.15457E-7f * si::meter, 1.35303E-7f * si::meter;
-    state( value(middle_sample - middle_norm).norm() < 1E-10 );
+    BOOST_CHECK_SMALL(value(middle_sample - middle_norm).norm(), 1E-10f);
 
     Projection::SubpixelImagePosition interpolated = middle.cast< Projection::SubpixelImagePosition::Scalar >();
     interpolated.x() -= 0.1f * camera::pixel;
     interpolated.y() += 0.2f * camera::pixel;
     Projection::SamplePosition interpolated_sample = foo.point_in_sample_space( interpolated ), interpolated_norm;
     interpolated_norm << 2.13765e-07f * si::meter, 1.39906e-07f * si::meter;
-    state( value(interpolated_sample - interpolated_norm).norm() < 1E-10,
-           "Interpolated point is transformed correctly" );
+    BOOST_CHECK_SMALL(value(interpolated_sample - interpolated_norm).norm(), 1E-10f);
 
-    state( foo.nearest_point_in_image_space( interpolated_sample ) == middle,
-           "Reverse transform works" );
+    BOOST_CHECK(foo.nearest_point_in_image_space( interpolated_sample ) == middle);
 
     Projection::SamplePosition center;
     center << 90E-9f * si::meter, 10E-9f * si::meter;
     Projection::ROISpecification roi( center, Projection::SamplePosition::Constant( 65 * si::meter ) );
-    state( foo.cut_region_of_interest_naively(roi).size() == foo.cut_region_of_interest(roi).size(),
-           "Naively and cleverly selected ROIs match in size");
+    BOOST_CHECK(foo.cut_region_of_interest_naively(roi).size() == foo.cut_region_of_interest(roi).size());
 }
 
 }

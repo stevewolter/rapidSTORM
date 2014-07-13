@@ -6,6 +6,10 @@ SUBDIRS = $(MAYBE_DOC)
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects dejagnu
 
+AM_CPPFLAGS = -DBOOST_TEST_DYN_LINK
+# TODO: This flag is only needed for old Eigen3 versions up to the fix of Eigen bug 477
+AM_CXXFLAGS = -Wno-enum-compare -std=c++0x -Wno-deprecated-declarations -Wnon-virtual-dtor
+
 # Doxygen support
 include aminclude.am
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
@@ -14,10 +18,12 @@ applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
 bin_PROGRAMS = rapidstorm 
-check_PROGRAMS = rapidstorm
+check_PROGRAMS = rapidstorm image_test traits_test
 applications_DATA=rapidstorm.desktop
 doc_DATA = $(srcdir)/README 
 pkgdata_DATA = dstorm-config.txt
+
+noinst_LIBRARIES = libbase.a libkalman_filter.a libsimparm.a
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING
@@ -84,108 +90,138 @@ endif
 .rc.o : 
 	$(WX_RESCOMP) $(CPU_DEF) -I . '$<' '$@'
 
-rapidstorm_SOURCES = \
-    installation-directory.h \
-    LengthUnit.h \
-    polynomial_3d.h \
-    Localization_decl.h Localization.h \
-    Pixel.h \
-    Job.h UnitEntries.h \
+libbase_a_SOURCES = \
     base/Config.h \
     base/Engine.h types/samplepos.h types/fluorophore.h \
-    namespaces.h \
-    unit_interval.h \
-    stack_realign.h \
-    traits/Projection.h traits/ProjectionConfig.h \
-    traits/ProjectionFactory.h traits/ScaledProjection.h \
-    traits/optics.h traits/image_resolution.h traits/optics_config.h \
-    threed_info/types.h \
-    threed_info/DepthInfo.h \
-    threed_info/Config.h \
-    threed_info/look_up_sigma_diff.h \
-    localization/Field.h localization/Traits_decl.h localization/Traits.h \
-    localization/record_decl.h localization/record.h\
-    localization/Fields.h localization/Fields.cpp \
-    output/Basename_decl.h output/Basename.h \
-    output/BasenameAdjustedFileEntry_decl.h output/BasenameAdjustedFileEntry.h \
-    output/FileOutputBuilder.h \
-    output/FilterBuilder.h output/FilterBuilder_impl.h \
-    output/FilterSource.h \
-    output/OutputBuilder.h output/OutputBuilder_impl.h \
-    output/SourceFactory_decl.h output/SourceFactory.h \
-    output/Output_decl.h output/Output.h output/Filter.h \
-    output/OutputSource.h \
-    output/Traits_decl.h output/Traits.h \
-    output/LocalizedImage_decl.h output/LocalizedImage.h output/LocalizedImage_traits.h \
-    engine/Candidate_decl.h engine/Candidate.h \
-    engine/CandidateTree_decl.h engine/CandidateTree.h \
-    engine/Image_decl.h engine/Image.h \
-    engine/Input_decl.h engine/Input.h \
-    engine/Spot.h \
-    engine/SpotFinder_decl.h engine/SpotFinder.h \
-    engine/SpotFinderBuilder.h \
-    engine/JobInfo_decl.h engine/JobInfo.h \
-    engine/SpotFitter_decl.h engine/SpotFitter.h \
-    engine/FitPosition.h \
-    engine/SpotFitterFactory_decl.h engine/SpotFitterFactory.h \
-    engine/InputTraits.h engine/InputPlane.h \
-    engine/FitJudger.h engine/FitJudgerFactory.h engine/FitJudger.cpp \
-    input/AdapterSource.h \
-    input/Choice.h \
-    input/fwd.h input/Link.h \
-    input/Forwarder.h \
-    input/DefaultFilterTypes.h \
-    input/FakeSource.h \
-    input/MetaInfo.h \
-    input/Source.h \
-    input/Traits.h  \
-    input/InputMutex.h \
-    input/FileInput.h \
-    helpers/thread.h \
-    helpers/default_on_copy.h \
-    helpers/nocopy_ptr.hpp \
-    helpers/OutOfMemory.h \
-    helpers/clone_ptr.hpp \
-    helpers/make_unique.hpp \
-    helpers/back_inserter.h \
-    helpers/virtual_clone_allocator.hpp \
-    image/Image.h image/Image.hpp \
-    image/fwd.h image/MetaInfo.h image/MetaInfo.hpp \
-    image/constructors.h image/convert.h image/iterator.h image/minmax.h image/slice.h \
-    image/mirror.h image/crop.h image/extend.h \
-    image/dilation.h image/dilation_impl.h image/contains.h \
-    image/find_by_offset.hpp image/normalize.h \
-    image/corners.h \
-    image/morphological_reconstruction.h \
-    image/morphological_reconstruction.hpp \
-    image/Box.h image/Box.hpp \
-    image/subtract.hpp \
-    image/unit_tests.cpp \
-    units/icl.h \
-    units/amplitude.h units/frame_count.h \
-    units/megafrequency.h \
-    units/microtime.h units/nanolength.h \
-    units/microlength.h units/permicrolength.h \
-    units/nanoresolution.h \
-    units/camera_response.h \
-    UnitEntries/FrameEntry.h UnitEntries/Hertz.h \
-    UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
-    UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
-    UnitEntries/TimeEntry.h UnitEntries/ADC.h \
-    signals/InputFileNameChange.h \
-    display/fwd.h \
+    Direction.h \
     display/DataSource.h display/display_normalized.hpp \
+    display/fwd.h \
     display/Manager.h \
     display/SharedDataSource.h display/SharedDataSource.cpp \
     display/store_image.h display/store_image.cpp \
-    Direction.h \
-    threed_info/Polynomial3D.h \
-    threed_info/No3D.h \
-    threed_info/Lens3D.h \
-    threed_info/Spline3D.h \
-    threed_info/fwd.h
+    engine/Candidate_decl.h engine/Candidate.h \
+    engine/CandidateTree.cpp engine/SpotFinder.cpp engine/SpotFitterFactory.cpp engine/Image.cpp \
+    engine/CandidateTree_decl.h engine/CandidateTree.h \
+    engine/FitJudger.h engine/FitJudgerFactory.h engine/FitJudger.cpp \
+    engine/FitPosition.h \
+    engine/Image_decl.h engine/Image.h \
+    engine/Input_decl.h engine/Input.h \
+    engine/InputPlane.cpp \
+    engine/InputTraits.h engine/InputPlane.h \
+    engine/JobInfo.cpp engine/InputTraits.cpp \
+    engine/JobInfo_decl.h engine/JobInfo.h \
+    engine/SpotFinderBuilder.h \
+    engine/SpotFinder_decl.h engine/SpotFinder.h \
+    engine/SpotFitter_decl.h engine/SpotFitter.h \
+    engine/SpotFitterFactory_decl.h engine/SpotFitterFactory.h \
+    engine/Spot.h \
+    helpers/back_inserter.h \
+    helpers/clone_ptr.hpp \
+    helpers/default_on_copy.h \
+    helpers/make_unique.hpp \
+    helpers/nocopy_ptr.hpp \
+    helpers/OutOfMemory.cpp \
+    helpers/OutOfMemory.h \
+    helpers/thread.cpp display/Manager.cpp image/dilation.cpp \
+    helpers/thread.h \
+    helpers/virtual_clone_allocator.hpp \
+    image/Box.cpp \
+    image/Box.h image/Box.hpp \
+    image/constructors.h image/convert.h image/iterator.h image/minmax.h image/slice.h \
+    image/corners.h \
+    image/dilation.h image/dilation_impl.h image/contains.h \
+    image/find_by_offset.hpp image/normalize.h \
+    image/fwd.h image/MetaInfo.h image/MetaInfo.hpp \
+    image/Image.h image/Image.hpp \
+    image/instantiate.cpp \
+    image/mirror.h image/crop.h image/extend.h \
+    image/morphological_reconstruction.cpp \
+    image/morphological_reconstruction.h \
+    image/morphological_reconstruction.hpp \
+    image/slice.cpp image/iterator.cpp \
+    image/subtract.hpp \
+    input/AdapterSource.h \
+    input/Choice.h \
+    input/DefaultFilterTypes.h \
+    input/FakeSource.h \
+    input/FileInput.h \
+    input/FilterFactory.h \
+    input/FilterFactoryLink.h input/FilterFactoryLink.cpp \
+    input/Forwarder.h input/Forwarder.cpp \
+    input/fwd.h \
+    input/Link.h input/Link.cpp \
+    input/InputMutex.h input/InputMutex.cpp \
+    input/Choice.cpp \
+    input/MetaInfo.cpp \
+    input/MetaInfo.h \
+    input/Method.hpp \
+    input/Source.h input/Source.cpp \
+    input/Traits.h  \
+    installation-directory.h \
+    Job.h \
+    LengthUnit.h \
+    Localization_decl.h Localization.h Localization.cpp \
+    localization/Field.h localization/Field.cpp \
+    localization/Traits_decl.h localization/Traits.h localization/Traits.cpp \
+    localization/Fields.h localization/Fields.cpp \
+    localization/record_decl.h localization/record.h localization/record.cpp \
+    namespaces.h \
+    output/BasenameAdjustedFileEntry_decl.h output/BasenameAdjustedFileEntry.h output/BasenameAdjustedFileEntry.cpp \
+    output/Basename_decl.h output/Basename.h output/Basename.cpp \
+    output/Config.cpp \
+    output/FileOutputBuilder.h \
+    output/FilterBuilder.h output/FilterBuilder_impl.h \
+    output/Filter.cpp \
+    output/FilterSource.h output/FilterSource.cpp \
+    output/LocalizedImage_decl.h output/LocalizedImage.h output/LocalizedImage.cpp \
+    output/LocalizedImage_traits.h output/LocalizedImage_traits.cpp \
+    output/OutputBuilder.h output/OutputBuilder_impl.h \
+    output/Output_decl.h output/Output.h output/Output.cpp \
+    output/Filter.h \
+    output/OutputSource.h output/OutputSource.cpp \
+    output/SourceFactory_decl.h output/SourceFactory.h output/SourceFactory.cpp  \
+    output/Traits_decl.h output/Traits.h output/Traits.cpp \
+    Pixel.h Pixel.cpp \
+    polynomial_3d.h \
+    signals/InputFileNameChange.h \
+    stack_realign.h \
+    threed_info/Config.h threed_info/Config.cpp \
+    threed_info/DepthInfo.h threed_info/DepthInfo.cpp \
+    threed_info/fwd.h \
+    threed_info/Lens3D.h threed_info/Lens3D.cpp \
+    threed_info/look_up_sigma_diff.h threed_info/look_up_sigma_diff.cpp \
+    threed_info/No3D.h threed_info/No3D.cpp \
+    threed_info/Polynomial3D.h threed_info/Polynomial3D.cpp \
+    threed_info/Spline3D.h threed_info/Spline3D.cpp \
+    threed_info/types.h \
+    traits/AffineProjection.h traits/AffineProjection.cpp \
+    traits/optics.cpp traits/optics_config.cpp \
+    traits/optics.h traits/image_resolution.h traits/optics_config.h \
+    traits/Projection.cpp \
+    traits/ProjectionFactory.h traits/ScaledProjection.h \
+    traits/Projection.h traits/ProjectionConfig.h \
+    traits/ScaledProjection.cpp \
+    traits/SupportPointProjection.cpp \
+    UnitEntries/FrameEntry.h UnitEntries/Hertz.h \
+    UnitEntries.h UnitEntries.cpp \
+    UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
+    UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
+    UnitEntries/TimeEntry.h UnitEntries/ADC.h \
+    unit_interval.h \
+    units/amplitude.h units/frame_count.h \
+    units/camera_response.h \
+    units/icl.h \
+    units/megafrequency.h \
+    units/microlength.h units/permicrolength.h \
+    units/microtime.h units/nanolength.h \
+    units/nanoresolution.h \
+    units/units.cpp image/MetaInfo.cpp
 
-rapidstorm_SOURCES += \
+libbase_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/third_party
+libbase_a_CPPFLAGS += $(GraphicsMagick_CFLAGS)
+libbase_a_CPPFLAGS += -DBOOST_TEST_DYN_LINK
+
+rapidstorm_SOURCES = \
     localization_file/converter.h \
     localization_file/field.h localization_file/field_decl.h \
     localization_file/fields.cpp \
@@ -194,55 +230,6 @@ rapidstorm_SOURCES += \
     localization_file/reader.cpp localization_file/reader.h \
     localization_file/writer.h localization_file/writer.cpp  \
     localization_file/unknown_field.h 
-
-rapidstorm_SOURCES += \
-    Localization.cpp \
-    UnitEntries.cpp \
-    units/units.cpp image/MetaInfo.cpp \
-    localization/Field.cpp \
-    localization/Traits.cpp \
-    image/instantiate.cpp \
-    traits/optics.cpp traits/optics_config.cpp \
-    traits/unit_tests.h traits/unit_tests.cpp \
-    traits/Projection.cpp \
-    traits/AffineProjection.h traits/AffineProjection.cpp \
-    traits/ScaledProjection.cpp \
-    traits/SupportPointProjection.cpp \
-    localization/record.cpp \
-    helpers/thread.cpp display/Manager.cpp image/dilation.cpp \
-    image/Box.cpp \
-    helpers/OutOfMemory.cpp \
-    input/Source.cpp \
-    input/MetaInfo.cpp \
-    input/InputMutex.cpp \
-    input/Link.cpp input/Choice.cpp \
-    input/Forwarder.cpp \
-    input/Method.hpp \
-    input/FilterFactory.h \
-    input/FilterFactoryLink.h input/FilterFactoryLink.cpp \
-    engine/CandidateTree.cpp engine/SpotFinder.cpp engine/SpotFitterFactory.cpp engine/Image.cpp \
-    engine/JobInfo.cpp engine/InputTraits.cpp \
-    engine/InputPlane.cpp \
-    output/Output.cpp output/LocalizedImage.cpp \
-    output/Basename.cpp \
-    output/BasenameAdjustedFileEntry.cpp \
-    output/Config.cpp \
-    output/FilterSource.cpp \
-    output/OutputSource.cpp \
-    output/Traits.cpp \
-    output/SourceFactory.cpp  \
-    output/LocalizedImage_traits.cpp \
-    output/Filter.cpp \
-    Pixel.cpp \
-    image/slice.cpp image/iterator.cpp \
-    image/morphological_reconstruction.cpp \
-    threed_info/DepthInfo.cpp \
-    threed_info/Polynomial3D.cpp \
-    threed_info/Config.cpp \
-    threed_info/Spline3D.cpp \
-    threed_info/No3D.cpp \
-    threed_info/Lens3D.cpp \
-    threed_info/look_up_sigma_diff.cpp
 
 rapidstorm_SOURCES += dstorm.cpp installation-directory.h \
     config_file.h config_file.cpp \
@@ -590,7 +577,7 @@ rapidstorm_SOURCES += \
     input_simulation/FluorophoreDistributions.h \
     input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h 
 
-rapidstorm_SOURCES += \
+libkalman_filter_a_SOURCES = \
     kalman_filter/EmissionTracker.h kalman_filter/EmissionTracker.cpp \
     kalman_filter/EmissionTracker_test.h kalman_filter/EmissionTracker_test.cpp \
     kalman_filter/KalmanTrace.h kalman_filter/KalmanTrace.cpp \
@@ -607,7 +594,7 @@ rapidstorm_SOURCES += \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
     tiff/TIFFOperation.h tiff/TIFFOperation.cpp
 
-rapidstorm_SOURCES += \
+libsimparm_a_SOURCES = \
     simparm/Node.h simparm/Node.cpp \
     simparm/NodeHandle.h \
     simparm/BaseAttribute.h \
@@ -771,17 +758,22 @@ endif
 
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
-rapidstorm_CPPFLAGS = -I$(srcdir)/third_party
+rapidstorm_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/third_party
 rapidstorm_CPPFLAGS += $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
-# TODO: This flag is only needed for old Eigen3 versions up to the fix of Eigen bug 477
-rapidstorm_CXXFLAGS += -Wno-enum-compare -std=c++0x -Wno-deprecated-declarations -Wnon-virtual-dtor
-rapidstorm_LDADD = $(GraphicsMagick_LIBS) 
+rapidstorm_LDADD = libkalman_filter.a libsimparm.a libbase.a
+rapidstorm_LDADD += $(GraphicsMagick_LIBS) 
 rapidstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 rapidstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)
 rapidstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 rapidstorm_LDADD += $(WX_LIBS) 
 rapidstorm_LDADD += $(protobuf_LIBS)
+
+image_test_SOURCES = image/unit_tests.cpp
+image_test_LDADD = libbase.a $(boost_unit_test_LIB)
+
+traits_test_SOURCES = traits/unit_tests.cpp
+traits_test_LDADD = libsimparm.a libbase.a $(boost_unit_test_LIB)
 
 %.pb.cc %.pb.h : %.proto
 	$(PROTOC) --proto_path=$(srcdir) --cpp_out=$(builddir) $<

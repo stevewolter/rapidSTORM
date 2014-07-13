@@ -118,8 +118,6 @@ public:
     ~Output() OVERRIDE;
     Output( const Output& ) = delete;
     Output& operator=( const Output& ) = delete;
-    Output *clone() const OVERRIDE
-        {throw std::logic_error("Emission tracker is not cloneable.");}
 
     void announceStormSize(const Announcement &) OVERRIDE;
     void receiveLocalizations(const EngineResult &) OVERRIDE;
