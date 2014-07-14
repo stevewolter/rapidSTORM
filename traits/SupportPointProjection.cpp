@@ -467,8 +467,8 @@ void test_support_point_projection() {
 
     Projection::SamplePosition zero = foo.pixel_in_sample_space( 
         Projection::ImagePosition::Constant(0 * camera::pixel) );
-    BOOST_CHECK_CLOSE(zero.x().value(), -0.567638E-9, 1E-3);
-    BOOST_CHECK_CLOSE(zero.y().value(), -7.184975E-9, 1E-3);
+    BOOST_CHECK_CLOSE(zero.x().value(), -5.67638E-9, 1E-3);
+    BOOST_CHECK_CLOSE(zero.y().value(), -71.84975E-9, 1E-3);
 
     Projection::ImagePosition middle; middle << 13 * camera::pixel, 9 * camera::pixel;
     Projection::SamplePosition middle_sample = foo.pixel_in_sample_space( middle ), middle_norm;
