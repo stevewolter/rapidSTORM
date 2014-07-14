@@ -7,17 +7,14 @@
 #include "simparm/FileEntry.h"
 #include "simparm/Group.h"
 
-class TestState;
-
 namespace dStorm {
 namespace inputs {
 
 class FileMethod
 : public input::Forwarder {
-    simparm::Group name_object;
-    simparm::FileEntry input_file;
-    simparm::BaseAttribute::ConnectionStore listening;
-
+  public:
+    FileMethod();
+    void add_choice(std::unique_ptr<input::Link> link);
     void traits_changed( TraitsRef, input::Link* ) OVERRIDE;
 
     FileMethod* clone() const OVERRIDE { return new FileMethod(*this); }
@@ -33,12 +30,12 @@ class FileMethod
 
     input::BaseSource* makeSource() OVERRIDE { return Forwarder::makeSource(); }
 
+  private:
     void republish_traits();
 
-  public:
-    FileMethod();
-    void add_choice(std::unique_ptr<input::Link> link);
-    static void unit_test( TestState& );
+    simparm::Group name_object;
+    simparm::FileEntry input_file;
+    simparm::BaseAttribute::ConnectionStore listening;
 };
 
 }

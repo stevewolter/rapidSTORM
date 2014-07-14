@@ -18,12 +18,20 @@ applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
 bin_PROGRAMS = rapidstorm 
-check_PROGRAMS = rapidstorm image_test traits_test kalman_filter_test
+check_PROGRAMS = rapidstorm image_test traits_test kalman_filter_test inputs_test
 applications_DATA=rapidstorm.desktop
 doc_DATA = $(srcdir)/README 
 pkgdata_DATA = dstorm-config.txt
 
-noinst_LIBRARIES = libbase.a libkalman_filter.a libsimparm.a libbinning.a
+noinst_LIBRARIES = \
+    libbase.a \
+    libbinning.a \
+    libinputs.a \
+    libkalman_filter.a \
+    libsimparm.a \
+    libsimparm_text.a \
+    libtest_plugin.a \
+    libtiff_input.a
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING
@@ -219,8 +227,8 @@ libbase_a_SOURCES = \
     units/units.cpp image/MetaInfo.cpp
 
 libbase_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/third_party
-libbase_a_CPPFLAGS += $(GraphicsMagick_CFLAGS)
 libbase_a_CPPFLAGS += -DBOOST_TEST_DYN_LINK
+libbase_a_CXXFLAGS = $(AM_CXXFLAGS) $(boost_thread_CFLAGS) $(GraphicsMagick_CFLAGS)
 
 rapidstorm_SOURCES = \
     localization_file/converter.h \
@@ -255,12 +263,11 @@ rapidstorm_SOURCES += \
     job/Control.h job/Control.cpp \
     job/OutputTreeRoot.h job/OutputTreeRoot.cpp
 
-rapidstorm_SOURCES += \
+libinputs_a_SOURCES = \
     inputs/inputs.h \
     inputs/FileMethod.h inputs/FileMethod.cpp \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/join.h inputs/join.cpp \
-    inputs/join_test.h inputs/join_test.cpp \
     inputs/join/spatial.h inputs/join/spatial.cpp \
     inputs/join/temporal.h inputs/join/temporal.cpp \
     inputs/Splitter.h inputs/Splitter.cpp \
@@ -274,9 +281,17 @@ rapidstorm_SOURCES += \
     inputs/Buffer.h inputs/Buffer.cpp \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp  \
     inputs/WarnAboutLocalizationFile.h inputs/WarnAboutLocalizationFile.cpp \
-    inputs/MedianFilter.h inputs/MedianFilter.cpp \
-    inputs/MedianFilter_test.h inputs/MedianFilter_test.cpp \
-    inputs/unit_tests.h inputs/unit_tests.cpp
+    inputs/MedianFilter.h inputs/MedianFilter.cpp
+
+inputs_test_SOURCES = \
+    inputs/FileMethod_test.cpp \
+    inputs/MedianFilter_test.cpp \
+    inputs/ResolutionSetter_test.cpp \
+    inputs/unit_tests.cpp
+inputs_test_CXXFLAGS = $(AM_CXXFLAGS) $(GraphicsMagick_CFLAGS) $(boost_thread_CFLAGS)
+inputs_test_LDADD = libinputs.a libtiff_input.a libtest_plugin.a libsimparm_text.a libbase.a libsimparm.a \
+		    $(GraphicsMagick_LIBS) $(boost_system_LIB) $(boost_thread_LIB) $(boost_unit_test_LIB) -ltiff
+inputs_test_LDFLAGS = $(AM_LDFLAGS) -pthread
 
 rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
@@ -384,7 +399,7 @@ rapidstorm_SOURCES += \
     viewer/colour_schemes/colored.cpp viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
-rapidstorm_SOURCES += \
+libtest_plugin_a_SOURCES = \
     test-plugin/plugin.cpp test-plugin/plugin.h \
     test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
@@ -589,44 +604,45 @@ rapidstorm_SOURCES += \
     ripley_k/DistanceHistogram.h ripley_k/DistanceHistogram.cpp \
     ripley_k/fwd.h ripley_k/RipleyK.cpp
 
-rapidstorm_SOURCES += \
+libtiff_input_a_SOURCES = \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
     tiff/TIFFOperation.h tiff/TIFFOperation.cpp
 
 libsimparm_a_SOURCES = \
-    simparm/Node.h simparm/Node.cpp \
-    simparm/NodeHandle.h \
-    simparm/BaseAttribute.h \
-    simparm/Choice.h \
     simparm/Attribute.h simparm/Attribute.hpp simparm/Attribute.cpp \
+    simparm/BaseAttribute.h \
     simparm/BasicEntry.h simparm/BasicEntry.cpp \
-    simparm/Group.h simparm/Group.cpp \
-    simparm/TabGroup.h simparm/TabGroup.cpp \
-    simparm/Entry.h simparm/Entry.hpp simparm/Entry.cpp \
-    simparm/Object.h simparm/Object.cpp \
-    simparm/TriggerEntry.h simparm/TriggerEntry.cpp \
-    simparm/ProgressEntry.h simparm/ProgressEntry.cpp \
-    simparm/TreeRoot.h simparm/TreeRoot.cpp \
-    simparm/TreeEntry.h simparm/TreeEntry.cpp \
-    simparm/FileEntry.h simparm/FileEntry.cpp \
-    simparm/Message.h simparm/Message.cpp \
-    simparm/ChoiceEntry.h simparm/ChoiceEntry.cpp \
-    simparm/ObjectChoice.h simparm/ManagedChoiceEntry.h \
-    simparm/Menu.h \
-    simparm/iostream.h simparm/typeName.h \
-    simparm/Eigen_decl.h simparm/Eigen.h \
-    simparm/BoostUnits.h \
-    simparm/UserLevel.h simparm/UserLevel.cpp \
     simparm/BoostOptional.h \
+    simparm/BoostUnits.h \
+    simparm/ChoiceEntry.h simparm/ChoiceEntry.cpp \
+    simparm/Choice.h \
+    simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp \
+    simparm/Eigen_decl.h simparm/Eigen.h \
+    simparm/Entry.h simparm/Entry.hpp simparm/Entry.cpp \
     simparm/falls_below.hpp simparm/exceeds.hpp \
-    simparm/is_numerical.hpp \
+    simparm/FileEntry.h simparm/FileEntry.cpp \
+    simparm/Group.h simparm/Group.cpp \
     simparm/GUILabelTable.h simparm/GUILabelTable.cpp \
+    simparm/iostream.h simparm/typeName.h \
+    simparm/is_numerical.hpp \
+    simparm/Menu.h \
+    simparm/Message.h simparm/Message.cpp \
+    simparm/NodeHandle.h \
+    simparm/Node.h simparm/Node.cpp \
+    simparm/ObjectChoice.h simparm/ManagedChoiceEntry.h \
+    simparm/Object.h simparm/Object.cpp \
+    simparm/ProgressEntry.h simparm/ProgressEntry.cpp \
+    simparm/ProtocolNode.h simparm/ProtocolNode.cpp \
+    simparm/TabGroup.h simparm/TabGroup.cpp \
+    simparm/TreeEntry.h simparm/TreeEntry.cpp \
+    simparm/TreeRoot.h simparm/TreeRoot.cpp \
+    simparm/TriggerEntry.h simparm/TriggerEntry.cpp \
     simparm/unit_tests.h simparm/unit_tests.cpp \
-    simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
+    simparm/UserLevel.h simparm/UserLevel.cpp
 
-rapidstorm_SOURCES += \
+libsimparm_text_a_SOURCES = \
     simparm/text_stream/BackendRoot.h simparm/text_stream/BackendRoot.cpp \
     simparm/text_stream/ChildrenList.h \
     simparm/text_stream/EntryNode.h simparm/text_stream/FrontendNode.h \
@@ -677,7 +693,6 @@ rapidstorm_SOURCES += \
     simparm/wx_ui/lambda.h simparm/wx_ui/GUIHandle.h \
     simparm/wx_ui/gui_thread.h simparm/wx_ui/gui_thread.cpp \
     simparm/wx_ui/no_main_window.h simparm/wx_ui/no_main_window.cpp \
-    simparm/wx_ui/ProtocolNode.h simparm/wx_ui/ProtocolNode.cpp \
     simparm/wx_ui/stock-hchain-24-broken.xpm simparm/wx_ui/stock-hchain-24.xpm \
     simparm/wx_ui/Microscope_16.xpm simparm/wx_ui/Microscope_24.xpm \
     simparm/wx_ui/Microscope_32.xpm simparm/wx_ui/Microscope_48.xpm \
@@ -758,16 +773,16 @@ rapidstorm_SOURCES += \
 endif
 
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
-rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
+EXTRA_rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
 rapidstorm_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/third_party
 rapidstorm_CPPFLAGS += $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
-rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
-rapidstorm_LDADD = libkalman_filter.a libbase.a libsimparm.a
+rapidstorm_CXXFLAGS = $(AM_CXXFLAGS) $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
+rapidstorm_LDADD = libkalman_filter.a libinputs.a libtest_plugin.a libtiff_input.a libbinning.a libbase.a libsimparm_text.a libsimparm.a
 rapidstorm_LDADD += $(GraphicsMagick_LIBS) 
 rapidstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 rapidstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)
 rapidstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
-rapidstorm_LDADD += $(WX_LIBS) 
+rapidstorm_LDADD += $(WX_LIBS)
 rapidstorm_LDADD += $(protobuf_LIBS)
 
 image_test_SOURCES = image/unit_tests.cpp

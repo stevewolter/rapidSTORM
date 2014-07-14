@@ -4,20 +4,15 @@
 
 #include "simparm/text_stream/BackendRoot.h"
 #include <boost/bind/bind.hpp>
-#include "simparm/wx_ui/no_main_window.h"
 #include "simparm/dummy_ui/fwd.h"
 #include "simparm/Node.h"
 
 namespace simparm {
 namespace text_stream {
 
-BackendRoot::BackendRoot( std::ostream* o, bool wxWidgets )
+BackendRoot::BackendRoot( std::ostream* o, NodeHandle image_handler )
 : attached(false), should_quit(false), out(o),
-  display_manager()
-{
-    if ( wxWidgets )    
-        wx_ui_handler = wx_ui::no_main_window();
-}
+  display_manager(), image_handler(image_handler) {}
 
 BackendRoot::~BackendRoot() {
     if ( attached && out )
@@ -112,8 +107,8 @@ void BackendRoot::process_child_command_( const std::string& child, std::istream
 std::auto_ptr<dStorm::display::WindowHandle> BackendRoot::get_image_window( 
     const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds ) 
 {
-    if ( wx_ui_handler )
-        return wx_ui_handler->get_image_window( wp, ds );
+    if ( image_handler )
+        return image_handler->get_image_window( wp, ds );
     else
         return display_manager.register_data_source( wp, ds );
 }

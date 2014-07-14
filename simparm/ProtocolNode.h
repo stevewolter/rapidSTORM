@@ -5,7 +5,6 @@
 #include <string>
 
 namespace simparm {
-namespace wx_ui {
 
 class ProtocolNode {
     std::string path;
@@ -16,7 +15,6 @@ public:
     void protocol( std::string message ) const;
 };
 
-}
 }
 
 #endif

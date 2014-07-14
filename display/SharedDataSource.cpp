@@ -5,7 +5,7 @@
 namespace dStorm {
 namespace display {
 
-SharedDataSource::SharedDataSource( DataSource& source, simparm::wx_ui::ProtocolNode protocol )
+SharedDataSource::SharedDataSource( DataSource& source, simparm::ProtocolNode protocol )
 : source(&source), notify_of_closed_window_before_disconnect_(false), protocol_node(protocol) {}
 
 void SharedDataSource::disconnect() {
