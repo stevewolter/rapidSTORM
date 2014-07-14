@@ -1,13 +1,14 @@
 #ifndef DSTORM_INPUT_PLANEFILTER_H
 #define DSTORM_INPUT_PLANEFILTER_H
 
-#include "input/fwd.h"
 #include <memory>
+#include "engine/Image.h"
+#include "input/FilterFactory.h"
 
 namespace dStorm {
 namespace plane_filter {
 
-std::auto_ptr<input::Link> make_link();
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create();
 
 }
 }
