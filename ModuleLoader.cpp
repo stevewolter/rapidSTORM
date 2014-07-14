@@ -59,7 +59,7 @@ void add_image_input_modules( dStorm::Config& car_config )
     car_config.add_input( CreateLink(input::resolution::create()) );
     car_config.add_input( input::sample_info::makeLink() );
     car_config.add_input( basename_input_field::makeLink() );
-    car_config.add_input( input_buffer::makeLink() );
+    car_config.add_input( CreateLink(input_buffer::create()) );
     car_config.add_input( median_filter::make_link() );
     car_config.add_input( CreateLink(plane_filter::create()) );
     car_config.add_input( Splitter::makeLink() );
