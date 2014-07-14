@@ -2,11 +2,12 @@
 #define SIMPARM_WX_ATTRIBUTE_HANDLE_H
 
 #include <wx/msgdlg.h>
-#include "simparm/Attribute.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/lexical_cast.hpp>
-#include "simparm/wx_ui/ProtocolNode.h"
+
+#include "simparm/Attribute.h"
+#include "simparm/ProtocolNode.h"
 
 namespace simparm {
 namespace wx_ui {

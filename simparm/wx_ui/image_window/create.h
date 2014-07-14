@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "display/Manager.h"
-#include "simparm/wx_ui/ProtocolNode.h"
+#include "simparm/ProtocolNode.h"
 
 namespace simparm {
 namespace wx_ui {
