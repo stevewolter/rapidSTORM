@@ -66,7 +66,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 
     car_config.add_input( inputs::join::create_link() );
     car_config.add_input( YMirror::makeLink() );
-    car_config.add_input( ROIFilter::make_link() );
+    car_config.add_input( CreateLink(ROIFilter::create()) );
     car_config.add_input( std::move(input_methods) );
 }
 
