@@ -7,7 +7,7 @@ namespace dStorm {
 namespace engine {
 
 JobInfo::JobInfo( boost::shared_ptr<const InputTraits> t, int fluorophore, const FitJudgerFactory& f )
-: traits(*traits_store),
+: traits(*t),
   fluorophore(fluorophore),
   traits_store(t)
 {
@@ -16,7 +16,7 @@ JobInfo::JobInfo( boost::shared_ptr<const InputTraits> t, int fluorophore, const
 }
 
 JobInfo::JobInfo( const JobInfo& o ) 
-: traits(*traits_store),
+: traits(*o.traits_store),
   fluorophore(o.fluorophore),
   judgers(o.judgers),
   traits_store(o.traits_store)
