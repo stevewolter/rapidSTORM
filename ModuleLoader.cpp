@@ -11,6 +11,7 @@
 #include "helpers/make_unique.hpp"
 #include "input_simulation/NoiseSource.h"
 #include "input/Choice.h"
+#include "input/FilterFactoryLink.h"
 #include "inputs/inputs.h"
 #include "inputs/MedianFilter.h"
 #include "inputs/WarnAboutLocalizationFile.h"
@@ -55,7 +56,7 @@ void add_image_input_modules( dStorm::Config& car_config )
     car_config.add_input( engine::make_rapidSTORM_engine_link() );
     car_config.add_input( make_input_base() );
 
-    car_config.add_input( input::resolution::makeLink() );
+    car_config.add_input( CreateLink(input::resolution::create()) );
     car_config.add_input( input::sample_info::makeLink() );
     car_config.add_input( basename_input_field::makeLink() );
     car_config.add_input( input_buffer::makeLink() );

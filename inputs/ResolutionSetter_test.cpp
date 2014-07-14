@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "engine/Image.h"
 #include "engine/InputTraits.h"
+#include "input/FilterFactoryLink.h"
 #include "input/Link.h"
 #include "input/MetaInfo.h"
 #include "input/Source.h"
@@ -64,7 +65,7 @@ class Check {
         boost::shared_ptr<simparm::text_stream::RootNode> master( new simparm::text_stream::RootNode() );
         std::auto_ptr<MoreSpecialized> ms( new MoreSpecialized() );
         MoreSpecialized& m(*ms);
-        std::auto_ptr<Link> l(makeLink());
+        std::auto_ptr<Link> l(CreateLink(create()));
 
         l->insert_new_node( std::auto_ptr<input::Link>(ms) );
         l->publish_meta_info();

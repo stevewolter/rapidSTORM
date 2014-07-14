@@ -5,13 +5,15 @@
 #include "debug.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/make_shared.hpp>
 
 #include "engine/Image.h"
+#include "helpers/make_unique.hpp"
 #include "input/AdapterSource.h"
 #include "input/InputMutex.h"
 #include "input/Link.h"
 #include "input/MetaInfo.h"
-#include "input/Method.hpp"
+#include "input/FilterFactory.h"
 #include "input/Source.h"
 #include "Localization.h"
 #include "localization/Traits.h"
@@ -28,8 +30,7 @@ struct Config : public traits::MultiPlaneConfig {
 };
 
 class Source 
-: public input::AdapterSource<engine::ImageStack>
-{
+: public input::AdapterSource<engine::ImageStack> {
     Config config;
 
     void modify_traits( input::Traits<engine::ImageStack>& t ) { 
@@ -41,63 +42,45 @@ class Source
 
   public:
     Source(
-        std::auto_ptr< input::Source<engine::ImageStack> > backend,
+        std::unique_ptr< input::Source<engine::ImageStack> > backend,
         const Config& config ) 
-        : input::AdapterSource<engine::ImageStack>( backend ), config(config) { 
+        : input::AdapterSource<engine::ImageStack>( std::move(backend) ), config(config) { 
             simparm::NodeHandle n = simparm::dummy_ui::make_node();
             this->config.attach_ui( n ); 
         }
 };
 
-class ChainLink 
-: public input::Method<ChainLink>
+class Factory 
+: public input::FilterFactory<engine::ImageStack>
 {
-    friend class Check;
-    friend class input::Method<ChainLink>;
-
-    Config config;
-    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
-    static std::string getName() { return "Optics"; }
-
-    input::Source<output::LocalizedImage>* make_source( std::auto_ptr< input::Source<output::LocalizedImage> > upstream ) { 
-        return upstream.release();
-    }
-    input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > upstream ) { 
-        return new resolution::Source(upstream, config); 
-    }
-    void update_traits( MetaInfo& i, Traits<output::LocalizedImage>& traits ) {}
-    void update_traits( MetaInfo& i, Traits<engine::ImageStack>& traits ) { 
-        config.set_context( traits );
-        config.write_traits(traits); 
-    }
-    void republish_traits();
-
   public:
-    ChainLink();
-    ChainLink(const ChainLink&);
+    Factory* clone() const OVERRIDE { return new Factory(*this); }
+
+    void attach_ui(simparm::NodeHandle at,
+                   std::function<void()> traits_change_callback) OVERRIDE {
+        config.attach_ui( at );
+        config.notify_on_any_change(traits_change_callback);
+    }
+
+    std::unique_ptr<input::Source<engine::ImageStack>>
+    make_source(std::unique_ptr<input::Source<engine::ImageStack>> upstream) { 
+        return make_unique<resolution::Source>(std::move(upstream), config); 
+    }
+    boost::shared_ptr<const Traits<engine::ImageStack>> make_meta_info(
+        MetaInfo& meta_info,
+        boost::shared_ptr<const Traits<engine::ImageStack>> traits) OVERRIDE { 
+        auto mine = boost::make_shared<Traits<engine::ImageStack>>(*traits);
+        config.set_context(*mine);
+        config.write_traits(*mine); 
+        return mine;
+    }
+
+  private:
+    Config config;
 };
 
-ChainLink::ChainLink() 
-{
-    config.notify_on_any_change( boost::bind( &ChainLink::republish_traits, this ) );
-}
-
-ChainLink::ChainLink(const ChainLink& o) 
-: input::Method<ChainLink>(o),
-  config(o.config)
-{
-    config.notify_on_any_change( boost::bind( &ChainLink::republish_traits, this ) );
-}
-
-void ChainLink::republish_traits()
-{
-    InputMutexGuard lock( global_mutex() );
-    input::Method<ChainLink>::republish_traits();
-}
-
-std::auto_ptr<Link> makeLink() {
-    DEBUG("Making resolution chain link");
-    return std::auto_ptr<Link>( new ChainLink() );
+std::unique_ptr<FilterFactory<engine::ImageStack>> create() {
+    return make_unique<Factory>();
 }
 
 }
