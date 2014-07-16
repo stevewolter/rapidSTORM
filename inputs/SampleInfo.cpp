@@ -2,24 +2,25 @@
 #include "simparm/BoostOptional.h"
 #include "inputs/SampleInfo.h"
 
-#include "debug.h"
-#include "simparm/FileEntry.h"
-#include "simparm/dummy_ui/fwd.h"
-#include "input/AdapterSource.h"
-#include "UnitEntries/PixelSize.h"
-#include "units/nanolength.h"
-#include "localization/Traits.h"
-#include "input/MetaInfo.h"
-#include "input/Source.h"
-#include "engine/Image.h"
-#include "engine/InputTraits.h"
-#include "Localization.h"
-#include "localization/Traits.h"
-#include "input/InputMutex.h"
-#include "input/FilterFactory.h"
-#include "input/FilterFactoryLink.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+
+#include "debug.h"
+#include "engine/Image.h"
+#include "engine/InputTraits.h"
+#include "helpers/make_unique.hpp"
+#include "input/AdapterSource.h"
+#include "input/FilterFactory.h"
+#include "input/InputMutex.h"
+#include "input/MetaInfo.h"
+#include "input/Source.h"
+#include "Localization.h"
+#include "localization/Traits.h"
+#include "localization/Traits.h"
+#include "simparm/dummy_ui/fwd.h"
+#include "simparm/FileEntry.h"
+#include "UnitEntries/PixelSize.h"
+#include "units/nanolength.h"
 
 namespace dStorm {
 namespace input {
@@ -96,8 +97,8 @@ void Config::attach_ui( simparm::NodeHandle at ) {
     fluorophore_count.attach_ui( r );
 }
 
-std::auto_ptr<Link> makeLink() {
-    return CreateLink(std::unique_ptr<SourceFactory>(new SourceFactory()));
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<SourceFactory>();
 }
 
 }

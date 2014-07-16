@@ -28,7 +28,7 @@ class Source
     typedef input::Source<output::LocalizedImage> Base;
 
   private:
-    std::auto_ptr< Input > base;
+    std::unique_ptr< Input > base;
     frame_index first_image, current_image;
     boost::optional<frame_index> last_image;
     std::map<frame_index, output::LocalizedImage> canned;
@@ -44,11 +44,11 @@ class Source
     void CollectEntireImage(output::LocalizedImage* target);
 
   public:
-    std::auto_ptr<output::LocalizedImage> read( frame_index );
+    std::unique_ptr<output::LocalizedImage> read( frame_index );
     bool is_finished( frame_index current ) const;
 
   public:
-    Source( std::auto_ptr<Input> base ) ;
+    Source( std::unique_ptr<Input> base ) ;
     ~Source();
 
     void dispatch(Messages m);

@@ -9,12 +9,12 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant.hpp>
 
+#include "helpers/make_unique.hpp"
 #include "image/extend.h"
 #include "image/Image.h"
 #include "image/slice.h"
 #include "input/AdapterSource.h"
 #include "input/FilterFactory.h"
-#include "input/FilterFactoryLink.h"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
 #include "localization/Traits.h"
@@ -263,8 +263,8 @@ Config::Config()
     stride.set_user_level( simparm::Intermediate );
 }
 
-std::auto_ptr<input::Link> make_link() {
-    return CreateLink(std::unique_ptr<BackgroundFilterLink>(new BackgroundFilterLink()));
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<BackgroundFilterLink>();
 }
 
 std::unique_ptr<input::Source<engine::ImageStack>> make_source(

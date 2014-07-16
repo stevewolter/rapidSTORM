@@ -23,9 +23,8 @@ class ChainLink : public input::Forwarder {
   public:
     ChainLink* clone() const OVERRIDE { return new ChainLink(*this); }
     input::BaseSource* makeSource() {
-        std::auto_ptr<input::Source<localization::Record>> upstream =
-            BaseSource::downcast<localization::Record>(upstream_source());
-        return new Source(upstream);
+        return new Source(
+            BaseSource::downcast<localization::Record>(upstream_source()));
     }
 
     void traits_changed(TraitsRef orig, Link*) {
@@ -44,10 +43,10 @@ class ChainLink : public input::Forwarder {
     }
 };
 
-std::auto_ptr<input::Link>
+std::unique_ptr<input::Link>
 make_localization_buncher()
 {
-    return std::auto_ptr<input::Link>( new ChainLink( ) );
+    return std::unique_ptr<input::Link>( new ChainLink( ) );
 }
 
 }

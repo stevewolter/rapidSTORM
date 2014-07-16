@@ -34,15 +34,14 @@ struct MoreSpecialized : public dStorm::input::Link {
     simparm::Object node;
 
     MoreSpecialized() : node("Downstream", "Downstream") {}
-    virtual void traits_changed( TraitsRef r, Link* ) { return update_current_meta_info(r); }
+    void traits_changed( TraitsRef r, Link* ) { return update_current_meta_info(r); }
 
-    virtual input::BaseSource* makeSource() { return new DummyImageSource(); }
-    virtual Link* clone() const { return new MoreSpecialized(*this); }
-    void insert_new_node( std::auto_ptr<dStorm::input::Link> ) {}
-    void registerNamedEntries( simparm::NodeHandle ) { }
-    std::string name() const { return node.getName(); }
-    std::string description() const { return node.getDesc(); }
-    void publish_meta_info() {}
+    input::BaseSource* makeSource() OVERRIDE { return new DummyImageSource(); }
+    Link* clone() const OVERRIDE { return new MoreSpecialized(*this); }
+    void insert_new_node( std::unique_ptr<dStorm::input::Link> ) OVERRIDE {}
+    void registerNamedEntries( simparm::NodeHandle ) OVERRIDE { }
+    std::string name() const OVERRIDE { return node.getName(); }
+    void publish_meta_info() OVERRIDE {}
 };
 
 class Check {
@@ -65,7 +64,7 @@ class Check {
         boost::shared_ptr<simparm::text_stream::RootNode> master( new simparm::text_stream::RootNode() );
         std::auto_ptr<MoreSpecialized> ms( new MoreSpecialized() );
         MoreSpecialized& m(*ms);
-        std::auto_ptr<Link> l(CreateLink(create()));
+        std::unique_ptr<Link> l(CreateLink(create()));
 
         l->insert_new_node( std::auto_ptr<input::Link>(ms) );
         l->publish_meta_info();
@@ -87,9 +86,8 @@ class Check {
         l->current_meta_info().reset();
         
         DEBUG("Checking if source can be built");
-        std::auto_ptr<input::BaseSource> bs( l->make_source() );
-        std::auto_ptr< input::Source<engine::ImageStack> > source
-            = input::BaseSource::downcast< engine::ImageStack >( bs );
+        std::unique_ptr< input::Source<engine::ImageStack> > source
+            = input::BaseSource::downcast< engine::ImageStack >( l->make_source() );
         if ( source.get() == NULL )
             throw std::runtime_error("Source could not be built");
 

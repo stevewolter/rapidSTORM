@@ -7,7 +7,7 @@
 namespace dStorm {
 namespace engine_stm {
 
-std::auto_ptr<input::Link> make_localization_buncher();
+std::unique_ptr<input::Link> make_localization_buncher();
 
 }
 }

@@ -2,13 +2,14 @@
 #define DSTORM_INPUT_SAMPLEINFO_H
 
 #include <memory>
-#include "input/fwd.h"
+#include "engine/Image.h"
+#include "input/FilterFactory.h"
 
 namespace dStorm {
 namespace input {
 namespace sample_info {
 
-std::auto_ptr<Link> makeLink();
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create();
 
 }
 }

@@ -79,15 +79,15 @@ ChainLink::ChainLink()
     config.spotFittingMethod.addChoice(make_unique<guf::Factory>());
 }
 
-std::auto_ptr<input::Link> make_rapidSTORM_engine_link() {
-    return CreateLink(make_unique<ChainLink>());
+std::unique_ptr<input::FilterFactory<engine::ImageStack, output::LocalizedImage>> make_rapidSTORM_engine_link() {
+    return make_unique<ChainLink>();
 }
 
 void unit_test( TestState& state ) {
-    std::auto_ptr<input::Link> rv = make_rapidSTORM_engine_link();
+    auto rv = make_rapidSTORM_engine_link();
     rv.reset();
     state.pass("Destruction of engine works");
-    std::auto_ptr<input::Link> cloner = make_rapidSTORM_engine_link();
+    auto cloner = make_rapidSTORM_engine_link();
     rv.reset( cloner->clone() );
     cloner.reset();
     rv.reset();

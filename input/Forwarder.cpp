@@ -26,7 +26,7 @@ void Forwarder::registerNamedEntries(simparm::NodeHandle n) {
         more_specialized->registerNamedEntries(n);
 }
 
-std::auto_ptr<BaseSource> Forwarder::upstream_source() { 
+std::unique_ptr<BaseSource> Forwarder::upstream_source() { 
     assert( more_specialized.get() );
     return more_specialized->make_source();
 }
@@ -35,11 +35,11 @@ BaseSource* Forwarder::makeSource() {
     return upstream_source().release();
 }
 
-void Forwarder::insert_new_node( std::auto_ptr<Link> n ) {
+void Forwarder::insert_new_node( std::unique_ptr<Link> n ) {
     if ( more_specialized.get() )
-        more_specialized->insert_new_node(n);
+        more_specialized->insert_new_node(std::move(n));
     else
-        insert_here( n );
+        insert_here(std::move(n));
 }
 
 Link::TraitsRef Forwarder::upstream_traits() const {
@@ -57,10 +57,10 @@ std::string Forwarder::name() const {
     return more_specialized->name();
 }
 
-void Forwarder::insert_here( std::auto_ptr<Link> link ) {
+void Forwarder::insert_here( std::unique_ptr<Link> link ) {
     if ( more_specialized.get() )
-        link->insert_new_node( more_specialized );
-    more_specialized = link;
+        link->insert_new_node( std::move(more_specialized) );
+    more_specialized = std::move(link);
     if ( more_specialized.get() ) {
         connection = more_specialized->notify( 
             boost::bind( &Forwarder::traits_changed, this, _1, more_specialized.get() ) );

@@ -3,7 +3,7 @@
 #include "andor-sif/AndorSIF.h"
 #include "base/Config.h"
 #include "calibrate_3d/fwd.h"
-#include "engine/ChainLink_decl.h"
+#include "engine/ChainLink.h"
 #include "engine/SpotFinder.h"
 #include "engine/SpotFitterFactory.h"
 #include "engine_stm/ChainLink.h"
@@ -53,19 +53,19 @@ void add_image_input_modules( dStorm::Config& car_config )
     input_methods->add_choice(std::move(file_methods));
     input_methods->add_choice(make_unique<input_simulation::NoiseConfig>());
 
-    car_config.add_input( engine::make_rapidSTORM_engine_link() );
+    car_config.add_input( CreateLink(engine::make_rapidSTORM_engine_link()) );
     car_config.add_input( make_input_base() );
 
     car_config.add_input( CreateLink(input::resolution::create()) );
-    car_config.add_input( input::sample_info::makeLink() );
+    car_config.add_input( CreateLink(input::sample_info::create()) );
     car_config.add_input( basename_input_field::makeLink() );
     car_config.add_input( CreateLink(input_buffer::create()) );
-    car_config.add_input( median_filter::make_link() );
+    car_config.add_input( CreateLink(median_filter::create()) );
     car_config.add_input( CreateLink(plane_filter::create()) );
-    car_config.add_input( Splitter::makeLink() );
+    car_config.add_input( CreateLink(splitter::create()) );
 
     car_config.add_input( inputs::join::create_link() );
-    car_config.add_input( YMirror::makeLink() );
+    car_config.add_input( CreateLink(YMirror::create()) );
     car_config.add_input( CreateLink(ROIFilter::create()) );
     car_config.add_input( std::move(input_methods) );
 }
@@ -73,7 +73,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 void add_stm_input_modules( dStorm::Config& car_config )
 {
     auto file_methods = make_unique<inputs::FileMethod>();
-    std::auto_ptr< input::Link > p = engine_stm::make_localization_buncher();
+    auto p = engine_stm::make_localization_buncher();
     p->insert_new_node( inputs::LocalizationFile::create() );
     file_methods->add_choice(std::move(p));
 

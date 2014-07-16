@@ -30,8 +30,8 @@ Source::TraitsPtr Source::get_traits() {
     return result;
 }
 
-Source::Source( std::auto_ptr<Input> base )
-    : base(base), input_left_over(false), input_exhausted(false) {}
+Source::Source( std::unique_ptr<Input> base )
+    : base(std::move(base)), input_left_over(false), input_exhausted(false) {}
 
 Source::~Source()
 {

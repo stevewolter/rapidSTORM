@@ -3,13 +3,14 @@
 
 #include <memory>
 
-#include "input/fwd.h"
+#include "engine/Image.h"
 #include "engine/Input.h"
+#include "input/FilterFactory.h"
 
 namespace dStorm {
 namespace median_filter {
 
-std::auto_ptr<input::Link> make_link();
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create();
 std::unique_ptr<input::Source<engine::ImageStack>> make_source(
         std::unique_ptr<input::Source<engine::ImageStack>> upstream,
         frame_index width, frame_index stride);

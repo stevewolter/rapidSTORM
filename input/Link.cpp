@@ -12,6 +12,7 @@
 
 #include "engine/InputTraits.h"
 #include "input/MetaInfo.h"
+#include "input/Source.h"
 
 namespace dStorm {
 namespace input {
@@ -41,7 +42,7 @@ void Link::update_current_meta_info( TraitsRef new_traits )
     meta_info_signal( meta_info );
 }
 
-void Terminus::insert_new_node( std::auto_ptr<Link> l ) {
+void Terminus::insert_new_node( std::unique_ptr<Link> l ) {
     throw std::logic_error("No insertion point found for " + l->name());
 }
 
@@ -56,8 +57,8 @@ Link::notify( const TraitsSignal::slot_type& whom ) {
 
 std::string Link::name() const { throw std::logic_error("Not implemented"); }
 
-std::auto_ptr<BaseSource> Link::make_source() {
-    return std::auto_ptr<BaseSource>(makeSource());
+std::unique_ptr<BaseSource> Link::make_source() {
+    return std::unique_ptr<BaseSource>(makeSource());
 }
 
 }

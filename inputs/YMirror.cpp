@@ -6,7 +6,6 @@
 #include "image/mirror.h"
 #include "input/AdapterSource.h"
 #include "input/FilterFactory.h"
-#include "input/FilterFactoryLink.h"
 #include "simparm/Entry.h"
 #include "simparm/Object.h"
 
@@ -80,8 +79,8 @@ Config::Config()
     mirror_y.set_user_level( simparm::Expert );
 }
 
-std::auto_ptr<input::Link> makeLink() {
-    return CreateLink(make_unique<ChainLink>());
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<ChainLink>();
 }
 
 }

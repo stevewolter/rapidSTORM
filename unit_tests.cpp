@@ -6,7 +6,7 @@
 
 #include "alignment_fitter.h"
 #include "dejagnu.h"
-#include "engine/ChainLink_decl.h"
+#include "engine/ChainLink.h"
 #include "estimate_psf_form/unit_test.h"
 #include "fit_window/unit_tests.h"
 #include "gaussian_psf/unit_test.h"

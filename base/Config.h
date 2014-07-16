@@ -27,11 +27,7 @@ class Config : public JobConfig
 {
   public:
     virtual ~Config() {}
-    virtual void add_input( std::auto_ptr<input::Link> ) = 0;
-    void add_input( input::Link* s ) 
-        { add_input( std::auto_ptr<input::Link>(s) ); }
-    void add_input( std::unique_ptr<input::Link> s ) 
-        { add_input( std::auto_ptr<input::Link>(s.release()) ); }
+    virtual void add_input( std::unique_ptr<input::Link> ) = 0;
     virtual void add_output( std::auto_ptr<output::OutputSource> ) = 0;
     void add_output( output::OutputSource* s ) 
         { add_output( std::auto_ptr<output::OutputSource>(s) ); }

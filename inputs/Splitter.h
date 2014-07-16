@@ -1,13 +1,15 @@
 #ifndef DSTORM_INPUT_SPLITTER_DECL_H
 #define DSTORM_INPUT_SPLITTER_DECL_H
 
-#include "input/fwd.h"
 #include <memory>
 
-namespace dStorm {
-namespace Splitter {
+#include "engine/Image.h"
+#include "input/FilterFactory.h"
 
-std::auto_ptr<input::Link> makeLink();
+namespace dStorm {
+namespace splitter {
+
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create();
 
 }
 }

@@ -1,6 +1,7 @@
 #include "input/FilterFactoryLink.h"
 
 #include "engine/InputTraits.h"
+#include "helpers/make_unique.hpp"
 #include "input/Forwarder.h"
 #include "input/MetaInfo.h"
 #include "input/Source.h"
@@ -11,7 +12,7 @@
 namespace dStorm {
 namespace input {
 
-template <typename InputType, typename OutputType>
+template <typename InputType, typename OutputType = InputType>
 class FilterFactoryLink
 : public Forwarder
 {
@@ -71,7 +72,7 @@ void FilterFactoryLink<InputType, OutputType>::traits_changed( TraitsRef upstrea
 
 template <typename InputType, typename OutputType>
 BaseSource* FilterFactoryLink<InputType, OutputType>::makeSource() {
-    std::auto_ptr<BaseSource> upstream = Forwarder::upstream_source();
+    std::unique_ptr<BaseSource> upstream = Forwarder::upstream_source();
     std::unique_ptr<Source<InputType>> typed_upstream(
         dynamic_cast<Source<InputType>*>(upstream.get()));
     if (!typed_upstream) {
@@ -84,22 +85,20 @@ BaseSource* FilterFactoryLink<InputType, OutputType>::makeSource() {
     return filter_->make_source(std::move(typed_upstream)).release();
 }
 
-std::auto_ptr<Link> CreateLink(
+std::unique_ptr<Link> CreateLink(
     std::unique_ptr<FilterFactory<engine::ImageStack, engine::ImageStack>> filter) {
-    return std::auto_ptr<Link>(
-        new FilterFactoryLink<engine::ImageStack, engine::ImageStack>(std::move(filter)));
+    return make_unique<FilterFactoryLink<engine::ImageStack>>(std::move(filter));
 }
 
-std::auto_ptr<Link> CreateLink(
+std::unique_ptr<Link> CreateLink(
     std::unique_ptr<FilterFactory<engine::ImageStack, output::LocalizedImage>> filter) {
-    return std::auto_ptr<Link>(
-        new FilterFactoryLink<engine::ImageStack, output::LocalizedImage>(std::move(filter)));
+    return make_unique<FilterFactoryLink<engine::ImageStack, output::LocalizedImage>>(
+        std::move(filter));
 }
 
-std::auto_ptr<Link> CreateLink(
+std::unique_ptr<Link> CreateLink(
     std::unique_ptr<FilterFactory<output::LocalizedImage, output::LocalizedImage>> filter) {
-    return std::auto_ptr<Link>(
-        new FilterFactoryLink<output::LocalizedImage, output::LocalizedImage>(std::move(filter)));
+    return make_unique<FilterFactoryLink<output::LocalizedImage>>(std::move(filter));
 }
 
 }

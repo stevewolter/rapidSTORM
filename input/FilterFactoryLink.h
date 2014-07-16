@@ -9,11 +9,11 @@ namespace engine { class ImageStack; }
 namespace output { class LocalizedImage; }
 namespace input {
 
-std::auto_ptr<Link> CreateLink(
+std::unique_ptr<Link> CreateLink(
     std::unique_ptr<FilterFactory<engine::ImageStack, engine::ImageStack>> filter);
-std::auto_ptr<Link> CreateLink(
+std::unique_ptr<Link> CreateLink(
     std::unique_ptr<FilterFactory<engine::ImageStack, output::LocalizedImage>> filter);
-std::auto_ptr<Link> CreateLink(
+std::unique_ptr<Link> CreateLink(
     std::unique_ptr<FilterFactory<output::LocalizedImage, output::LocalizedImage>> filter);
 
 }

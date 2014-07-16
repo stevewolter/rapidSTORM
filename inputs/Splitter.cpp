@@ -3,11 +3,11 @@
 #include <boost/mpl/vector.hpp>
 #include "engine/Image.h"
 #include "engine/InputTraits.h"
+#include "helpers/make_unique.hpp"
 #include "image/constructors.h"
 #include "image/iterator.h"
 #include "input/AdapterSource.h"
 #include "input/FilterFactory.h"
-#include "input/FilterFactoryLink.h"
 #include "input/Source.h"
 #include "simparm/ChoiceEntry.h"
 #include "simparm/ManagedChoiceEntry.h"
@@ -19,7 +19,7 @@
 using namespace dStorm::engine;
 
 namespace dStorm {
-namespace Splitter {
+namespace splitter {
 
 struct Split : public simparm::ObjectChoice {
     Split( std::string name, std::string desc ) : simparm::ObjectChoice(name,desc) {}
@@ -180,8 +180,8 @@ bool Source::GetNext(int thread, engine::ImageStack* result) {
     return true;
 }
 
-std::auto_ptr<input::Link> makeLink() {
-    return CreateLink(std::unique_ptr<SourceFactory>(new SourceFactory()));
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<SourceFactory>();
 }
 
 }

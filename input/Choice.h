@@ -12,16 +12,16 @@ class Choice
 {
   public:
     class LinkAdaptor : public simparm::Choice {
-        std::auto_ptr<input::Link> _link;
+        std::unique_ptr<input::Link> _link;
         Link::Connection connection;
 
       public:
-        LinkAdaptor( std::auto_ptr<input::Link> l );
+        LinkAdaptor( std::unique_ptr<input::Link> l );
         ~LinkAdaptor();
         Link& link() { return *_link; }
         const Link& link() const { return *_link; }
         LinkAdaptor* clone() const {
-            std::auto_ptr<LinkAdaptor> rv( new LinkAdaptor( std::auto_ptr<Link>(_link->clone()) ) );
+            std::unique_ptr<LinkAdaptor> rv( new LinkAdaptor( std::unique_ptr<Link>(_link->clone()) ) );
             return rv.release();
         }
         void connect( input::Choice& c ) {
@@ -51,19 +51,20 @@ class Choice
     Choice(const Choice&);
     ~Choice();
     
-    BaseSource* makeSource();
-    Choice* clone() const;
-    void registerNamedEntries( simparm::NodeHandle );
-    std::string name() const { return choices.getName(); }
-    std::string description() const { return choices.getDesc(); }
-    void publish_meta_info();
+    BaseSource* makeSource() OVERRIDE;
+    Choice* clone() const OVERRIDE;
+    void registerNamedEntries( simparm::NodeHandle ) OVERRIDE;
+    std::string name() const OVERRIDE { return choices.getName(); }
+    void publish_meta_info() OVERRIDE;
 
-    void add_choice( std::auto_ptr<Link> );
-    void add_choice( std::unique_ptr<Link> r ) { add_choice(std::auto_ptr<Link>(r.release())); }
+    void add_choice( std::unique_ptr<Link> r );
 
-    void insert_new_node( std::auto_ptr<Link> );
+    void insert_new_node( std::unique_ptr<Link> ) OVERRIDE;
 
     void set_help_id( std::string id ) { choices.setHelpID( id ); }
+
+  private:
+    std::string description() const { return choices.getDesc(); }
 };
 
 }
