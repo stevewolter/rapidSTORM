@@ -11,7 +11,7 @@
 #include "helpers/make_unique.hpp"
 #include "input_simulation/NoiseSource.h"
 #include "input/Choice.h"
-#include "input/FilterFactoryLink.h"
+#include "input/FilterFactoryLink.hpp"
 #include "inputs/inputs.h"
 #include "inputs/MedianFilter.h"
 #include "inputs/WarnAboutLocalizationFile.h"
@@ -73,7 +73,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 void add_stm_input_modules( dStorm::Config& car_config )
 {
     auto file_methods = make_unique<inputs::FileMethod>();
-    auto p = engine_stm::make_localization_buncher();
+    auto p = CreateLink(engine_stm::create());
     p->insert_new_node( inputs::LocalizationFile::create() );
     file_methods->add_choice(std::move(p));
 

@@ -3,7 +3,7 @@
 #include "debug.h"
 #include "engine/Image.h"
 #include "engine/InputTraits.h"
-#include "input/FilterFactoryLink.h"
+#include "input/FilterFactoryLink.hpp"
 #include "input/Link.h"
 #include "input/MetaInfo.h"
 #include "input/Source.h"

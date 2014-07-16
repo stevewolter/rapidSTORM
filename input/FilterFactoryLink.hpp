@@ -1,13 +1,13 @@
-#include "input/FilterFactoryLink.h"
+#ifndef DSTORM_INPUT_FILTERFACTORYLINK_H
+#define DSTORM_INPUT_FILTERFACTORYLINK_H
 
-#include "engine/InputTraits.h"
 #include "helpers/make_unique.hpp"
+#include "input/FilterFactory.h"
 #include "input/Forwarder.h"
+#include "input/InputMutex.h"
 #include "input/MetaInfo.h"
 #include "input/Source.h"
-#include "input/FilterFactory.h"
-#include "input/InputMutex.h"
-#include "output/LocalizedImage_traits.h"
+#include "input/Link.h"
 
 namespace dStorm {
 namespace input {
@@ -84,22 +84,13 @@ BaseSource* FilterFactoryLink<InputType, OutputType>::makeSource() {
 
     return filter_->make_source(std::move(typed_upstream)).release();
 }
-
+template <typename InputType, typename OutputType>
 std::unique_ptr<Link> CreateLink(
-    std::unique_ptr<FilterFactory<engine::ImageStack, engine::ImageStack>> filter) {
-    return make_unique<FilterFactoryLink<engine::ImageStack>>(std::move(filter));
-}
-
-std::unique_ptr<Link> CreateLink(
-    std::unique_ptr<FilterFactory<engine::ImageStack, output::LocalizedImage>> filter) {
-    return make_unique<FilterFactoryLink<engine::ImageStack, output::LocalizedImage>>(
-        std::move(filter));
-}
-
-std::unique_ptr<Link> CreateLink(
-    std::unique_ptr<FilterFactory<output::LocalizedImage, output::LocalizedImage>> filter) {
-    return make_unique<FilterFactoryLink<output::LocalizedImage>>(std::move(filter));
+    std::unique_ptr<FilterFactory<InputType, OutputType>> filter) {
+    return make_unique<FilterFactoryLink<InputType, OutputType>>(std::move(filter));
 }
 
 }
 }
+
+#endif

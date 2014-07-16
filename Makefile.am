@@ -154,7 +154,7 @@ libbase_a_SOURCES = \
     input/FakeSource.h \
     input/FileInput.h \
     input/FilterFactory.h \
-    input/FilterFactoryLink.h input/FilterFactoryLink.cpp \
+    input/FilterFactoryLink.hpp \
     input/Forwarder.h input/Forwarder.cpp \
     input/fwd.h \
     input/Link.h input/Link.cpp \

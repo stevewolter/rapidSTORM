@@ -5,12 +5,11 @@
 
 #include "engine_stm/ChainLink.h"
 #include "engine_stm/LocalizationBuncher.h"
-#include "input/Forwarder.h"
+#include "helpers/make_unique.hpp"
+#include "input/FilterFactory.h"
 #include "input/MetaInfo.h"
 #include "input/Source.h"
-#include "Localization_decl.h"
 #include "localization/record.h"
-#include "output/LocalizedImage_decl.h"
 #include "output/LocalizedImage.h"
 #include "output/LocalizedImage_traits.h"
 
@@ -19,34 +18,27 @@ namespace engine_stm {
 
 using namespace input;
 
-class ChainLink : public input::Forwarder {
+class ChainLink : public input::FilterFactory<localization::Record, output::LocalizedImage> {
   public:
     ChainLink* clone() const OVERRIDE { return new ChainLink(*this); }
-    input::BaseSource* makeSource() {
-        return new Source(
-            BaseSource::downcast<localization::Record>(upstream_source()));
+    void attach_ui(simparm::NodeHandle at,
+                   std::function<void()> traits_change_callback) OVERRIDE {}
+
+    std::unique_ptr<input::Source<output::LocalizedImage>> make_source(
+        std::unique_ptr<input::Source<localization::Record>> input) OVERRIDE {
+        return make_unique<Source>(std::move(input));
     }
 
-    void traits_changed(TraitsRef orig, Link*) {
-        if (!orig) {
-            update_current_meta_info(orig);
-            return;
-        }
-
-        auto my_info = boost::make_shared<MetaInfo>(*orig);
-        if (orig->provides<localization::Record>()) {
-            my_info->set_traits(new Traits<output::LocalizedImage>(
-                        *orig->traits<localization::Record>(),
-                        "STM", "Localizations file"));
-        }
-        update_current_meta_info(my_info);
+    boost::shared_ptr<const input::Traits<output::LocalizedImage>> make_meta_info(
+        input::MetaInfo& meta_info,
+        boost::shared_ptr<const input::Traits<localization::Record>> input_meta_info) OVERRIDE {
+        return boost::make_shared<Traits<output::LocalizedImage>>(
+                *input_meta_info, "STM", "Localizations file");
     }
 };
 
-std::unique_ptr<input::Link>
-make_localization_buncher()
-{
-    return std::unique_ptr<input::Link>( new ChainLink( ) );
+std::unique_ptr<input::FilterFactory<localization::Record, output::LocalizedImage>> create() {
+    return make_unique<ChainLink>();
 }
 
 }

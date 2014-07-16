@@ -11,7 +11,6 @@
 #include "helpers/make_unique.hpp"
 #include "input/InputMutex.h"
 #include "input/FilterFactory.h"
-#include "input/FilterFactoryLink.h"
 #include "output/LocalizedImage_traits.h"
 #include "spotFinders/spotFinders.h"
 
