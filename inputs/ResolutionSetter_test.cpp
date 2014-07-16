@@ -1,9 +1,11 @@
 #include <boost/test/unit_test.hpp>
 
+#include <boost/make_shared.hpp>
+
 #include "debug.h"
 #include "engine/Image.h"
 #include "engine/InputTraits.h"
-#include "input/FilterFactoryLink.hpp"
+#include "helpers/make_unique.hpp"
 #include "input/Link.h"
 #include "input/MetaInfo.h"
 #include "input/Source.h"
@@ -30,20 +32,6 @@ struct DummyImageSource : public input::Source<engine::ImageStack>
     }
 };
 
-struct MoreSpecialized : public dStorm::input::Link {
-    simparm::Object node;
-
-    MoreSpecialized() : node("Downstream", "Downstream") {}
-    void traits_changed( TraitsRef r, Link* ) { return update_current_meta_info(r); }
-
-    input::BaseSource* makeSource() OVERRIDE { return new DummyImageSource(); }
-    Link* clone() const OVERRIDE { return new MoreSpecialized(*this); }
-    void insert_new_node( std::unique_ptr<dStorm::input::Link> ) OVERRIDE {}
-    void registerNamedEntries( simparm::NodeHandle ) OVERRIDE { }
-    std::string name() const OVERRIDE { return node.getName(); }
-    void publish_meta_info() OVERRIDE {}
-};
-
 class Check {
   public:
     typedef dStorm::image::MetaInfo<2>::Resolutions Resolutions;
@@ -54,48 +42,38 @@ class Check {
         BOOST_CHECK_CLOSE(t[1]->value.value(), r[1]->value.value(), 1E-5);
     }
 
-    void trait_resolution_close_to( Resolutions r, boost::shared_ptr<const input::MetaInfo> m ) {
+    void trait_resolution_close_to( Resolutions r, boost::shared_ptr<const input::Traits<engine::ImageStack>> m ) {
         BOOST_ASSERT(m);
-        BOOST_ASSERT(m->provides<engine::ImageStack>());
-        check_resolution_close_to( r, m->traits<engine::ImageStack>()->plane(0).image.image_resolutions() );
+        check_resolution_close_to( r, m->plane(0).image.image_resolutions() );
     }
 
     void do_check() {
         boost::shared_ptr<simparm::text_stream::RootNode> master( new simparm::text_stream::RootNode() );
-        std::auto_ptr<MoreSpecialized> ms( new MoreSpecialized() );
-        MoreSpecialized& m(*ms);
-        std::unique_ptr<Link> l(CreateLink(create()));
+        auto testee = create();
+        int trigger_count = 0;
+        testee->attach_ui(master, [&]{ ++trigger_count; });
 
-        l->insert_new_node( std::auto_ptr<input::Link>(ms) );
-        l->publish_meta_info();
+        BOOST_CHECK_EQUAL(0, trigger_count);
 
-        dStorm::input::Traits< engine::ImageStack > correct(
-                *l->current_meta_info()->traits<engine::ImageStack>());
+        Resolutions resolutions;
+        resolutions[0] = traits::ImageResolution(107.0f * si::nanometre / camera::pixel);
+        resolutions[1] = resolutions[0];
 
-        DEBUG("Publishing image traits");
-        input::MetaInfo::Ptr tp( new input::MetaInfo() );
-        tp->set_traits( new input::Traits<engine::ImageStack>( (image::MetaInfo<2>()) ) );
-        m.traits_changed( tp, NULL );
+        input::MetaInfo::Ptr meta_info( new input::MetaInfo() );
+        auto traits = boost::make_shared<input::Traits<engine::ImageStack>>(image::MetaInfo<2>());
+        meta_info->set_traits(traits);
+        trait_resolution_close_to(resolutions, testee->make_meta_info(*meta_info, traits));
 
-        DEBUG("Changing context element");
-        l->registerNamedEntries( master );
         std::stringstream cmd("in Optics in InputLayer0 in PixelSizeInNM in value set 136.875,100");
         master->processCommand(cmd);
-        DEBUG("Checking if config element change updates traits");
-        trait_resolution_close_to(correct.plane(0).image.image_resolutions(), l->current_meta_info());
-        l->current_meta_info().reset();
+        BOOST_CHECK_EQUAL(2, trigger_count);
+        resolutions[0] = traits::ImageResolution(136.875f * si::nanometre / camera::pixel);
+        resolutions[1] = traits::ImageResolution(100.000f * si::nanometre / camera::pixel);
+        trait_resolution_close_to(resolutions, testee->make_meta_info(*meta_info, traits));
         
-        DEBUG("Checking if source can be built");
-        std::unique_ptr< input::Source<engine::ImageStack> > source
-            = input::BaseSource::downcast< engine::ImageStack >( l->make_source() );
-        if ( source.get() == NULL )
-            throw std::runtime_error("Source could not be built");
-
-        boost::shared_ptr< const dStorm::input::Traits<engine::ImageStack> > source_traits
-            = source->get_traits();
-
-        check_resolution_close_to(correct.plane(0).image.image_resolutions(), 
-            source_traits->plane(0).image.image_resolutions());
+        auto source = testee->make_source(make_unique<DummyImageSource>());
+        auto source_traits = source->get_traits();
+        trait_resolution_close_to(resolutions, source_traits);
         BOOST_CHECK_CLOSE(source_traits->plane(0).optics.transmission_coefficient(0), 1.0f, 1E-7 );
     }
 };
