@@ -135,7 +135,7 @@ class Link
 {
     boost::ptr_vector< simparm::Object > connection_nodes;
     boost::ptr_vector< input::Link > children;
-    boost::ptr_vector< boost::signals2::scoped_connection > connections;
+    std::vector< Connection > connections;
     std::vector< TraitsRef > input_traits;
     simparm::Object name_object;
     simparm::TabGroup channels;

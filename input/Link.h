@@ -27,7 +27,7 @@ class Link {
     typedef boost::signals2::signal_type< void (TraitsRef), no_mutex >::type 
         TraitsSignal;
   public:
-    typedef std::auto_ptr<boost::signals2::scoped_connection> Connection;
+    typedef std::unique_ptr<boost::signals2::scoped_connection> Connection;
   private:
     TraitsRef meta_info;
     TraitsSignal meta_info_signal;
