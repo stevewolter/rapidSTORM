@@ -120,7 +120,6 @@ class Factory : public input::FilterFactory<engine::ImageStack> {
         return make_unique<Source>(std::move(input));
     }
     boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
-        input::MetaInfo& meta_info,
         boost::shared_ptr<const input::Traits<engine::ImageStack>> input_meta_info) OVERRIDE {
         return input_meta_info;
     }

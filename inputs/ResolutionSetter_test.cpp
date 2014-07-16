@@ -59,17 +59,15 @@ class Check {
         resolutions[0] = traits::ImageResolution(107.0f * si::nanometre / camera::pixel);
         resolutions[1] = resolutions[0];
 
-        input::MetaInfo::Ptr meta_info( new input::MetaInfo() );
-        auto traits = boost::make_shared<input::Traits<engine::ImageStack>>(image::MetaInfo<2>());
-        meta_info->set_traits(traits);
-        trait_resolution_close_to(resolutions, testee->make_meta_info(*meta_info, traits));
+        auto upstream = boost::make_shared<input::Traits<engine::ImageStack>>(image::MetaInfo<2>());
+        trait_resolution_close_to(resolutions, testee->make_meta_info(upstream));
 
         std::stringstream cmd("in Optics in InputLayer0 in PixelSizeInNM in value set 136.875,100");
         master->processCommand(cmd);
         BOOST_CHECK_EQUAL(2, trigger_count);
         resolutions[0] = traits::ImageResolution(136.875f * si::nanometre / camera::pixel);
         resolutions[1] = traits::ImageResolution(100.000f * si::nanometre / camera::pixel);
-        trait_resolution_close_to(resolutions, testee->make_meta_info(*meta_info, traits));
+        trait_resolution_close_to(resolutions, testee->make_meta_info(upstream));
         
         auto source = testee->make_source(make_unique<DummyImageSource>());
         auto source_traits = source->get_traits();

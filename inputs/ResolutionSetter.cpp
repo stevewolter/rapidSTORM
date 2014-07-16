@@ -12,7 +12,6 @@
 #include "input/AdapterSource.h"
 #include "input/InputMutex.h"
 #include "input/Link.h"
-#include "input/MetaInfo.h"
 #include "input/FilterFactory.h"
 #include "input/Source.h"
 #include "Localization.h"
@@ -67,7 +66,6 @@ class Factory
         return make_unique<resolution::Source>(std::move(upstream), config); 
     }
     boost::shared_ptr<const Traits<engine::ImageStack>> make_meta_info(
-        MetaInfo& meta_info,
         boost::shared_ptr<const Traits<engine::ImageStack>> traits) OVERRIDE { 
         auto mine = boost::make_shared<Traits<engine::ImageStack>>(*traits);
         config.set_context(*mine);

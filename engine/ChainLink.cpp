@@ -28,7 +28,6 @@ class ChainLink
     simparm::BaseAttribute::ConnectionStore listening[4];
 
     boost::shared_ptr<const Traits<output::LocalizedImage>> make_meta_info(
-        MetaInfo& meta_info,
         boost::shared_ptr<const Traits<engine::ImageStack>> traits)
         OVERRIDE {
         config.separate_plane_fitting.set_visibility(traits->plane_count() > 1);

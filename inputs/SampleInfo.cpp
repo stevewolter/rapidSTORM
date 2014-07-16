@@ -12,7 +12,6 @@
 #include "input/AdapterSource.h"
 #include "input/FilterFactory.h"
 #include "input/InputMutex.h"
-#include "input/MetaInfo.h"
 #include "input/Source.h"
 #include "Localization.h"
 #include "localization/Traits.h"
@@ -60,7 +59,7 @@ class SourceFactory
 
     SourceFactory* clone() const { return new SourceFactory(*this); }
     boost::shared_ptr<const input::Traits<engine::ImageStack>>
-    make_meta_info( input::MetaInfo&, boost::shared_ptr<const input::Traits<engine::ImageStack>> t ) {
+    make_meta_info( boost::shared_ptr<const input::Traits<engine::ImageStack>> t ) {
         if (!t) return t;
 
         boost::shared_ptr<input::Traits<engine::ImageStack>> n(

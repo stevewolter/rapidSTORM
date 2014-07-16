@@ -16,7 +16,6 @@
 #include "input/AdapterSource.h"
 #include "input/FilterFactory.h"
 #include "input/InputMutex.h"
-#include "input/MetaInfo.h"
 #include "localization/Traits.h"
 #include "output/LocalizedImage.h"
 #include "output/LocalizedImage_traits.h"
@@ -247,7 +246,6 @@ class BackgroundFilterLink : public input::FilterFactory<engine::ImageStack> {
         return backend.active_choice().make_source(std::move(input));
     }
     boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
-        input::MetaInfo& meta_info,
         boost::shared_ptr<const input::Traits<engine::ImageStack>> input_meta_info) {
         return input_meta_info;
     }

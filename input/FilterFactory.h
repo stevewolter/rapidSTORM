@@ -20,7 +20,6 @@ class FilterFactory {
     virtual std::unique_ptr<input::Source<OutputType>> make_source(
         std::unique_ptr<input::Source<InputType>> input) = 0;
     virtual boost::shared_ptr<const Traits<OutputType>> make_meta_info(
-        MetaInfo& meta_info,
         boost::shared_ptr<const Traits<InputType>> input_meta_info) = 0;
 
     // This method needs to be overridden if the FilterFactory is used as an

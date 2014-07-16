@@ -16,7 +16,6 @@
 #include "input/AdapterSource.h"
 #include "input/FilterFactory.h"
 #include "input/InputMutex.h"
-#include "input/MetaInfo.h"
 #include "localization/Traits.h"
 #include "simparm/BoostUnits.h"
 #include "simparm/ManagedChoiceEntry.h"
@@ -117,7 +116,6 @@ class Factory : public input::FilterFactory<engine::ImageStack>
     }
 
     boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
-        input::MetaInfo& meta_info,
         boost::shared_ptr<const input::Traits<engine::ImageStack>> t) OVERRIDE {
         config.which_plane.show();
         for (int i = config.which_plane.size()-1; i < t->plane_count(); ++i) {

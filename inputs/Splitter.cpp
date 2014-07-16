@@ -94,10 +94,7 @@ class SourceFactory
     }
 
     boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
-        input::MetaInfo&,
         boost::shared_ptr<const input::Traits<engine::ImageStack>> t) OVERRIDE {
-        if (!t) { return t; }
-
         boost::shared_ptr<input::Traits<engine::ImageStack>> n(
             new input::Traits<engine::ImageStack>(*t));
         int split_dim = config.biplane_split().split_dimension();

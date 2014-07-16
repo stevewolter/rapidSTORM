@@ -13,7 +13,6 @@
 #include "image/slice.h"
 #include "input/AdapterSource.h"
 #include "input/FilterFactory.h"
-#include "input/MetaInfo.h"
 #include "input/InputMutex.h"
 #include "localization/Traits.h"
 #include "output/LocalizedImage.h"
@@ -124,7 +123,6 @@ class FilterFactory
     }
 
     boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
-        input::MetaInfo& meta_info,
         boost::shared_ptr<const input::Traits<engine::ImageStack>> input_meta_info) OVERRIDE {
         auto mine = boost::make_shared<input::Traits<engine::ImageStack>>(*input_meta_info);
         mine->image_number().range().first = config.first_frame();

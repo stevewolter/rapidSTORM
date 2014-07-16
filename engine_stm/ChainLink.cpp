@@ -7,7 +7,6 @@
 #include "engine_stm/LocalizationBuncher.h"
 #include "helpers/make_unique.hpp"
 #include "input/FilterFactory.h"
-#include "input/MetaInfo.h"
 #include "input/Source.h"
 #include "localization/record.h"
 #include "output/LocalizedImage.h"
@@ -30,7 +29,6 @@ class ChainLink : public input::FilterFactory<localization::Record, output::Loca
     }
 
     boost::shared_ptr<const input::Traits<output::LocalizedImage>> make_meta_info(
-        input::MetaInfo& meta_info,
         boost::shared_ptr<const input::Traits<localization::Record>> input_meta_info) OVERRIDE {
         return boost::make_shared<Traits<output::LocalizedImage>>(
                 *input_meta_info, "STM", "Localizations file");
