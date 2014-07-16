@@ -3,7 +3,6 @@
 #include "engine_stm/ChainLink.h"
 #include "engine_stm/LocalizationBuncher.h"
 #include "input/MetaInfo.h"
-#include "input/Method.hpp"
 #include "output/LocalizedImage_traits.h"
 
 #include <boost/mpl/vector.hpp>
@@ -18,27 +17,29 @@ namespace engine_stm {
 
 using namespace input;
 
-class ChainLink : public input::Method< ChainLink >
-{
-    friend class input::Method< ChainLink >;
-    void attach_ui( simparm::NodeHandle at ) {}
-    static std::string getName() { throw std::logic_error("Not implemented"); }
-
-    typedef boost::mpl::vector<localization::Record,dStorm::Localization>
-        SupportedTypes;
-    template <typename Type>
-    bool changes_traits( const MetaInfo&, const Traits<Type>& )
-        { return true; }
-    template <typename Type>
-    BaseTraits* create_traits( MetaInfo&, const Traits<Type>& p ) 
-        { return new Traits<output::LocalizedImage>(p, "STM", "Localizations file"); }
-
-    template <typename Type>
-    input::BaseSource* make_source( std::auto_ptr< input::Source<Type> > p ) 
-        { return new Source<Type>( p ); }
-
+class ChainLink : public input::Forwarder {
   public:
-    std::string name() const { return Forwarder::name(); }
+    ChainLink* clone() const OVERRIDE { return new ChainLink(*this); }
+    input::BaseSource* makeSource() {
+        std::auto_ptr<input::Source<localization::Record>> upstream =
+            BaseSource::downcast<localization::Record>(upstream_source());
+        return new Source<Type>(upstream);
+    }
+
+    void traits_changed(TraitsRef orig, Link*) {
+        if (!orig) {
+            update_current_meta_info(orig);
+            return;
+        }
+
+        auto my_info = boost::make_shared<MetaInfo>(*orig);
+        if (orig->provides<localization::Record>()) {
+            my_info->set_traits(new Traits<output::LocalizedImage(
+                        *orig->traits<output::LocalizedImage>(),
+                        "STM", "Localizations file"));
+        }
+        return my_info;
+    }
 };
 
 std::auto_ptr<input::Link>
