@@ -80,7 +80,6 @@ void add_stm_input_modules( dStorm::Config& car_config )
     auto input_methods = make_unique<input::Choice>("InputMethod", false);
     input_methods->add_choice(std::move(file_methods));
 
-    car_config.add_input( engine_stm::make_STM_engine_link() );
     car_config.add_input( make_input_base() );
     car_config.add_input( basename_input_field::makeLink() );
     car_config.add_input( inputs::join::create_link() );

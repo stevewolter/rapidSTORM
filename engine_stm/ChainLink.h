@@ -7,10 +7,7 @@
 namespace dStorm {
 namespace engine_stm {
 
-class ChainLink;
-
 std::auto_ptr<input::Link> make_localization_buncher();
-std::auto_ptr<input::Link> make_STM_engine_link();
 
 }
 }
