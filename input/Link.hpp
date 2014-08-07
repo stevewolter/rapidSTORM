@@ -17,23 +17,8 @@
 namespace dStorm {
 namespace input {
 
-Link::Link() 
-{
-    DEBUG("Created " << this);
-}
-
-Link::Link(const Link& o) 
-: meta_info(o.meta_info)
-{
-    DEBUG("Cloned " << this << " named " << o.name() << " to have context " << meta_info.get());
-}
-
-Link::~Link() {
-    DEBUG("Destructed " << this);
-}
-
-void Link::update_current_meta_info( TraitsRef new_traits ) 
-{
+template <typename Type>
+void Link<Type>::update_current_meta_info( TraitsRef new_traits ) {
     assert( new_traits.get() );
     if ( new_traits->provides< dStorm::engine::ImageStack >() )
         assert( new_traits->traits< dStorm::engine::ImageStack >()->plane_count() > 0 );
@@ -42,23 +27,12 @@ void Link::update_current_meta_info( TraitsRef new_traits )
     meta_info_signal( meta_info );
 }
 
-void Terminus::insert_new_node( std::unique_ptr<Link> l ) {
-    throw std::logic_error("No insertion point found for " + l->name());
-}
-
-
-Link::Connection
-Link::notify( const TraitsSignal::slot_type& whom ) { 
+template <typename Type>
+Link<Type>::Connection
+Link<Type>::notify( const TraitsSignal::slot_type& whom ) { 
     DEBUG(this << " adding notification");
     return Connection( new boost::signals2::scoped_connection(
             meta_info_signal.connect( whom ) ) ); 
-}
-
-
-std::string Link::name() const { throw std::logic_error("Not implemented"); }
-
-std::unique_ptr<BaseSource> Link::make_source() {
-    return std::unique_ptr<BaseSource>(makeSource());
 }
 
 }

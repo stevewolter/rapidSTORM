@@ -149,17 +149,16 @@ libbase_a_SOURCES = \
     image/slice.cpp image/iterator.cpp \
     image/subtract.hpp \
     input/AdapterSource.h \
-    input/Choice.h \
+    input/Choice.h input/Choice.hpp \
     input/DefaultFilterTypes.h \
     input/FakeSource.h \
     input/FileInput.h \
     input/FilterFactory.h \
     input/FilterFactoryLink.hpp \
-    input/Forwarder.h input/Forwarder.cpp \
+    input/Forwarder.h input/Forwarder.hpp \
     input/fwd.h \
-    input/Link.h input/Link.cpp \
+    input/Link.h input/Link.hpp \
     input/InputMutex.h input/InputMutex.cpp \
-    input/Choice.cpp \
     input/MetaInfo.cpp \
     input/MetaInfo.h \
     input/Method.hpp \
@@ -265,7 +264,7 @@ rapidstorm_SOURCES += \
 
 libinputs_a_SOURCES = \
     inputs/inputs.h \
-    inputs/FileMethod.h inputs/FileMethod.cpp \
+    inputs/FileMethod.h inputs/FileMethod.hpp \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/join.h inputs/join.cpp \
     inputs/join/spatial.h inputs/join/spatial.cpp \

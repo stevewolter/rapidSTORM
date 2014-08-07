@@ -12,9 +12,9 @@
 namespace dStorm {
 namespace input {
 
-template <typename CRTP, typename FileRepresentation>
+template <typename CRTP, typename FileRepresentation, typename DataType>
 class FileInput 
-: public Terminus
+: public Terminus<DataType>
 {
     boost::optional<std::string> current_file;
     std::auto_ptr<FileRepresentation> file;
@@ -71,7 +71,7 @@ class FileInput
     }
   public:
     FileInput() {}
-    FileInput( const FileInput& o ) : Terminus(o), 
+    FileInput( const FileInput& o ) : Terminus<DataType>(o), 
         current_file(o.current_file), error(o.error) 
     { 
         if ( o.file.get() ) file = o.get_file();

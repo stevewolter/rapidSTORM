@@ -6,28 +6,32 @@
 namespace dStorm {
 namespace input {
 
-class Forwarder : public Link {
-    std::unique_ptr<Link> more_specialized;
+template <typename Type>
+class Forwarder : public Link<Type> {
+    typedef typename Link<Type>::Connection Connection;
+    typedef typename Link<Type>::TraitsRef TraitsRef;
+
+    std::unique_ptr<Link<Type>> more_specialized;
     Connection connection;
   public:
     Forwarder();
     Forwarder(const Forwarder&);
     ~Forwarder();
 
-    virtual Forwarder* clone() const = 0;
-    virtual BaseSource* makeSource();
-    void insert_new_node( std::unique_ptr<Link> );
-    void registerNamedEntries( simparm::NodeHandle );
-    std::string name() const;
-    void publish_meta_info();
+    Forwarder* clone() const = 0;
+    Source<Type>* makeSource() OVERRIDE;
+    void insert_new_node( std::unique_ptr<Link<Type>> ) OVERRIDE;
+    void registerNamedEntries( simparm::NodeHandle ) OVERRIDE;
+    std::string name() const OVERRIDE;
+    void publish_meta_info() OVERRIDE;
 
-    virtual void traits_changed( TraitsRef, Link* );
+    virtual void traits_changed( TraitsRef, Link<Type>* );
 
   protected:
-    void insert_here( std::unique_ptr<Link> );
+    void insert_here( std::unique_ptr<Link<Type>> );
     TraitsRef upstream_traits() const;
-    std::unique_ptr< BaseSource > upstream_source();
-    Link* get_more_specialized() {
+    std::unique_ptr< Source<Type> > upstream_source();
+    Link<Type>* get_more_specialized() {
         return more_specialized.get();
     }
 };

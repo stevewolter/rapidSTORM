@@ -3,7 +3,7 @@
 
 #include "helpers/make_unique.hpp"
 #include "input/FilterFactory.h"
-#include "input/Forwarder.h"
+#include "input/Forwarder.hpp"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
 #include "input/Source.h"

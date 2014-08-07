@@ -1,3 +1,6 @@
+#ifndef DSTORM_INPUT_FORWARDER_HPP
+#define DSTORM_INPUT_FORWARDER_HPP
+
 #include "debug.h"
 #include "input/Forwarder.h"
 #include "simparm/NodeHandle.h"
@@ -6,8 +9,11 @@
 namespace dStorm {
 namespace input {
 
-Forwarder::Forwarder() {}
-Forwarder::Forwarder(const Forwarder& o) : Link(o)
+template <typename Type>
+Forwarder<Type>::Forwarder() {}
+
+template <typename Type>
+Forwarder<Type>::Forwarder(const Forwarder& o) : Link<Type>(o)
 {
     if ( o.more_specialized.get() )
         more_specialized.reset( o.more_specialized->clone() );
@@ -16,48 +22,56 @@ Forwarder::Forwarder(const Forwarder& o) : Link(o)
             boost::bind( &Forwarder::traits_changed, this, _1, more_specialized.get() ) );
 }
 
-Forwarder::~Forwarder() { 
+template <typename Type>
+Forwarder<Type>::~Forwarder() { 
     DEBUG("Destructing " << this);
 }
 
-
-void Forwarder::registerNamedEntries(simparm::NodeHandle n) {
+template <typename Type>
+void Forwarder<Type>::registerNamedEntries(simparm::NodeHandle n) {
     if ( more_specialized.get() ) 
         more_specialized->registerNamedEntries(n);
 }
 
-std::unique_ptr<BaseSource> Forwarder::upstream_source() { 
+template <typename Type>
+std::unique_ptr<Source<Type>> Forwarder<Type>::upstream_source() { 
     assert( more_specialized.get() );
     return more_specialized->make_source();
 }
 
-BaseSource* Forwarder::makeSource() { 
+template <typename Type>
+Source<Type>* Forwarder<Type>::makeSource() { 
     return upstream_source().release();
 }
 
-void Forwarder::insert_new_node( std::unique_ptr<Link> n ) {
+template <typename Type>
+void Forwarder<Type>::insert_new_node( std::unique_ptr<Link<Type>> n ) {
     if ( more_specialized.get() )
         more_specialized->insert_new_node(std::move(n));
     else
         insert_here(std::move(n));
 }
 
-Link::TraitsRef Forwarder::upstream_traits() const {
+template <typename Type>
+typename Link<Type>::TraitsRef Forwarder<Type>::upstream_traits() const {
     assert( more_specialized.get() );
     return more_specialized->current_meta_info();
 }
 
-void Forwarder::traits_changed( TraitsRef ref, Link* l ) {
+template <typename Type>
+void Forwarder<Type>::traits_changed( TraitsRef ref, Link<Type>* l ) {
     DEBUG("Forwarder " << this << " got meta info update from " << l << " for " << ref.get() );
-    update_current_meta_info(ref);
+    this->update_current_meta_info(ref);
 }
 
-std::string Forwarder::name() const { 
+template <typename Type>
+std::string Forwarder<Type>::name() const { 
     assert( more_specialized.get() );
     return more_specialized->name();
 }
 
-void Forwarder::insert_here( std::unique_ptr<Link> link ) {
+template <typename Type>
+void Forwarder<Type>::insert_here( std::unique_ptr<Link<Type>> link ) {
     if ( more_specialized.get() )
         link->insert_new_node( std::move(more_specialized) );
     more_specialized = std::move(link);
@@ -67,15 +81,18 @@ void Forwarder::insert_here( std::unique_ptr<Link> link ) {
     }
 }
 
-void Forwarder::publish_meta_info() {
+template <typename Type>
+void Forwarder<Type>::publish_meta_info() {
     if ( ! more_specialized.get() )
         throw std::logic_error(name() + " needs a subinput to publish meta info");
     DEBUG(name() << " calls for publishment of meta info");
     more_specialized->publish_meta_info();
     DEBUG(name() << " called for publishment of meta info");
-    if ( ! current_meta_info().get() )
+    if ( ! this->current_meta_info().get() )
         throw std::logic_error(name() + " did not publish meta info on request");
 }
 
 }
 }
+
+#endif

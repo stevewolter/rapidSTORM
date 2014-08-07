@@ -6,29 +6,18 @@
 #include "input/MetaInfo.h"
 #include "input/Source.h"
 
-namespace boost {
-
-using dStorm::input::Choice;
-
-template <>
-inline Choice::LinkAdaptor* new_clone<Choice::LinkAdaptor>( const Choice::LinkAdaptor& l )
-    { return l.clone(); }
-template <>
-inline void delete_clone<Choice::LinkAdaptor>(const Choice::LinkAdaptor* l) 
-    { delete l; }
-
-}
-
 namespace dStorm {
 namespace input {
 
-Choice::Choice(std::string name, bool auto_select)
+template <typename Type>
+Choice<Type>::Choice(std::string name, bool auto_select)
 : choices(name), auto_select(auto_select), will_publish_traits(false)
 {
 }
 
-Choice::Choice(const Choice& o)
-: Link(o), 
+template <typename Type>
+Choice<Type>::Choice(const Choice& o)
+: Link<Type>(o), 
   choices(o.choices),
   my_traits(o.my_traits),
   auto_select(o.auto_select), 
@@ -40,16 +29,15 @@ Choice::Choice(const Choice& o)
     }
 }
 
-Choice::~Choice() {
-}
-    
-void Choice::publish_traits_locked()
+template <typename Type>
+void Choice<Type>::publish_traits_locked()
 {
     InputMutexGuard lock( global_mutex() );
     publish_traits();
 }
 
-void Choice::traits_changed( TraitsRef t, Link* from ) {
+template <typename Type>
+void Choice<Type>::traits_changed( TraitsRef t, Link<Type>* from ) {
     bool provides_something = ( t.get() != NULL && ! t->provides_nothing() );
     if ( auto_select && choices.isValid() && &choices().link() == from && ! provides_something ) {
         DEBUG("Auto-deselecting value other than the current");
@@ -73,7 +61,8 @@ void Choice::traits_changed( TraitsRef t, Link* from ) {
         publish_traits();
 }
 
-void Choice::publish_traits() {
+template <typename Type>
+void Choice<Type>::publish_traits() {
     TraitsRef exemplar;
     if ( choices.isValid() && choices().link().current_meta_info().get() )
         exemplar = choices().link().current_meta_info();
@@ -88,38 +77,37 @@ void Choice::publish_traits() {
     update_current_meta_info( my_traits );
 }
 
-BaseSource* Choice::makeSource() {
+template <typename Type>
+BaseSource* Choice<Type>::makeSource() {
     if ( ! choices.isValid() )
         throw std::runtime_error("No choice selected for '" + description() + "'");
     return choices().link().make_source().release();
 }
 
-Choice* Choice::clone() const {
+template <typename Type>
+Choice* Choice<Type>::clone() const {
     return new Choice(*this);
 }
 
-void Choice::registerNamedEntries( simparm::NodeHandle node ) {
-    value_change_listen = choices.value.notify_on_value_change( boost::bind( &Choice::publish_traits_locked, this ) );
+template <typename Type>
+void Choice<Type>::registerNamedEntries( simparm::NodeHandle node ) {
+    value_change_listen = choices.value.notify_on_value_change( boost::bind( &Choice<Type>::publish_traits_locked, this ) );
     choices.attach_ui( node );
 }
 
-void Choice::add_choice( std::unique_ptr<Link> fresh ) {
+template <typename Type>
+void Choice<Type>::add_choice( std::unique_ptr<Link<Type>> fresh ) {
     std::unique_ptr< LinkAdaptor > adaptor( new LinkAdaptor(std::move(fresh)) );
     adaptor->connect( *this );
     choices.addChoice( std::move(adaptor) );
 }
 
-Choice::LinkAdaptor::LinkAdaptor( std::unique_ptr<input::Link> l )
-    :  _link(std::move(l)) {}
-
-Choice::LinkAdaptor::~LinkAdaptor() {
-    _link.reset();
-}
-
-void Choice::insert_new_node( std::unique_ptr<Link> l ) {
+template <typename Type>
+void Choice<Type>::insert_new_node( std::unique_ptr<Link<Type>> l ) {
     choices.begin()->link().insert_new_node(std::move(l)); 
 }
 
+template <typename Type>
 void Choice::publish_meta_info() {
     will_publish_traits = true;
     for ( iterator i = choices.begin(); i != choices.end(); ++i ) {

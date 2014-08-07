@@ -1,7 +1,9 @@
 #include "inputs/Basename.h"
+
+#include "helpers/make_unique.hpp"
 #include "input/Source.h"
 #include "input/InputMutex.h"
-#include "input/Forwarder.h"
+#include "input/Forwarder.hpp"
 #include "simparm/Entry.h"
 #include "input/MetaInfo.h"
 
@@ -18,9 +20,12 @@ class Config {
     void attach_ui( simparm::NodeHandle at ) { output.attach_ui( at ); }
 };
 
+template <typename Type>
 class ChainLink 
-: public Forwarder
+: public Forwarder<Type>
 {
+    typedef typename Link<Type>::TraitsRef TraitsRef;
+
     simparm::Object name_object;
     Config config;
     MetaInfo::Ptr traits;
@@ -32,20 +37,17 @@ class ChainLink
 
   public:
     ChainLink();
-    ChainLink* clone() const { return new ChainLink(*this); }
-    void registerNamedEntries( simparm::NodeHandle n ) {
-        Forwarder::registerNamedEntries(n);
+    ChainLink* clone() const OVERRIDE { return new ChainLink(*this); }
+    void registerNamedEntries( simparm::NodeHandle n ) OVERRIDE {
+        Forwarder<Type>::registerNamedEntries(n);
         config.attach_ui( name_object.attach_ui( n ) );
 
         listening = config.output.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
     }
-    std::string name() const { return name_object.getName(); }
-    std::string description() const { return name_object.getDesc(); }
+    std::string name() const OVERRIDE { return name_object.getName(); }
 
-    void traits_changed( TraitsRef r, Link* l);
-
-    BaseSource* makeSource() { return Forwarder::makeSource(); }
+    void traits_changed( TraitsRef r, Link<Type>* l) OVERRIDE;
 };
 
 Config::Config()
@@ -53,15 +55,16 @@ Config::Config()
 {
 }
 
-ChainLink::ChainLink() 
-: input::Forwarder(),
+template <typename Type>
+ChainLink<Type>::ChainLink() 
+: input::Forwarder<Type>(),
   name_object( "OutputBasename", "Set output basename" ),
   default_output_basename(""),
-  user_changed_output(false)
-{
+  user_changed_output(false) {
 }
 
-void ChainLink::traits_changed( TraitsRef traits, Link *l )
+template <typename Type>
+void ChainLink<Type>::traits_changed( TraitsRef traits, Link<Type> *l )
 {
     if ( traits.get() == NULL )  {
         default_output_basename = "";
@@ -79,23 +82,28 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
         config.output = default_output_basename;
     }
     /* Check that no recursive call triggered by a signal happened */
-    if ( upstream_traits() == traits ) 
-        update_current_meta_info(this->traits);
+    if ( this->upstream_traits() == traits ) 
+        this->update_current_meta_info(this->traits);
 }
 
-void ChainLink::republish_traits_locked()
+template <typename Type>
+void ChainLink<Type>::republish_traits_locked()
 {
     input::InputMutexGuard lock( global_mutex() );
     if ( config.output() == "" ) config.output = default_output_basename;
     user_changed_output = ( config.output() != "" && config.output() != default_output_basename );
     if ( traits.get() ) {
         traits->suggested_output_basename.unformatted() = config.output();
-        update_current_meta_info( this->traits );
+        this->update_current_meta_info( this->traits );
     }
 }
 
-std::auto_ptr<Link> makeLink() {
-    return std::auto_ptr<Link>( new ChainLink() );
+std::unique_ptr<input::Link<engine::ImageStack>> makeImageLink() {
+    return make_unique<ChainLink<engine::ImageStack>>();
+}
+
+std::unique_ptr<input::Link<output::LocalizedImage>> makeLocalizationLink() {
+    return make_unique<ChainLink<output::LocalizedImage>>();
 }
 
 }

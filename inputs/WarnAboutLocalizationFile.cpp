@@ -1,19 +1,22 @@
+#include "inputs/WarnAboutLocalizationFile.h"
+
 #include "localization_file/reader.h"
+#include "helpers/make_unique.hpp"
 #include "simparm/Message.h"
 
 namespace dStorm {
 namespace inputs {
 
 class WarnAboutLocalizationFile 
-: public input::FileInput< WarnAboutLocalizationFile, localization_file::Reader::File >
+: public input::FileInput< WarnAboutLocalizationFile, localization_file::Reader::File, engine::ImageStack >
 {
     typedef localization_file::Reader::File File;
     simparm::Object name_object;
     simparm::NodeHandle current_ui;
 
-    friend class input::FileInput<WarnAboutLocalizationFile,File>;
+    friend class input::FileInput<WarnAboutLocalizationFile,File,engine::ImageStack>;
     File* make_file( const std::string& name ) const {
-        std::auto_ptr<File> f( new File( name, File::Traits() ) );
+        std::unique_ptr<File> f( new File( name, File::Traits() ) );
         simparm::Message m( "No file replay in localization job",
             "Reading localization table files is not supported in a localization job. "
             "Please start a replay job.",
@@ -31,14 +34,14 @@ public:
         name_object.set_user_level( simparm::Debug );
     }
 
-    virtual input::Source<localization::Record>* makeSource() {
+    virtual input::Source<engine::ImageStack>* makeSource() {
         throw std::runtime_error("Reading from localization files is only supported by replay jobs");
     }
     virtual WarnAboutLocalizationFile* clone() const { return new WarnAboutLocalizationFile(*this); }
 };
 
-std::auto_ptr< input::Link > make_warn_about_localization_file() {
-    return std::auto_ptr< input::Link >( new WarnAboutLocalizationFile() );
+std::unique_ptr< input::Link<engine::ImageStack> > make_warn_about_localization_file() {
+    return make_unique<WarnAboutLocalizationFile>();
 }
 
 }

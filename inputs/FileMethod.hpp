@@ -7,7 +7,7 @@
 
 #include "engine/Image.h"
 #include "engine/InputTraits.h"
-#include "input/Choice.h"
+#include "input/Choice.hpp"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
 #include "signals/InputFileNameChange.h"
@@ -17,15 +17,17 @@ namespace inputs {
 
 using namespace input;
 
-FileMethod::FileMethod()
+template <typename Type>
+FileMethod<Type>::FileMethod()
 : Forwarder(),
   name_object("FileMethod"),
   input_file("InputFile", "")
 {
-    Forwarder::insert_here( std::auto_ptr<Link>( new Choice("FileType", true) ) );
+    Forwarder::insert_here( std::auto_ptr<Link<Type>>( new Choice<Type>("FileType", true) ) );
 }
 
-void FileMethod::republish_traits()
+template <typename Type>
+void FileMethod<Type>::republish_traits()
 {
     InputMutexGuard lock( global_mutex() );
     if ( current_meta_info().get() != NULL ) {
@@ -52,7 +54,8 @@ class BasenameApplier {
     const std::string& get_result() const { return basename; }
 };
 
-void FileMethod::traits_changed( TraitsRef traits, Link* from )
+template <typename Type>
+void FileMethod<Type>::traits_changed( TraitsRef traits, Link<Type>* from )
 {
     if ( traits.get() == NULL ) return update_current_meta_info( traits );
     traits->get_signal< signals::InputFileNameChange >()( input_file() );
@@ -73,8 +76,9 @@ void FileMethod::traits_changed( TraitsRef traits, Link* from )
     update_current_meta_info( my_traits );
 }
 
-void FileMethod::add_choice(std::unique_ptr<input::Link> link) {
-    dynamic_cast<input::Choice&>(*get_more_specialized()).add_choice(
+template <typename Type>
+void FileMethod<Type>::add_choice(std::unique_ptr<input::Link<Type>> link) {
+    dynamic_cast<input::Choice<Type>&>(*get_more_specialized()).add_choice(
             std::move(link));
 }
 

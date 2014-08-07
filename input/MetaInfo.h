@@ -30,7 +30,6 @@ struct MetaInfo {
 
     void set_traits( boost::shared_ptr<const BaseTraits> t ) { _traits = (t); }
     void set_traits( const BaseTraits* t ) { _traits.reset(t); }
-    void set_traits( std::auto_ptr<const BaseTraits> t ) { _traits.reset(t.release()); }
     template <typename Type>
     bool provides() const 
         { return dynamic_cast< const Traits<Type>* >( _traits.get() ) != NULL; }

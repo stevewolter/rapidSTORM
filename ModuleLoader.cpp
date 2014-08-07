@@ -58,7 +58,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 
     car_config.add_input( CreateLink(input::resolution::create()) );
     car_config.add_input( CreateLink(input::sample_info::create()) );
-    car_config.add_input( basename_input_field::makeLink() );
+    car_config.add_input( basename_input_field::makeImageLink() );
     car_config.add_input( CreateLink(input_buffer::create()) );
     car_config.add_input( CreateLink(median_filter::create()) );
     car_config.add_input( CreateLink(plane_filter::create()) );
@@ -81,7 +81,7 @@ void add_stm_input_modules( dStorm::Config& car_config )
     input_methods->add_choice(std::move(file_methods));
 
     car_config.add_input( make_input_base() );
-    car_config.add_input( basename_input_field::makeLink() );
+    car_config.add_input( basename_input_field::makeLocalizationLink() );
     car_config.add_input( inputs::join::create_link() );
     car_config.add_input( std::move(input_methods) );
 }

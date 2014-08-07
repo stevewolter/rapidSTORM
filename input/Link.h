@@ -19,6 +19,7 @@
 namespace dStorm {
 namespace input {
 
+template <typename Type>
 class Link {
   protected:
     typedef boost::shared_ptr<const MetaInfo> TraitsRef;
@@ -33,14 +34,17 @@ class Link {
     TraitsRef meta_info;
     TraitsSignal meta_info_signal;
 
-    virtual BaseSource* makeSource() = 0;
+    virtual Source<Type>* makeSource() = 0;
 
   public:
-    Link();
-    Link(const Link&);
-    virtual ~Link();
+    Link() {}
+    Link(const Link& o) : meta_info(o.meta_info) {}
+    virtual ~Link() {}
 
-    std::unique_ptr<BaseSource> make_source();
+    std::unique_ptr<Source<Type>> make_source() {
+        return std::unique_ptr<Source<Type>>(makeSource());
+    }
+
     virtual Link* clone() const = 0;
     virtual void registerNamedEntries( simparm::NodeHandle ) = 0;
 
@@ -58,9 +62,12 @@ class Link {
 
 /** Specialized case of Link for terminal nodes, that is,
  *  those that need no further elements up the chain. */
-struct Terminus : public Link {
+template <typename Type>
+struct Terminus : public Link<Type> {
     virtual Terminus* clone() const = 0;
-    virtual void insert_new_node( std::unique_ptr<Link> l ); 
+    void insert_new_node( std::unique_ptr<Link<Type>> l ) OVERRIDE {
+        throw std::logic_error("No insertion point found for " + l->name());
+    }
 };
 
 }

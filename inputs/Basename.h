@@ -2,14 +2,15 @@
 #define DSTORM_INPUT_BASENAME_DECL_H
 
 #include <memory>
-#include "input/fwd.h"
+#include "engine/Image.h"
+#include "input/Link.h"
+#include "output/LocalizedImage.h"
 
 namespace dStorm {
 namespace basename_input_field {
 
-std::auto_ptr<input::Link> makeLink();
-class Config;
-class ChainLink;
+std::unique_ptr<input::Link<engine::ImageStack>> makeImageLink();
+std::unique_ptr<input::Link<output::LocalizedImage>> makeLocalizationLink();
 
 }
 }

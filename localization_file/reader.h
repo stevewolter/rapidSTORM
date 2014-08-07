@@ -77,10 +77,10 @@ namespace Reader {
     };
 
     class ChainLink
-    : public input::FileInput< ChainLink, File >
+    : public input::FileInput< ChainLink, File, localization::Record >
     {
         Config config;
-        friend class input::FileInput<ChainLink,File>;
+        friend class input::FileInput<ChainLink,File,localization::Record>;
         File* make_file( const std::string& ) const;
         void modify_meta_info( input::MetaInfo& info );
         void attach_ui( simparm::NodeHandle n ) { config.attach_ui(n); }

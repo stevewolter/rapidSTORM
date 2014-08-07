@@ -7,21 +7,22 @@
 namespace dStorm {
 namespace input {
 
+template <typename Type>
 class Choice
-: public Link
+: public Link<Type>
 {
   public:
     class LinkAdaptor : public simparm::Choice {
-        std::unique_ptr<input::Link> _link;
-        Link::Connection connection;
+        std::unique_ptr<Link<Type>> _link;
+        Link<Type>::Connection connection;
 
       public:
-        LinkAdaptor( std::unique_ptr<input::Link> l );
-        ~LinkAdaptor();
-        Link& link() { return *_link; }
-        const Link& link() const { return *_link; }
+        LinkAdaptor( std::unique_ptr<Link<Type>> l ) : _link(std::move(l)) {}
+        ~LinkAdaptor() { _link.reset(); }
+        Link<Type>& link() { return *_link; }
+        const Link<Type>& link() const { return *_link; }
         LinkAdaptor* clone() const {
-            std::unique_ptr<LinkAdaptor> rv( new LinkAdaptor( std::unique_ptr<Link>(_link->clone()) ) );
+            std::unique_ptr<LinkAdaptor> rv( new LinkAdaptor( std::unique_ptr<Link<Type>>(_link->clone()) ) );
             return rv.release();
         }
         void connect( input::Choice& c ) {
@@ -42,14 +43,13 @@ class Choice
 
     void publish_traits_locked();
     void publish_traits();
-    void traits_changed( TraitsRef, Link* );
+    void traits_changed( TraitsRef, Link<Type>* );
 
     simparm::BaseAttribute::Connection value_change_listen;
 
   public:
     Choice(std::string name, bool auto_select);
     Choice(const Choice&);
-    ~Choice();
     
     BaseSource* makeSource() OVERRIDE;
     Choice* clone() const OVERRIDE;
@@ -57,9 +57,9 @@ class Choice
     std::string name() const OVERRIDE { return choices.getName(); }
     void publish_meta_info() OVERRIDE;
 
-    void add_choice( std::unique_ptr<Link> r );
+    void add_choice( std::unique_ptr<Link<Type>> r );
 
-    void insert_new_node( std::unique_ptr<Link> ) OVERRIDE;
+    void insert_new_node( std::unique_ptr<Link<Type>> ) OVERRIDE;
 
     void set_help_id( std::string id ) { choices.setHelpID( id ); }
 

@@ -4,7 +4,6 @@
 namespace dStorm {
 namespace input {
 
-class Link;
 struct MetaInfo;
 class BaseSource;
 template <typename ObjectType> class Source;

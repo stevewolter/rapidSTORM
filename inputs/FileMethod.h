@@ -3,19 +3,19 @@
 
 #include <memory>
 
-#include "input/Forwarder.h"
+#include "input/Forwarder.hpp"
 #include "simparm/FileEntry.h"
 #include "simparm/Group.h"
 
 namespace dStorm {
 namespace inputs {
 
-class FileMethod
-: public input::Forwarder {
+template <typename Type>
+class FileMethod : public input::Forwarder<Type> {
   public:
     FileMethod();
-    void add_choice(std::unique_ptr<input::Link> link);
-    void traits_changed( TraitsRef, input::Link* ) OVERRIDE;
+    void add_choice(std::unique_ptr<input::Link<Type>> link);
+    void traits_changed( TraitsRef, input::Link<Type>* ) OVERRIDE;
 
     FileMethod* clone() const OVERRIDE { return new FileMethod(*this); }
     void registerNamedEntries( simparm::NodeHandle node ) OVERRIDE { 
