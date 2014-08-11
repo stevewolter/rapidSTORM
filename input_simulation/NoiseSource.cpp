@@ -91,7 +91,7 @@ NoiseConfig::NoiseConfig()
 }
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
-: dStorm::input::Terminus(cp),
+: dStorm::input::Terminus<dStorm::engine::ImageStack>(cp),
   name_object(cp.name_object),
   fluorophore_sets(cp.fluorophore_sets),
   noiseGeneratorConfig(cp.noiseGeneratorConfig),

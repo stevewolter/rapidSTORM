@@ -37,7 +37,7 @@ void Choice<Type>::publish_traits_locked()
 }
 
 template <typename Type>
-void Choice<Type>::traits_changed( TraitsRef t, Link<Type>* from ) {
+void Choice<Type>::traits_changed( typename Link<Type>::TraitsRef t, Link<Type>* from ) {
     bool provides_something = ( t.get() != NULL && ! t->provides_nothing() );
     if ( auto_select && choices.isValid() && &choices().link() == from && ! provides_something ) {
         DEBUG("Auto-deselecting value other than the current");
@@ -63,7 +63,7 @@ void Choice<Type>::traits_changed( TraitsRef t, Link<Type>* from ) {
 
 template <typename Type>
 void Choice<Type>::publish_traits() {
-    TraitsRef exemplar;
+    typename Link<Type>::TraitsRef exemplar;
     if ( choices.isValid() && choices().link().current_meta_info().get() )
         exemplar = choices().link().current_meta_info();
     if ( exemplar.get() )
@@ -74,18 +74,18 @@ void Choice<Type>::publish_traits() {
         if ( i->link().current_meta_info() != exemplar && i->link().current_meta_info().get() )
             my_traits->forward_connections( *i->link().current_meta_info() );
     }
-    update_current_meta_info( my_traits );
+    this->update_current_meta_info( my_traits );
 }
 
 template <typename Type>
-BaseSource* Choice<Type>::makeSource() {
+Source<Type>* Choice<Type>::makeSource() {
     if ( ! choices.isValid() )
         throw std::runtime_error("No choice selected for '" + description() + "'");
     return choices().link().make_source().release();
 }
 
 template <typename Type>
-Choice* Choice<Type>::clone() const {
+Choice<Type>* Choice<Type>::clone() const {
     return new Choice(*this);
 }
 
@@ -103,19 +103,14 @@ void Choice<Type>::add_choice( std::unique_ptr<Link<Type>> fresh ) {
 }
 
 template <typename Type>
-void Choice<Type>::insert_new_node( std::unique_ptr<Link<Type>> l ) {
-    choices.begin()->link().insert_new_node(std::move(l)); 
-}
-
-template <typename Type>
-void Choice::publish_meta_info() {
+void Choice<Type>::publish_meta_info() {
     will_publish_traits = true;
     for ( iterator i = choices.begin(); i != choices.end(); ++i ) {
         i->link().publish_meta_info();
     }
     will_publish_traits = false;
     publish_traits();
-    assert( current_meta_info().get() );
+    assert( this->current_meta_info().get() );
 }
 
 }

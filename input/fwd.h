@@ -4,10 +4,6 @@
 namespace dStorm {
 namespace input {
 
-struct MetaInfo;
-class BaseSource;
-template <typename ObjectType> class Source;
-
 }
 }
 

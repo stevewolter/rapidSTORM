@@ -14,7 +14,7 @@
 #include "inputs/Buffer.h"
 #include "inputs/Basename.h"
 #include "inputs/InputBase.h"
-#include "inputs/FileMethod.h"
+#include "inputs/FileMethod.hpp"
 #include "inputs/join.h"
 #include "inputs/LocalizationFile.h"
 #include "engine_stm/ChainLink.h"

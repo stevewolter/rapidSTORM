@@ -40,12 +40,6 @@ namespace input {
         }
         virtual void set_thread_count(int num_threads) = 0;
         virtual void dispatch(Messages m) = 0;
-
-        template <typename Type> bool can_provide() const;
-        template <typename Type> Source<Type>& downcast() const;
-        template <typename Type>
-        inline static std::unique_ptr< Source<Type> >
-            downcast( std::unique_ptr<BaseSource> );
     };
 
     /** A Source object of some given type. Provides default 
@@ -68,24 +62,6 @@ namespace input {
         virtual bool GetNext(int thread, Type* output) = 0;
         virtual TraitsPtr get_traits() = 0;
     };
-
-    template <typename Type>
-    bool BaseSource::can_provide() const 
-        { return dynamic_cast< const Source<Type>* >( this ) != NULL; }
-
-    template <typename Type> 
-    Source<Type>&
-    BaseSource::downcast() const
-        { return dynamic_cast<Source<Type>&>(*this); }
-
-    template <typename Type> 
-    std::unique_ptr< Source<Type> >
-    BaseSource::downcast(std::unique_ptr< BaseSource > p)
-    {
-        return std::unique_ptr< Source<Type> >
-            ( &dynamic_cast<Source<Type>&>(*p.release()) );
-    }
-
 }
 }
 

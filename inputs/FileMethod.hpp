@@ -7,6 +7,7 @@
 
 #include "engine/Image.h"
 #include "engine/InputTraits.h"
+#include "helpers/make_unique.hpp"
 #include "input/Choice.hpp"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
@@ -19,19 +20,16 @@ using namespace input;
 
 template <typename Type>
 FileMethod<Type>::FileMethod()
-: Forwarder(),
+: Forwarder<Type>(make_unique<Choice<Type>>("FileType", true)),
   name_object("FileMethod"),
-  input_file("InputFile", "")
-{
-    Forwarder::insert_here( std::auto_ptr<Link<Type>>( new Choice<Type>("FileType", true) ) );
-}
+  input_file("InputFile", "") {}
 
 template <typename Type>
 void FileMethod<Type>::republish_traits()
 {
     InputMutexGuard lock( global_mutex() );
-    if ( current_meta_info().get() != NULL ) {
-        current_meta_info()->get_signal< signals::InputFileNameChange >()( input_file() );
+    if ( this->current_meta_info().get() != NULL ) {
+        this->current_meta_info()->template get_signal< signals::InputFileNameChange >()( input_file() );
     }
 }
 
@@ -55,13 +53,13 @@ class BasenameApplier {
 };
 
 template <typename Type>
-void FileMethod<Type>::traits_changed( TraitsRef traits, Link<Type>* from )
+void FileMethod<Type>::traits_changed( typename Link<Type>::TraitsRef traits, Link<Type>* from )
 {
     if ( traits.get() == NULL ) return update_current_meta_info( traits );
-    traits->get_signal< signals::InputFileNameChange >()( input_file() );
+    traits->template get_signal< signals::InputFileNameChange >()( input_file() );
     /* The signal might have forced a traits update that already did our
      * work for us. */
-    if ( upstream_traits() != traits ) return;
+    if ( this->upstream_traits() != traits ) return;
 
     boost::shared_ptr<MetaInfo> my_traits( new MetaInfo(*traits) );
     if ( my_traits->suggested_output_basename.unformatted()() == "" ) {
@@ -73,12 +71,12 @@ void FileMethod<Type>::traits_changed( TraitsRef traits, Link<Type>* from )
         my_traits->suggested_output_basename.unformatted() = new_basename;
     }
     my_traits->forbidden_filenames.insert( input_file() );
-    update_current_meta_info( my_traits );
+    this->update_current_meta_info( my_traits );
 }
 
 template <typename Type>
 void FileMethod<Type>::add_choice(std::unique_ptr<input::Link<Type>> link) {
-    dynamic_cast<input::Choice<Type>&>(*get_more_specialized()).add_choice(
+    dynamic_cast<input::Choice<Type>&>(*this->get_more_specialized()).add_choice(
             std::move(link));
 }
 

@@ -2,12 +2,12 @@
 #define DUMMY_FILE_INPUT_H
 
 #include <memory>
-#include "input/fwd.h"
+#include "engine/Image.h"
+#include "input/Link.h"
 
 namespace dummy_file_input {
 
-std::auto_ptr< dStorm::input::Link >
-    make();
+std::unique_ptr< dStorm::input::Link<dStorm::engine::ImageStack> > make();
 
 }
 

@@ -3,7 +3,7 @@
 #include "helpers/make_unique.hpp"
 #include "input/Source.h"
 #include "input/InputMutex.h"
-#include "input/Forwarder.hpp"
+#include "input/Forwarder.h"
 #include "simparm/Entry.h"
 #include "input/MetaInfo.h"
 
@@ -36,7 +36,7 @@ class ChainLink
     void republish_traits_locked();
 
   public:
-    ChainLink();
+    ChainLink(std::unique_ptr<input::Link<Type>> upstream);
     ChainLink* clone() const OVERRIDE { return new ChainLink(*this); }
     void registerNamedEntries( simparm::NodeHandle n ) OVERRIDE {
         Forwarder<Type>::registerNamedEntries(n);
@@ -46,6 +46,7 @@ class ChainLink
             boost::bind( &ChainLink::republish_traits_locked, this ) );
     }
     std::string name() const OVERRIDE { return name_object.getName(); }
+    input::Source<Type>* makeSource() OVERRIDE { return this->upstream_source().release(); }
 
     void traits_changed( TraitsRef r, Link<Type>* l) OVERRIDE;
 };
@@ -56,8 +57,8 @@ Config::Config()
 }
 
 template <typename Type>
-ChainLink<Type>::ChainLink() 
-: input::Forwarder<Type>(),
+ChainLink<Type>::ChainLink(std::unique_ptr<input::Link<Type>> upstream) 
+: input::Forwarder<Type>(std::move(upstream)),
   name_object( "OutputBasename", "Set output basename" ),
   default_output_basename(""),
   user_changed_output(false) {
@@ -98,12 +99,14 @@ void ChainLink<Type>::republish_traits_locked()
     }
 }
 
-std::unique_ptr<input::Link<engine::ImageStack>> makeImageLink() {
-    return make_unique<ChainLink<engine::ImageStack>>();
+std::unique_ptr<input::Link<engine::ImageStack>> makeImageLink(
+    std::unique_ptr<input::Link<engine::ImageStack>> upstream) {
+    return make_unique<ChainLink<engine::ImageStack>>(std::move(upstream));
 }
 
-std::unique_ptr<input::Link<output::LocalizedImage>> makeLocalizationLink() {
-    return make_unique<ChainLink<output::LocalizedImage>>();
+std::unique_ptr<input::Link<output::LocalizedImage>> makeLocalizationLink(
+    std::unique_ptr<input::Link<output::LocalizedImage>> upstream) {
+    return make_unique<ChainLink<output::LocalizedImage>>(std::move(upstream));
 }
 
 }

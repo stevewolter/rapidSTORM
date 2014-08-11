@@ -74,10 +74,10 @@ class Source : public input::Source< engine::ImageStack >
 /** Config class for Source. Simple config that adds
     *  the sif extension to the input file element. */
 class Config 
-: public input::FileInput< Config, OpenFile >
+: public input::FileInput< Config, OpenFile, engine::ImageStack >
 {
     simparm::Object name_object;
-    friend class FileInput< Config, OpenFile >;
+    friend class FileInput< Config, OpenFile, engine::ImageStack >;
     OpenFile* make_file( const std::string& ) const;
     void modify_meta_info( dStorm::input::MetaInfo& );
     void attach_ui( simparm::NodeHandle n ) { name_object.attach_ui(n); }
@@ -139,7 +139,7 @@ bool Source::GetNext(int thread, engine::ImageStack* output) {
     return true;
 }
 
-std::unique_ptr< input::Link > make_input() {
+std::unique_ptr< input::Link<engine::ImageStack> > make_input() {
     return make_unique<Config>();
 }
 

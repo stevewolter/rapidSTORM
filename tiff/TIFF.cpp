@@ -20,24 +20,24 @@
 #include <string>
 #include <tiffio.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/units/base_units/us/inch.hpp>
 
-#include "simparm/Entry.h"
-#include "simparm/FileEntry.h"
-#include "simparm/TriggerEntry.h"
-#include "simparm/text_stream/RootNode.h"
-
 #include "engine/Image.h"
+#include "helpers/make_unique.hpp"
 #include "image/Image.h"
 #include "image/MetaInfo.h"
 #include "image/slice.h"
+#include "input/FileInput.h"
 #include "input/InputMutex.h"
 #include "input/Source.h"
 #include "signals/InputFileNameChange.h"
-
-#include <boost/test/unit_test.hpp>
-#include "tiff/TIFFOperation.h"
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/text_stream/RootNode.h"
+#include "simparm/TriggerEntry.h"
 #include "tiff/OpenFile.h"
+#include "tiff/TIFFOperation.h"
 
 using namespace std;
 
@@ -94,16 +94,16 @@ private:
 /** Config class for Source. Simple config that adds
     *  the sif extension to the input file element. */
 class ChainLink
-: public input::FileInput<ChainLink,OpenFile>
+: public input::FileInput<ChainLink,OpenFile,engine::ImageStack>
 {
 public:
     ChainLink();
 
     ChainLink* clone() const { return new ChainLink(*this); }
-    BaseSource* makeSource();
+    input::Source<engine::ImageStack>* makeSource();
     void attach_ui( simparm::NodeHandle n ) { 
         listening[1] = config.determine_length.value.notify_on_value_change( 
-            boost::bind(&input::FileInput<ChainLink,OpenFile>::reread_file_locked, this) );
+            boost::bind(&input::FileInput<ChainLink,OpenFile,engine::ImageStack>::reread_file_locked, this) );
         config.attach_ui(n); 
     }
 
@@ -111,7 +111,7 @@ private:
     Config config;
     simparm::BaseAttribute::ConnectionStore listening[2];
 
-    friend class input::FileInput<ChainLink,OpenFile>;
+    friend class input::FileInput<ChainLink,OpenFile,engine::ImageStack>;
     OpenFile* make_file( const std::string& ) const;
     void modify_meta_info( MetaInfo& info );
     static std::string getName() { return "TIFF"; }
@@ -148,17 +148,11 @@ Config::Config()
   ignore_warnings("IgnoreLibtiffWarnings",
     "Ignore libtiff warnings", true),
   determine_length("DetermineFileLength",
-    "Determine length of file", false)
-{
-}
+    "Determine length of file", false) {}
 
-ChainLink::ChainLink() 
-{
-}
+ChainLink::ChainLink() {}
 
-BaseSource*
-ChainLink::makeSource()
-{
+input::Source<engine::ImageStack>* ChainLink::makeSource() {
     return new Source( get_file() );
 }
 
@@ -198,9 +192,8 @@ OpenFile* ChainLink::make_file( const std::string& n ) const
     return new OpenFile( n, config, config.current_user_interface() );
 }
 
-std::auto_ptr< input::Link > make_input()
-{
-    return std::auto_ptr< input::Link >( new ChainLink() );
+std::unique_ptr< input::Link<engine::ImageStack> > make_input() {
+    return make_unique<ChainLink>();
 }
 
 }

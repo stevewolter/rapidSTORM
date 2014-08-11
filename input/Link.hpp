@@ -28,7 +28,7 @@ void Link<Type>::update_current_meta_info( TraitsRef new_traits ) {
 }
 
 template <typename Type>
-Link<Type>::Connection
+typename Link<Type>::Connection
 Link<Type>::notify( const TraitsSignal::slot_type& whom ) { 
     DEBUG(this << " adding notification");
     return Connection( new boost::signals2::scoped_connection(

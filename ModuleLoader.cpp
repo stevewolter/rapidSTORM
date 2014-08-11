@@ -37,9 +37,8 @@
 
 namespace dStorm {
 
-void add_image_input_modules( dStorm::Config& car_config )
-{
-    auto file_methods = make_unique<inputs::FileMethod>();
+std::unique_ptr<input::Link<output::LocalizedImage>> create_image_input() {
+    auto file_methods = make_unique<inputs::FileMethod<engine::ImageStack>>();
 #ifdef HAVE_TIFFIO_H
     file_methods->add_choice(tiff::make_input());
 #endif
@@ -49,45 +48,46 @@ void add_image_input_modules( dStorm::Config& car_config )
     file_methods->add_choice(inputs::make_warn_about_localization_file());
     file_methods->add_choice(dummy_file_input::make());
 
-    auto input_methods = make_unique<input::Choice>("InputMethod", false);
+    auto input_methods = make_unique<input::Choice<engine::ImageStack>>(
+        "InputMethod", false);
     input_methods->add_choice(std::move(file_methods));
     input_methods->add_choice(make_unique<input_simulation::NoiseConfig>());
 
-    car_config.add_input( CreateLink(engine::make_rapidSTORM_engine_link()) );
-    car_config.add_input( make_input_base() );
+    std::unique_ptr<input::Link<engine::ImageStack>> image_link =
+        std::move(input_methods);
+    image_link = input::CreateLink<engine::ImageStack, engine::ImageStack>(
+        ROIFilter::create(), std::move(image_link));
+    image_link = CreateLink(YMirror::create(), std::move(image_link));
+    image_link = inputs::join::create_image_link(std::move(image_link));
 
-    car_config.add_input( CreateLink(input::resolution::create()) );
-    car_config.add_input( CreateLink(input::sample_info::create()) );
-    car_config.add_input( basename_input_field::makeImageLink() );
-    car_config.add_input( CreateLink(input_buffer::create()) );
-    car_config.add_input( CreateLink(median_filter::create()) );
-    car_config.add_input( CreateLink(plane_filter::create()) );
-    car_config.add_input( CreateLink(splitter::create()) );
+    image_link = CreateLink(splitter::create(), std::move(image_link));
+    image_link = CreateLink(plane_filter::create(), std::move(image_link));
+    image_link = CreateLink(median_filter::create(), std::move(image_link));
+    image_link = CreateLink(input_buffer::create(), std::move(image_link));
+    image_link = basename_input_field::makeImageLink(std::move(image_link));
+    image_link = CreateLink(input::sample_info::create(), std::move(image_link));
+    image_link = CreateLink(input::resolution::create(), std::move(image_link));
 
-    car_config.add_input( inputs::join::create_link() );
-    car_config.add_input( CreateLink(YMirror::create()) );
-    car_config.add_input( CreateLink(ROIFilter::create()) );
-    car_config.add_input( std::move(input_methods) );
+    image_link = make_image_input_base(std::move(image_link));
+    return CreateLink(engine::make_rapidSTORM_engine_link(), std::move(image_link));
 }
 
-void add_stm_input_modules( dStorm::Config& car_config )
-{
-    auto file_methods = make_unique<inputs::FileMethod>();
-    auto p = CreateLink(engine_stm::create());
-    p->insert_new_node( inputs::LocalizationFile::create() );
-    file_methods->add_choice(std::move(p));
+std::unique_ptr<input::Link<output::LocalizedImage>> create_localizations_input() {
+    auto file_methods = make_unique<inputs::FileMethod<output::LocalizedImage>>();
+    file_methods->add_choice(
+        CreateLink(engine_stm::create(),inputs::LocalizationFile::create()));
 
-    auto input_methods = make_unique<input::Choice>("InputMethod", false);
+    auto input_methods = make_unique<input::Choice<output::LocalizedImage>>(
+        "InputMethod", false);
     input_methods->add_choice(std::move(file_methods));
 
-    car_config.add_input( make_input_base() );
-    car_config.add_input( basename_input_field::makeLocalizationLink() );
-    car_config.add_input( inputs::join::create_link() );
-    car_config.add_input( std::move(input_methods) );
+    return make_localization_input_base(
+        basename_input_field::makeLocalizationLink(
+            inputs::join::create_localization_link(
+                std::move(input_methods))));
 }
 
-void add_output_modules( dStorm::Config& car_config )
-{
+void add_output_modules( dStorm::Config& car_config ) {
     dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );
 

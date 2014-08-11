@@ -41,8 +41,7 @@ namespace input_simulation {
     };
 
     class NoiseConfig
-    : public dStorm::input::Terminus
-    {
+    : public dStorm::input::Terminus<dStorm::engine::ImageStack> {
       public:
         typedef boost::ptr_list< FluorophoreSetConfig > FluoSets;
         const FluoSets& get_fluorophore_sets() const

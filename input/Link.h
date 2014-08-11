@@ -1,8 +1,6 @@
 #ifndef DSTORM_INPUT_MANAGER_H
 #define DSTORM_INPUT_MANAGER_H
 
-#include "input/fwd.h"
-
 #include <string>
 #include <list>
 #include <utility>
@@ -14,6 +12,8 @@
 #include <boost/signals2/signal_type.hpp>
 #include <boost/signals2/dummy_mutex.hpp>
 
+#include "input/MetaInfo.h"
+#include "input/Source.h"
 #include "simparm/NodeHandle.h"
 
 namespace dStorm {
@@ -51,13 +51,12 @@ class Link {
     virtual void publish_meta_info() = 0;
     TraitsRef current_meta_info() const { return meta_info; }
 
-    virtual void insert_new_node( std::unique_ptr<Link> ) = 0;
     virtual std::string name() const = 0;
 
-    Connection notify( const TraitsSignal::slot_type& whom );
+    inline Connection notify( const TraitsSignal::slot_type& whom );
  
   protected:
-    void update_current_meta_info( TraitsRef new_traits );
+    inline void update_current_meta_info( TraitsRef new_traits );
 };
 
 /** Specialized case of Link for terminal nodes, that is,

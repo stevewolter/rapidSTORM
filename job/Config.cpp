@@ -65,9 +65,9 @@ Config::Config( bool localization_replay_mode )
 #endif
 
     if ( localization_replay_mode )
-        add_stm_input_modules( *this );
+        input = create_localizations_input();
     else
-        add_image_input_modules( *this );
+        input = create_image_input();
     add_output_modules( *this );
     input->publish_meta_info();
 }
@@ -82,7 +82,7 @@ Config::Config(const Config &c)
   auto_terminate(c.auto_terminate)
 {
     if ( c.input.get() )
-        create_input( std::unique_ptr<input::Link>(c.input->clone()) );
+        set_input( std::unique_ptr<input::Link<output::LocalizedImage>>(c.input->clone()) );
     input->publish_meta_info();
 }
 
@@ -93,7 +93,7 @@ Config::~Config() {
     input.reset();
 }
 
-void Config::create_input( std::unique_ptr<input::Link> p ) {
+void Config::set_input( std::unique_ptr<input::Link<output::LocalizedImage>> p ) {
     input_listener = p->notify( boost::bind(&Config::traits_changed, this, _1) );
     input = std::move(p);
 }
@@ -113,13 +113,6 @@ void Config::attach_children_ui( simparm::NodeHandle at ) {
     if ( ! localization_replay_mode )
         configTarget.attach_ui( b );
     auto_terminate.attach_ui(  at  );
-}
-
-void Config::add_input( std::unique_ptr<input::Link> l) {
-    if ( input.get() )
-        input->insert_new_node( std::move(l) );
-    else
-        create_input( std::move(l) );
 }
 
 void Config::add_output( std::auto_ptr<output::OutputSource> o ) {

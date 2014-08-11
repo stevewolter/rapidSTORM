@@ -14,7 +14,7 @@ class Choice
   public:
     class LinkAdaptor : public simparm::Choice {
         std::unique_ptr<Link<Type>> _link;
-        Link<Type>::Connection connection;
+        typename Link<Type>::Connection connection;
 
       public:
         LinkAdaptor( std::unique_ptr<Link<Type>> l ) : _link(std::move(l)) {}
@@ -25,9 +25,9 @@ class Choice
             std::unique_ptr<LinkAdaptor> rv( new LinkAdaptor( std::unique_ptr<Link<Type>>(_link->clone()) ) );
             return rv.release();
         }
-        void connect( input::Choice& c ) {
+        void connect( input::Choice<Type>& c ) {
             connection = _link->notify( boost::bind(
-                &input::Choice::traits_changed, &c, _1, _link.get() ) );
+                &input::Choice<Type>::traits_changed, &c, _1, _link.get() ) );
         }
 
         std::string getName() const { return _link->name(); }
@@ -36,14 +36,14 @@ class Choice
     };
 
   protected:
-    typedef simparm::ManagedChoiceEntry<LinkAdaptor>::iterator iterator;
+    typedef typename simparm::ManagedChoiceEntry<LinkAdaptor>::iterator iterator;
     simparm::ManagedChoiceEntry<LinkAdaptor> choices;
     boost::shared_ptr<MetaInfo> my_traits;
     bool auto_select, will_publish_traits;
 
     void publish_traits_locked();
     void publish_traits();
-    void traits_changed( TraitsRef, Link<Type>* );
+    void traits_changed( typename Link<Type>::TraitsRef, Link<Type>* );
 
     simparm::BaseAttribute::Connection value_change_listen;
 
@@ -51,15 +51,13 @@ class Choice
     Choice(std::string name, bool auto_select);
     Choice(const Choice&);
     
-    BaseSource* makeSource() OVERRIDE;
+    Source<Type>* makeSource() OVERRIDE;
     Choice* clone() const OVERRIDE;
     void registerNamedEntries( simparm::NodeHandle ) OVERRIDE;
     std::string name() const OVERRIDE { return choices.getName(); }
     void publish_meta_info() OVERRIDE;
 
     void add_choice( std::unique_ptr<Link<Type>> r );
-
-    void insert_new_node( std::unique_ptr<Link<Type>> ) OVERRIDE;
 
     void set_help_id( std::string id ) { choices.setHelpID( id ); }
 

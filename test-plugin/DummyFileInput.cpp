@@ -1,21 +1,23 @@
 #define BOOST_DISABLE_ASSERTS
-#include "namespaces.h"
-#include "test-plugin/DummyFileInput.h"
-#include "input/Source.h"
-#include "engine/Image.h"
-#include "simparm/Entry.h"
-#include "input/FileInput.h"
+
+#include <fstream>
+#include <iostream>
+
 #include <boost/signals2/connection.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-#include <fstream>
-#include <iostream>
-#include <fstream>
+
 #include "engine/Image.h"
+#include "engine/InputTraits.h"
+#include "helpers/make_unique.hpp"
 #include "image/constructors.h"
 #include "image/MetaInfo.h"
+#include "input/FileInput.h"
 #include "input/InputMutex.h"
-#include "engine/InputTraits.h"
+#include "input/Source.h"
+#include "namespaces.h"
+#include "simparm/Entry.h"
+#include "test-plugin/DummyFileInput.h"
 
 using namespace dStorm::input;
 using namespace boost::units;
@@ -119,13 +121,13 @@ class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
 };
 
 class Method
-: public dStorm::input::FileInput<Method,OpenFile>
+: public dStorm::input::FileInput<Method,OpenFile,dStorm::engine::ImageStack>
 {
     Config config;
     simparm::BaseAttribute::ConnectionStore listening[4];
 
     void reread_file_locked();
-    friend class dStorm::input::FileInput<Method,OpenFile>;
+    friend class dStorm::input::FileInput<Method,OpenFile,dStorm::engine::ImageStack>;
     OpenFile* make_file( const std::string& name ) const {
         return new OpenFile( name, config );
     }
@@ -193,10 +195,8 @@ void Method::reread_file_locked() {
     reread_file();
 }
 
-std::auto_ptr< dStorm::input::Link >
-    make()
-{
-    return std::auto_ptr< dStorm::input::Link >( new Method() );
+std::unique_ptr< dStorm::input::Link<dStorm::engine::ImageStack> > make() {
+    return make_unique<Method>();
 }
 
 }

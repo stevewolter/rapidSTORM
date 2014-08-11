@@ -155,7 +155,7 @@ libbase_a_SOURCES = \
     input/FileInput.h \
     input/FilterFactory.h \
     input/FilterFactoryLink.hpp \
-    input/Forwarder.h input/Forwarder.hpp \
+    input/Forwarder.h \
     input/fwd.h \
     input/Link.h input/Link.hpp \
     input/InputMutex.h input/InputMutex.cpp \

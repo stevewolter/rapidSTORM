@@ -10,8 +10,10 @@ namespace dStorm {
 namespace inputs {
 namespace join {
 
-std::unique_ptr<input::Link<engine::ImageStack>> create_image_link();
-std::unique_ptr<input::Link<output::LocalizedImage>> create_localization_link();
+std::unique_ptr<input::Link<engine::ImageStack>> create_image_link(
+    std::unique_ptr<input::Link<engine::ImageStack>> upstream);
+std::unique_ptr<input::Link<output::LocalizedImage>> create_localization_link(
+    std::unique_ptr<input::Link<output::LocalizedImage>> upstream);
 
 }
 }

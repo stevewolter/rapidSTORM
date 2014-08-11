@@ -7,6 +7,7 @@
 #include "debug.h"
 #include "helpers/make_unique.hpp"
 #include "engine/InputTraits.h"
+#include "input/Link.hpp"
 #include "input/MetaInfo.h"
 #include "inputs/join/spatial.h"
 #include "inputs/join/temporal.h"
@@ -122,7 +123,7 @@ class Link
     void change_channel_count();
 
   public:
-    Link();
+    Link( std::unique_ptr<input::Link<Type>> upstream );
     Link( const Link& );
 
   private:
@@ -172,18 +173,22 @@ class Link
             children[i]->publish_meta_info();
         assert( this->current_meta_info().get() );
     }
-
-    void insert_new_node( std::unique_ptr<input::Link<Type>> ) OVERRIDE;
 };
 
 template <typename Type>
-Link<Type>::Link()
+Link<Type>::Link( std::unique_ptr<input::Link<Type>> upstream )
 : name_object("MultiChannel", "Multi-channel input"),
   channels("Channels", "Channels"),
   join_type("JoinOn"),
   channel_count("ChannelCount", 1),
   registered_node(false)
 {
+    input_traits.push_back( upstream->current_meta_info() );
+    connection_nodes.emplace_back("Channel1", "Channel 1");
+    children.push_back( std::move(upstream) );
+    connections.push_back( children.back()->notify(
+        boost::bind( &Link::traits_changed, this, _1, children.back().get() ) ) );
+
     channel_count.min = 1;
 
     join_type.addChoice( new StrategistImplementation< Type, spatial_join::tag >() );
@@ -235,21 +240,6 @@ Source<Type>* Link<Type>::makeSource() {
 }
 
 template <typename Type>
-void Link<Type>::insert_new_node( std::unique_ptr<input::Link<Type>> l ) {
-    if ( children.size() == 0 ) {
-        input_traits.push_back( l->current_meta_info() );
-        connection_nodes.emplace_back("Channel1", "Channel 1");
-        children.push_back( std::move(l) );
-        connections.push_back( children.back()->notify(
-            boost::bind( &Link::traits_changed, this, _1, children.back().get() ) ) );
-    } else {
-        for (size_t i = 1; i < children.size(); ++i)
-            children[i]->insert_new_node( std::unique_ptr<input::Link<Type>>( l->clone() ) );
-        children[0]->insert_new_node(std::move(l));
-    }
-}
-
-template <typename Type>
 void Link<Type>::change_channel_count() {
     DEBUG("Channel count changed to " << channel_count());
     join_type.set_visibility( channel_count() > 1 );
@@ -274,12 +264,14 @@ void Link<Type>::change_channel_count() {
     recompute_meta_info();
 }
 
-std::unique_ptr<input::Link<engine::ImageStack>> create_image_link() {
-    return make_unique<Link<engine::ImageStack>>();
+std::unique_ptr<input::Link<engine::ImageStack>> create_image_link(
+    std::unique_ptr<input::Link<engine::ImageStack>> upstream) {
+    return make_unique<Link<engine::ImageStack>>(std::move(upstream));
 }
 
-std::unique_ptr<input::Link<output::LocalizedImage>> create_localization_link() {
-    return make_unique<Link<output::LocalizedImage>>();
+std::unique_ptr<input::Link<output::LocalizedImage>> create_localization_link(
+    std::unique_ptr<input::Link<output::LocalizedImage>> upstream) {
+    return make_unique<Link<output::LocalizedImage>>(std::move(upstream));
 }
 
 }

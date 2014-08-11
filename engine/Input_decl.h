@@ -1,5 +1,5 @@
 #include "engine/Image_decl.h"
-#include "input/fwd.h"
+#include "input/Source.h"
 
 namespace dStorm {
 namespace engine {

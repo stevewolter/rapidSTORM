@@ -31,14 +31,14 @@ class Config : public dStorm::Config
     simparm::NodeHandle current_ui;
 
     std::auto_ptr<OutputTreeRoot> outputRoot;
-    std::unique_ptr<input::Link> input;
-    input::Link::Connection input_listener;
+    std::unique_ptr<input::Link<output::LocalizedImage>> input;
+    input::Link<output::LocalizedImage>::Connection input_listener;
     bool localization_replay_mode;
     simparm::Group outputBox;
     simparm::Entry<unsigned long> thread_count_;
 
     void traits_changed( boost::shared_ptr<const input::MetaInfo> );
-    void create_input( std::unique_ptr<input::Link> );
+    void set_input( std::unique_ptr<input::Link<output::LocalizedImage>> );
     void attach_children_ui( simparm::NodeHandle at );
 
 public:
@@ -55,7 +55,6 @@ public:
 
     const output::OutputSource& output_tree() const { return *outputRoot; }
 
-    void add_input( std::unique_ptr<input::Link> );
     void add_output( std::auto_ptr<output::OutputSource> );
 
     const input::MetaInfo& get_meta_info() const;

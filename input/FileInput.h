@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_FILEINPUT_H
 
 #include "debug.h"
-#include "input/Link.h"
+#include "input/Link.hpp"
 #include <boost/signals2/connection.hpp>
 #include <boost/exception_ptr.hpp>
 #include "input/MetaInfo.h"
@@ -16,6 +16,8 @@ template <typename CRTP, typename FileRepresentation, typename DataType>
 class FileInput 
 : public Terminus<DataType>
 {
+    typedef typename Link<DataType>::TraitsRef TraitsRef;
+
     boost::optional<std::string> current_file;
     std::auto_ptr<FileRepresentation> file;
     boost::optional< boost::exception_ptr > error;
