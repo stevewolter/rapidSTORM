@@ -61,11 +61,9 @@ class DriftCorrection : public source::LValue {
     void announce( const variable_table&, input::Traits<Localization>& traits ) const {}
 
     void operator()( Localization& l ) { 
-        for (int i = 0; i < l.position().rows(); ++i) {
-          l.position_x() += samplepos::Scalar(l.frame_number() * value.x());
-          l.position_y() += samplepos::Scalar(l.frame_number() * value.y());
-          l.position_z() += samplepos::Scalar(l.frame_number() * value.z());
-        }
+        l.position_x() += samplepos::Scalar(l.frame_number() * value.x());
+        l.position_y() += samplepos::Scalar(l.frame_number() * value.y());
+        l.position_z() += samplepos::Scalar(l.frame_number() * value.z());
     }
 
 };
