@@ -7,9 +7,9 @@ dSTORM techniques.
 
 === Resources ===
 
-Online manual:  https://idefix.biozentrum.uni-wuerzburg.de/software/rapidSTORM
+Online manual:  https://stevewolter.github.io/rapidSTORM/
+Downloads:      https://stevewolter.github.io/rapidSTORM/
 Mailing list:   https://groups.google.com/forum/#!forum/rapidstorm-discuss
-Bug tracker:    https://github.com/stevewolter/rapidSTORM/issues
 Source code:    https://github.com/stevewolter/rapidSTORM
 
 === Compilation from source ===
@@ -26,7 +26,7 @@ tinyxml	         http://www.grinninglizard.com/tinyxml
 
 Additionally, a few lesser-known libraries are optional. We have packaged
 all of these libraries and made them available from our homepage at
-https://idefix.biozentrum.uni-wuerzburg.de/software/rapidSTORM:
+https://stevewolter.github.io/rapidSTORM/:
 
 libreadsif 1.4   Library maintained by the rapidSTORM team based on code kindly released
                  by Andor technologies for reading Andor SIF files.
