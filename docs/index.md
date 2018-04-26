@@ -1,0 +1,51 @@
+# Summary
+
+The rapidSTORM project is an open source evaluation tool that provides fast and highly configurable data processing for single-molecule localization microscopy such as dSTORM. It provides both two-dimensional and three-dimensional, multi-color data analysis as well as a wide range of filtering and image generation capabilities.
+
+rapidSTORM is currently available in two versions: rapidSTORM 2 is the current stable branch, where only outstanding bugs are fixed, while rapidSTORM 3 is the unstable development branch with an improved user interface and simplified technical deployment.
+
+# News, updates and discussion
+
+You can track announcements, news and new releases for rapidSTORM by subscribing to the rapidstorm-announce mailing list. This list is very low volume (typically less than one mail per month) and read-only. Your questions, feedback, and discussions about rapidSTORM are very welcome on the rapidstorm-discuss list.
+
+# Download and installation
+
+  * **Windows**: Download and run the [RapidSTORM 3.3.1 64 bit installer](https://storage.googleapis.com/rapidstorm/rapidstorm-3.3.1-win64.exe) for Windows. For older systems, there's a [32 bit installer](https://storage.googleapis.com/rapidstorm/rapidstorm-3.3.1-win32.exe). Older versions are linked from the [index page](http://storage.googleapis.com/rapidstorm).
+  * **Linux**: Due to a security incident, the Linux repository is currently not available. I'm working on it. LMK if you know how to set up a Debian repository on GCS.
+  * **Source**: Download the source from the [GitHub repository](https://github.com/stevewolter/rapidSTORM) and follow the instructions in the [INSTALL file](https://github.com/stevewolter/rapidSTORM/blob/master/INSTALL).
+
+# rapidSTORM features
+
+  * Basic features
+    * Graphical user interface
+    * Command line interface
+    * Easy scriptability and testability through simparm framework
+    * Reading Andor SIF files
+    * Reading and writing TIFF files
+    * Direct connection to Andor cameras
+    * Pseudorandom input data simulation with true Besselian PSFs
+    * Input simulation for 3D PSFs
+    * Least-squares fitting
+    * Data analysis in seconds
+    * Modular, easily extensible architecture
+  * rapidSTORM processing features
+    * Least-squares fitting
+    * MLE fitting
+    * 2D processing with known PSF
+    * 2D fitting with per-spot PSF width
+    * Estimation of PSF from input data
+    * Estimation of 3D PSF from input data
+    * 3D using astigmatism
+    * 3D using biplane
+    * Multi-color and multi-plane support
+    * Two-kernel analysis for multi-spot events
+  * rapidSTORM result analysis features
+    * Online result view during analysis
+    * High & adaptable image contrast through WHN
+    * Time-resolved images
+    * Can create time-lapse movies
+    * Free selection of coordinate and hue axes in image generation
+    * Online filtering of results during analysis
+    * Advanced result filtering using arithmetic expressions
+    * Easy linear drift correction
+    * Joining multiple time-consecutive localizations by Kalman tracking
