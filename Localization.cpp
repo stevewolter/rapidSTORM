@@ -7,6 +7,8 @@
 #include <boost/fusion/include/iteration.hpp>
 #include <Eigen/Core>
 
+using namespace boost::placeholders;
+
 namespace dStorm {
 
 struct spacesep_output_streamer {

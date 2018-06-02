@@ -30,7 +30,7 @@ bool Source::GetNext(int thread, localization::Record* output) {
     }
     trace_buffer.clear();
     *output = read_localization();
-    return file.input;
+    return bool(file.input);
 }
 
 

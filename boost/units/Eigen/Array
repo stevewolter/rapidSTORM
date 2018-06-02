@@ -3,6 +3,7 @@
 
 #include "Core"
 #include <boost/units/quantity.hpp>
+#include <cmath>
 
 namespace boost {
 namespace units {
@@ -69,6 +70,20 @@ struct round_functor {
         { return round(q); }
 };
 
+template <>
+struct round_functor<float> {
+    typedef float result_type;
+    float operator()( float q ) const
+        { return std::round(q); }
+};
+
+template <>
+struct round_functor<double> {
+    typedef double result_type;
+    double operator()( double q ) const
+        { return std::round(q); }
+};
+
 template <typename Derived>
 const Eigen::CwiseUnaryOp< 
     round_functor< typename Derived::Scalar >,
@@ -78,6 +93,7 @@ round( const Eigen::MatrixBase<Derived>& m )
     return m.unaryExpr( round_functor< typename Derived::Scalar >() );
 }
 
+#if EIGEN_MINOR_VERSION < 2
 template <typename Derived>
 const Eigen::CwiseUnaryOp< 
     round_functor< typename Derived::Scalar >,
@@ -86,12 +102,27 @@ round( const Eigen::ArrayBase<Derived>& m )
 {
     return m.unaryExpr( round_functor< typename Derived::Scalar >() );
 }
+#endif
 
 template <typename Quantity>
 struct floor_functor {
     typedef Quantity result_type;
     result_type operator()( Quantity q ) const
         { return floor(q); }
+};
+
+template <>
+struct floor_functor<float> {
+    typedef float result_type;
+    float operator()( float q ) const
+        { return std::floor(q); }
+};
+
+template <>
+struct floor_functor<double> {
+    typedef double result_type;
+    double operator()( double q ) const
+        { return std::floor(q); }
 };
 
 template <typename Derived>
@@ -103,6 +134,7 @@ floor( const Eigen::MatrixBase<Derived>& m )
     return m.unaryExpr( floor_functor< typename Derived::Scalar >() );
 }
 
+#if EIGEN_MINOR_VERSION < 2
 template <typename Derived>
 const Eigen::CwiseUnaryOp< 
     floor_functor< typename Derived::Scalar >,
@@ -111,12 +143,27 @@ floor( const Eigen::ArrayBase<Derived>& m )
 {
     return m.unaryExpr( floor_functor< typename Derived::Scalar >() );
 }
+#endif
 
 template <typename Quantity>
 struct ceil_functor {
     typedef Quantity result_type;
     result_type operator()( Quantity q ) const
         { return ceil(q); }
+};
+
+template <>
+struct ceil_functor<float> {
+    typedef float result_type;
+    float operator()( float q ) const
+        { return std::ceil(q); }
+};
+
+template <>
+struct ceil_functor<double> {
+    typedef double result_type;
+    double operator()( double q ) const
+        { return std::ceil(q); }
 };
 
 template <typename Derived>
@@ -128,6 +175,7 @@ ceil( const Eigen::MatrixBase<Derived>& m )
     return m.unaryExpr( ceil_functor< typename Derived::Scalar >() );
 }
 
+#if EIGEN_MINOR_VERSION < 2
 template <typename Derived>
 const Eigen::CwiseUnaryOp< 
     ceil_functor< typename Derived::Scalar >,
@@ -136,8 +184,7 @@ ceil( const Eigen::ArrayBase<Derived>& m )
 {
     return m.unaryExpr( ceil_functor< typename Derived::Scalar >() );
 }
-
-
+#endif
 
 }
 

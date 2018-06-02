@@ -1,5 +1,5 @@
 AC_PREREQ(2.61)
-AC_INIT([rapidSTORM], [3.3.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidSTORM], [3.3.1], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
@@ -17,6 +17,7 @@ AX_SPLIT_VERSION
 AC_SUBST( [PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION )
 AC_SUBST( [PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION )
 AC_SUBST( [PACKAGE_POINT_VERSION], $AX_POINT_VERSION )
+AC_SUBST( [DEBIAN_REVISION], 3 )
 # Substitute package version in the resource file
 AC_DEFINE_UNQUOTED([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION, [Major component of package version])
 AC_DEFINE_UNQUOTED([PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION, [Minor component of package version])
@@ -26,8 +27,8 @@ AC_SUBST([LIBTOOL_VERSION_INFO], 15:0:0)
 AC_LANG([C++])
 
 DX_HTML_FEATURE(ON)
-DX_PDF_FEATURE(ON)
-DX_INIT_DOXYGEN(rapidstorm, Doxyfile.in)
+DX_PDF_FEATURE(OFF)
+DX_INIT_DOXYGEN(rapidstorm, $(srcdir)/Doxyfile.in)
 
 AC_LIBTOOL_WIN32_DLL
 

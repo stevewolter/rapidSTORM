@@ -15,10 +15,16 @@ case "$DISTRIBUTION" in
         STAGE_COMPONENTS=""
         MAJOR_DISTRIBUTION="ubuntu"
         ;;
-    *)
+    wheezy)
         MIRRORSITE=http://ftp.de.debian.org/debian/
         COMPONENTS="main contrib non-free"
         STAGE_COMPONENTS="mingw"
+        MAJOR_DISTRIBUTION="debian"
+        ;;
+    *)
+        MIRRORSITE=http://ftp.de.debian.org/debian/
+        COMPONENTS="main contrib non-free"
+        STAGE_COMPONENTS=""
         MAJOR_DISTRIBUTION="debian"
         ;;
 esac
@@ -46,7 +52,7 @@ BUILDPLACE="@abs_builddir@/build/"
 BUILDRESULT="@abs_builddir@/buildresult/$MAJOR_DISTRIBUTION/dists/$DISTRIBUTION/main"
 DEBOOTSTRAPOPTS+=("--include=apt-transport-https,ca-certificates,apt")
 EXTRAPACKAGES="aptitude apt-transport-https ca-certificates"
-OTHERMIRROR="deb https://idefix.biozentrum.uni-wuerzburg.de/$MAJOR_DISTRIBUTION $DISTRIBUTION $COMPONENTS $STAGE_COMPONENTS"
+OTHERMIRROR="deb https://storage.googleapis.com/rapidstorm/$MAJOR_DISTRIBUTION $DISTRIBUTION $COMPONENTS $STAGE_COMPONENTS"
 
 # This is a localism of my local development machine, but I have no good idea
 # how this can be formulated generically.

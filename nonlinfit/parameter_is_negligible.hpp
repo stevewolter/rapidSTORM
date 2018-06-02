@@ -32,7 +32,7 @@ struct parameter_is_negligible {
         boost::mpl::for_each< boost::mpl::range_c<int,0,VariableCount> >( 
             boost::bind(*this, boost::cref(expression),
                 boost::cref(old_position), boost::cref(new_position),
-                boost::ref(all_are_negligible), _1));
+                boost::ref(all_are_negligible), boost::placeholders::_1));
         return all_are_negligible;
     }
 };

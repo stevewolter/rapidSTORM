@@ -20,7 +20,7 @@ struct set_variable {
     static void read_vector(const Position& p, Expression& m) {
 	static const int VariableCount = boost::mpl::size<typename Expression::Variables>::value;
         boost::mpl::for_each<boost::mpl::range_c<int,0,VariableCount>>(
-            boost::bind(set_variable(), boost::cref(p), boost::ref(m), _1));
+            boost::bind(set_variable(), boost::cref(p), boost::ref(m), boost::placeholders::_1));
     }
 };
 

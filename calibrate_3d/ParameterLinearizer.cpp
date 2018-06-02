@@ -15,6 +15,7 @@
 #include "threed_info/Polynomial3D.h"
 #include <boost/variant/get.hpp>
 #include "calibrate_3d/constant_parameter.hpp"
+#include <boost/utility/in_place_factory.hpp>
 
 namespace dStorm {
 namespace calibrate_3d {

@@ -76,7 +76,7 @@ class MatrixReducer
     static Eigen::Matrix<int, ReducerTag::TermCount, 1> create_reduction_list() {
         Eigen::Matrix<int, ReducerTag::TermCount, 1> result;
         boost::mpl::for_each<typename ReducerTag::TermVariables>( boost::bind(
-                    fill_array<ReducerTag>(), boost::ref(result), _1) ); 
+                    fill_array<ReducerTag>(), boost::ref(result), boost::placeholders::_1) ); 
         return result;
     }
 

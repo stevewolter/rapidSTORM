@@ -9,6 +9,8 @@
 #include "localization_file/localization_field_impl.h"
 #include "localization_file/unknown_field.h"
 
+using boost::placeholders::_1;
+
 namespace dStorm {
 namespace localization_file {
 

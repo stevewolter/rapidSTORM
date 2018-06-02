@@ -3,7 +3,7 @@
 
 #include "expression/UnitTable.h"
 #include <vector>
-#include <boost/spirit/home/phoenix/function/function.hpp>
+#include <boost/phoenix/function/function.hpp>
 
 namespace dStorm {
 namespace expression {

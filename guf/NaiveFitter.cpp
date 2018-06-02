@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "engine/InputTraits.h"
 #include "threed_info/No3D.h"
+#include <boost/utility/in_place_factory.hpp>
 
 namespace dStorm {
 namespace guf {

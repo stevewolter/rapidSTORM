@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "traits/Projection.h"
 #include "traits/ProjectionFactory.h"
 #include "traits/ProjectionConfig.h"

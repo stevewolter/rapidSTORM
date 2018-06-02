@@ -9,6 +9,8 @@
 #include "localization/Traits.h"
 #include "dejagnu.h"
 
+using boost::placeholders::_1;
+
 namespace dStorm {
 namespace expression {
 
@@ -20,7 +22,7 @@ class ValueVariable : public Variable {
   Variable* clone() const { return new ValueVariable(*this); }
 
   bool is_static(const input::Traits<Localization>& traits) const {
-    return traits.field(Tag()).static_value;
+    return bool(traits.field(Tag()).static_value);
   }
 
   DynamicQuantity get(const input::Traits<Localization>& traits) const {

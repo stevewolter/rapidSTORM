@@ -11,6 +11,8 @@
 
 #include "localization/Fields.h"
 
+using boost::placeholders::_1;
+
 namespace dStorm {
 namespace temporal_join {
 namespace {

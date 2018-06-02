@@ -4,6 +4,7 @@
 #include "guf/Config.h"
 #include <boost/static_assert.hpp>
 #include <boost/smart_ptr/scoped_ptr.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include "image/crop.h"
 #include "image/constructors.h"
 #include "engine/Spot.h"

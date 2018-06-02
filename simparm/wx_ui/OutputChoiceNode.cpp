@@ -9,6 +9,7 @@
 
 #include <boost/range/algorithm_ext/erase.hpp>
 #include <boost/foreach.hpp>
+#include <boost/utility/in_place_factory.hpp>
 
 namespace simparm {
 namespace wx_ui {

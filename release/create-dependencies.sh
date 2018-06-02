@@ -10,6 +10,9 @@ while read system distribution suffix archs; do \
     done; \
 done << EOF
 debian wheezy $1 i386 amd64 mingw-i686 mingw-amd64
+debian jessie $1 i386 amd64
+debian stretch $1 i386 amd64
+debian buster $1 i386 amd64
 ubuntu precise ${1}~ubuntu12.04.1 i386 amd64
 ubuntu saucy $1 i386 amd64
 EOF

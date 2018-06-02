@@ -1,5 +1,5 @@
 srcdir=@srcdir@
-DEBIAN_VERSION?=@VERSION@-1
+DEBIAN_VERSION?=@VERSION@-2
 PBUILDER_BUILD=
 
 %_amd64.changes : ARCH_FLAGS=--architecture amd64

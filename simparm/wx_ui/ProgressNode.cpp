@@ -4,6 +4,7 @@
 
 #include "simparm/wx_ui/ProgressNode.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include "simparm/wx_ui/lambda.h"
 #include "simparm/wx_ui/gui_thread.h"
 

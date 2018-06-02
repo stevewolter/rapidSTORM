@@ -22,7 +22,7 @@ traits::ImageResolution MetaInfo<Dimensions>::resolution(int r) const {
 
 template <int Dimensions>
 bool MetaInfo<Dimensions>::has_resolution(int dim) const {
-    return resolutions_[dim];
+    return bool(resolutions_[dim]);
 }
 
 template <int Dimensions>

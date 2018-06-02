@@ -20,6 +20,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include "alignment_fitter.h"
 #include "shell/ReplayJob.h"
 #include "simparm/wx_ui/Microscope_16.xpm"

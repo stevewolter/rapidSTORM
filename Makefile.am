@@ -9,9 +9,11 @@ AUTOMAKE_OPTIONS = subdir-objects dejagnu
 AM_CPPFLAGS = -DBOOST_TEST_DYN_LINK
 # TODO: This flag is only needed for old Eigen3 versions up to the fix of Eigen bug 477
 AM_CXXFLAGS = -Wno-enum-compare -std=c++0x -Wno-deprecated-declarations -Wnon-virtual-dtor
+# Workaround for https://github.com/google/protobuf/issues/1797
+AM_CXXFLAGS += -Wno-misleading-indentation
 
 # Doxygen support
-include aminclude.am
+@DX_RULES@
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
 applicationsdir=$(datadir)/applications
@@ -69,6 +71,8 @@ CLEANFILES += $(PROTO_GENERATED)
 if HAVE_PROTOBUF
 BUILT_SOURCES += $(PROTO_GENERATED)
 endif
+
+all-local : doxygen-doc
 
 clean-local :
 	-rm -fr test-temp-dir
