@@ -15,6 +15,7 @@ declare -r DEBIAN_VERSION="$(dpkg-parsechangelog | sed -n -e 's/^Version: //p' |
 cd ..
 
 backportpackage -d precise -s saucy rapidstorm_${DEBIAN_VERSION}.dsc -w .
+backportpackage -d wheezy -s stretch rapidstorm_${DEBIAN_VERSION}.dsc -w .
 
 for arch in i386 amd64; do
     EXTRAFLAGS=""

@@ -1,6 +1,3 @@
-$OLD_VERSION AND $NEW_VERSION reference full version numbers without Debian
-suffix, e.g. 3.3.1.
-
 === Source release ===
 
 * Update the changelog. Use the output of 
@@ -24,22 +21,9 @@ suffix, e.g. 3.3.1.
 
 === Building the Debian binary packages ===
 
-* Use pbuilder do build Debian and Ubuntu packages:
-    $ DEBIAN_VERSION=${NEW_VERSION}-1 make -f release/Makefile
-
-=== Uploading the Debian binary packages ===
-
-* Upload the packages to the rapidSTORM repository:
-    $ rsync --progress -a -v release/pbuilder/buildresult/* asterix.biozentrum.uni-wuerzburg.de:/projects/www/
-* Regenerate the index:
-    $ ssh -t asterix.biozentrum.uni-wuerzburg.de 'eval $(gpg-agent --daemon); bash /projects/www/debian/install-apt-archive.sh; bash /projects/www/ubuntu/install-apt-archive.sh'
-* Clean up the built packages:
-    $ rm -rf release/pbuilder/buildresult
-
-=== Build the Windows installer ===
-
-* Build the installer:
-    $ bash ./windows-installer/create-rapidstorm-installer.sh 3 3 1:${NEW_VERSION)-1
-* Publish the installer:
-    $ scp rapidstorm-3.3-win32.exe asterix:/projects/www/software/rapidSTORM/binary-win32
-    $ scp rapidstorm-3.3-win64.exe asterix:/projects/www/software/rapidSTORM/binary-win64
+* Copy the source package into the incoming area of the package builder:
+    $ scp rapidstorm_${NEW_VERSION}{.orig.tar.gz,-1{_source.changes,.dsc,.debian.tar.gz}} asterix.biozentrum.uni-wuerzburg.de:/projects/www/debian/incoming/rapidstorm
+* Run the package building pipeline on autogenix:
+    $ ssh -t asterix.biozentrum.uni-wuerzburg.de ssh -t autogenix screen
+        $ cd /srv/package-build/build
+        $ make
