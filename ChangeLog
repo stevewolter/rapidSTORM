@@ -1,3 +1,7 @@
+== 3.3.1 ==
+
+ * Updated code to build with newer versions of Boost and Eigen libraries.
+
 == 3.3.0 ==
 
 New functionality:

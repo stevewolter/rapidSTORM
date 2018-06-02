@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Steve Wolter <debian@swolter.sdf1.org>
 Build-Depends: debhelper (>= 7.0.50~), autotools-dev, automake, pkg-config, 
     libeigen3-dev, libgraphicsmagick++1-dev, libb64-dev, 
-    libtiff4-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, 
+    libtiff-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, 
     libboost-system-dev, libboost-thread-dev, libboost-test-dev, libboost-dev,
     libboost-filesystem-dev, libgsl0-dev, libreadsif-dev, libtinyxml-dev,
     dejagnu, devscripts, gsfonts | windows-fonts, imagemagick

@@ -166,7 +166,6 @@ libbase_a_SOURCES = \
     input/Choice.cpp \
     input/MetaInfo.cpp \
     input/MetaInfo.h \
-    input/Method.hpp \
     input/Source.h input/Source.cpp \
     input/Traits.h  \
     installation-directory.h \
