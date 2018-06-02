@@ -10,6 +10,8 @@
 #include "unknown_field.h"
 #include "children_field.h"
 
+using boost::placeholders::_1;
+
 namespace dStorm {
 namespace localization_file {
 

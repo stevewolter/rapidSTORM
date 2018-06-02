@@ -37,7 +37,7 @@ class Jacobian {
     template <typename Evaluator>
     void compute( Evaluator& cp ) {
         boost::mpl::for_each< _Variables >( boost::bind(
-            jacobian_maker(), boost::ref(r), boost::ref(cp), _1 ) );
+            jacobian_maker(), boost::ref(r), boost::ref(cp), boost::placeholders::_1 ) );
     }
 
     /** Get the Jacobian matrix computed by compute(). */

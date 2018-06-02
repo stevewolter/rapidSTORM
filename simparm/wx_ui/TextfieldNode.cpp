@@ -138,7 +138,7 @@ public:
     }
 
     void ChangeValue( boost::optional< std::string > v ) {
-        optional->SetValue(v);
+        optional->SetValue(bool(v));
         if ( ! v ) {
             for (Texts::iterator i = texts.begin(); i != texts.end(); ++i)
                 (*i)->Hide();

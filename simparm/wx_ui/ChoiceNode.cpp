@@ -8,6 +8,7 @@
 #include "VisibilityControl.h"
 #include "GroupNode.h"
 #include "gui_thread.h"
+#include <boost/utility/in_place_factory.hpp>
 
 namespace simparm {
 namespace wx_ui {

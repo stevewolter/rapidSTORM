@@ -1,5 +1,6 @@
 #include "FormCalibrationConfig.h"
 #include <boost/static_assert.hpp>
+#include <boost/utility/in_place_factory.hpp>
 
 namespace dStorm {
 namespace calibrate_3d {

@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+using boost::placeholders::_1;
+
 namespace dStorm {
 namespace memory_cache {
 

@@ -1,6 +1,8 @@
-#include "Projection.h"
-#include "ProjectionFactory.h"
-#include "ProjectionConfig.h"
+#include <cmath>
+
+#include "traits/Projection.h"
+#include "traits/ProjectionFactory.h"
+#include "traits/ProjectionConfig.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <boost/array.hpp>

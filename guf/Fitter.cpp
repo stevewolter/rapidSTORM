@@ -8,6 +8,7 @@
 #include <dStorm/image/constructors.h>
 #include <dStorm/engine/Spot.h>
 #include <dStorm/Localization.h>
+#include <boost/utility/in_place_factory.hpp>
 #include <boost/bind/bind.hpp>
 #include <nonlinfit/levmar/exceptions.h>
 #include "fit_window/fit_position_out_of_range.h"

@@ -151,7 +151,7 @@ template <typename Type>
 inline bool value_is_given( const Type& a )  { return true; }
 template <typename Inner>
 inline bool value_is_given( const boost::optional<Inner>& a ) 
-    { return a; }
+    { return static_cast<const bool>(a); }
 
 
 }

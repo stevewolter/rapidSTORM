@@ -13,6 +13,7 @@
 #include <dStorm/engine/InputTraits.h>
 #include <nonlinfit/Bind.h>
 #include <dStorm/threed_info/No3D.h>
+#include <boost/utility/in_place_factory.hpp>
 
 namespace dStorm {
 namespace guf {

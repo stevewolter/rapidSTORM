@@ -9,6 +9,8 @@
 
 #include <dStorm/localization/Fields.h>
 
+using boost::placeholders::_1;
+
 namespace dStorm {
 namespace input {
 namespace join {

@@ -7,6 +7,7 @@
 #include <nonlinfit/DerivationSummand.h>
 #include <nonlinfit/DerivationSummand.h>
 #include <boost/mpl/iter_fold.hpp>
+#include <boost/mpl/push_back.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/Direction.h>

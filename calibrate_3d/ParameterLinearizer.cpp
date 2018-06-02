@@ -13,7 +13,8 @@
 #include <dStorm/threed_info/DepthInfo.h>
 #include <dStorm/threed_info/Polynomial3D.h>
 #include <boost/variant/get.hpp>
-#include "constant_parameter.hpp"
+#include "calibrate_3d/constant_parameter.hpp"
+#include <boost/utility/in_place_factory.hpp>
 
 namespace dStorm {
 namespace calibrate_3d {

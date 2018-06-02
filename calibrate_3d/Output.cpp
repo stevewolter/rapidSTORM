@@ -8,6 +8,7 @@
 #include "ZTruth.h"
 #include <dStorm/threed_info/Polynomial3D.h>
 #include <boost/units/cmath.hpp>
+#include <boost/utility/in_place_factory.hpp>
 
 namespace dStorm {
 namespace calibrate_3d {

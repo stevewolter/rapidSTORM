@@ -1,6 +1,8 @@
 #include "InnerBackendNode.h"
 #include <boost/thread/locks.hpp>
 
+using boost::placeholders::_1;
+
 namespace simparm {
 namespace text_stream {
 

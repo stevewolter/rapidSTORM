@@ -4,6 +4,7 @@
 
 #include "ProgressNode.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include "lambda.h"
 #include "gui_thread.h"
 
