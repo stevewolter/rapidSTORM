@@ -2,6 +2,22 @@
 #include "VisibilityControl.h"
 
 namespace simparm {
+
+wxString wxToString(UserLevel l) {
+    switch (l) {
+        case Beginner:
+            return wxT("Beginner");
+        case Intermediate:
+            return wxT("Intermediate");
+        case Expert:
+            return wxT("Expert");
+        case Debug:
+            return wxT("Debug");
+        default:
+            return wxT("Undefined");
+    }
+}
+
 namespace wx_ui {
 
 VisibilityControl::VisibilityControl() 

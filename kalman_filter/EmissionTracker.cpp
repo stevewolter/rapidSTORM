@@ -203,8 +203,6 @@ Output::announceStormSize(const Announcement &a)
     my_announcement.position_y() = a.position_y();
     my_announcement.amplitude() = a.amplitude();
     my_announcement.image_number() = a.image_number();
-    my_announcement.source_traits.push_back( 
-        boost::shared_ptr< dStorm::input::Traits<Localization> >( new dStorm::input::Traits<Localization>(a) ) );
 
     dStorm::ImageTypes<2>::Size sizes;
     for (int i = 0; i < 2; ++i) {
