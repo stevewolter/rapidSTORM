@@ -4,12 +4,12 @@ Priority: optional
 Maintainer: Steve Wolter <debian@swolter.sdf1.org>
 Build-Depends: debhelper (>= 7.0.50~), autotools-dev, automake, pkg-config, 
     libeigen3-dev, libgraphicsmagick++1-dev, libb64-dev, 
-    libtiff-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, 
+    libtiff-dev, libwxgtk3.0-dev | libwxmsw2.8-dev, 
     libboost-system-dev, libboost-thread-dev, libboost-test-dev, libboost-dev,
     libboost-filesystem-dev, libgsl0-dev, libreadsif-dev, libtinyxml-dev,
     dejagnu, devscripts, gsfonts | windows-fonts, imagemagick
 Build-Depends-Indep:
-    xsltproc, texlive-latex-base, ghostscript, fop, openjdk-6-jre,
+    xsltproc, texlive-latex-base, ghostscript, fop, openjdk-8-jre,
     doxygen, doxygen-latex, graphviz, docbook-xsl-ns, bibutils, zip,
     sgml-data, texlive-fonts-extra
 Standards-Version: 3.8.4

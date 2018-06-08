@@ -185,7 +185,7 @@ AM_CONDITIONAL([BUILD_DOCUMENTATION], [test "$enable_documentation" = 'yes'])
 
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
-AM_PATH_WXCONFIG($reqwx, wxWin=1)
+AM_PATH_WXCONFIG($reqwx, wxWin=1, , [aui,html,adv,core,net,base])
 if test "$wxWin" != 1; then
     AC_MSG_ERROR([
       wxWidgets must be installed on your system.
