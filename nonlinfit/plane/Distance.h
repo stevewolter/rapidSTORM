@@ -48,7 +48,7 @@ class Distance
     }
 
     bool evaluate( Derivatives& p ) OVERRIDE;
-    void set_data( const Data& xs ) OVERRIDE { this->xs = &xs; }
+    void set_data( const Data& xs ) { this->xs = &xs; }
     int variable_count() const { return variable_count_; }
     void get_position( Position& p ) const OVERRIDE;
     void set_position( const Position& p ) OVERRIDE;
