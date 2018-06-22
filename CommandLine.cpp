@@ -51,21 +51,37 @@ int parse_command_line( int argc, char *argv[] ) {
     boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
     simparm::NodeHandle cmdline_ui = argument_parser;
 
-    std::auto_ptr< JobConfig > config_ptr( new job::Config( false ) );
-    JobConfig& config = *config_ptr;
-    shell::JobFactory with_job_starter( config_ptr, cmdline_ui );
-
     int exit_status = EXIT_SUCCESS;
     std::string basename = boost::filesystem::path( argv[0] ).filename().string();
     if ( argc <= 1 ) {
-        simparm::wx_ui::Launcher wx_launcher( config );
+        std::auto_ptr< JobConfig > config( new job::Config( false ) );
+        simparm::wx_ui::Launcher wx_launcher( *config );
         wx_launcher.launch();
     } else {
-        while ( argc > 2 && argv[1] == std::string("--config") ) {
-            with_job_starter.deserialize( argv[2] );
-            argv[2] = argv[0];
-            argc -= 2;
-            argv += 2;
+        bool localization_job = false;
+        std::vector<std::string> config_files;
+        while ( argc > 2 ) {
+            int n;
+            if (argv[1] == std::string("--config")) {
+                config_files.push_back(argv[2]);
+                n = 2;
+            } else if (argv[1] == std::string("--ReplayJob")) {
+                localization_job = true;
+                n = 1;
+            } else {
+                break;
+            }
+            argv[n] = argv[0];
+            argc -= n;
+            argv += n;
+        }
+
+        std::auto_ptr< JobConfig > config_ptr( new job::Config( localization_job ) );
+        JobConfig& config = *config_ptr;
+        shell::JobFactory with_job_starter( config_ptr, cmdline_ui );
+
+        for (const std::string& config_file : config_files) {
+            with_job_starter.deserialize( config_file );
         }
 
         TransmissionTreePrinter printer( static_cast<const job::Config&>(config) );
