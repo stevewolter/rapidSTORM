@@ -1,3 +1,6 @@
+#include <deque>
+#include <fstream>
+
 #include "decl.h"
 #include <Eigen/StdVector>
 #include <boost/foreach.hpp>
@@ -29,7 +32,6 @@
 #include <boost/variant/get.hpp>
 #include <nonlinfit/BoundFunction.hpp>
 #include <dStorm/engine/InputTraits.h>
-#include <fstream>
 
 #include "fit_window/Optics.h"
 #include "fit_window/PlaneImpl.hpp"
@@ -396,7 +398,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
             new_traits.optics(j).set_depth_info( dir, get_3d( result(0,j), j, dir ) );
     }
-    for (size_t i = 0; i < traits.fluorophore_count; ++i) {
+    for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
         if ( ! table.has_fluorophore( i ) ) {
             std::cerr << "Have seen no examples of fluorophore " << i << " and left its parameters unchanged." << std::endl;
             continue;

@@ -87,14 +87,14 @@ class Evaluator
     template <typename Data>
     bool prepare_iteration( const Data& data ) {
         bool all_good = fold( parts, true, boost::bind( 
-            Prepare_iteration(), _1, _2, boost::ref(data) ) );
+            Prepare_iteration(), boost::placeholders::_1, boost::placeholders::_2, boost::ref(data) ) );
         return all_good;
     }
 
     template <typename Target>
     void prepare_chunk( const Target& xs ) { 
         for_each( parts, boost::bind( 
-            Prepare_chunk(), _1, boost::ref(xs) ) ); 
+            Prepare_chunk(), boost::placeholders::_1, boost::ref(xs) ) ); 
     }
 
     template <typename Result>
@@ -102,7 +102,7 @@ class Evaluator
         /* We treat one summand specially here to avoid zero-initialization. */
         boost::fusion::at_c<0>(parts).value( result );
         for_each( range( next(begin(parts)), end(parts) ),
-                  boost::bind( AddValue(), _1, boost::ref(result) ) ); 
+                  boost::bind( AddValue(), boost::placeholders::_1, boost::ref(result) ) ); 
     }
 
     template <typename DerivSum>
