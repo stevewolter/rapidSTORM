@@ -65,7 +65,7 @@ bool Distance<_Function,Tag,_Metric>::evaluate(Derivatives& p)
     
     jac.precompute( evaluator );
     std::for_each( data->chunk_view().begin(), data->chunk_view().end(), 
-        boost::bind( boost::ref(*this), boost::ref(p), _1 ) );
+        boost::bind( boost::ref(*this), boost::ref(p), boost::placeholders::_1 ) );
 
     return true;
 }
@@ -109,7 +109,7 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     dx.compute( evaluator );
 
     std::for_each( data->chunk_view().begin(), data->chunk_view().end(), 
-        boost::bind( boost::ref(*this), boost::ref(p), boost::cref(dx), _1 ) );
+        boost::bind( boost::ref(*this), boost::ref(p), boost::cref(dx), boost::placeholders::_1 ) );
 
     /* Compute the hessian matrix of derivation summands by multiplying
      * X and Y contributions. */
