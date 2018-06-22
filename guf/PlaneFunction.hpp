@@ -3,39 +3,36 @@
 
 #include "guf/PlaneFunction.h"
 #include "nonlinfit/plane/Distance.hpp"
-#include "nonlinfit/plane/JointTermImplementation.h"
-#include "nonlinfit/plane/DisjointTermImplementation.h"
 #include "nonlinfit/FunctionConverter.h"
 #include "fit_window/chunkify.hpp"
 
 namespace dStorm {
 namespace guf {
 
-template <typename Lambda, typename Tag>
-std::unique_ptr<nonlinfit::plane::Term<Tag>> create_term(Lambda& expression, Tag) {
-    return std::unique_ptr<nonlinfit::plane::Term<Tag>>(new nonlinfit::plane::JointTermImplementation<Lambda, Tag>(expression));
-}
-
-template <typename Lambda, typename Num, int ChunkSize, typename OuterParam, typename InnerParam>
-std::unique_ptr<nonlinfit::plane::Term<nonlinfit::plane::Disjoint<Num, ChunkSize, OuterParam, InnerParam>>> create_term(
-        Lambda& expression, nonlinfit::plane::Disjoint<Num, ChunkSize, OuterParam, InnerParam>) {
-    return std::unique_ptr<nonlinfit::plane::Term<nonlinfit::plane::Disjoint<Num, ChunkSize, OuterParam, InnerParam>>>(
-            new nonlinfit::plane::DisjointTermImplementation<Lambda, nonlinfit::plane::Disjoint<Num, ChunkSize, OuterParam, InnerParam>>(expression));
-}
-
-template <class Lambda, class Tag, class DistanceMetric>
+template <class Tag, class DistanceMetric>
 struct PlaneFunctionImplementation 
 : public nonlinfit::AbstractFunction<double>
 {
-    std::unique_ptr<nonlinfit::plane::Term<Tag>> implementation;
+    typedef std::vector<std::unique_ptr<nonlinfit::plane::Term<Tag>>> Evaluators;
+    Evaluators implementations;
     nonlinfit::plane::Distance< Tag, DistanceMetric > unconverted;
     nonlinfit::FunctionConverter<double, typename Tag::Number> converted;
     typename Tag::Data xs;
     std::vector<nonlinfit::DataChunk<typename Tag::Number, Tag::ChunkSize>> ys;
 
+    std::vector<nonlinfit::plane::Term<Tag>*> get_pointers(const Evaluators& evaluators) {
+        std::vector<nonlinfit::plane::Term<Tag>*> result;
+        for (const auto& e : evaluators) {
+            result.push_back(e.get());
+        }
+        return result;
+    }
+
   public:
-    PlaneFunctionImplementation( Lambda& expression, const fit_window::Plane& plane )
-        : implementation(create_term(expression, Tag())), unconverted(implementation.get()), converted(unconverted) {
+    PlaneFunctionImplementation(Evaluators expression, const fit_window::Plane& plane )
+        : implementations(std::move(expression)),
+          unconverted(get_pointers(implementations)),
+          converted(unconverted) {
         fit_window::chunkify(plane, xs);
         fit_window::chunkify_data_chunks(plane, ys);
         unconverted.set_data(xs, ys);
@@ -53,16 +50,16 @@ struct PlaneFunctionImplementation
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-template <class Function, typename ComputationWay>
+template <typename ComputationWay>
 std::auto_ptr< nonlinfit::AbstractFunction<double> >
-PlaneFunction::create( Function& e, const fit_window::Plane& data, bool mle )
+PlaneFunction<ComputationWay>::create( Evaluators e, const fit_window::Plane& data, bool mle )
 {
     if (mle) {
         return std::auto_ptr< nonlinfit::AbstractFunction<double> >( 
-            new PlaneFunctionImplementation<Function, ComputationWay, nonlinfit::plane::negative_poisson_likelihood>(e, data) );
+            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::negative_poisson_likelihood>(std::move(e), data) );
     } else {
         return std::auto_ptr< nonlinfit::AbstractFunction<double> >( 
-            new PlaneFunctionImplementation<Function, ComputationWay, nonlinfit::plane::squared_deviations>(e, data) );
+            new PlaneFunctionImplementation<ComputationWay, nonlinfit::plane::squared_deviations>(std::move(e), data) );
     }
 }
 

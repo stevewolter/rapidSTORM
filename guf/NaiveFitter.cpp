@@ -1,19 +1,11 @@
-#include "debug.h"
 #include "guf/NaiveFitter.h"
-#include "guf/ModelledFitter.h"
-#include "guf/MultiKernelLambda.h"
-#include "gaussian_psf/free_form.h"
-#include "gaussian_psf/fixed_form.h"
-#include "gaussian_psf/expressions.h"
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include "traits/optics.h"
-#include "engine/JobInfo.h"
-#include "engine/InputTraits.h"
-#include <nonlinfit/Bind.h>
+
 #include <boost/utility/in_place_factory.hpp>
-#include "threed_info/No3D.h"
+
+#include "debug.h"
+#include "engine/InputTraits.h"
 #include "guf/EvaluationTags.h"
+#include "threed_info/No3D.h"
 
 namespace dStorm {
 namespace guf {
@@ -46,49 +38,46 @@ std::set<int> desired_fit_window_widths(const Config& config) {
     return result;
 }
 
-template <int Kernels, typename Assignment, typename Lambda>
-inline NaiveFitter::Ptr 
-create2( const Config& c, const dStorm::engine::JobInfo& i ) 
-{ 
-    typedef typename MultiKernelLambda< 
-        nonlinfit::Bind< Lambda ,Assignment> ,Kernels>
-        ::type F;
-    return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
-}
-
-template <>
-inline NaiveFitter::Ptr
-create2<2,gaussian_psf::FreeForm,gaussian_psf::No3D>( const Config& c, const dStorm::engine::JobInfo& i )
+NaiveFitter::NaiveFitter(
+    const Config& config, 
+    const dStorm::engine::JobInfo& info,
+    int kernels)
+: lm(config.make_levmar_config()),
+  step_limit(config.maximumIterationSteps())
 {
-    throw std::runtime_error("Two kernels and free-sigma fitting can't be combined, sorry");
-}
-
-
-template <int Kernels>
-NaiveFitter::Ptr
-NaiveFitter::create( 
-    const Config& c, 
-    const dStorm::engine::JobInfo& info )
-{
-    bool consistently_no_3d = true;
-    for ( input::Traits< engine::ImageStack >::const_iterator i = info.traits.begin(); i != info.traits.end(); ++i )
+    boost::optional<bool> consistently_no_3d;
+    for (int i = 0; i < info.traits.plane_count(); ++i ) {
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
-            bool is_no3d = dynamic_cast< const threed_info::No3D* >( i->optics.depth_info(dir).get() );
-            consistently_no_3d = consistently_no_3d && is_no3d;
+	    bool is_no3d = dynamic_cast< const threed_info::No3D* >( info.traits.plane(i).optics.depth_info(dir).get() );
+            if (consistently_no_3d && *consistently_no_3d != is_no3d) {
+                 throw std::runtime_error("3D information is inconsistent between planes");
+            }
+	    consistently_no_3d = is_no3d;
         }
+    }
 
-    if ( c.free_sigmas() && ! consistently_no_3d )
-        throw std::runtime_error("Free-sigma fitting is limited to 2D");
-    else if ( c.free_sigmas() )
-        return create2<Kernels,gaussian_psf::FreeForm,gaussian_psf::No3D>(c,info);
-    else if ( consistently_no_3d )
-        return create2<Kernels,gaussian_psf::FixedForm,gaussian_psf::No3D>(c,info);
-    else
-        return create2<Kernels,gaussian_psf::FixedForm,gaussian_psf::DepthInfo3D>( c, info );
+    for (int i = 0; i < info.traits.plane_count(); ++i ) {
+        std::unique_ptr<FitFunctionFactory> creator =
+             FitFunctionFactory::create(config, info.traits.plane(i), kernels);
+	variable_map.add_function(creator->reduction_bitset());
+        model_stack.push_back(creator->fit_position());
+        function_creators.push_back(std::move(creator));
+    }
+
+    plane_combiner = boost::in_place<nonlinfit::sum::AbstractFunction>(variable_map);
 }
 
-template NaiveFitter::Ptr NaiveFitter::create<1>( const Config& c, const dStorm::engine::JobInfo& i );
-template NaiveFitter::Ptr NaiveFitter::create<2>( const Config& c, const dStorm::engine::JobInfo& i );
+double NaiveFitter::fit(fit_window::PlaneStack& data, bool mle) {
+    typedef nonlinfit::AbstractFunction<double> AbstractFunction;
+    std::vector<std::unique_ptr<nonlinfit::AbstractFunction<double>>> functions;
+    for ( typename fit_window::PlaneStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i ) {
+        functions.push_back(function_creators[i-b]->create_function(*i, mle));
+        plane_combiner->set_fitter( i-b, *functions.back() );
+    }
+
+    nonlinfit::terminators::StepLimit step_limit(this->step_limit);
+    return lm.fit( *plane_combiner, step_limit );
+}
 
 }
 }

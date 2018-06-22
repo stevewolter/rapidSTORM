@@ -26,7 +26,8 @@ class Fitter
     dStorm::engine::JobInfo info;
     fit_window::FitWindowCutter data_creator;
     InitialValueFinder initial_value_finder;
-    boost::scoped_ptr<NaiveFitter > one_kernel_fitter, two_kernels_fitter;
+    NaiveFitter one_kernel_fitter;
+    boost::optional<NaiveFitter> two_kernels_fitter;
     LocalizationCreator create_localization;
     LocalizationChecker is_good_localization;
     KernelCreator add_new_kernel;

@@ -33,8 +33,7 @@ Fitter::Fitter(
   info(info),
   data_creator( config.fit_window_config, this->info.traits, desired_fit_window_widths(config), config.double_computation() ? 0 : 1 ),
   initial_value_finder( config, this->info ),
-  one_kernel_fitter( NaiveFitter::create<1>(config, info) ),
-  two_kernels_fitter( ( config.two_kernel_fitting() ) ? NaiveFitter::create<2>(config, info).release() : NULL ),
+  one_kernel_fitter( config, info, 1 ),
   create_localization( config, this->info ),
   is_good_localization( config, this->info ),
   add_new_kernel(),
@@ -42,6 +41,9 @@ Fitter::Fitter(
   mle( config.mle_fitting() ), 
   two_kernel_analysis( config.two_kernel_fitting() )
 {
+    if (config.two_kernel_fitting()) {
+        two_kernels_fitter = boost::in_place(config, info, 2);
+    }
 }
 
 int Fitter::fitSpot(
@@ -54,14 +56,14 @@ int Fitter::fitSpot(
             data_creator.cut_region_of_interest( im, spot );
 
         DEBUG("Fitting at " << spot.transpose() );
-        MultiKernelModelStack& one_kernel = one_kernel_fitter->fit_position();
+        MultiKernelModelStack& one_kernel = one_kernel_fitter.fit_position();
         double mle_result = 0;
         double improvement = 0;
         initial_value_finder( one_kernel, spot, data );
-        double lsq_result = one_kernel_fitter->fit( data, false );
+        double lsq_result = one_kernel_fitter.fit( data, false );
         if ( ! is_good_localization( one_kernel, spot ) ) { DEBUG("No good spot"); return -1; }
         if ( mle )
-            mle_result = one_kernel_fitter->fit( data, true );
+            mle_result = one_kernel_fitter.fit( data, true );
         if ( two_kernel_analysis ) {
             try {
                 MultiKernelModelStack& two_kernel_model = two_kernels_fitter->fit_position();

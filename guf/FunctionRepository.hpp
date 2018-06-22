@@ -2,12 +2,21 @@
 #define GUF_EVALUATOR_FACTORY_IMPL_H
 
 #include <Eigen/StdVector>
-#include "guf/FunctionRepository.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include "guf/EvaluationTags.h"
+
 #include "fit_window/Optics.h"
 #include "fit_window/Plane.h"
+#include "gaussian_psf/is_plane_dependent.h"
+#include "guf/create_evaluators.h"
+#include "guf/EvaluationTags.h"
+#include "guf/FunctionRepository.h"
+#include "LengthUnit.h"
+#include "nonlinfit/make_bitset.h"
+#include "nonlinfit/plane/Joint.h"
+#include "nonlinfit/plane/JointData.h"
+#include "nonlinfit/plane/Disjoint.h"
+#include "nonlinfit/plane/DisjointData.h"
 
 #include "debug.h"
 
@@ -47,18 +56,35 @@ struct FunctionRepository<Function>::instantiate
     void operator()( Tag way, Function& expression, const fit_window::Plane& data, bool disjoint, bool use_doubles, bool mle, int width, Container& target )
     {
         if (target.get() == nullptr && is_appropriate(way, width, disjoint, use_doubles)) {
-            target.reset(PlaneFunction::create<Function, Tag>(expression, data, mle).release());
+            target.reset(PlaneFunction<Tag>::create(create_evaluators(expression, way), data, mle).release());
         }
     }
 };
 
 template <class Function>
 FunctionRepository<Function>::FunctionRepository(const Config& config) 
-: expression( new Function() ), disjoint(config.allow_disjoint()), use_doubles(config.double_computation()) {}
+: expression( new Function() ), disjoint(config.allow_disjoint()),
+  use_doubles(config.double_computation()),
+  disjoint_amplitudes(config.disjoint_amplitudes()),
+  laempi_fit(config.laempi_fit()),
+  model(*expression) {
+    for (gaussian_psf::BaseExpression& gaussian : model) {
+        gaussian.set_negligible_step_length(ToLengthUnit(config.negligible_x_step()));
+        gaussian.set_relative_epsilon(config.relative_epsilon());
+    }
+    model.background_model().set_relative_epsilon(config.relative_epsilon());
+}
 
 template <class Function>
 FunctionRepository<Function>::~FunctionRepository() 
 {}
+
+template <class Function>
+std::vector<bool> FunctionRepository<Function>::reduction_bitset() const {
+    return nonlinfit::make_bitset( 
+        typename Function::Variables(), 
+        gaussian_psf::is_plane_independent( laempi_fit, disjoint_amplitudes ) );
+}
 
 template <class Function>
 std::unique_ptr<typename FunctionRepository<Function>::result_type>

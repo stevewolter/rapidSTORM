@@ -3,16 +3,18 @@
 
 #include <Eigen/StdVector>
 #include <boost/test/unit_test.hpp>
-#include <nonlinfit/plane/DisjointData.h>
-#include <nonlinfit/plane/Joint.h>
-#include <nonlinfit/plane/Distance.hpp>
-#include "gaussian_psf/JointEvaluator.h"
-#include "gaussian_psf/DisjointEvaluator.h"
-#include <nonlinfit/plane/check_evaluator.hpp>
-#include "gaussian_psf/ReferenceEvaluation.h"
-#include "gaussian_psf/mock_model.h"
+
 #include "fit_window/chunkify.hpp"
+#include "gaussian_psf/DisjointEvaluator.h"
+#include "gaussian_psf/JointEvaluator.h"
+#include "gaussian_psf/mock_model.h"
+#include "gaussian_psf/ReferenceEvaluation.h"
 #include "guf/PlaneFunction.hpp"
+#include "nonlinfit/plane/check_evaluator.hpp"
+#include "nonlinfit/plane/create_term.hpp"
+#include "nonlinfit/plane/DisjointData.h"
+#include "nonlinfit/plane/Distance.hpp"
+#include "nonlinfit/plane/Joint.h"
 
 namespace dStorm {
 namespace gaussian_psf {
@@ -25,10 +27,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
 
     fit_window::Plane plane = mock_data();
     Model z = mock_model<Model>();
+    typename guf::PlaneFunction<RefTag>::Evaluators ref_evaluators;
+    ref_evaluators.push_back(nonlinfit::plane::create_term(z, RefTag()));
+    typename guf::PlaneFunction<Data>::Evaluators tested_evaluators;
+    tested_evaluators.push_back(nonlinfit::plane::create_term(z, Data()));
     std::auto_ptr<nonlinfit::AbstractFunction<double>> ref =
-        guf::PlaneFunction::create<Model, RefTag>(z, plane, MLE::value);
+        guf::PlaneFunction<RefTag>::create(std::move(ref_evaluators), plane, MLE::value);
     std::auto_ptr<nonlinfit::AbstractFunction<double>> test =
-        guf::PlaneFunction::create<Model, Data>(z, plane, MLE::value);
+        guf::PlaneFunction<Data>::create(std::move(tested_evaluators), plane, MLE::value);
 
     bool is_same = nonlinfit::plane::compare_evaluators<double>(*ref, *test);
     BOOST_CHECK( is_same );

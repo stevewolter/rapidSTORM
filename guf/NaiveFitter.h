@@ -1,11 +1,18 @@
 #ifndef DSTORM_FITTER_GUF_NAIVEFITTER_INTERFACE_H
 #define DSTORM_FITTER_GUF_NAIVEFITTER_INTERFACE_H
 
-#include "guf/Config_decl.h"
-#include "engine/JobInfo_decl.h"
-#include "fit_window/Plane.h"
 #include <memory>
 #include <set>
+#include <vector>
+
+#include "guf/Config.h"
+#include "guf/FitFunctionFactory.h"
+#include "guf/MultiKernelModel.h"
+#include "engine/JobInfo.h"
+#include "fit_window/Plane.h"
+#include "nonlinfit/levmar/Fitter.h"
+#include "nonlinfit/sum/AbstractFunction.h"
+#include "nonlinfit/terminators/StepLimit.h"
 
 namespace dStorm {
 namespace guf {
@@ -14,24 +21,26 @@ class MultiKernelModelStack;
 
 std::set<int> desired_fit_window_widths(const Config& config);
 
-/** Interface for fitting a single function to a data image. */
-struct NaiveFitter {
-    typedef std::auto_ptr<NaiveFitter> Ptr;
-    /** Virtual constructor. 
-     *  \tparam KernelCount The number of PSF kernels to use in the function. */
-    template <int KernelCount>
-    static Ptr
-        create( const Config&, const dStorm::engine::JobInfo& );
-    virtual ~NaiveFitter() {}
-    /** Get a reference to the function's current state. Any call to fit() will
-     *  use the current state as the starting point for iteration. */
-    virtual MultiKernelModelStack& fit_position() = 0;
+class NaiveFitter {
+  public:
+    NaiveFitter(const Config&, const dStorm::engine::JobInfo&, int kernel_count);
+
+    MultiKernelModelStack& fit_position() { return model_stack; }
+
     /** Optimize the current state set by fit_position() using 
      *  Levenberg-Marquardt minimization. 
      *  \returns The new function value, which is the sum of squared residues
      *           for mle == false and the negative likelihood for mle == true.
      **/
-    virtual double fit( fit_window::PlaneStack& data, bool mle ) = 0;
+    double fit( fit_window::PlaneStack& data, bool mle );
+
+  private:
+    std::vector<std::unique_ptr<FitFunctionFactory>> function_creators;
+    nonlinfit::sum::VariableMap variable_map;
+    boost::optional<nonlinfit::sum::AbstractFunction> plane_combiner;
+    nonlinfit::levmar::Fitter lm;
+    const nonlinfit::terminators::StepLimit step_limit;
+    MultiKernelModelStack model_stack;
 };
 
 }

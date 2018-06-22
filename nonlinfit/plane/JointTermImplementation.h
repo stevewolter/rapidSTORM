@@ -5,6 +5,8 @@
 
 #include "nonlinfit/derive_by.hpp"
 #include "nonlinfit/parameter_is_negligible.hpp"
+#include "nonlinfit/plane/Joint.h"
+#include "nonlinfit/plane/JointData.h"
 #include "nonlinfit/VectorPosition.hpp"
 
 namespace nonlinfit {

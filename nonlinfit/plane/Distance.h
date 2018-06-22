@@ -42,7 +42,7 @@ class Distance
     mutable Eigen::Matrix<Number, Tag::ChunkSize, Eigen::Dynamic> jacobian;
 
   public:
-    Distance( Term<Tag>* term ) : terms(1, term) {
+    Distance( std::vector<Term<Tag>*> terms ) : terms(terms) {
         variable_count_ = 0;
         for (const auto term : terms) {
             variable_count_ += term->variable_count;
@@ -137,7 +137,7 @@ class Distance< Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     int output_variable_count_;
 
   public:
-    Distance(Term<Tag>* term) : terms(1, term) {
+    Distance( std::vector<Term<Tag>*> terms ) : terms(terms) {
         int term_variable_count = 0;
         for (const auto term : terms) {
             term_variable_count += term->term_variable_count;
