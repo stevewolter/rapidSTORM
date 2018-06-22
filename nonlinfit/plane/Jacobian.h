@@ -53,7 +53,11 @@ class Jacobian< Lambda, Disjoint<Num, ChunkSize, P1, P2 > >
 
         /* Sum the contributions from the different derivation summands for
         * each parameter. */
-        combiner.row_vector( result, *dx * dy->asDiagonal() );
+        if (boost::mpl::size<InnerTerms>::type::value == 1) {
+            combiner.row_vector( result, *dx * (*dy)(0, 0) );
+        } else {
+            combiner.row_vector( result, *dx * dy->asDiagonal() );
+        }
     }
     const result_type& jacobian() const { return result; }
     const result_type& operator*() const { return result; }
