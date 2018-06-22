@@ -20,14 +20,13 @@ namespace noop_engine {
 
         std::auto_ptr<Input> input;
 
-        class _iterator;
         void attach_ui_( simparm::NodeHandle n ) { input->attach_ui( n ); }
+        bool GetNext(int thread, output::LocalizedImage* target) OVERRIDE;
+        void set_thread_count(int num_threads) OVERRIDE {}
 
       public:
         Engine(std::auto_ptr<Input> input);
         void dispatch(Messages m);
-        Base::iterator begin();
-        Base::iterator end();
         TraitsPtr get_traits(Wishes);
         Capabilities capabilities() const { return input->capabilities(); }
 

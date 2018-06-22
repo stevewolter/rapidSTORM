@@ -6,7 +6,6 @@
 #include <fstream>
 #include <ctype.h>
 
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/io.hpp>
 
 #include <boost/variant/get.hpp>
@@ -17,41 +16,24 @@ namespace dStorm {
 namespace localization_file {
 namespace Reader {
 
-class Source::iterator
-: public boost::iterator_facade<iterator,localization::Record,std::input_iterator_tag>
-{
-  public:
-    iterator() : file(NULL) {}
-    iterator(Source& src) 
-        : file(&src.file), reducer(src.reducer->clone()) { increment(); }
-
-    void increment() { 
-        trace_buffer.clear(); 
-        current = read_localization( file->level );
-        if ( ! file->input ) { file = NULL; }
-    }
-
-    localization::Record& dereference() const { return current; }
-    bool equal( const iterator& o ) const { return file == o.file; }
-
-  private:
-    File* file;
-    mutable localization::Record current;
-
-    typedef std::list< std::vector<Localization> > TraceBuffer;
-    TraceBuffer trace_buffer;
-    boost::clone_ptr<output::TraceReducer> reducer;
-
-    localization::Record read_localization( int level ); 
-
-};
-
 Source::Source( const File& file, 
                 std::auto_ptr<output::TraceReducer> red )
-: file(file.filename, file.traits),
-    reducer(red)
+: file(file.filename, file.traits), reducer(std::move(red))
 {
 }
+
+bool Source::GetNext(int thread, localization::Record* output) { 
+    if (thread != 0) {
+        throw std::logic_error("Localization file reading must be single-threaded.");
+    }
+    if (!file.input) {
+        return false;
+    }
+    trace_buffer.clear();
+    *output = read_localization( file.level );
+    return bool(file.input);
+}
+
 
 int File::number_of_newlines() {
     int lines = 0;
@@ -63,7 +45,7 @@ int File::number_of_newlines() {
     return lines;
 }
 
-localization::Record Source::iterator::read_localization( int level )
+localization::Record Source::read_localization( int level )
 {
     static const samplepos no_shift = samplepos::Zero();
 
@@ -73,12 +55,12 @@ localization::Record Source::iterator::read_localization( int level )
         while (true ) {
             char peek;
             while ( true ) {
-                peek = file->input.peek();
-                if ( isspace(peek) ) file->input.get(); else break;
+                peek = file.input.peek();
+                if ( isspace(peek) ) file.input.get(); else break;
             }
             if ( peek == '#' ) {
                 std::string line;
-                std::getline( file->input, line );
+                std::getline( file.input, line );
                 if ( line.find_first_of( missing_image_line ) == 0 ) {
                     std::stringstream s( line.substr(missing_image_line.length()) );
                     int n;
@@ -88,7 +70,7 @@ localization::Record Source::iterator::read_localization( int level )
             } else
                 break;
         }
-        return file->read_next();
+        return file.read_next();
     } else {
         TraceBuffer::iterator my_buffer = 
             trace_buffer.insert( trace_buffer.end(), std::vector<Localization>() );
@@ -99,7 +81,7 @@ localization::Record Source::iterator::read_localization( int level )
                 my_buffer->push_back( *l );
             else
                 return r;
-        } while ( file->input && file->number_of_newlines() <= level );
+        } while ( file.input && file.number_of_newlines() <= level );
 
         localization::Record rv;
         reducer->reduce_trace_to_localization( 
@@ -107,13 +89,6 @@ localization::Record Source::iterator::read_localization( int level )
             &boost::get<Localization>(rv), no_shift );
         return rv;
     }
-}
-
-input::Source<localization::Record>::iterator Source::begin() { 
-    return input::Source<localization::Record>::iterator(iterator(*this)); 
-}
-input::Source<localization::Record>::iterator Source::end() { 
-    return input::Source<localization::Record>::iterator(iterator()); 
 }
 
 Config::Config() 
