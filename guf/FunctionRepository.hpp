@@ -8,7 +8,7 @@
 #include "fit_window/Optics.h"
 #include "fit_window/Plane.h"
 #include "gaussian_psf/is_plane_dependent.h"
-#include "guf/create_evaluators.h"
+#include "guf/create_evaluator.h"
 #include "guf/EvaluationTags.h"
 #include "guf/FunctionRepository.h"
 #include "LengthUnit.h"
@@ -23,8 +23,8 @@
 namespace dStorm {
 namespace guf {
 
-template < class Function >
-struct FunctionRepository<Function>::instantiate
+template <class Kernel, class Background>
+struct FunctionRepository<Kernel, Background>::instantiate
 {
     typedef void result_type;
 
@@ -53,47 +53,61 @@ struct FunctionRepository<Function>::instantiate
      *  The instantiated function is stored in the supplied target store,
      *  at the index of the given tag in the instantiation schedule. */
     template <typename Tag, typename Container>
-    void operator()( Tag way, Function& expression, const fit_window::Plane& data, bool disjoint, bool use_doubles, bool mle, int width, Container& target )
+    void operator()( Tag way, FunctionRepository& repository, const fit_window::Plane& data, bool mle, Container& target )
     {
-        if (target.get() == nullptr && is_appropriate(way, width, disjoint, use_doubles)) {
-            target.reset(PlaneFunction<Tag>::create(create_evaluators(expression, way), data, mle).release());
+        if (target.get() == nullptr && is_appropriate(way, data.window_width, repository.disjoint, repository.use_doubles)) {
+            std::vector<std::unique_ptr<nonlinfit::plane::Term<Tag>>> evaluators;
+            for (auto& kernel : repository.kernels) {
+                evaluators.push_back(create_evaluator(*kernel, way));
+            }
+            evaluators.push_back(create_evaluator(*repository.background, way));
+            target.reset(PlaneFunction<Tag>::create(std::move(evaluators), data, mle).release());
         }
     }
 };
 
-template <class Function>
-FunctionRepository<Function>::FunctionRepository(const Config& config) 
-: expression( new Function() ), disjoint(config.allow_disjoint()),
+template <class Kernel, class Background>
+FunctionRepository<Kernel, Background>::FunctionRepository(const Config& config, int kernel_count) 
+: disjoint(config.allow_disjoint()),
   use_doubles(config.double_computation()),
   disjoint_amplitudes(config.disjoint_amplitudes()),
-  laempi_fit(config.laempi_fit()),
-  model(*expression) {
-    for (gaussian_psf::BaseExpression& gaussian : model) {
-        gaussian.set_negligible_step_length(ToLengthUnit(config.negligible_x_step()));
-        gaussian.set_relative_epsilon(config.relative_epsilon());
+  laempi_fit(config.laempi_fit()) {
+    for (int i = 0; i < kernel_count; ++i) {
+	std::unique_ptr<Kernel> kernel(new Kernel());
+        kernel->set_negligible_step_length(ToLengthUnit(config.negligible_x_step()));
+        kernel->set_relative_epsilon(config.relative_epsilon());
+	kernels.push_back(std::move(kernel));
     }
-    model.background_model().set_relative_epsilon(config.relative_epsilon());
+    background.reset(new Background());
+    background->set_relative_epsilon(config.relative_epsilon());
 }
 
-template <class Function>
-FunctionRepository<Function>::~FunctionRepository() 
-{}
-
-template <class Function>
-std::vector<bool> FunctionRepository<Function>::reduction_bitset() const {
-    return nonlinfit::make_bitset( 
-        typename Function::Variables(), 
+template <class Kernel, class Background>
+std::vector<bool> FunctionRepository<Kernel, Background>::reduction_bitset() const {
+    std::vector<bool> result;
+    std::vector<bool> kernel_set = nonlinfit::make_bitset( 
+        typename Kernel::Variables(), 
         gaussian_psf::is_plane_independent( laempi_fit, disjoint_amplitudes ) );
+    std::vector<bool> background_set = nonlinfit::make_bitset( 
+        typename Background::Variables(), 
+        gaussian_psf::is_plane_independent( laempi_fit, disjoint_amplitudes ) );
+
+    for (size_t i = 0; i < kernels.size(); ++i) {
+        std::copy(kernel_set.begin(), kernel_set.end(), std::back_inserter(result));
+    }
+    std::copy(background_set.begin(), background_set.end(), std::back_inserter(result));
+
+    return result;
 }
 
-template <class Function>
-std::unique_ptr<typename FunctionRepository<Function>::result_type>
-FunctionRepository<Function>::create_function( const fit_window::Plane& data, bool mle )
+template <class Kernel, class Background>
+std::unique_ptr<nonlinfit::AbstractFunction<double>>
+FunctionRepository<Kernel, Background>::create_function( const fit_window::Plane& data, bool mle )
 {
     std::unique_ptr<result_type> result;
     boost::mpl::for_each< evaluation_tags >( 
         boost::bind( instantiate(),
-                     _1, boost::ref(*expression), boost::ref(data), disjoint, use_doubles, mle, data.window_width, boost::ref(result) ) );
+                     _1, boost::ref(*this), boost::ref(data), mle, boost::ref(result) ) );
     assert(result);
     return result;
 }

@@ -10,7 +10,7 @@ namespace dStorm {
 namespace guf {
 
 template <typename DataTag, typename Expression>
-std::vector<std::unique_ptr<nonlinfit::plane::Term<DataTag>>> create_evaluators(Expression& expression, DataTag way);
+std::unique_ptr<nonlinfit::plane::Term<DataTag>> create_evaluator(Expression& expression, DataTag way);
 
 }
 }

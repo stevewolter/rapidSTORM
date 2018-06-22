@@ -19,20 +19,20 @@ namespace guf {
  *  nonlinfit::plane::Distance per tag in the instantiation schedule. It also stores an instance of the function's
  *  base expression shared between all functions, which can be accessed by 
  *  get_expression(). */
-template <class Lambda>
+template <class Kernel, class Background>
 class FunctionRepository : public FitFunctionFactory, private boost::noncopyable
 {
   private:
     class instantiate;
 
     /** The expression is dynamically allocated to avoid Eigen alignment trouble. */
-    std::auto_ptr<Lambda> expression;
+    std::vector<std::unique_ptr<Kernel>> kernels;
+    std::unique_ptr<Background> background;
     bool disjoint, use_doubles, disjoint_amplitudes, laempi_fit;
     MultiKernelModel model;
 
   public:
-    FunctionRepository(const Config& config);
-    ~FunctionRepository();
+    FunctionRepository(const Config& config, int kernel_count);
     std::vector<bool> reduction_bitset() const OVERRIDE;
     MultiKernelModel fit_position() OVERRIDE { return const_cast<const MultiKernelModel&>(model); }
     typedef nonlinfit::AbstractFunction<double> result_type;
