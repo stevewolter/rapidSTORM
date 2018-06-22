@@ -61,13 +61,13 @@ bool Distance<_Function,Tag,_Metric>::evaluate(Derivatives& p)
 {
     p.set_zero();
 
-    if ( ! evaluator.prepare_iteration( *data ) )
+    if ( ! evaluator.prepare_iteration( *xs ) )
         return false;
     
     jac.precompute( evaluator );
-    assert(this->data->data.size() == this->data->data_chunks.size());
-    auto j = this->data->data_chunks.begin();
-    for (auto i = this->data->data.begin(); i != this->data->data.end(); ++i, ++j) {
+    assert(this->xs->data.size() == this->ys->size());
+    auto j = this->ys->begin();
+    for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i, ++j) {
         evaluate_chunk(p, *i, *j);
     }
 
@@ -104,7 +104,7 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     gradient_accum.fill(0);
     y_hessian.fill(0);
 
-    if ( ! evaluator.prepare_iteration( *data ) )
+    if ( ! evaluator.prepare_iteration( *xs ) )
         return false;
     
     /* Pre-compute the outer jacobian here so it will be available to compute
@@ -112,9 +112,9 @@ bool Distance< _Function, Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     OuterJacobian dx;
     dx.compute( evaluator );
 
-    assert(this->data->data.size() == this->data->data_chunks.size());
-    auto j = this->data->data_chunks.begin();
-    for (auto i = this->data->data.begin(); i != this->data->data.end(); ++i, ++j) {
+    assert(this->xs->data.size() == this->ys->size());
+    auto j = this->ys->begin();
+    for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i, ++j) {
         evaluate_chunk(p, dx, *i, *j);
     }
 

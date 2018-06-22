@@ -1,5 +1,6 @@
 #include "gaussian_psf/Polynomial3D.h"
-#include "gaussian_psf/check_evaluator.hpp"
+#include "debug.h"
+#include "gaussian_psf/BaseEvaluator.h"
 #include "nonlinfit/InvalidPositionError.h"
 
 namespace dStorm {

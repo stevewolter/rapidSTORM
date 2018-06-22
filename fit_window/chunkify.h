@@ -9,6 +9,11 @@ namespace dStorm {
 namespace fit_window {
 
 template <typename Number, int ChunkSize>
+inline void chunkify_data_chunks(
+        const fit_window::Plane& input,
+        std::vector<nonlinfit::DataChunk<Number, ChunkSize>>& output);
+
+template <typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Number, ChunkSize>& output);
 
 template <typename Number, int ChunkSize>

@@ -15,13 +15,15 @@ struct PlaneFunctionImplementation
 {
     nonlinfit::plane::Distance< Lambda, Tag, DistanceMetric > unconverted;
     nonlinfit::FunctionConverter<double, typename Tag::Number> converted;
-    typename Tag::Data data;
+    typename Tag::Data xs;
+    std::vector<nonlinfit::DataChunk<typename Tag::Number, Tag::ChunkSize>> ys;
 
   public:
     PlaneFunctionImplementation( Lambda& expression, const fit_window::Plane& plane )
         : unconverted(expression), converted(unconverted) {
-        fit_window::chunkify(plane, data);
-        unconverted.set_data(data);
+        fit_window::chunkify(plane, xs);
+        fit_window::chunkify_data_chunks(plane, ys);
+        unconverted.set_data(xs, ys);
     }
 
     int variable_count() const OVERRIDE { return converted.variable_count(); }
