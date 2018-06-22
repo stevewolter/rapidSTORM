@@ -11,7 +11,27 @@ You can track announcements, news and new releases for rapidSTORM by subscribing
 # Download and installation
 
   * **Windows**: Download and run the [RapidSTORM 3.3.1 64 bit installer](https://storage.googleapis.com/rapidstorm/binary-win64/rapidstorm-3.3.1-win64.exe) for Windows. For older systems, there's a [32 bit installer](https://storage.googleapis.com/rapidstorm/binary-win32/rapidstorm-3.3.1-win32.exe). Older versions are linked from the [index page](http://storage.googleapis.com/rapidstorm).
-  * **Linux**: Due to a security incident, the Linux repository is currently not available. I'm working on it. LMK if you know how to set up a Debian repository on GCS.
+  * **Debian Linux**:
+    * Currently, we support Debian distributions squeeze and wheezy. stretch and buster are in the works.
+    * Add my public key to your keyring: 
+
+        ```
+        gpg --keyserver pgp.mit.edu --export 70CCA3637EA8E63E71F1DA0F96B1CF3AF02E1BAB
+        ```
+
+    * Add the Rapidstorm debian repository for your distribution:
+
+        ```
+        DIST=wheezy
+        sudo tee /etc/apt/sources.list.d/rapidstorm.list <<EOF
+        deb https://storage.googleapis.com/rapidstorm/debian ${DIST} main contrib non-free
+        deb-src https://storage.googleapis.com/rapidstorm/debian ${DIST} main contrib non-free
+        EOF
+        sudo apt-get update
+        ```
+
+    * Install rapidstorm: `sudo apt-get install rapidstorm`
+  * **Ubuntu**: Due to a security incident, the Ubuntu repository is currently not available. I'm working on it.
   * **Source**: Download the source from the [GitHub repository](https://github.com/stevewolter/rapidSTORM) and follow the instructions in the [INSTALL file](https://github.com/stevewolter/rapidSTORM/blob/master/INSTALL).
 
 # rapidSTORM features
