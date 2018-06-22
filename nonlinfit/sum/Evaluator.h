@@ -99,7 +99,7 @@ class Evaluator
 
     template <typename Result>
     void add_value( Result& result ) {
-        for_each( parts, boost::bind( AddValue(), _1, boost::ref(result) ) ); 
+        for_each( parts, boost::bind( AddValue(), boost::placeholders::_1, boost::ref(result) ) ); 
     }
 
     template <typename Result>

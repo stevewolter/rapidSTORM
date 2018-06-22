@@ -34,7 +34,13 @@ struct increment_evaluation<negative_poisson_likelihood> {
     {
         p.value -= 2 * (r.residues - r.logoutput + function.log() * r.output).sum();
         typename DataRow::Output quotient = r.output / function;
-        p.hessian.noalias() += jac.transpose() * (quotient / function).matrix().asDiagonal() * jac;
+        if (Values::RowsAtCompileTime == 1 && Values::ColsAtCompileTime == 1) {
+            // Special case for Eigen bug: Diagonal of 1x1 times 1xN matrix breaks for odd N.
+            p.hessian.noalias() += (jac.transpose() * jac) * (r.output(0,0) / (function(0,0)*function(0,0)));
+        } else {
+            Jacobian divided_jac = function.inverse().matrix().asDiagonal() * jac;
+            p.hessian.noalias() += divided_jac.transpose() * r.output.matrix().asDiagonal() * divided_jac;
+        }
         p.gradient.noalias() += jac.transpose() * (quotient - 1).matrix();
     }
 };
