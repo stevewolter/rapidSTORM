@@ -5,6 +5,7 @@
 #include "nonlinfit/plane/Disjoint.h"
 #include <nonlinfit/DerivationSummand.h>
 #include <nonlinfit/Evaluator.h>
+#include <boost/bind/bind.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/quote.hpp>
@@ -57,54 +58,35 @@ struct Disjoint<Num,_ChunkSize,OuterParam,InnerParam>::make_derivative_terms
  *  \tparam Function Boost.MPL metafunction converting the elements of
  *                   InputList into those in OutputList
  **/
-template <typename InputList, typename OutputList, class Function>
 class MatrixReducer
 {
-    typedef boost::array< int, boost::mpl::size<InputList>::type::value > Array;
-
+    template <typename ReducerTag>
     struct fill_array {
-        Array& a;
-        fill_array(Array& a) : a(a) {}
-        template <typename Term>
-        void operator()( Term ) 
-        {
-            const int to = index_of< 
-                OutputList, typename Function::template apply<Term>::type >::value;
-            a[ index_of< InputList, Term >::value ] = to;
+        typedef void result_type;
+        template <typename Target, typename Term>
+        void operator()( Target& a, Term ) {
+            const int from = index_of< typename ReducerTag::TermVariables, Term >::value;
+            const int to = index_of< typename ReducerTag::OutputVariables, typename Term::Parameter >::value;
+            a[from] = to;
         }
     };
-    Array a;
 
-    template <bool Rows, bool Columns, typename Target, typename Source>
-    void do_combine( Target& t, const Source& s ) {
-        t.fill(0);
-        for (int r = 0; r < s.rows(); ++r)
-            for (int c = 0; c < s.cols(); ++c)
-                t( ( Rows ) ? a[r] : r, ( Columns ) ? a[c] : c ) += s(r,c);
-    }
   public:
-    MatrixReducer() { boost::mpl::for_each<InputList>( fill_array(a) ); }
+    template <typename ReducerTag>
+    static Eigen::Matrix<int, ReducerTag::TermCount, 1> create_reduction_list() {
+        Eigen::Matrix<int, ReducerTag::TermCount, 1> result;
+        boost::mpl::for_each<typename ReducerTag::TermVariables>( boost::bind(
+                    fill_array<ReducerTag>(), boost::ref(result), boost::placeholders::_1) ); 
+        return result;
+    }
 
-    /** Apply the reduction to both dimensions (rows and columns). */
-    template <typename Target, typename Source>
-    void matrix( Target& t, const Source& s ) { do_combine<true,true>(t,s); }
-    /** Reduce only the rows, leaving the column count constant. */
-    template <typename Target, typename Source>
-    void vector( Target& t, const Source& s ) { do_combine<true,false>(t,s); }
-    /** Reduce only the columns, leaving the row count constant. */
-    template <typename Target, typename Source>
-    void row_vector( Target& t, const Source& s ) { do_combine<false,true>(t,s); }
 };
 
-template <typename Num, int _ChunkSize, typename OuterParam, typename InnerParam>
-template <typename Lambda>
-class Disjoint<Num,_ChunkSize,OuterParam,InnerParam>::get_derivative_combiner {
-  public:
-    typedef MatrixReducer< 
-        typename make_derivative_terms<Lambda,void>::type,
-        typename Lambda::Variables,
-        boost::mpl::quote1<get_parameter>
-    > type;
+template <typename DataTag, typename Lambda>
+struct ReducerTag {
+    typedef typename DataTag::template make_derivative_terms<Lambda,void>::type TermVariables;
+    typedef typename Lambda::Variables OutputVariables;
+    static const int TermCount = boost::mpl::size<TermVariables>::type::value;
 };
 
 }

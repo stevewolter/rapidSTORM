@@ -84,6 +84,10 @@ class Lambda
     double& operator()( TermParameter< Term, Parameter > ) 
         { return get_part( Term() )( Parameter() ); }
 
+    template <typename Term, typename Parameter>
+    bool change_is_negligible( TermParameter< Term, Parameter > term, double from, double to ) const {
+        return get_part( Term() ).change_is_negligible( Parameter(), from, to );
+    }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

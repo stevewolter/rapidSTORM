@@ -8,25 +8,6 @@
 namespace nonlinfit {
 namespace sum {
 
-class VariableDropPolicy {
-public:
-    static const bool VariablesAreDropped = true;
-    static const int PlaneCount = Eigen::Dynamic, PlaneCountMax = Eigen::Dynamic;
-};
-
-template <int MaxPlaneCount>
-class BoundedPolicy {
-public:
-    static const bool VariablesAreDropped = false;
-    static const int PlaneCount = Eigen::Dynamic, PlaneCountMax = MaxPlaneCount;
-};
-
-class UnboundedPolicy {
-public:
-    static const bool VariablesAreDropped = false;
-    static const int PlaneCount = Eigen::Dynamic, PlaneCountMax = Eigen::Dynamic;
-};
-
 /** A function representing the sum of a dynamic number of equal-type functions.
  *
  *  This class implements a dynamically sized abstract function by summing 
@@ -37,16 +18,15 @@ public:
  *
  *  The contributing functions are not owned by this function.
  */
-template <typename Number, typename Policy = UnboundedPolicy >
 class AbstractFunction
-: public nonlinfit::AbstractFunction<Number>
+: public nonlinfit::AbstractFunction<double>
 {
   public:
     /** The input function type. */
-    typedef nonlinfit::AbstractFunction<Number> argument_type;
+    typedef nonlinfit::AbstractFunction<double> argument_type;
     /** The type of the implemented, resulting function. */
-    typedef Evaluation<Number> Derivatives;
-    typedef typename Derivatives::Vector Position;
+    typedef Evaluation<double> Derivatives;
+    typedef Derivatives::Vector Position;
 
   private:
     typedef std::vector< argument_type* > Fitters;
@@ -54,7 +34,11 @@ class AbstractFunction
     const VariableMap map;
     const int plane_count;
     mutable typename argument_type::Position position_buffer;
+    mutable typename argument_type::Position new_position_buffer;
     mutable typename argument_type::Derivatives evaluation_buffer;
+    bool variables_are_dropped;
+
+    void copy_position_into_buffer(const Position&);
 
   public:
     AbstractFunction( const VariableMap& variable_map );
@@ -70,10 +54,11 @@ class AbstractFunction
         }
     }
 
-    int variable_count() const { return map.output_variable_count(); }
-    void get_position( Position& p ) const;
-    void set_position( const Position& p );
-    bool evaluate( Derivatives& p );
+    int variable_count() const OVERRIDE { return map.output_variable_count(); }
+    void get_position( Position& p ) const OVERRIDE;
+    void set_position( const Position& p ) OVERRIDE;
+    bool evaluate( Derivatives& p ) OVERRIDE;
+    bool step_is_negligible( const Position& old_position, const Position& new_position ) const OVERRIDE;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

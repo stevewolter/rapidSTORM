@@ -39,6 +39,8 @@ struct VariableMap {
     int function_count() const { return map.size(); }
     /** Get the number of variables in the target sequence. */
     int output_variable_count() const { return output_var_c; }
+
+    bool variables_are_dropped() const;
 };
 
 }

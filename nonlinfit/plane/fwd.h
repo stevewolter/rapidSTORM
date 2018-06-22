@@ -14,7 +14,7 @@ template <typename Num, int ChunkSize> class JointData;
 template <typename Num, int ChunkSize, typename P1, typename P2> class Disjoint;
 template <typename Num, int ChunkSize, typename P1, typename P2> class Joint;
 
-template <typename _Function, typename _Tag, typename _Metric>
+template <typename _Tag, typename _Metric>
 struct Distance;
 
 /** Metric defined by the sum of squared differences to a data set.

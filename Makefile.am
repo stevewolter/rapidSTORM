@@ -431,7 +431,6 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
-    nonlinfit/AbstractTerminator.h \
     nonlinfit/access_parameters.hpp \
     nonlinfit/append.h \
     nonlinfit/BoundFunction.h nonlinfit/BoundFunction.hpp \
@@ -446,6 +445,7 @@ rapidstorm_SOURCES += \
     nonlinfit/index_of.h \
     nonlinfit/make_bitset.h \
     nonlinfit/make_functor.hpp \
+    nonlinfit/parameter_is_negligible.hpp \
     nonlinfit/Lambda.h \
     nonlinfit/Terminator.h \
     nonlinfit/TermParameter.h \
@@ -456,11 +456,9 @@ rapidstorm_SOURCES += \
     nonlinfit/functions/Polynom.h \
     nonlinfit/functions/Zero.h \
     nonlinfit/levmar/Config.h \
-    nonlinfit/levmar/Fitter.hpp \
     nonlinfit/levmar/Fitter.h \
-    nonlinfit/levmar/exceptions.h \
-    nonlinfit/levmar/fwd.h \
     nonlinfit/levmar/Fitter.cpp \
+    nonlinfit/levmar/exceptions.h \
     nonlinfit/plane/fwd.h \
     nonlinfit/plane/check_evaluator.hpp \
     nonlinfit/plane/Distance.h nonlinfit/plane/Distance.hpp \
@@ -474,12 +472,9 @@ rapidstorm_SOURCES += \
     nonlinfit/plane/DataPoint.h \
     nonlinfit/plane/JointData.hpp \
     nonlinfit/plane/Jacobian.h \
-    nonlinfit/terminators/RelativeChange.h nonlinfit/terminators/RelativeChange.cpp \
-    nonlinfit/terminators/StepLimit.h nonlinfit/terminators/StepLimit.cpp \
-    nonlinfit/terminators/All.h \
-    nonlinfit/terminators/fwd.h \
+    nonlinfit/terminators/StepLimit.h \
     nonlinfit/sum/AbstractFunction.h \
-    nonlinfit/sum/AbstractFunction.hpp \
+    nonlinfit/sum/AbstractFunction.cpp \
     nonlinfit/sum/VariableMap.h \
     nonlinfit/sum/VariableMap.hpp \
     nonlinfit/sum/VariableMap.cpp \
@@ -514,7 +509,6 @@ rapidstorm_SOURCES += \
     guf/LocalizationChecker.h guf/LocalizationChecker.cpp \
     guf/LocalizationCreator.h guf/LocalizationCreator.cpp \
     guf/KernelCreator.h guf/KernelCreator.cpp \
-    guf/FitTerminator.h \
     guf/PlaneFunction.h guf/PlaneFunction.hpp \
     guf/DistanceMetric.h \
     guf/Spot.h \
@@ -581,8 +575,7 @@ rapidstorm_SOURCES += \
     guf/instantiations/FunctionRepository.h \
     guf/instantiations/PlaneFunction.h \
     guf/instantiations/ModelledFitter.h \
-    guf/instantiations/Moveable.h \
-    guf/instantiations/Fitter.cpp
+    guf/instantiations/Moveable.h
 nodist_rapidstorm_SOURCES = $(INSTANTIATIONS)
 CLEANFILES += $(INSTANTIATIONS)
 
@@ -598,7 +591,6 @@ rapidstorm_SOURCES += \
     nonlinfit/unit_test.h \
     nonlinfit/unit_test.cpp \
     nonlinfit/sum/unit_test.cpp \
-    nonlinfit/terminators/unit_test.cpp \
     guf/unit_tests.cpp \
     dejagnu.h unit_tests.h unit_tests.cpp
 

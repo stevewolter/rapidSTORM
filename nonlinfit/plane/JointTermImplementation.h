@@ -1,41 +1,45 @@
 #ifndef NONLINFIT_PLANE_JOINTTERMIMPLEMENTATION_H
 #define NONLINFIT_PLANE_JOINTTERMIMPLEMENTATION_H
 
-#include "nonlinfit/plane/JointTerm.h"
+#include "nonlinfit/plane/Term.h"
 
-#include "nonlinfit/plane/Jacobian.h"
-#include "nonlinfit/VectorPosition.h"
+#include "nonlinfit/derive_by.hpp"
+#include "nonlinfit/parameter_is_negligible.hpp"
+#include "nonlinfit/VectorPosition.hpp"
 
 namespace nonlinfit {
 namespace plane {
 
 template <typename Lambda, typename Tag>
-class JointTermImplementation : public JointTerm<Tag> {
+class JointTermImplementation : public Term<Tag> {
     typedef typename Tag::Number Number;
     typedef typename get_evaluator<Lambda, Tag>::type Evaluator;
 
-    typedef typename JointTerm<Tag>::ValueVector ValueVector;
-    typedef typename JointTerm<Tag>::JacobianBlock JacobianBlock;
-    typedef typename JointTerm<Tag>::PositionBlock PositionBlock;
-    typedef typename JointTerm<Tag>::ConstPositionBlock ConstPositionBlock;
+    typedef typename Term<Tag>::ValueVector ValueVector;
+    typedef typename Term<Tag>::JacobianBlock JacobianBlock;
+    typedef typename Term<Tag>::JacobianRowBlock JacobianRowBlock;
+    typedef typename Term<Tag>::PositionBlock PositionBlock;
+    typedef typename Term<Tag>::ConstPositionBlock ConstPositionBlock;
 
+    Lambda& lambda;
     Evaluator evaluator;
-    Jacobian<Lambda, Tag> jacobian_computer;
     VectorPosition<Lambda, Number> mover;
 
   public:
     JointTermImplementation(Lambda& lambda)
-        : JointTerm<Tag>(boost::mpl::size<typename Lambda::Variables>::value),
+        : Term<Tag>(-1, boost::mpl::size<typename Lambda::Variables>::value),
+          lambda(lambda),
           evaluator(lambda),
           mover(lambda) {}
 
     bool prepare_iteration(const typename Tag::Data& inputs) OVERRIDE {
-        if (!evaluator.prepare_iteration(inputs)) {
-            return false;
-        }
+        return evaluator.prepare_iteration(inputs);
+    }
 
-        jacobian_computer.precompute( evaluator );
-        return true;
+    virtual bool prepare_disjoint_iteration(
+            const typename Tag::Data&,
+            JacobianBlock x_jacobian) {
+        throw std::logic_error("Tried to run disjoint operations on joint data");
     }
 
     void evaluate_chunk(
@@ -44,8 +48,14 @@ class JointTermImplementation : public JointTerm<Tag> {
             JacobianBlock jacobian_block) OVERRIDE {
         evaluator.prepare_chunk(data);
         evaluator.add_value(values);
-        jacobian_computer.compute(evaluator);
-        jacobian_block = jacobian_computer.jacobian();
+        Jacobian<typename Lambda::Variables>::compute(evaluator, jacobian_block);
+    }
+
+    void evaluate_disjoint_chunk(
+        const typename Tag::Data::Input& data,
+        ValueVector& values,
+        JacobianRowBlock jacobian) OVERRIDE {
+        throw std::logic_error("Tried to run disjoint operations on joint data");
     }
 
     void set_position(ConstPositionBlock position) OVERRIDE {
@@ -57,6 +67,16 @@ class JointTermImplementation : public JointTerm<Tag> {
         typename AbstractFunction<Number>::Position mover_position(position.rows());
         mover.get_position(mover_position);
         position = mover_position;
+    }
+
+    Eigen::VectorXi get_reduction_term() const {
+        throw std::logic_error("Tried to run disjoint operations on joint data");
+    }
+
+    bool step_is_negligible(
+            ConstPositionBlock from,
+            ConstPositionBlock to) const OVERRIDE {
+        return parameter_is_negligible().all(lambda, from, to);
     }
 };
 

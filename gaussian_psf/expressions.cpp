@@ -6,7 +6,7 @@ namespace dStorm {
 namespace gaussian_psf {
 
 BaseExpression::BaseExpression() 
-: may_leave_roi( false ) {}
+: may_leave_roi( false ), absolute_position_epsilon(0), relative_epsilon(0) {}
 BaseExpression::~BaseExpression() {}
 
 bool BaseExpression::form_parameters_are_sane() const {
@@ -15,6 +15,12 @@ bool BaseExpression::form_parameters_are_sane() const {
         DEBUG("The form parameters " << amplitude << " " << transmission << " are insane");
     }
     return is_good;
+}
+
+bool BaseExpression::relative_step_is_negligible(double from, double to) const {
+    //double rel_change = std::abs(to - from) / std::max(1E-10, std::max(std::abs(from), std::abs(to)));
+    double rel_change = std::abs((to - from) / to);
+    return rel_change < relative_epsilon;
 }
 
 bool BaseExpression::mean_within_range( const Bound& lower, const Bound& upper ) const {

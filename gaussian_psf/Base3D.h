@@ -14,6 +14,11 @@ struct Base3D
 {
     using nonlinfit::access_parameters< Base3D >::operator();
     using nonlinfit::access_parameters< Base3D >::get;
+    using BaseExpression::change_is_negligible;
+
+    bool change_is_negligible(MeanZ tag, double from, double to) const {
+        return position_step_is_negligible(from, to);
+    }
 
   protected:
     typedef boost::mpl::vector< MeanZ > MyParameters;
