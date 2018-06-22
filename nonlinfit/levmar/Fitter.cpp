@@ -30,8 +30,8 @@ namespace levmar {
 /** Helper class for Fitter that stores the current fitting state. */
 class Fitter::State {
     typedef AbstractFunction<double> Function;
-    typedef typename Function::Derivatives Derivatives;
-    typedef typename Function::Position Position;
+    typedef Function::Derivatives Derivatives;
+    typedef Function::Position Position;
 
     struct Parameters {
         Position parameters;
@@ -40,8 +40,8 @@ class Fitter::State {
     };
     
     Parameters max, moritz, *work, *trial;
-    typename Derivatives::Vector original_hessians_diagonal;
-    typename Derivatives::Matrix scratch;
+    Derivatives::Vector original_hessians_diagonal;
+    Derivatives::Matrix scratch;
 
     Position shift;
 
@@ -66,7 +66,7 @@ class Fitter::State {
      **/
     Step try_to_move_position( AbstractFunction<double>& );
     void throw_singular_matrix() const 
-        { throw SingularMatrix( work->derivatives.hessian.template cast<double>() ); }
+        { throw SingularMatrix( work->derivatives.hessian.cast<double>() ); }
  
   private:
     bool solve_with_ldlt( const Derivatives& );
@@ -84,7 +84,7 @@ Fitter::State::State( AbstractFunction<double>& f, int n )
         initial_position_valid = f.evaluate( work->derivatives );
     } catch (const InvalidPositionError&) {}
     if ( ! initial_position_valid )
-        throw InvalidStartPosition(work->parameters.template cast<double>());
+        throw InvalidStartPosition(work->parameters.cast<double>());
     original_hessians_diagonal = work->derivatives.hessian.diagonal();
     DEBUG("Started fitting at " << work->parameters.transpose() << " with value " << work->derivatives.value);
 }
@@ -103,11 +103,11 @@ bool Fitter::State::solve_equations( double lambda )
 
 bool Fitter::State::solve_with_ldlt( const Derivatives& d )
 {
-    if ( boost::is_same< float, typename Derivatives::Vector::Scalar >::value )
+    if ( boost::is_same< float, Derivatives::Vector::Scalar >::value )
     {
-        shift = ( d.hessian.template cast<double>().ldlt()
-                .solve(d.gradient.template cast<double>()) )
-                .template cast<typename Derivatives::Vector::Scalar>();
+        shift = ( d.hessian.cast<double>().ldlt()
+                .solve(d.gradient.cast<double>()) )
+                .cast<Derivatives::Vector::Scalar>();
     } else {
         shift = d.hessian.ldlt().solve(d.gradient);
     }
@@ -121,11 +121,11 @@ bool Fitter::State::solve_with_ldlt( const Derivatives& d )
 
 bool Fitter::State::solve_with_llt( const Derivatives& d )
 {
-    if ( boost::is_same< float, typename Derivatives::Vector::Scalar >::value )
+    if ( boost::is_same< float, Derivatives::Vector::Scalar >::value )
     {
-        shift = ( d.hessian.template cast<double>().llt()
-                .solve(d.gradient.template cast<double>()) )
-                .template cast<typename Derivatives::Vector::Scalar>();
+        shift = ( d.hessian.cast<double>().llt()
+                .solve(d.gradient.cast<double>()) )
+                .cast<Derivatives::Vector::Scalar>();
     } else {
         shift = d.hessian.llt().solve(d.gradient);
     }

@@ -73,8 +73,7 @@ bool Distance<Tag,_Metric>::evaluate(Derivatives& p)
         int offset = 0;
         for (const auto& term : terms) {
             term->evaluate_chunk(i->inputs, values,
-                    jacobian.template block<Tag::ChunkSize, Eigen::Dynamic>(
-                        0, offset, Tag::ChunkSize, term->variable_count));
+                    jacobian.middleCols(offset, term->variable_count));
             offset += term->variable_count;
         }
 
@@ -129,8 +128,7 @@ void Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     int offset = 0;
     for (const auto& term : terms) {
         term->evaluate_disjoint_chunk(r.inputs, values,
-                y_jacobian_row.template block<1, Eigen::Dynamic>(
-                    0, offset, 1, term->term_variable_count));
+                y_jacobian_row.middleCols(offset, term->term_variable_count));
         offset += term->term_variable_count;
     }
 
@@ -154,8 +152,7 @@ bool Distance<Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
     int offset = 0;
     for (const auto& term : terms) {
-        auto block = x_jacobian.template block<_ChunkSize, Eigen::Dynamic>(
-                0, offset, _ChunkSize, term->term_variable_count);
+        auto block = x_jacobian.middleCols(offset, term->term_variable_count);
         if ( ! term->prepare_disjoint_iteration(*xs, block) ) {
             return false;
         }

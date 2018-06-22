@@ -19,7 +19,7 @@ class FitWindowCutter {
         const Spot& position);
 
   private:
-    std::vector<Optics> optics;
+    std::vector<std::unique_ptr<Optics>> optics;
     std::set<int> desired_fit_window_widths;
     int fit_window_width_slack;
 
