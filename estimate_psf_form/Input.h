@@ -11,13 +11,12 @@ namespace dStorm {
 namespace estimate_psf_form {
 
 struct Input {
-    typedef Eigen::Matrix<samplepos::Scalar,2,1,Eigen::DontAlign> Width;
     boost::shared_ptr< const input::Traits< engine::ImageStack > > traits;
-    Width width;
+    samplepos::Scalar width;
     const int number_of_spots;
     int fluorophore_count;
 
-    Input( const Config&, const output::Output::Announcement&, Width width );
+    Input( const Config&, const output::Output::Announcement&, samplepos::Scalar width );
 };
 
 }

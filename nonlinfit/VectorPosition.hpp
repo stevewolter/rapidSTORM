@@ -12,8 +12,8 @@ namespace nonlinfit {
  *  Gets an instance of boost::mpl::int_ and sets the corresponding 
  *  scalar in the Position to the unitless value of the indexed
  *  parameter in the Lambda. */
-template <class _Lambda>
-struct VectorPosition<_Lambda>::get_variable {
+template <class _Lambda, class Number_>
+struct VectorPosition<_Lambda, Number_>::get_variable {
     const Expression& m;
     Position& p;
     get_variable( Expression& m, Position& p ) : m(m), p(p) {}
@@ -29,8 +29,8 @@ struct VectorPosition<_Lambda>::get_variable {
  *  Gets an instance of boost::mpl::int_ and writes the corresponding 
  *  scalar in the Position to the unitless value of the indexed
  *  parameter in the Lambda. */
-template <class _Lambda>
-struct VectorPosition<_Lambda>::set_variable {
+template <class _Lambda, class Number_>
+struct VectorPosition<_Lambda, Number_>::set_variable {
     Expression& m;
     const Position& p;
     set_variable( Expression& m, const Position& p ) : m(m), p(p) {}
@@ -42,15 +42,15 @@ struct VectorPosition<_Lambda>::set_variable {
     }
 };
 
-template <class _Lambda>
-void VectorPosition<_Lambda>::get_position( Position& p ) const
+template <class _Lambda, class Number_>
+void VectorPosition<_Lambda, Number_>::get_position( Position& p ) const
 {
     boost::mpl::for_each< boost::mpl::range_c<int,0,VariableCount> >( 
         get_variable(expression, p) );
 }
 
-template <class _Lambda>
-void VectorPosition<_Lambda>::set_position( const Position& p )
+template <class _Lambda, class Number_>
+void VectorPosition<_Lambda, Number_>::set_position( const Position& p )
 {
     boost::mpl::for_each< boost::mpl::range_c<int,0,VariableCount> >( 
         set_variable(expression, p) );

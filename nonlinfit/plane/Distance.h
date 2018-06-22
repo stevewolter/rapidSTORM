@@ -6,6 +6,8 @@
 #include <nonlinfit/Evaluation.h>
 #include "nonlinfit/plane/Jacobian.h"
 #include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/VectorPosition.h"
+#include "nonlinfit/DataChunk.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -28,27 +30,32 @@ class Distance
 {
     typedef _Tag Tag;
   public:
+    // These typedefs are used by nonlinfit::BoundFunction
     typedef _Lambda Lambda;
     typedef typename _Tag::Number Number;
     typedef typename Tag::Data Data;
-    typedef Evaluation< Number > Derivatives;
 
   private:
-    typedef typename Data::ChunkView::value_type DataRow;
+    typedef Evaluation< Number > Derivatives;
+    typedef typename Derivatives::Vector Position;
+    typedef typename Data::DataRow DataRow;
+    typedef nonlinfit::DataChunk<Number, Tag::ChunkSize> DataChunk;
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
     const Data* data;
-  protected:
     Jacobian< Lambda, Tag > jac;
+    VectorPosition<Lambda, Number> mover;
     Evaluator evaluator;
 
   public:
-    Distance( Lambda& lambda ) : evaluator(lambda) {}
+    Distance( Lambda& lambda ) : mover(lambda), evaluator(lambda) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
+    void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
+    void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
 
     typedef void result_type;
-    inline void operator()( Derivatives&, const DataRow& );
+    inline void evaluate_chunk( Derivatives&, const DataRow&, const DataChunk& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -95,12 +102,16 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 {
     typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
   public:
+    // These typedefs are used by nonlinfit::BoundFunction
     typedef _Lambda Lambda;
     typedef Num Number;
     typedef typename Tag::Data Data;
-    typedef Evaluation< Num > Derivatives;
+
   private:
-    typedef typename Data::ChunkView::value_type DataRow;
+    typedef Evaluation< Num > Derivatives;
+    typedef typename Evaluation< Num >::Vector Position;
+    typedef typename Data::DataRow DataRow;
+    typedef nonlinfit::DataChunk<Num, _ChunkSize> DataChunk;
     typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
         OuterTerms;
     typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 
@@ -118,19 +129,22 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
 
     typedef typename get_evaluator< Lambda, Tag >::type
         Evaluator;
+    VectorPosition<Lambda, Num> mover;
     Evaluator evaluator;
     const Data* data;
     typename Tag::template get_derivative_combiner<Lambda>::type combiner;
 
   public:
-    Distance( Lambda& l ) : evaluator(l) {}
+    Distance( Lambda& l ) : mover(l), evaluator(l) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
     int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
+    void get_position( Position& p ) const OVERRIDE { mover.get_position(p); }
+    void set_position( const Position& p ) OVERRIDE { mover.set_position(p); }
 
     typedef void result_type;
-    inline void operator()( Derivatives&, 
-        const OuterJacobian&, const DataRow& );
+    inline void evaluate_chunk( Derivatives&, 
+        const OuterJacobian&, const DataRow&, const DataChunk& );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

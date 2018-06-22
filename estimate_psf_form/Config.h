@@ -14,6 +14,7 @@
 #include <boost/optional/optional.hpp>
 #include "Direction.h"
 #include "units/nanolength.h"
+#include "fit_window/Config.h"
 #include <memory>
 
 #include "calibrate_3d/FormCalibrationConfig.h"
@@ -32,7 +33,7 @@ struct Config : public calibrate_3d::FormCalibrationConfig
     simparm::Entry<double> max_per_image;
     simparm::BoolEntry visual_selection, laempi_fit, disjoint_amplitudes;
     typedef Eigen::Matrix< quantity<si::nanolength>, 2, 1, Eigen::DontAlign > FitWindowWidth;
-    simparm::Entry< FitWindowWidth > fit_window_width;
+    fit_window::Config fit_window_config;
 
     Config();
     void attach_ui( simparm::NodeHandle at );

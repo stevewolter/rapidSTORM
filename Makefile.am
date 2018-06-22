@@ -431,7 +431,6 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
-    nonlinfit/AbstractMoveable.h \
     nonlinfit/AbstractTerminator.h \
     nonlinfit/access_parameters.hpp \
     nonlinfit/append.h \
@@ -491,15 +490,12 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     fit_window/Config.h fit_window/Config.cpp \
-    fit_window/Stack.cpp fit_window/Stack.h fit_window/Stack.hpp \
-    fit_window/Plane.h \
-    fit_window/PlaneImpl.h fit_window/PlaneImpl.hpp \
+    fit_window/Plane.h fit_window/Plane.cpp \
     fit_window/fit_position_out_of_range.h fit_window/fit_position_out_of_range.cpp \
     fit_window/Spot.h \
-    fit_window/Centroid.h fit_window/Centroid.cpp \
     fit_window/Optics.h fit_window/Optics.cpp \
-    fit_window/ScheduleIndexFinder.h fit_window/ScheduleIndexFinder.hpp fit_window/ScheduleIndexFinder.cpp \
-    fit_window/PlaneCreator.h fit_window/PlaneCreator.hpp fit_window/PlaneCreator.cpp \
+    fit_window/FitWindowCutter.h fit_window/FitWindowCutter.cpp \
+    fit_window/chunkify.h fit_window/chunkify.hpp \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
 rapidstorm_SOURCES += \
@@ -568,7 +564,7 @@ endif
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
 INSTANTIATIONS_UNCPP = \
     $(INST_MODEL:=FunctionRepository) $(INST_MODEL:=ModelledFitter) \
-    $(INST_MODEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
+    $(INST_TAGS:=PlaneFunction) 
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
 rapidstorm_SOURCES += \

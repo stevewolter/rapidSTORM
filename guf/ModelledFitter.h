@@ -15,6 +15,7 @@
 #include <nonlinfit/levmar/Fitter.h>
 #include <nonlinfit/AbstractFunction.h>
 #include "guf/MultiKernelModel.h"
+#include "fit_window/Plane.h"
 
 namespace dStorm {
 namespace guf {
@@ -49,7 +50,7 @@ class ModelledFitter
   public:
     ModelledFitter( const Config& config, const dStorm::engine::JobInfo& info );
 
-    double fit( fit_window::Stack& image, bool mle );
+    double fit( fit_window::PlaneStack& image, bool mle );
 
     MultiKernelModelStack& fit_position() { return _model; }
 };

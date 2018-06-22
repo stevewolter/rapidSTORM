@@ -12,25 +12,25 @@
 namespace dStorm {
 namespace gaussian_psf {
 
-MockDataTag::Data
+fit_window::Plane
 mock_data() {
-    MockDataTag::Data disjoint_data;
+    fit_window::Plane result;
     for (int i = 0; i < 10; ++i) {
-        disjoint_data.data.push_back( MockDataTag::Data::DataRow() );
-        MockDataTag::Data::DataRow& d = disjoint_data.data.back();
-        d.inputs(0,0) = i * boost::math::constants::pi<double>() / 30.0;
         for (int j = 0; j < 12; ++j) {
-            d.output[j] = rand() * 1E-5;
-            d.logoutput[j] = (d.output[j] < 1E-10)
-                ? -23*d.output[j] : d.output[j] * log(d.output[j]);
+            fit_window::DataPoint point;
+            point.position.x() = j * exp(1) / 30.0;
+            point.position.y() = i * boost::math::constants::pi<double>() / 30.0;
+            point.value = rand() * 1E-5;
+            result.points.push_back( point );
         }
     }
-    disjoint_data.min.fill( -1E50 );
-    disjoint_data.max.fill( 1E50 );
-    disjoint_data.pixel_size = 1E-3;
-    for (int j = 0; j < 12; ++j)
-        disjoint_data.xs[j] = j * exp(1) / 30.0;
-    return disjoint_data;
+    result.min_coordinate[0] = -1E50;
+    result.min_coordinate[1] = -1E50;
+    result.max_coordinate[0] = 1E50;
+    result.max_coordinate[1] = 1E50;
+    result.pixel_size = 1E-3;
+    result.window_width = 12;
+    return result;
 }
 
 template <typename Expression>

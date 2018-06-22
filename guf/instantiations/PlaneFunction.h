@@ -5,9 +5,9 @@
 namespace dStorm {
 namespace guf {
 
-template std::auto_ptr< PlaneFunction >
+template std::auto_ptr< nonlinfit::AbstractFunction<double> >
     PlaneFunction::create<InstantiatedFunction, InstantiatedTag>
-    ( InstantiatedFunction&, InstantiatedTag );
+    ( InstantiatedFunction&, const fit_window::Plane& data, bool );
 
 }
 }

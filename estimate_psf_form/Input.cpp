@@ -5,7 +5,7 @@
 namespace dStorm {
 namespace estimate_psf_form {
 
-Input::Input(const Config& c, const output::Output::Announcement& a, Width width )
+Input::Input(const Config& c, const output::Output::Announcement& a, samplepos::Scalar width )
 : width(width),
   number_of_spots( c.number_of_spots() )
 {

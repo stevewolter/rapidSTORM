@@ -3,13 +3,16 @@
 
 #include "guf/Config_decl.h"
 #include "engine/JobInfo_decl.h"
+#include "fit_window/Plane.h"
 #include <memory>
+#include <set>
 
 namespace dStorm {
-namespace fit_window { class Stack; }
 namespace guf {
 
 class MultiKernelModelStack;
+
+std::set<int> desired_fit_window_widths(const Config& config);
 
 /** Interface for fitting a single function to a data image. */
 struct NaiveFitter {
@@ -28,7 +31,7 @@ struct NaiveFitter {
      *  \returns The new function value, which is the sum of squared residues
      *           for mle == false and the negative likelihood for mle == true.
      **/
-    virtual double fit( fit_window::Stack& data, bool mle ) = 0;
+    virtual double fit( fit_window::PlaneStack& data, bool mle ) = 0;
 };
 
 }

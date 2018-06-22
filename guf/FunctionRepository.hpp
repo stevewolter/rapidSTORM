@@ -6,6 +6,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
 #include "guf/EvaluationTags.h"
+#include "fit_window/Optics.h"
 #include "fit_window/Plane.h"
 
 #include "debug.h"
@@ -17,36 +18,58 @@ template < class Function >
 struct FunctionRepository<Function>::instantiate
 {
     typedef void result_type;
+
+    template <int ChunkSize, typename Num, typename P1, typename P2>
+    bool is_appropriate( 
+        nonlinfit::plane::Disjoint<Num,ChunkSize,P1,P2> t,
+        int width,
+        bool disjoint,
+        bool use_doubles
+    ) const { 
+        return disjoint && ChunkSize == width &&
+            (boost::is_same<Num,float>::value || use_doubles);
+    }
+
+    template <int ChunkSize, typename Num, typename P1, typename P2>
+    bool is_appropriate( 
+        nonlinfit::plane::Joint<Num,ChunkSize,P1,P2>,
+        int,
+        bool disjoint,
+        bool use_doubles
+    ) const { 
+        return (boost::is_same<Num,float>::value || use_doubles); 
+    }
+
     /** Instantiate a Function wrapped by the MetaFunction computed by Tag.
      *  The instantiated function is stored in the supplied target store,
      *  at the index of the given tag in the instantiation schedule. */
     template <typename Tag, typename Container>
-    void operator()( Tag way, Function& expression, Container& target )
+    void operator()( Tag way, Function& expression, const fit_window::Plane& data, bool disjoint, bool use_doubles, bool mle, int width, Container& target )
     {
-        target.push_back( PlaneFunction::create(expression, way) );
+        if (target.get() == nullptr && is_appropriate(way, width, disjoint, use_doubles)) {
+            target.reset(PlaneFunction::create<Function, Tag>(expression, data, mle).release());
+        }
     }
 };
 
 template <class Function>
-FunctionRepository<Function>::FunctionRepository() 
-: expression( new Function() ),
-  mover( new nonlinfit::VectorPosition<Function>(*expression) )
-{
-    boost::mpl::for_each< evaluation_tags >( 
-        boost::bind( instantiate(),
-                     boost::placeholders::_1, boost::ref(*expression), boost::ref(store) ) );
-}
+FunctionRepository<Function>::FunctionRepository(const Config& config) 
+: expression( new Function() ), disjoint(config.allow_disjoint()), use_doubles(config.double_computation()) {}
 
 template <class Function>
 FunctionRepository<Function>::~FunctionRepository() 
 {}
 
 template <class Function>
-typename FunctionRepository<Function>::result_type*
-FunctionRepository<Function>::operator()( const fit_window::Plane& data, bool mle )
+std::unique_ptr<typename FunctionRepository<Function>::result_type>
+FunctionRepository<Function>::create_function( const fit_window::Plane& data, bool mle )
 {
-    const int index = data.tag_index; 
-    return &store[index].for_data( data, (mle) ? PoissonLikelihood : LeastSquares );
+    std::unique_ptr<result_type> result;
+    boost::mpl::for_each< evaluation_tags >( 
+        boost::bind( instantiate(),
+                     _1, boost::ref(*expression), boost::ref(data), disjoint, use_doubles, mle, data.window_width, boost::ref(result) ) );
+    assert(result);
+    return result;
 }
 
 }

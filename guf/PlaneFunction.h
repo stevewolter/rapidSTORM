@@ -10,13 +10,10 @@ namespace fit_window { class Plane; }
 namespace guf {
 
 struct PlaneFunction {
-    template <class Lambda, class ComputationWay> class Implementation;
   public:
     template <class Lambda, typename ComputationWay>
-    static std::auto_ptr< PlaneFunction > 
-        create( Lambda&, ComputationWay );
-    virtual ~PlaneFunction() {}
-    virtual nonlinfit::AbstractFunction<double>& for_data( const fit_window::Plane&, DistanceMetric ) = 0;
+    static std::auto_ptr<nonlinfit::AbstractFunction<double>> 
+        create( Lambda&, const fit_window::Plane&, bool mle );
 };
 
 }
