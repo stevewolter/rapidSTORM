@@ -177,7 +177,7 @@ class Engine::_iterator::WorkHorse {
         fitter.clear();
         DEBUG("Destructing rest");
     }
-    void compute( Input::iterator image );
+    void compute( ImageStack& image );
 
     output::LocalizedImage resultStructure;
 };
@@ -201,7 +201,7 @@ output::LocalizedImage& Engine::_iterator::dereference() const
             DEBUG("Constructed workhorse");
         }
         DEBUG("Computing result");
-        work_horse->compute(base);
+        work_horse->compute(*base);
         DEBUG("Computed result");
         did_compute = true;
     } else {
@@ -258,15 +258,14 @@ Engine::_iterator::_iterator( const _iterator& o )
 {
 }
 
-void Engine::_iterator::WorkHorse::compute( Input::iterator base ) 
+void Engine::_iterator::WorkHorse::compute( ImageStack& image ) 
 {
     resultStructure.clear();
 
-    DEBUG("Intake (" << base->frame_number() << ")");
+    DEBUG("Intake (" << image.frame_number() << ")");
 
-    ImageStack& image = *base;
     if ( image.has_invalid_planes() ) {
-        resultStructure.forImage = base->frame_number();
+        resultStructure.forImage = image.frame_number();
         resultStructure.clear();
         resultStructure.source = image;
 
@@ -275,10 +274,10 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         engine.errors.show();
         return;
     } else {
-        DEBUG("Image " << base->frame_number() << " is valid");
+        DEBUG("Image " << image.frame_number() << " is valid");
     }
 
-    DEBUG("Compression (" << base->frame_number() << ")");
+    DEBUG("Compression (" << image.frame_number() << ")");
     IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
     const Image2D flattened = flattener.flatten_image( image );
     finder->smooth(flattened);
@@ -324,7 +323,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         }
         buffer.resize(start+std::max<int>(0,best_found));
         for (int i = 0; i < best_found; ++i) {
-            buffer[i+start].frame_number() = base->frame_number();
+            buffer[i+start].frame_number() = image.frame_number();
         }
         if ( best_found > 0 ) {
             DEBUG("Committing " << best_found << " localizations found at position " << buffer[start].position().transpose());
@@ -348,7 +347,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
 
     DEBUG("Power with " << resultStructure.size() << " localizations");
-    resultStructure.forImage = base->frame_number();
+    resultStructure.forImage = image.frame_number();
     resultStructure.source = image;
 }
 

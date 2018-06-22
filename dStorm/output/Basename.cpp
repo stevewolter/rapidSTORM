@@ -56,6 +56,8 @@ string Basename::new_basename() const {
     std::auto_ptr<stringstream> varname;
     enum State { Free, InVariable };
 
+    DEBUG("Expanding " << basename());
+
     State s = Free;
     for (size_t i = 0; i < basename().size(); i++)
     {

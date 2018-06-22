@@ -17,8 +17,8 @@ ImageTypes<2>::Size Job::size() const
 Base::Base(const Job& job)
 :    smoothed( job.size(), 0 * camera::frame )
      {
-        DEBUG("Making SpotFinder with " << msx << " " << msy );
-        DEBUG("Image pointer is " << smoothed.ptr() );
+        DEBUG("Making SpotFinder with " << job.size().transpose());
+        DEBUG("Image pointer is " << smoothed.ptr());
         /* Zero the border of the smoothed image to be sure no maximums
          * occur here regardless of mask size combinations. */
         smoothed.fill(0);

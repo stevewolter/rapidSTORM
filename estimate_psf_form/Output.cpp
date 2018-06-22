@@ -60,7 +60,6 @@ Output::announceStormSize(const Announcement& a)
 {
     engine = a.engine;
 
-    DEBUG("Maximum PSF size is " << max_psf.transpose());
     bounds[0] = boost::icl::interval< samplepos::Scalar >::closed(
         *a.position_x().range().first + samplepos::Scalar(config.fit_window_width().x()),
         *a.position_x().range().second - samplepos::Scalar(config.fit_window_width().x())
