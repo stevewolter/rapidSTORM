@@ -8,10 +8,10 @@
 namespace dStorm {
 namespace fit_window {
 
-template <typename Number, int ChunkSize>
+template <bool NeedLogOutput, typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Number, ChunkSize>& output);
 
-template <typename Number, int ChunkSize>
+template <bool NeedLogOutput, typename Number, int ChunkSize>
 void chunkify(const fit_window::Plane& input, nonlinfit::plane::JointData<Number, ChunkSize>& output);
 
 }

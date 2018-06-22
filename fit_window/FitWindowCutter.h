@@ -26,6 +26,7 @@ class FitWindowCutter {
     Plane cut_region_of_interest(
         const Optics& optics,
         const dStorm::engine::Image2D& image,
+        const dStorm::engine::Image2D& background,
         const Spot& position);
 };
 

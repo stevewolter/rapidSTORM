@@ -9,7 +9,7 @@ namespace fit_window {
 struct DataPoint {
     Spot position;
     double value;
-    double residue;
+    double background;
 };
 
 }

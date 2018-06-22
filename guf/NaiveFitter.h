@@ -2,7 +2,6 @@
 #define DSTORM_FITTER_GUF_NAIVEFITTER_INTERFACE_H
 
 #include <memory>
-#include <set>
 #include <vector>
 
 #include "guf/Config.h"
@@ -19,8 +18,6 @@ namespace guf {
 
 class MultiKernelModelStack;
 
-std::set<int> desired_fit_window_widths(const Config& config);
-
 class NaiveFitter {
   public:
     NaiveFitter(const Config&, const dStorm::engine::JobInfo&, int kernel_count);
@@ -28,11 +25,13 @@ class NaiveFitter {
     MultiKernelModelStack& fit_position() { return model_stack; }
 
     /** Optimize the current state set by fit_position() using 
-     *  Levenberg-Marquardt minimization. 
+     *  Levenberg-Marquardt minimization. If highest_residue is not null, store
+     *  the location of the highest residue there.
+     *
      *  \returns The new function value, which is the sum of squared residues
      *           for mle == false and the negative likelihood for mle == true.
      **/
-    double fit( fit_window::PlaneStack& data, bool mle );
+    double fit( fit_window::PlaneStack& data, bool mle, Spot* highest_residue, double* r_value );
 
   private:
     std::vector<std::unique_ptr<FitFunctionFactory>> function_creators;

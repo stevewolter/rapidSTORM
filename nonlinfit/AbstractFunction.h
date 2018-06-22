@@ -1,7 +1,6 @@
 #ifndef NONLINFIT_ABSTRACTFUNCTION_H
 #define NONLINFIT_ABSTRACTFUNCTION_H
 
-#include "nonlinfit/fwd.h"
 #include <Eigen/Core>
 #include <boost/static_assert.hpp>
 #include "nonlinfit/Evaluation.h"

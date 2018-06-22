@@ -47,7 +47,7 @@ class Computation {
     template <typename Data>
     bool prepare_iteration( const Data& ) { 
         a = (*m)( Amount() ); 
-        return a >= 0; 
+        return true;
     }
     template <typename Data> void prepare_chunk( const Data& ) {}
 

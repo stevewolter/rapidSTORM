@@ -1,24 +1,35 @@
 #ifndef DSTORM_RAWIMAGEFILE_H
 #define DSTORM_RAWIMAGEFILE_H
 
+#include <queue>
+
+#include <tiffio.h>
+
 #include "debug.h"
 
-#include "output/Output.h"
 #include "output/FileOutputBuilder.h"
-#include <tiffio.h>
-#include <simparm/FileEntry.h>
-
-#include <queue>
+#include "output/Output.h"
+#include "simparm/FileEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/ObjectChoice.h"
 
 namespace dStorm {
 namespace output {
 class RawImageFile : public Output {
+  public:
+    enum OutputType {
+        Signal,
+        BackgroundCorrectedSignal,
+        Background,
+    };
+
   private:
     simparm::NodeHandle current_ui;
     static void error_handler( const char* module,
                                const char* fmt, va_list ap );
 
     std::string filename;
+    OutputType output_type;
 
     TIFF *tif;
     tsize_t strip_size;
@@ -34,6 +45,7 @@ class RawImageFile : public Output {
 
   public:
     class Config;
+    class OutputTypeChoice;
 
     RawImageFile(const Config&);
     ~RawImageFile();
@@ -49,9 +61,19 @@ class RawImageFile : public Output {
         { insert_filename_with_check( filename, present_filenames ); }
 };
 
+struct RawImageFile::OutputTypeChoice : public simparm::ObjectChoice {
+    const OutputType output_type;
+    OutputTypeChoice(std::string name, std::string desc, OutputType output_type)
+        : simparm::ObjectChoice(name, desc), output_type(output_type) {}
+
+    void attach_ui( simparm::NodeHandle to ) { attach_parent(to); }
+    OutputTypeChoice* clone() const { return new OutputTypeChoice(*this); }
+};
+
 class RawImageFile::Config {
   public:
     BasenameAdjustedFileEntry outputFile;
+    simparm::ManagedChoiceEntry<OutputTypeChoice> save_background;
 
     Config();
     static std::string get_name() { return "RawImage"; }
@@ -62,6 +84,7 @@ class RawImageFile::Config {
     }
     void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );
+        save_background.attach_ui( at );
     }
 };
 

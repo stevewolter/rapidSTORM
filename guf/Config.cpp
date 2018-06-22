@@ -11,7 +11,7 @@ Config::Config()
   allow_disjoint("DisjointFitting", true),
   double_computation("DoublePrecision", true),
   theta_dist("ThetaDist", 500 * boost::units::si::nanometre),
-  negligible_x_step("NegligibleStepLength", 1E-2f * boost::units::si::nanometre),
+  negligible_x_step("NegligibleStepLength", 1E-1f * boost::units::si::nanometre),
   marquardtStartLambda("MarquardtStartLambda", 1E2),
   maximumIterationSteps("MaximumIterationSteps", 20),
   relative_epsilon("RelativeFitEpsilon", 1E-3),

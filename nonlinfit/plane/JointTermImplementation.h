@@ -4,10 +4,11 @@
 #include "nonlinfit/plane/Term.h"
 
 #include "nonlinfit/derive_by.hpp"
+#include "nonlinfit/get_variable.hpp"
 #include "nonlinfit/parameter_is_negligible.hpp"
 #include "nonlinfit/plane/Joint.h"
 #include "nonlinfit/plane/JointData.h"
-#include "nonlinfit/VectorPosition.hpp"
+#include "nonlinfit/set_variable.hpp"
 
 namespace nonlinfit {
 namespace plane {
@@ -25,14 +26,13 @@ class JointTermImplementation : public Term<Tag> {
 
     Lambda& lambda;
     Evaluator evaluator;
-    VectorPosition<Lambda, Number> mover;
 
   public:
     JointTermImplementation(Lambda& lambda)
-        : Term<Tag>(-1, boost::mpl::size<typename Lambda::Variables>::value),
+        : Term<Tag>(boost::mpl::size<typename Lambda::Variables>::value,
+                    boost::mpl::size<typename Lambda::Variables>::value),
           lambda(lambda),
-          evaluator(lambda),
-          mover(lambda) {}
+          evaluator(lambda) {}
 
     bool prepare_iteration(const typename Tag::Data& inputs) OVERRIDE {
         return evaluator.prepare_iteration(inputs);
@@ -61,14 +61,11 @@ class JointTermImplementation : public Term<Tag> {
     }
 
     void set_position(ConstPositionBlock position) OVERRIDE {
-        typename AbstractFunction<Number>::Position mover_position = position;
-        mover.set_position(mover_position);
+	set_variable::read_vector(position, lambda);
     }
 
     void get_position(PositionBlock position) const OVERRIDE {
-        typename AbstractFunction<Number>::Position mover_position(position.rows());
-        mover.get_position(mover_position);
-        position = mover_position;
+	get_variable::fill_vector(lambda, position);
     }
 
     Eigen::VectorXi get_reduction_term() const {

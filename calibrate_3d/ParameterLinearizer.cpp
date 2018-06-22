@@ -1,11 +1,12 @@
 #include <Eigen/StdVector>
 #include "calibrate_3d/ParameterLinearizer.h"
 #include "gaussian_psf/Polynomial3D.h"
-#include <nonlinfit/Bind.h>
-#include <nonlinfit/VectorPosition.hpp>
-#include <nonlinfit/sum/VariableMap.hpp>
-#include <nonlinfit/sum/AbstractFunction.h>
-#include <nonlinfit/make_bitset.h>
+#include "nonlinfit/Bind.h"
+#include "nonlinfit/sum/VariableMap.hpp"
+#include "nonlinfit/sum/AbstractFunction.h"
+#include "nonlinfit/make_bitset.h"
+#include "nonlinfit/get_variable.hpp"
+#include "nonlinfit/set_variable.hpp"
 #include "calibrate_3d/Config.h"
 #include "gaussian_psf/is_plane_dependent.h"
 #include "guf/TraitValueFinder.h"
@@ -48,22 +49,21 @@ template <typename Lambda>
 class BoundMoveable 
 : public nonlinfit::AbstractFunction<double> {
     Lambda expression;
-    nonlinfit::VectorPosition<Lambda, double> mover;
 public:
     typedef nonlinfit::Evaluation<double> Derivatives;
-    typedef typename nonlinfit::VectorPosition<Lambda, double>::Position Position;
+    typedef Derivatives::Vector Position;
 
-    BoundMoveable() : mover(expression) {}
+    BoundMoveable() {}
     BoundMoveable( const BoundMoveable<Lambda>& o )
-        : expression(o.expression), mover(expression) {}
+        : expression(o.expression) {}
     BoundMoveable& operator=( const BoundMoveable<Lambda>& o )
         { expression = o.expression; return *this; }
     Lambda& get_expression() { return expression; }
     const Lambda& get_expression() const { return expression; }
-    void get_position( Position& p ) const { mover.get_position(p); }
-    void set_position( const Position& p ) { mover.set_position(p); }
+    void get_position( Position& p ) const { nonlinfit::get_variable::fill_vector(expression, p); }
+    void set_position( const Position& p ) { nonlinfit::set_variable::read_vector(p, expression); }
     bool evaluate(Derivatives& p) { assert(false); return false; }
-    int variable_count() const { return nonlinfit::VectorPosition<Lambda, double>::VariableCount; }
+    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
     bool step_is_negligible(const Position& from, const Position& to) const { assert(false); return true; }
 };
 

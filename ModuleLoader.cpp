@@ -10,7 +10,7 @@
 #include "engine/ChainLink_decl.h"
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
-#include "guf/fitter.h"
+#include "guf/augment_config.h"
 #include "estimate_psf_form/decl.h"
 #include "localization_file/writer.h"
 
@@ -51,7 +51,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 
     car_config.add_input( Splitter::makeLink(), BeforeEngine );
     car_config.add_input( plane_filter::make_link(), BeforeEngine );
-    //car_config.add_input( MedianFilter::make_link(), BeforeEngine );
+    car_config.add_input( median_filter::make_link(), BeforeEngine );
     car_config.add_input( input_buffer::makeLink(), BeforeEngine );
     car_config.add_input( basename_input_field::makeLink(), BeforeEngine );
 

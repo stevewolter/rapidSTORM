@@ -9,7 +9,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "nonlinfit/functions/Polynom.h"
-#include "nonlinfit/VectorPosition.h"
 #include "nonlinfit/terminators/StepLimit.h"
 #include "nonlinfit/levmar/Fitter.h"
 #include "nonlinfit/levmar/exceptions.h"
@@ -42,10 +41,11 @@ class Fitter::State {
     Parameters max, moritz, *work, *trial;
     Derivatives::Vector original_hessians_diagonal;
     Derivatives::Matrix scratch;
+    Eigen::LDLT<Derivatives::Matrix> ldlt_solver;
+    Eigen::LLT<Derivatives::Matrix> llt_solver;
 
     Position shift;
-
-    const bool use_ldlt;
+    Position diagonal_check;
 
   public:
     /** Retrieve the position of function as the current position. */
@@ -75,8 +75,8 @@ class Fitter::State {
 
 Fitter::State::State( AbstractFunction<double>& f, int n )
 : max(n), moritz(n) , work( &max ), trial( &moritz ),
-  original_hessians_diagonal( n ), scratch(n,n), shift(n),
-  use_ldlt( n > 4 )
+  original_hessians_diagonal( n ), scratch(n,n), ldlt_solver(n),
+  llt_solver(n), shift(n), diagonal_check(n)
 {
     f.get_position( work->parameters );
     bool initial_position_valid = false;
@@ -103,32 +103,18 @@ bool Fitter::State::solve_equations( double lambda )
 
 bool Fitter::State::solve_with_ldlt( const Derivatives& d )
 {
-    if ( boost::is_same< float, Derivatives::Vector::Scalar >::value )
-    {
-        shift = ( d.hessian.cast<double>().ldlt()
-                .solve(d.gradient.cast<double>()) )
-                .cast<Derivatives::Vector::Scalar>();
-    } else {
-        shift = d.hessian.ldlt().solve(d.gradient);
-    }
-    Position gradient_check = (d.hessian * shift) - d.gradient;
+    shift = ldlt_solver.compute(d.hessian).solve(d.gradient);
     /* This code is very similar to Eigen's isApprox; however, with gcc 4.7 and Eigen 3.1,
      * isApprox generates segmentation faults. */
-    const bool solved_well = gradient_check.squaredNorm() <= 0.1 * d.gradient.squaredNorm();
+    diagonal_check.noalias() = d.hessian * shift;
+    const bool solved_well = (diagonal_check - d.gradient).squaredNorm() <= 0.1 * d.gradient.squaredNorm();
     DEBUG("Solved system by LDLT: " << solved_well);
     return solved_well;
 }
 
 bool Fitter::State::solve_with_llt( const Derivatives& d )
 {
-    if ( boost::is_same< float, Derivatives::Vector::Scalar >::value )
-    {
-        shift = ( d.hessian.cast<double>().llt()
-                .solve(d.gradient.cast<double>()) )
-                .cast<Derivatives::Vector::Scalar>();
-    } else {
-        shift = d.hessian.llt().solve(d.gradient);
-    }
+    shift = llt_solver.compute(d.hessian).solve(d.gradient);
     bool solved_well = (d.hessian * shift).isApprox(d.gradient, 1E-2);
     DEBUG("Solved system by LLT: " << solved_well);
     return solved_well;
@@ -182,9 +168,13 @@ double Fitter::fit( AbstractFunction<double>& f, Terminator& t )
         } else {
             Step result = state.try_to_move_position( f );
             if ( result == BetterPosition ) {
-                t.improved( f.step_is_negligible(state.previous_position(), state.current_position()) );
+                bool is_negligible = f.step_is_negligible(state.previous_position(), state.current_position());
+                DEBUG("Step is " << ((is_negligible) ? "" : "not ") << "negligible");
+                t.improved( is_negligible );
                 lambda /= wrong_position_adjustment;
-                DEBUG("The shift from " << state.previous_position() << " to " << state.current_position().transpose() << " improved the function, lambda is " << lambda );
+                DEBUG("The shift from " << state.previous_position().transpose() <<
+                      " to " << state.current_position().transpose() <<
+                      " improved the function, lambda is " << lambda );
             } else if ( result == WorsePosition || result == InvalidPosition ) {
                 lambda *= wrong_position_adjustment;
                 t.failed_to_improve( result == WorsePosition );

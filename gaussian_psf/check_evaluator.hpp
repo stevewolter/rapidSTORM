@@ -31,17 +31,17 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
     ref_evaluators.push_back(nonlinfit::plane::create_term(z, RefTag()));
     typename guf::PlaneFunction<Data>::Evaluators tested_evaluators;
     tested_evaluators.push_back(nonlinfit::plane::create_term(z, Data()));
-    std::auto_ptr<nonlinfit::AbstractFunction<double>> ref =
+    std::unique_ptr<guf::FitFunction> ref =
         guf::PlaneFunction<RefTag>::create(std::move(ref_evaluators), plane, MLE::value);
-    std::auto_ptr<nonlinfit::AbstractFunction<double>> test =
+    std::unique_ptr<guf::FitFunction> test =
         guf::PlaneFunction<Data>::create(std::move(tested_evaluators), plane, MLE::value);
 
-    bool is_same = nonlinfit::plane::compare_evaluators<double>(*test, *ref);
+    bool is_same = nonlinfit::plane::compare_evaluators<double>(*test->abstract_function(), *ref->abstract_function());
     BOOST_CHECK( is_same );
 }
 
 template <typename Model>
-boost::unit_test::test_suite* check_evaluator( const char* name ) {
+void check_evaluator( boost::unit_test::test_suite* suite ) {
     typedef nonlinfit::plane::xs_joint<double, 8>::type Joint;
     typedef boost::mpl::vector< 
         boost::mpl::vector<Model, boost::mpl::false_, Joint>,
@@ -49,9 +49,7 @@ boost::unit_test::test_suite* check_evaluator( const char* name ) {
         boost::mpl::vector<Model, boost::mpl::false_, MockDataTag>,
         boost::mpl::vector<Model, boost::mpl::true_, MockDataTag>
     > DataTags;
-    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( name );
-    rv->add( BOOST_TEST_CASE_TEMPLATE( check_evaluator_with_tag, DataTags ) );
-    return rv;
+    suite->add( BOOST_TEST_CASE_TEMPLATE( check_evaluator_with_tag, DataTags ) );
 }
 
 

@@ -25,6 +25,7 @@ inline std::string get_label(dStorm::localization::TwoKernelImprovement) { retur
 inline std::string get_label(dStorm::localization::FitResidues) { return "FitResidues"; }
 inline std::string get_label(dStorm::localization::Fluorophore) { return "Fluorophore"; }
 inline std::string get_label(dStorm::localization::LocalBackground) { return "LocalBackground"; }
+inline std::string get_label(dStorm::localization::CoefficientOfDetermination) { return "CoefficientOfDetermination"; }
 
 template <typename Tag>
 LocalizationConfig<Tag>::LocalizationConfig(std::string axis, float range) 

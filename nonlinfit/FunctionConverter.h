@@ -1,9 +1,11 @@
 #ifndef NONLINFIT_FUNCTIONCONVERTER_H
 #define NONLINFIT_FUNCTIONCONVERTER_H
 
-#include "nonlinfit/fwd.h"
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_same.hpp>
+
+#include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/Evaluation.h"
 
 namespace nonlinfit {
 
@@ -59,7 +61,7 @@ class FunctionConverter
     bool step_is_negligible( const Position& old_position,
                              const Position& new_position ) const OVERRIDE {
         position_buffer = old_position.template cast<FromType>();
-        new_position_buffer = new_position_buffer.template cast<FromType>();
+        new_position_buffer = new_position.template cast<FromType>();
         return base.step_is_negligible(position_buffer, new_position_buffer);
     }
 };

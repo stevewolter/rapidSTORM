@@ -1,8 +1,6 @@
 #ifndef NONLINFIT_EVALUATOR_H
 #define NONLINFIT_EVALUATOR_H
 
-#include "nonlinfit/fwd.h"
-
 namespace nonlinfit {
 
 /** \class get_evaluator

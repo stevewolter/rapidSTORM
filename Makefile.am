@@ -101,8 +101,8 @@ rapidstorm_SOURCES = \
     Pixel.h \
     DataSetTraits.h \
     Job.h UnitEntries.h \
-    Config.h \
-    Engine.h types/samplepos.h types/fluorophore.h \
+    base/Config.h \
+    base/Engine.h types/samplepos.h types/fluorophore.h \
     namespaces.h \
     unit_interval.h \
     stack_realign.h \
@@ -168,6 +168,7 @@ rapidstorm_SOURCES = \
     image/morphological_reconstruction.h \
     image/morphological_reconstruction.hpp \
     image/Box.h image/Box.hpp \
+    image/subtract.hpp \
     image/unit_tests.cpp \
     units/icl.h \
     units/amplitude.h units/frame_count.h \
@@ -426,32 +427,34 @@ rapidstorm_SOURCES += \
     estimate_psf_form/decl.h estimate_psf_form/Tile.h \
     estimate_psf_form/GUI.h estimate_psf_form/GUI.cpp \
     estimate_psf_form/Input.h estimate_psf_form/Input.cpp \
-    estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp
+    estimate_psf_form/VariableReduction.h estimate_psf_form/VariableReduction.cpp \
+    estimate_psf_form/VariableReduction_test.h estimate_psf_form/VariableReduction_test.cpp \
+    estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp \
+    estimate_psf_form/unit_test.h estimate_psf_form/unit_test.cpp
 
 
 rapidstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
     nonlinfit/access_parameters.hpp \
     nonlinfit/append.h \
-    nonlinfit/BoundFunction.h nonlinfit/BoundFunction.hpp \
-    nonlinfit/DerivationSummand.h \
-    nonlinfit/Evaluation.h \
-    nonlinfit/Evaluator.h \
-    nonlinfit/derive_by.hpp \
     nonlinfit/Bind.h \
+    nonlinfit/DerivationSummand.h \
+    nonlinfit/derive_by.hpp \
+    nonlinfit/Evaluation.h nonlinfit/Evaluation.hpp \
+    nonlinfit/Evaluator.h \
     nonlinfit/FunctionConverter.h \
-    nonlinfit/VectorPosition.h nonlinfit/VectorPosition.hpp \
-    nonlinfit/fwd.h \
+    nonlinfit/get_variable.hpp \
     nonlinfit/index_of.h \
+    nonlinfit/InvalidPositionError.h \
+    nonlinfit/Lambda.h \
     nonlinfit/make_bitset.h \
     nonlinfit/make_functor.hpp \
     nonlinfit/parameter_is_negligible.hpp \
-    nonlinfit/Lambda.h \
+    nonlinfit/set_variable.hpp \
     nonlinfit/Terminator.h \
-    nonlinfit/TermParameter.h \
-    nonlinfit/Evaluation.hpp \
+    nonlinfit/unit_test.h \
+    nonlinfit/unit_test.cpp \
     nonlinfit/Xs.h \
-    nonlinfit/InvalidPositionError.h \
     nonlinfit/functions/Constant.h \
     nonlinfit/functions/Polynom.h \
     nonlinfit/functions/Zero.h \
@@ -459,56 +462,57 @@ rapidstorm_SOURCES += \
     nonlinfit/levmar/Fitter.h \
     nonlinfit/levmar/Fitter.cpp \
     nonlinfit/levmar/exceptions.h \
-    nonlinfit/plane/fwd.h \
     nonlinfit/plane/check_evaluator.hpp \
-    nonlinfit/plane/Distance.h nonlinfit/plane/Distance.hpp \
-    nonlinfit/plane/Joint.h \
+    nonlinfit/plane/create_term.hpp \
+    nonlinfit/plane/DisjointData.h \
+    nonlinfit/plane/DisjointTermImplementation.h \
     nonlinfit/plane/Disjoint.h nonlinfit/plane/Disjoint.hpp \
-    nonlinfit/plane/JointData.h \
-    nonlinfit/plane/DisjointData.h nonlinfit/plane/DisjointData.hpp \
-    nonlinfit/plane/DisjointData.cpp \
-    nonlinfit/plane/DataFacade.h nonlinfit/plane/DataFacade.hpp \
+    nonlinfit/plane/Distance.h nonlinfit/plane/Distance.hpp \
+    nonlinfit/plane/fwd.h \
     nonlinfit/plane/GenericData.h \
-    nonlinfit/plane/DataPoint.h \
-    nonlinfit/plane/JointData.hpp \
-    nonlinfit/plane/Jacobian.h \
+    nonlinfit/plane/JointData.h \
+    nonlinfit/plane/Joint.h \
+    nonlinfit/plane/JointTermImplementation.h \
+    nonlinfit/plane/sum_matrix_rows.h \
+    nonlinfit/plane/Term.h \
     nonlinfit/terminators/StepLimit.h \
     nonlinfit/sum/AbstractFunction.h \
     nonlinfit/sum/AbstractFunction.cpp \
+    nonlinfit/sum/unit_test.cpp \
     nonlinfit/sum/VariableMap.h \
     nonlinfit/sum/VariableMap.hpp \
     nonlinfit/sum/VariableMap.cpp
 
 rapidstorm_SOURCES += \
-    fit_window/Config.h fit_window/Config.cpp \
-    fit_window/Plane.h fit_window/Plane.cpp \
-    fit_window/fit_position_out_of_range.h fit_window/fit_position_out_of_range.cpp \
-    fit_window/Spot.h \
-    fit_window/Optics.h fit_window/Optics.cpp \
-    fit_window/FitWindowCutter.h fit_window/FitWindowCutter.cpp \
     fit_window/chunkify.h fit_window/chunkify.hpp \
+    fit_window/Config.h fit_window/Config.cpp \
+    fit_window/fit_position_out_of_range.h fit_window/fit_position_out_of_range.cpp \
+    fit_window/FitWindowCutter.h fit_window/FitWindowCutter.cpp \
+    fit_window/Optics.h fit_window/Optics.cpp \
+    fit_window/Plane.h \
+    fit_window/Spot.h \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
 rapidstorm_SOURCES += \
-    guf/fitter.h guf/fitter.cpp \
-    guf/EvaluationTags.h \
+    guf/augment_config.h guf/augment_config.cpp \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
     guf/create_evaluator.h guf/create_evaluator.hpp \
-    guf/FunctionRepository.h guf/FunctionRepository.hpp \
+    guf/DistanceMetric.h \
     guf/Factory.cpp guf/Factory.h \
-    guf/MultiKernelModel.h guf/MultiKernelModel.hpp \
+    guf/FitFunction.h \
+    guf/FitFunctionFactory.h guf/FitFunctionFactory.cpp \
+    guf/FitFunctionFactoryImplementation.h guf/FitFunctionFactoryImplementation.hpp \
     guf/Fitter.cpp guf/Fitter.h \
     guf/InitialValueFinder.h guf/InitialValueFinder.cpp \
-    guf/TraitValueFinder.h guf/TraitValueFinder.cpp \
-    guf/NaiveFitter.h guf/NaiveFitter.cpp \
-    guf/FitFunctionFactory.h guf/FitFunctionFactory.cpp \
+    guf/KernelCreator.h guf/KernelCreator.cpp \
     guf/LocalizationChecker.h guf/LocalizationChecker.cpp \
     guf/LocalizationCreator.h guf/LocalizationCreator.cpp \
-    guf/KernelCreator.h guf/KernelCreator.cpp \
+    guf/MultiKernelModel.h \
+    guf/NaiveFitter.h guf/NaiveFitter.cpp \
     guf/PlaneFunction.h guf/PlaneFunction.hpp \
-    guf/DistanceMetric.h \
     guf/Spot.h \
-    guf/unit_tests.h
+    guf/TraitValueFinder.h guf/TraitValueFinder.cpp \
+    guf/unit_tests.h guf/unit_tests.cpp
 
 rapidstorm_SOURCES += \
     gaussian_psf/fwd.h gaussian_psf/parameters.h \
@@ -520,7 +524,9 @@ rapidstorm_SOURCES += \
     gaussian_psf/expressions.h gaussian_psf/Base3D.h \
     gaussian_psf/Polynomial3D.h gaussian_psf/Polynomial3D.cpp \
     gaussian_psf/No3D.h gaussian_psf/No3D.cpp \
+    gaussian_psf/No3D_test.h gaussian_psf/No3D_test.cpp \
     gaussian_psf/DepthInfo3D.h gaussian_psf/DepthInfo3D.cpp \
+    gaussian_psf/DepthInfo3D_test.h gaussian_psf/DepthInfo3D_test.cpp \
     gaussian_psf/is_plane_dependent.h \
     gaussian_psf/JointEvaluator.h \
     gaussian_psf/unit_test.h gaussian_psf/unit_test.cpp \
@@ -536,12 +542,13 @@ rapidstorm_SOURCES += \
 # empty suffix to generate lists
 INST_DIR = guf/instantiations/
 
+INST_NUMTYPE_DOUBLE = $(INST_DIR:=double_-_)
 INST_NUMTYPE = $(INST_DIR:=float_-_) $(INST_DIR:=double_-_)
-INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14) 
+INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE_DOUBLE:=disjoint_14) 
 if COMPILE_SPECIALIZED_FITTERS
 INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
-    $(INST_NUMTYPE:=disjoint_10) $(INST_NUMTYPE:=disjoint_12) \
-    $(INST_NUMTYPE:=disjoint_16) $(INST_NUMTYPE:=disjoint_18) \
+    $(INST_NUMTYPE_DOUBLE:=disjoint_10) $(INST_NUMTYPE:=disjoint_12) \
+    $(INST_NUMTYPE:=disjoint_16) $(INST_NUMTYPE_DOUBLE:=disjoint_18) \
     $(INST_NUMTYPE:=disjoint_20) 
 endif
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
@@ -550,6 +557,8 @@ INST_MODEL = \
     $(INST_TAGS:=no3d_free_form_model_-_) \
     $(INST_TAGS:=no3d_fixed_form_model_-_) \
     $(INST_TAGS:=depthinfo3d_fixed_form_model_-_) \
+    $(INST_DIR:=double_-_joint_8_-_no3d_full_model_-_) \
+    $(INST_DIR:=double_-_joint_8_-_depthinfo3d_full_model_-_) \
     $(INST_TAGS:=constant_background_-_)
 INSTANTIATIONS_UNCPP = \
     $(INST_MODEL:=create_evaluator) $(INST_TAGS:=PlaneFunction)
@@ -564,7 +573,7 @@ rapidstorm_SOURCES += \
     guf/instantiations/double.h \
     guf/instantiations/disjoint.h \
     guf/instantiations/joint_8.h \
-    guf/instantiations/create_evaluators.h \
+    guf/instantiations/create_evaluator.h \
     guf/instantiations/PlaneFunction.h
 nodist_rapidstorm_SOURCES = $(INSTANTIATIONS)
 CLEANFILES += $(INSTANTIATIONS)
@@ -578,10 +587,6 @@ $(INSTANTIATIONS) :
 	    | $(SED) -e 's:#include ":&guf/instantiations/:' > $@
 
 rapidstorm_SOURCES += \
-    nonlinfit/unit_test.h \
-    nonlinfit/unit_test.cpp \
-    nonlinfit/sum/unit_test.cpp \
-    guf/unit_tests.cpp \
     dejagnu.h unit_tests.h unit_tests.cpp
 
 rapidstorm_SOURCES += \

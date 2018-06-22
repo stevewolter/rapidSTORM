@@ -3,39 +3,49 @@
 
 #include <Eigen/Core>
 #include <Eigen/StdVector>
-#include "nonlinfit/plane/GenericData.h"
-#include "nonlinfit/plane/fwd.h"
 #include <vector>
 #include <boost/static_assert.hpp>
-#include "nonlinfit/plane/DataPoint.h"
-#include "nonlinfit/plane/DataFacade.h"
-#include "nonlinfit/DataChunk.h"
+
+#include "nonlinfit/plane/GenericData.h"
 
 namespace nonlinfit {
 namespace plane {
 
 /** Data structure for the Joint computation way. */
 template <typename Number_, int ChunkSize_>
-class JointCoreData
+class JointData : public GenericData
 {
     BOOST_STATIC_ASSERT((ChunkSize_ != Eigen::Dynamic));
   public:
     static const int ChunkSize = ChunkSize_;
     typedef Number_ Number;
-    typedef DataPoint<Number> data_point;
     typedef Eigen::Array<Number, ChunkSize, 2> Input;
 
-    struct DataRow : public nonlinfit::DataChunk<Number_,ChunkSize_> {
+    struct DataRow {
+        typedef Eigen::Array<Number, ChunkSize, 1> Output;
+
         /** The X and Y coordinates for the current row. */
         Input inputs;
+        /** The measurements for the matching row in #inputs. */
+        Output output;
+        /** The value of \f$x \ln x\f$ for each \f$ x \f$ in #output. */
+        Output logoutput;
+        /** The background estimate for each pixel. */
+        Output background;
+        /** The difference between the measurements and a function's last
+          *  evaluation on these data. */
+        mutable Output residues;
+
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
-};
 
-template <typename Number, int ChunkSize>
-class JointData
-: public DataFacade< JointCoreData<Number,ChunkSize> >,
-  public GenericData {};
+    typedef std::vector<DataRow, Eigen::aligned_allocator<DataRow> > Data;
+    Data data;
+
+    Eigen::Matrix<Number, 2, 1> get_coordinate(const DataRow& chunk, int index) const {
+        return chunk.inputs.row(index);
+    }
+};
 
 }
 }

@@ -148,9 +148,9 @@ class Source
 	    return false;
 	} else {
 	    *output = output_buffer.front();
-	    for (const auto& median : median_values) {
-		output->push_back_background(
-                    median.slice(0, half_width * camera::pixel).deep_copy());
+	    for (int plane = 0; plane < output->plane_count(); ++plane) {
+		output->set_background(plane,
+                    median_values[plane].slice(0, half_width * camera::pixel).deep_copy());
 	    }
 	    output_buffer.pop();
 	    return true;
@@ -177,6 +177,8 @@ class Source
             size[1] = p.plane(i).image.size[0];
             size[2] = p.plane(i).image.size[1];
             median_values.emplace_back(size);
+
+            p.plane(i).has_background_estimate = true;
         }
     }
 };
@@ -199,7 +201,11 @@ class ChainLink
     }
 
     input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
-        return new Source( p, config.width(), config.stride() );
+        if (config.apply_filter()) {
+            return new Source( p, config.width(), config.stride() );
+        } else {
+            return p.release();
+        }
     }
 
   public:
@@ -213,9 +219,9 @@ class ChainLink
 
 Config::Config() 
 : name_object(ChainLink::getName(), "Temporal median filter"),
-  apply_filter("ApplyFilter", false),
-  width("Number of images in median", 21 * camera::frame),
-  stride( "Stride between key images", 10 * camera::frame )
+  apply_filter("MedianFilter", "Apply median filter", false),
+  width("MedianWidth", "Number of images in median", 11 * camera::frame),
+  stride("MedianStride", "Stride between key images", 5 * camera::frame )
 {
     apply_filter.set_user_level( simparm::Intermediate ),
     width.set_user_level( simparm::Expert );
