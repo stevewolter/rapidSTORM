@@ -17,7 +17,7 @@
 #include <nonlinfit/plane/JointData.hpp>
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
-#include <nonlinfit/sum/AbstractMap.hpp>
+#include <nonlinfit/sum/VariableMap.hpp>
 #include <nonlinfit/sum/Evaluator.h>
 #include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/make_bitset.h>
@@ -104,7 +104,7 @@ class VariableReduction
     static const int VariableCount = boost::mpl::size< Variables >::value;
 
     const Config config;
-    std::bitset< VariableCount > 
+    std::vector<bool> 
         positional, /**< Indicates per-fluorophore parameters like amplitude,
                          position or shift. Indexed by variable number. */
         layer_dependent, /**< E.g. shift or z offset. */
@@ -117,7 +117,7 @@ class VariableReduction
     int plane_count;
     const int max_plane_count;
 
-    sum::AbstractMap< VariableCount > result;
+    sum::VariableMap result;
     struct reducer {
         const VariableReduction& r;
         int fluorophore_type, layer;
@@ -145,7 +145,7 @@ class VariableReduction
     /** Get the result matrix, which is a valid input matrix for 
      *  nonlinfit::plane::MultiPlaneEvaluator if add_plane() has been called
      *  sufficiently often. */
-    const sum::AbstractMap< VariableCount >& get_reduction_matrix() const
+    const sum::VariableMap& get_reduction_matrix() const
         { return result; }
     template <typename Parameter>
     bool is_layer_independent( Parameter );
@@ -177,7 +177,6 @@ VariableReduction<Lambda>::VariableReduction( const Config& config, const input:
   plane_count(0), max_plane_count(nop)
 {
     positional = make_bitset( Variables(), is_positional() );
-    assert( positional.any() );
     layer_dependent = make_bitset( Variables(), 
         PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma()) );
     layer_dependent.flip();
@@ -195,7 +194,7 @@ void VariableReduction<Lambda>::add_plane( const int layer, const int fluorophor
     if ( first_fluorophore_occurence[ fluorophore_type ] == -1 )
         first_fluorophore_occurence[ fluorophore_type ] = i;
 
-    result.add_function( reducer(*this, fluorophore_type, layer) );
+    result.add_function( VariableCount, reducer(*this, fluorophore_type, layer) );
 }
 
 template <typename Lambda>

@@ -297,8 +297,11 @@ rapidstorm_SOURCES += \
     inputs/PlaneFilter.h inputs/PlaneFilter.cpp \
     inputs/Basename.h inputs/Basename.cpp \
     inputs/Buffer.h inputs/Buffer.cpp \
-    inputs/LocalizationFile.h inputs/LocalizationFile.cpp \
-    inputs/WarnAboutLocalizationFile.h inputs/WarnAboutLocalizationFile.cpp
+    inputs/LocalizationFile.h inputs/LocalizationFile.cpp  \
+    inputs/WarnAboutLocalizationFile.h inputs/WarnAboutLocalizationFile.cpp \
+    inputs/MedianFilter.h inputs/MedianFilter.cpp \
+    inputs/MedianFilter_test.h inputs/MedianFilter_test.cpp \
+    inputs/unit_tests.h inputs/unit_tests.cpp
 
 rapidstorm_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
@@ -479,8 +482,9 @@ rapidstorm_SOURCES += \
     nonlinfit/terminators/fwd.h \
     nonlinfit/sum/AbstractFunction.h \
     nonlinfit/sum/AbstractFunction.hpp \
-    nonlinfit/sum/AbstractMap.h \
-    nonlinfit/sum/AbstractMap.hpp \
+    nonlinfit/sum/VariableMap.h \
+    nonlinfit/sum/VariableMap.hpp \
+    nonlinfit/sum/VariableMap.cpp \
     nonlinfit/sum/Evaluator.h \
     nonlinfit/sum/Evaluator.hpp \
     nonlinfit/sum/fwd.h \

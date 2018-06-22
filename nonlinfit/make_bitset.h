@@ -29,9 +29,9 @@ struct set_vector {
  *                 evaluation.
  **/
 template <typename Things, typename Functor>
-std::bitset< boost::mpl::size<Things>::type::value >
+std::vector<bool>
 make_bitset( Things, Functor f ) {
-    std::bitset< boost::mpl::size<Things>::type::value > rv;
+    std::vector<bool> rv(boost::mpl::size<Things>::type::value, false);
     boost::mpl::for_each< Things >( 
         boost::bind( 
             detail::set_vector(), 

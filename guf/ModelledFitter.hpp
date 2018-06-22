@@ -12,7 +12,7 @@
 #include "guf/MultiKernelModel.hpp"
 #include "gaussian_psf/is_plane_dependent.h"
 #include <nonlinfit/make_bitset.h>
-#include <nonlinfit/sum/AbstractMap.hpp>
+#include <nonlinfit/sum/VariableMap.h>
 #include <nonlinfit/AbstractFunctionAdapter.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
@@ -31,7 +31,7 @@ ModelledFitter<_Function>::ModelledFitter(
     const Config& config, 
     const dStorm::engine::JobInfo& info)
 : fitter( 
-     typename Function::VariableMap( 
+     nonlinfit::sum::VariableMap( 
         info.traits.plane_count(),
         make_bitset( 
             typename _Function::Variables(), 

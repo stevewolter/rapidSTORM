@@ -15,6 +15,8 @@ public:
     int plane_count() const { return planes_.size(); }
     Image2D &plane( int i ) { return planes_[i]; }
     const Image2D &plane( int i ) const { return planes_[i]; }
+    Image2D &background( int i ) { return background_[i]; }
+    const Image2D &background( int i ) const { return background_[i]; }
 
     typedef Image2D value_type;
     typedef std::vector< Image2D >::iterator iterator;
@@ -28,6 +30,9 @@ public:
     const_iterator end() const { return planes_.end(); }
 
     void push_back( const Plane& );
+    void push_back_background(const Image2D& image) {
+        background_.push_back(image);
+    }
     void clear();
 
     frame_index frame_number() const { return fn; }
@@ -41,7 +46,7 @@ public:
     bool has_invalid_planes() const;
 
 private:
-    std::vector< Plane > planes_;
+    std::vector< Plane > planes_, background_;
     frame_index fn;
 };
 

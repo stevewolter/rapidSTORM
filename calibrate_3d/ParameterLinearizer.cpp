@@ -3,7 +3,7 @@
 #include "gaussian_psf/Polynomial3D.h"
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/VectorPosition.hpp>
-#include <nonlinfit/sum/AbstractMap.hpp>
+#include <nonlinfit/sum/VariableMap.hpp>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <nonlinfit/make_bitset.h>
 #include "calibrate_3d/Config.h"
@@ -71,7 +71,7 @@ struct ParameterLinearizer::Pimpl
 
     std::pair<int,int> reduce( const int plane, const int parameter ) const;
 
-    std::bitset< VariableCount > reducible, plane_independent, constant;
+    std::vector<bool> reducible, plane_independent, constant;
     mutable std::vector< OnePlane, Eigen::aligned_allocator<OnePlane> > planes;
     typedef nonlinfit::sum::AbstractFunction< OnePlane, OnePlane, nonlinfit::sum::VariableDropPolicy > MultiPlane;
     mutable boost::optional< MultiPlane > multiplane;
@@ -97,10 +97,10 @@ ParameterLinearizer::Pimpl::Pimpl( const Config& config )
 void ParameterLinearizer::Pimpl::set_plane_count( int plane_count )
 {
     planes.resize( plane_count );
-    nonlinfit::sum::AbstractMap< VariableCount > map;
+    nonlinfit::sum::VariableMap map;
     for (int i = 0; i < plane_count; ++i) 
     {
-        map.add_function( boost::bind( &Pimpl::reduce, boost::ref(*this), _1, _2 ) );
+        map.add_function( VariableCount, boost::bind( &Pimpl::reduce, boost::ref(*this), _1, _2 ) );
     }
 
     multiplane = boost::in_place( boost::cref(map) );
