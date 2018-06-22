@@ -34,7 +34,7 @@ FunctionRepository<Function>::FunctionRepository()
 {
     boost::mpl::for_each< evaluation_tags >( 
         boost::bind( instantiate(),
-                     _1, boost::ref(*expression), boost::ref(store) ) );
+                     boost::placeholders::_1, boost::ref(*expression), boost::ref(store) ) );
 }
 
 template <class Function>

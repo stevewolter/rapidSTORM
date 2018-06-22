@@ -36,7 +36,7 @@ PlaneCreatorTable::PlaneCreatorTable(
 ) : optics(input) 
 {
     boost::mpl::for_each< EvaluationSchedule >(
-        boost::bind( instantiator<EvaluationSchedule>(), boost::ref(*this), _1 ) );
+        boost::bind( instantiator<EvaluationSchedule>(), boost::ref(*this), boost::placeholders::_1 ) );
 }
 
 }
