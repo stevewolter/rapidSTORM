@@ -481,7 +481,7 @@ rapidstorm_SOURCES += \
     fit_window/fit_position_out_of_range.h fit_window/fit_position_out_of_range.cpp \
     fit_window/FitWindowCutter.h fit_window/FitWindowCutter.cpp \
     fit_window/Optics.h fit_window/Optics.cpp \
-    fit_window/Plane.h \
+    fit_window/Plane.h fit_window/DataPoint.h \
     fit_window/Spot.h \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
@@ -556,9 +556,11 @@ INSTANTIATIONS_UNCPP = \
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
 rapidstorm_SOURCES += \
-    guf/instantiations/no3d_free_form_model.h \
     guf/instantiations/no3d_fixed_form_model.h \
+    guf/instantiations/no3d_free_form_model.h \
+    guf/instantiations/no3d_full_model.h \
     guf/instantiations/depthinfo3d_fixed_form_model.h \
+    guf/instantiations/depthinfo3d_full_model.h \
     guf/instantiations/constant_background.h \
     guf/instantiations/float.h \
     guf/instantiations/double.h \
