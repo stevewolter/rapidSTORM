@@ -31,7 +31,9 @@ You can track announcements, news and new releases for rapidSTORM by subscribing
         ```
 
     * Install rapidstorm: `sudo apt-get install rapidstorm`
-  * **Ubuntu**: Due to a security incident, the Ubuntu repository is currently not available. I'm working on it.
+  * **Ubuntu**:
+    * We support the Ubuntu distributions precise, saucy and trusty. Follow the instructions for Debian above and
+      replace "debian" with "ubuntu" everywhere.
   * **Source**: Download the source from the [GitHub repository](https://github.com/stevewolter/rapidSTORM) and follow the instructions in the [INSTALL file](https://github.com/stevewolter/rapidSTORM/blob/master/INSTALL).
 
 # rapidSTORM features
