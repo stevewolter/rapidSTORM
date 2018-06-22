@@ -1,4 +1,4 @@
-#include "pixelatedBessel.h"
+#include "input_simulation/pixelatedBessel.h"
 
 #include <boost/math/constants/constants.hpp>
 
@@ -10,9 +10,9 @@
 #include <boost/units/io.hpp>
 #include <complex>
 #include <gsl/gsl_errno.h>
-#include <dStorm/traits/Projection.h>
-#include <dStorm/threed_info/DepthInfo.h>
-#include <dStorm/threed_info/Lens3D.h>
+#include "traits/Projection.h"
+#include "threed_info/DepthInfo.h"
+#include "threed_info/Lens3D.h"
 
 namespace input_simulation {
 

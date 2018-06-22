@@ -1,7 +1,7 @@
 #ifndef DSTORM_EXPRESSION_UNITTABLE_IMPL_H
 #define DSTORM_EXPRESSION_UNITTABLE_IMPL_H
 
-#include "UnitTable.h"
+#include "expression/UnitTable.h"
 #include <vector>
 #include <boost/phoenix/function/function.hpp>
 

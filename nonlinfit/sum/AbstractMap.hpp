@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_SUM_ABSTRACTMAP_HPP
 #define NONLINFIT_SUM_ABSTRACTMAP_HPP
 
-#include "AbstractMap.h"
+#include "nonlinfit/sum/AbstractMap.h"
 #include <boost/foreach.hpp>
 #include <utility>
 

@@ -1,7 +1,7 @@
 #ifndef LOCPREC_RIPLEYK_H
 #define LOCPREC_RIPLEYK_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 namespace dStorm {
 namespace ripley_k {

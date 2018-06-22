@@ -1,4 +1,4 @@
-#include "FluorophoreDistributions.h"
+#include "input_simulation/FluorophoreDistributions.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/units/cmath.hpp>
 

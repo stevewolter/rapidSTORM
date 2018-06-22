@@ -1,7 +1,7 @@
 #ifndef SIMPARM_CONFIG_ENTRY_FILE
 #define SIMPARM_CONFIG_ENTRY_FILE
 
-#include "Entry.h"
+#include "simparm/Entry.h"
 
 namespace simparm {
 

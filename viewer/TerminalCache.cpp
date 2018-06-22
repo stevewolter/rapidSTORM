@@ -1,7 +1,7 @@
-#include "TerminalCache.h"
+#include "viewer/TerminalCache.h"
 #include "debug.h"
 #include <boost/units/io.hpp>
-#include "Display.h"
+#include "viewer/Display.h"
 
 namespace dStorm {
 namespace viewer {

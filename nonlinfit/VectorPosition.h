@@ -1,8 +1,8 @@
 #ifndef NONLINFIT_STATESPACE_H
 #define NONLINFIT_STATESPACE_H
 
-#include "Lambda.h"
-#include "Evaluation.h"
+#include "nonlinfit/Lambda.h"
+#include "nonlinfit/Evaluation.h"
 #include <boost/mpl/copy_if.hpp>
 #include <boost/mpl/size.hpp>
 

@@ -1,14 +1,14 @@
-#include "types.h"
-#include "Config.h"
-#include "LValue.h"
-#include "Parser.h"
+#include "expression/types.h"
+#include "expression/Config.h"
+#include "expression/LValue.h"
+#include "expression/Parser.h"
 #include "CommandLine.h"
-#include <dStorm/Localization.h>
-#include <dStorm/localization/Traits.h>
+#include "Localization.h"
+#include "localization/Traits.h"
 #include <simparm/Entry.h>
 #include <boost/mpl/for_each.hpp>
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/Capabilities.h>
+#include "output/FilterBuilder.h"
+#include "output/Capabilities.h"
 #include <boost/lexical_cast.hpp>
 
 namespace dStorm {

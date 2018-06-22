@@ -1,7 +1,7 @@
 #ifndef DSTORM_INPUTS_LOCALIZATIONFILE_H
 #define DSTORM_INPUTS_LOCALIZATIONFILE_H
 
-#include <dStorm/input/fwd.h>
+#include "input/fwd.h"
 #include <memory>
 
 namespace dStorm {

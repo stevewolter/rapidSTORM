@@ -1,4 +1,4 @@
-#include "FluorophoreDistributions.h"
+#include "input_simulation/FluorophoreDistributions.h"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>

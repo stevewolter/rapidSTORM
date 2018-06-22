@@ -1,9 +1,9 @@
 #ifndef DSTORM_VIEWER_HUESATURATIONMIXER_H
 #define DSTORM_VIEWER_HUESATURATIONMIXER_H
 
-#include <dStorm/Pixel.h>
+#include "Pixel.h"
 #include "viewer/Image.h"
-#include "base.h"
+#include "viewer/colour_schemes/base.h"
 
 namespace dStorm {
 namespace viewer {

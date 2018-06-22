@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_INPUTMETHODS_H
 
 #include <memory>
-#include <dStorm/input/fwd.h>
+#include "input/fwd.h"
 
 namespace dStorm {
 namespace inputs {

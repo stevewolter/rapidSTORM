@@ -1,11 +1,11 @@
-#include "YMirror.h"
+#include "inputs/YMirror.h"
 
 #include <boost/smart_ptr/shared_array.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/Image.h>
-#include <dStorm/image/mirror.h>
-#include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/Method.hpp>
+#include "image/Image.h"
+#include "image/mirror.h"
+#include "input/AdapterSource.h"
+#include "input/Method.hpp"
 #include <simparm/Entry.h>
 #include <simparm/Object.h>
 

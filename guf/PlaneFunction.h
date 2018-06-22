@@ -3,7 +3,7 @@
 
 #include <nonlinfit/AbstractFunction.h>
 #include <memory>
-#include "DistanceMetric.h"
+#include "guf/DistanceMetric.h"
 
 namespace dStorm {
 namespace fit_window { class Plane; }

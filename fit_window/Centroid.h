@@ -4,7 +4,7 @@
 #include <boost/units/quantity.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/Eigen/Array>
-#include <dStorm/units/microlength.h>
+#include "units/microlength.h"
 
 namespace dStorm {
 namespace fit_window {

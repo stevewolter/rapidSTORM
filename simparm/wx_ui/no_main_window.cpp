@@ -2,11 +2,11 @@
  * handling of windows.h. */
 #include <wx/frame.h>
 
-#include "no_main_window.h"
-#include "Node.h"
-#include "lambda.h"
-#include "GUIHandle.h"
-#include "gui_thread.h"
+#include "simparm/wx_ui/no_main_window.h"
+#include "simparm/wx_ui/Node.h"
+#include "simparm/wx_ui/lambda.h"
+#include "simparm/wx_ui/GUIHandle.h"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

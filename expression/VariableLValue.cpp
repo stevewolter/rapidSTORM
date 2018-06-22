@@ -1,6 +1,6 @@
 #include "debug.h"
-#include "VariableLValue.h"
-#include "LValue.h"
+#include "expression/VariableLValue.h"
+#include "expression/LValue.h"
 #include <boost/variant/get.hpp>
 
 namespace dStorm {

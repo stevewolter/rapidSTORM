@@ -2,7 +2,7 @@
 #define DSTORM_DISPLAY_CANVAS_H
 
 #include <wx/wx.h>
-#include "dStorm/display/DataSource.h"
+#include "display/DataSource.h"
 
 namespace simparm {
 namespace wx_ui {

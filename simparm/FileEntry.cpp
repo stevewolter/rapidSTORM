@@ -1,6 +1,6 @@
-#include "Entry.h"
-#include "FileEntry.h"
-#include "Node.h"
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Node.h"
 
 #include <sstream>
 #include <fstream>

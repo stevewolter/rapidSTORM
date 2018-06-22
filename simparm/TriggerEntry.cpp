@@ -1,5 +1,5 @@
-#include "TriggerEntry.h"
-#include "Node.h"
+#include "simparm/TriggerEntry.h"
+#include "simparm/Node.h"
 
 namespace simparm {
 

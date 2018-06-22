@@ -1,7 +1,7 @@
 #ifndef DSTORM_FIT_WINDOW_CONFIG_H
 #define DSTORM_FIT_WINDOW_CONFIG_H
 
-#include <dStorm/UnitEntries/Nanometre.h>
+#include "UnitEntries/Nanometre.h"
 
 namespace dStorm {
 namespace fit_window {

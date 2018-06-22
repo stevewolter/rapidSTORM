@@ -1,8 +1,8 @@
-#include "ImageWindow.h"
-#include "../gui_thread.h"
-#include <dStorm/display/SharedDataSource.h>
-#include <dStorm/display/store_image.h>
-#include "Handle.h"
+#include "simparm/wx_ui/image_window/ImageWindow.h"
+#include "simparm/wx_ui/gui_thread.h"
+#include "display/SharedDataSource.h"
+#include "display/store_image.h"
+#include "simparm/wx_ui/image_window/Handle.h"
 #include <boost/bind/bind.hpp>
 
 namespace simparm {

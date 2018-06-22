@@ -1,4 +1,4 @@
-#include "ProtocolNode.h"
+#include "simparm/wx_ui/ProtocolNode.h"
 #include <iostream>
 
 namespace simparm {

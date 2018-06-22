@@ -1,11 +1,11 @@
 #ifndef LOCPREC_PIXELATED_BESSEL_H
 #define LOCPREC_PIXELATED_BESSEL_H
 
-#include <dStorm/traits/optics.h>
-#include <dStorm/engine/InputPlane.h>
+#include "traits/optics.h"
+#include "engine/InputPlane.h"
 #include <boost/units/Eigen/Core>
-#include <dStorm/types/samplepos.h>
-#include <dStorm/traits/Projection.h>
+#include "types/samplepos.h"
+#include "traits/Projection.h"
 
 namespace input_simulation {
 

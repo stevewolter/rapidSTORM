@@ -2,9 +2,9 @@
  * handling of windows.h. */
 #include <wx/window.h>
 
-#include "Window.h"
-#include "gui_thread.h"
-#include "lambda.h"
+#include "simparm/wx_ui/Window.h"
+#include "simparm/wx_ui/gui_thread.h"
+#include "simparm/wx_ui/lambda.h"
 
 namespace simparm {
 namespace wx_ui {

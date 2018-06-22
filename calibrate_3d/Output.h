@@ -18,13 +18,13 @@
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
 
-#include <dStorm/output/Output.h>
-#include <dStorm/traits/optics_config.h>
-#include <dStorm/units/nanolength.h>
-#include <dStorm/stack_realign.h>
+#include "output/Output.h"
+#include "traits/optics_config.h"
+#include "units/nanolength.h"
+#include "stack_realign.h"
 
-#include "Config.h"
-#include "ParameterLinearizer.h"
+#include "calibrate_3d/Config.h"
+#include "calibrate_3d/ParameterLinearizer.h"
 
 #include "expression/Parser.h"
 #include "expression/LValue.h"

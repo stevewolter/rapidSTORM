@@ -1,16 +1,16 @@
 #include "debug.h"
 
-#include "ChainLink.h"
-#include "Engine.h"
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/output/LocalizedImage_traits.h>
+#include "noop_engine/ChainLink.h"
+#include "noop_engine/Engine.h"
+#include "input/MetaInfo.h"
+#include "input/Method.hpp"
+#include "output/LocalizedImage_traits.h"
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 
-#include <dStorm/input/Source.h>
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/output/LocalizedImage.h>
+#include "input/Source.h"
+#include "input/MetaInfo.h"
+#include "output/LocalizedImage.h"
 
 namespace dStorm {
 namespace noop_engine {

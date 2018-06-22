@@ -2,7 +2,7 @@
 #define DSTORM_CONFIG_INPUTBASE_H
 
 #include <memory>
-#include <dStorm/input/fwd.h>
+#include "input/fwd.h"
 
 namespace dStorm {
 

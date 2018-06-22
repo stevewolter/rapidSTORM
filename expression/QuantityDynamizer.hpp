@@ -1,8 +1,8 @@
 #ifndef DSTORM_EXPRESSION_QUANTITY_DYNAMIZER_HPP
 #define DSTORM_EXPRESSION_QUANTITY_DYNAMIZER_HPP
 
-#include "QuantityDynamizer.h"
-#include "UnitTable.h"
+#include "expression/QuantityDynamizer.h"
+#include "expression/UnitTable.h"
 #include <boost/units/io.hpp>
 
 namespace dStorm {

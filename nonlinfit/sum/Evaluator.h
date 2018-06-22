@@ -1,8 +1,8 @@
 #ifndef NONLINFIT_SUM_DERIVER_H
 #define NONLINFIT_SUM_DERIVER_H
 
-#include "fwd.h"
-#include "Lambda.h"
+#include "nonlinfit/sum/fwd.h"
+#include "nonlinfit/sum/Lambda.h"
 #include <nonlinfit/Evaluator.h>
 #include <nonlinfit/DerivationSummand.h>
 #include <boost/bind/bind.hpp>

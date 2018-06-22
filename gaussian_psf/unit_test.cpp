@@ -1,4 +1,4 @@
-#include "unit_test.h"
+#include "gaussian_psf/unit_test.h"
 
 namespace dStorm {
 namespace gaussian_psf {

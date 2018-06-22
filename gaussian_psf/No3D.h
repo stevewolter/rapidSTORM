@@ -1,7 +1,7 @@
 #ifndef DSTORM_PSF_NO3D_H
 #define DSTORM_PSF_NO3D_H
 
-#include "BaseExpression.h"
+#include "gaussian_psf/BaseExpression.h"
 #include <nonlinfit/append.h>
 
 namespace dStorm {

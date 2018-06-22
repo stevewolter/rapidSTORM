@@ -1,22 +1,21 @@
 #define CImgBuffer_TIFFLOADER_CPP
-#include "BasicTransmissions.h"
+#include "outputs/BasicTransmissions.h"
 
-#include "LocalizationCounter.h"
-#include "ProgressMeter.h"
-#include "AverageImage.h"
-#include "TraceFilter.h"
+#include "outputs/LocalizationCounter.h"
+#include "outputs/ProgressMeter.h"
+#include "outputs/AverageImage.h"
+#include "outputs/TraceFilter.h"
 #include "expression/Source_decl.h"
-#include "Slicer.h"
-#include "MemoryCache.h"
-#include "LocalizationFile.h"
-#include "SigmaDiff3D.h"
-#include "LinearAlignment.h"
-#include "DriftRemover.h"
-#include "RegionOfInterest.h"
-#include "RegionSegmenter.h"
-#include "SpotMeter.h"
-#include "PrecisionEstimator.h"
-#include "VarianceEstimator.h"
+#include "outputs/Slicer.h"
+#include "outputs/MemoryCache.h"
+#include "outputs/SigmaDiff3D.h"
+#include "outputs/LinearAlignment.h"
+#include "outputs/DriftRemover.h"
+#include "outputs/RegionOfInterest.h"
+#include "outputs/RegionSegmenter.h"
+#include "outputs/SpotMeter.h"
+#include "outputs/PrecisionEstimator.h"
+#include "outputs/VarianceEstimator.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -25,7 +24,6 @@ namespace dStorm {
 namespace output {
 
 void basic_outputs( dStorm::Config* o ) {
-    o->add_output( localization_file::writer::create() );
     o->add_output( make_progress_meter_source().release() );
     o->add_output( make_localization_counter_source().release() );
     o->add_output( make_average_image_source().release() );

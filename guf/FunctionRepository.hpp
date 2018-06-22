@@ -2,10 +2,10 @@
 #define GUF_EVALUATOR_FACTORY_IMPL_H
 
 #include <Eigen/StdVector>
-#include "FunctionRepository.h"
+#include "guf/FunctionRepository.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include "EvaluationTags.h"
+#include "guf/EvaluationTags.h"
 #include "fit_window/Plane.h"
 
 #include "debug.h"

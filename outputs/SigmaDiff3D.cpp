@@ -1,12 +1,12 @@
-#include "SigmaDiff3D.h"
+#include "outputs/SigmaDiff3D.h"
 
 #include <simparm/Object.h>
 #include <simparm/FileEntry.h>
 
-#include <dStorm/output/Filter.h>
-#include <dStorm/output/FilterBuilder.h>
-#include <dStorm/threed_info/Spline3D.h>
-#include <dStorm/threed_info/look_up_sigma_diff.h>
+#include "output/Filter.h"
+#include "output/FilterBuilder.h"
+#include "threed_info/Spline3D.h"
+#include "threed_info/look_up_sigma_diff.h"
 #include <boost/units/cmath.hpp>
 
 namespace dStorm {

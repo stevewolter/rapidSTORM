@@ -1,7 +1,7 @@
 #ifndef DSTORM_INPUT_JOIN_H
 #define DSTORM_INPUT_JOIN_H
 
-#include <dStorm/input/Link.h>
+#include "input/Link.h"
 #include <memory>
 
 namespace dStorm {

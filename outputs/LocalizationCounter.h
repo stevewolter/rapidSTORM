@@ -1,7 +1,7 @@
 #ifndef DSTORM_LOCALIZATIONCOUNTER_H
 #define DSTORM_LOCALIZATIONCOUNTER_H
 
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 #include <memory>
 
 namespace dStorm {

@@ -2,7 +2,7 @@
  * handling of windows.h. */
 #include <wx/treebook.h>
 
-#include "TreeRepresentation.h"
+#include "simparm/wx_ui/TreeRepresentation.h"
 #include <boost/range/algorithm/find.hpp>
 #include <boost/range/algorithm_ext/erase.hpp>
 

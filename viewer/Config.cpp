@@ -1,6 +1,6 @@
-#include "Config.h"
-#include "ColourSchemeFactory.h"
-#include "colour_schemes/decl.h"
+#include "viewer/Config.h"
+#include "viewer/ColourSchemeFactory.h"
+#include "viewer/colour_schemes/decl.h"
 
 namespace dStorm {
 namespace viewer {

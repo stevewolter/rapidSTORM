@@ -2,7 +2,7 @@
 #define DSTORM_OUTPUTS_MEMORYCACHE_CACHE_H
 
 #include <vector>
-#include <dStorm/Localization.h>
+#include "Localization.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {

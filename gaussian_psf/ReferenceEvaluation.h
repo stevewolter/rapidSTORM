@@ -4,13 +4,13 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <nonlinfit/plane/fwd.h>
-#include "No3D.h"
-#include "DepthInfo3D.h"
+#include "gaussian_psf/No3D.h"
+#include "gaussian_psf/DepthInfo3D.h"
 #include <nonlinfit/plane/GenericData.h>
 #include <nonlinfit/Evaluator.h>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include <dStorm/threed_info/DepthInfo.h>
+#include "threed_info/DepthInfo.h"
 
 namespace dStorm {
 namespace gaussian_psf {

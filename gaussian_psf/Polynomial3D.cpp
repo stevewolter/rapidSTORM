@@ -1,4 +1,4 @@
-#include "Polynomial3D.h"
+#include "gaussian_psf/Polynomial3D.h"
 #include "gaussian_psf/check_evaluator.hpp"
 #include "nonlinfit/InvalidPositionError.h"
 

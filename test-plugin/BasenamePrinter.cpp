@@ -1,8 +1,8 @@
-#include "BasenamePrinter.h"
+#include "test-plugin/BasenamePrinter.h"
 
 #include <simparm/Entry.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FileOutputBuilder.h>
+#include "output/Output.h"
+#include "output/FileOutputBuilder.h"
 #include <iostream>
 #include <stdexcept>
 #include <boost/units/io.hpp>

@@ -1,6 +1,6 @@
 #include "CommandLine.h"
-#include "Filter.h"
-#include "VariableLValue.h"
+#include "expression/Filter.h"
+#include "expression/VariableLValue.h"
 
 namespace dStorm {
 namespace expression {

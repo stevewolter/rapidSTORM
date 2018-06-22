@@ -1,12 +1,12 @@
 #include "debug.h"
-#include "Config.h"
+#include "engine/Config.h"
 #include <math.h>
 #include <limits>
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFitter.h>
-#include <dStorm/engine/SpotFitterFactory.h>
+#include "engine/SpotFinder.h"
+#include "engine/SpotFitter.h"
+#include "engine/SpotFitterFactory.h"
 
-#include <dStorm/output/Basename.h>
+#include "output/Basename.h"
 #include <boost/bind/bind.hpp>
 
 #include "config.h"

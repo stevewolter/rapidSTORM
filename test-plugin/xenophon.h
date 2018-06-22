@@ -2,8 +2,8 @@
 #define DSTORM_TEST_XENOPHONS_STORY_H
 
 #include <vector>
-#include <dStorm/output/LocalizedImage.h>
-#include <dStorm/output/LocalizedImage_traits.h>
+#include "output/LocalizedImage.h"
+#include "output/LocalizedImage_traits.h"
 
 namespace dStorm {
 namespace test {

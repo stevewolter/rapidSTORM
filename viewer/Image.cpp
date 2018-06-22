@@ -1,5 +1,5 @@
-#include "Image.h"
-#include <dStorm/Image.h>
+#include "viewer/Image.h"
+#include "image/Image.h"
 
 namespace dStorm {
 

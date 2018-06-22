@@ -1,5 +1,5 @@
-#include "ScaleBar.h"
-#include "helpers.h"
+#include "simparm/wx_ui/image_window/ScaleBar.h"
+#include "simparm/wx_ui/image_window/helpers.h"
 
 #include "debug.h"
 

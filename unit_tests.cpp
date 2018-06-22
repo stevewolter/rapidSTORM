@@ -5,12 +5,12 @@
 #include "inputs/ResolutionSetter.h"
 #include "tiff/TIFF.h"
 #include "dejagnu.h"
-#include <dStorm/helpers/thread.h>
+#include "helpers/thread.h"
 #include "engine/ChainLink_decl.h"
 #include "guf/unit_tests.h"
-#include <dStorm/traits/unit_tests.h>
-#include <dStorm/threed_info/fwd.h>
-#include <dStorm/image/fwd.h>
+#include "traits/unit_tests.h"
+#include "threed_info/fwd.h"
+#include "image/fwd.h"
 #include <boost/test/unit_test.hpp>
 #include "fit_window/unit_tests.h"
 #include "gaussian_psf/unit_test.h"

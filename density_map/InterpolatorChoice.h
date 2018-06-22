@@ -2,7 +2,7 @@
 #define DSTORM_DENSITY_MAP_INTERPOLATOR_CHOICE_H
 
 #include <simparm/ManagedChoiceEntry.h>
-#include "InterpolatorFactory.h"
+#include "density_map/InterpolatorFactory.h"
 
 namespace dStorm {
 namespace density_map {

@@ -1,7 +1,7 @@
 #ifndef DSTORM_WXDISPLAY_SIZECONV_H
 #define DSTORM_WXDISPLAY_SIZECONV_H
 
-#include <dStorm/display/DataSource.h>
+#include "display/DataSource.h"
 #include <wx/font.h>
 
 namespace simparm {

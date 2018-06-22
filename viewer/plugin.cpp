@@ -1,5 +1,5 @@
-#include "fwd.h"
-#include <dStorm/Config.h>
+#include "viewer/fwd.h"
+#include "base/Config.h"
 
 namespace dStorm {
 namespace viewer {

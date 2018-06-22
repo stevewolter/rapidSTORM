@@ -1,10 +1,10 @@
 #include "debug.h"
-#include "RawImageFile.h"
+#include "tiff/RawImageFile.h"
 #include <cassert>
-#include <dStorm/Image.h>
+#include "image/Image.h"
 #include <boost/units/io.hpp>
 #include <stdint.h>
-#include "TIFFOperation.h"
+#include "tiff/TIFFOperation.h"
 #include <boost/scoped_array.hpp>
 
 namespace dStorm {

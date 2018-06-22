@@ -1,10 +1,10 @@
 #ifndef NONLINFIT_EVALUATORS_PLANE_GENERIC_H
 #define NONLINFIT_EVALUATORS_PLANE_GENERIC_H
 
-#include "fwd.h"
+#include "nonlinfit/plane/fwd.h"
 #include <nonlinfit/Evaluator.h>
 #include <nonlinfit/Evaluation.h>
-#include "Jacobian.h"
+#include "nonlinfit/plane/Jacobian.h"
 
 namespace nonlinfit {
 namespace plane {

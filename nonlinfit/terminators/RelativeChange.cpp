@@ -1,7 +1,7 @@
 /** \cond */
 #include <cassert>
 #include <nonlinfit/Terminator.h>
-#include "RelativeChange.h"
+#include "nonlinfit/terminators/RelativeChange.h"
 
 namespace nonlinfit {
 namespace terminators {

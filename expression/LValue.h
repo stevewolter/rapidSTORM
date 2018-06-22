@@ -1,9 +1,9 @@
 #ifndef DSTORM_EXPRESSION_SOURCE_FILTERS_H
 #define DSTORM_EXPRESSION_SOURCE_FILTERS_H
 
-#include "types.h"
-#include "tokens.h"
-#include "Source.h"
+#include "expression/types.h"
+#include "expression/tokens.h"
+#include "expression/Source.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {

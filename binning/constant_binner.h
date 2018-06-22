@@ -1,8 +1,8 @@
 #ifndef DSTORM_OUTPUT_BINNING_CONSTANT_H
 #define DSTORM_OUTPUT_BINNING_CONSTANT_H
 
-#include "binning_decl.h"
-#include "config.h"
+#include "binning/binning_decl.h"
+#include "binning/config.h"
 #include <memory>
 
 namespace dStorm {

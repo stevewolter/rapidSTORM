@@ -1,19 +1,19 @@
-#include "TerminalBackend.h"
-#include "ColourScheme.h"
+#include "viewer/TerminalBackend.h"
+#include "viewer/ColourScheme.h"
 
-#include "TerminalBackend.h"
+#include "viewer/TerminalBackend.h"
 
-#include "ImageDiscretizer.h"
-#include "ImageDiscretizer_converter.h"
-#include "Display.h"
+#include "viewer/ImageDiscretizer.h"
+#include "viewer/ImageDiscretizer_converter.h"
+#include "viewer/Display.h"
 #include "density_map/LinearInterpolation.h"
 
-#include <dStorm/display/store_image.h>
-#include <dStorm/image/iterator.h>
+#include "display/store_image.h"
+#include "image/iterator.h"
 
-#include "Config.h"
-#include "Status.h"
-#include "LiveBackend.h"
+#include "viewer/Config.h"
+#include "viewer/Status.h"
+#include "viewer/LiveBackend.h"
 
 namespace dStorm {
 namespace viewer {

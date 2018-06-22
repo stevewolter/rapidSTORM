@@ -7,24 +7,24 @@
 #include <simparm/Eigen.h>
 #include <simparm/Group.h>
 #include <simparm/Entry.h>
-#include <dStorm/UnitEntries.h>
+#include "UnitEntries.h"
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <boost/units/cmath.hpp>
-#include <dStorm/output/Basename_decl.h>
+#include "output/Basename_decl.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include <dStorm/Engine.h>
-#include <dStorm/output/LocalizedImage_decl.h>
-#include <dStorm/input/Source.h>
+#include "base/Engine.h"
+#include "output/LocalizedImage_decl.h"
+#include "input/Source.h"
 
-#include <dStorm/engine/Image_decl.h>
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/engine/FitJudger.h>
-#include <dStorm/engine/FitJudgerFactory.h>
+#include "engine/Image_decl.h"
+#include "engine/SpotFinder.h"
+#include "engine/SpotFitterFactory.h"
+#include "engine/FitJudger.h"
+#include "engine/FitJudgerFactory.h"
 
-#include <dStorm/units/nanolength.h>
+#include "units/nanolength.h"
 #include <boost/units/systems/camera/length.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 

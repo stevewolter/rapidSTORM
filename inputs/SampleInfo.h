@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_SAMPLEINFO_H
 
 #include <memory>
-#include <dStorm/input/fwd.h>
+#include "input/fwd.h"
 
 namespace dStorm {
 namespace input {

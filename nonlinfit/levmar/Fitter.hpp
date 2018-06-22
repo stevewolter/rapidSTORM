@@ -2,9 +2,9 @@
 #define NONLINFIT_LEVMAR_IMPL_H
 
 #include "debug.h"
-#include "Fitter.h"
-#include "exceptions.h"
-#include "../InvalidPositionError.h"
+#include "nonlinfit/levmar/Fitter.h"
+#include "nonlinfit/levmar/exceptions.h"
+#include "nonlinfit/InvalidPositionError.h"
 
 #include <cassert>
 #include <limits>

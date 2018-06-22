@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_PLANE_DATAFACADE_HPP
 #define NONLINFIT_PLANE_DATAFACADE_HPP
 
-#include "DataFacade.h"
+#include "nonlinfit/plane/DataFacade.h"
 #include <boost/iterator/iterator_facade.hpp>
 
 #include <iostream>

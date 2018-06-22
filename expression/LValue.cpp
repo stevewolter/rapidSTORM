@@ -1,6 +1,6 @@
-#include "LValue.h"
-#include "Simplifier.h"
-#include "Evaluator.h"
+#include "expression/LValue.h"
+#include "expression/Simplifier.h"
+#include "expression/Evaluator.h"
 
 namespace dStorm {
 namespace expression {

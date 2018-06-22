@@ -1,7 +1,7 @@
 #ifndef CSUNITS_CAMERA_AREA_HPP
 #define CSUNITS_CAMERA_AREA_HPP
 
-#include "base.hpp"
+#include "boost/units/systems/camera/base.hpp"
 #include <boost/units/physical_dimensions/area.hpp>
 #include <boost/units/static_constant.hpp>
 

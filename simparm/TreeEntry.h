@@ -1,8 +1,8 @@
 #ifndef SIMPARM_TREEENTRY_HH
 #define SIMPARM_TREEENTRY_HH
 
-#include "Object.h"
-#include "Attribute.h"
+#include "simparm/Object.h"
+#include "simparm/Attribute.h"
 
 namespace simparm {
 

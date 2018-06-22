@@ -1,7 +1,7 @@
-#include "Object.h"
-#include "Node.h"
-#include "dummy_ui/fwd.h"
-#include "GUILabelTable.h"
+#include "simparm/Object.h"
+#include "simparm/Node.h"
+#include "simparm/dummy_ui/fwd.h"
+#include "simparm/GUILabelTable.h"
 
 using namespace std;
 

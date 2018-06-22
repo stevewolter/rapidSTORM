@@ -1,7 +1,7 @@
-#include "InterpolatorChoice.h"
-#include "LinearInterpolation.h"
-#include "NearestNeighbourInterpolation.h"
-#include "GaussianSmoothing.h"
+#include "density_map/InterpolatorChoice.h"
+#include "density_map/LinearInterpolation.h"
+#include "density_map/NearestNeighbourInterpolation.h"
+#include "density_map/GaussianSmoothing.h"
 
 namespace dStorm {
 namespace density_map {

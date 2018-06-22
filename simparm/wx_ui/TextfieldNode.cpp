@@ -11,7 +11,7 @@
 #include <wx/dcmemory.h>
 #include <wx/dnd.h>
 
-#include "TextfieldNode.h"
+#include "simparm/wx_ui/TextfieldNode.h"
 
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -20,9 +20,9 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "stock-hchain-24-broken.xpm"
-#include "stock-hchain-24.xpm"
-#include "gui_thread.h"
+#include "simparm/wx_ui/stock-hchain-24-broken.xpm"
+#include "simparm/wx_ui/stock-hchain-24.xpm"
+#include "simparm/wx_ui/gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

@@ -2,15 +2,15 @@
 
 #include <Eigen/StdVector>
 #include <simparm/BoostUnits.h>
-#include "DistanceHistogram.h"
+#include "ripley_k/DistanceHistogram.h"
 #include <simparm/FileEntry.h>
-#include <dStorm/units/nanolength.h>
+#include "units/nanolength.h"
 #include "binning/binning.hpp"
 #include "binning/localization_impl.h"
-#include <dStorm/output/OutputBuilder.h>
+#include "output/OutputBuilder.h"
 #include <boost/ptr_container/ptr_array.hpp>
-#include <dStorm/output/FileOutputBuilder.h>
-#include <dStorm/units/microlength.h>
+#include "output/FileOutputBuilder.h"
+#include "units/microlength.h"
 #include <boost/units/cmath.hpp>
 #include <fstream>
 

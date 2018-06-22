@@ -1,7 +1,7 @@
 #ifndef NONLINFIT_PLANE_CHECK_EVALUATOR_HPP
 #define NONLINFIT_PLANE_CHECK_EVALUATOR_HPP
 
-#include "fwd.h"
+#include "nonlinfit/plane/fwd.h"
 #include <nonlinfit/Lambda.h>
 #include <nonlinfit/Evaluation.hpp>
 #include <nonlinfit/BoundFunction.hpp>

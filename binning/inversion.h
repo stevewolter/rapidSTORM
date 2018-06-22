@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BINNING_INVERSION_H
 #define DSTORM_OUTPUT_BINNING_INVERSION_H
-#include "binning.h"
-#include <dStorm/display/DataSource.h>
+#include "binning/binning.h"
+#include "display/DataSource.h"
 
 namespace dStorm {
 namespace binning {

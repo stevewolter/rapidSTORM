@@ -2,10 +2,10 @@
 #define SIMPARM_WX_UI_ROOTNODE_H
 
 #include <wx/wx.h>
-#include "Node.h"
-#include <dStorm/Config.h>
-#include "WindowNode.h"
-#include "TabNode.h"
+#include "simparm/wx_ui/Node.h"
+#include "base/Config.h"
+#include "simparm/wx_ui/WindowNode.h"
+#include "simparm/wx_ui/TabNode.h"
 #include <fstream>
 #include <boost/filesystem/path.hpp>
 #include "shell/JobFactory.h"

@@ -1,6 +1,6 @@
-#include "Attribute.h"
-#include "TreeEntry.h"
-#include "Node.h"
+#include "simparm/Attribute.h"
+#include "simparm/TreeEntry.h"
+#include "simparm/Node.h"
 
 namespace simparm {
 

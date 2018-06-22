@@ -2,7 +2,7 @@
 #define DSTORM_TRANSMISSIONS_COLOURDISPLAY_BASE_H
 
 #include <limits>
-#include <dStorm/Pixel.h>
+#include "Pixel.h"
 #include <stdint.h>
 #include <boost/array.hpp>
 

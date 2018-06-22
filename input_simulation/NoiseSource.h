@@ -1,22 +1,22 @@
 #ifndef LOCPREC_NOISESOURCE_H
 #define LOCPREC_NOISESOURCE_H
 
-#include "Fluorophore.h"
-#include "FluorophoreDistribution.h"
-#include "NoiseGenerator.h"
-#include <dStorm/input/Source.h>
-#include <dStorm/input/Link.h>
-#include <dStorm/engine/InputTraits.h>
+#include "input_simulation/Fluorophore.h"
+#include "input_simulation/FluorophoreDistribution.h"
+#include "input_simulation/NoiseGenerator.h"
+#include "input/Source.h"
+#include "input/Link.h"
+#include "engine/InputTraits.h"
 #include <gsl/gsl_rng.h>
 #include <boost/thread/mutex.hpp>
-#include <dStorm/engine/Image_decl.h>
-#include <dStorm/units/microlength.h>
+#include "engine/Image_decl.h"
+#include "units/microlength.h"
 
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ProgressEntry.h>
 #include <boost/ptr_container/ptr_list.hpp>
-#include <dStorm/traits/optics_config.h>
-#include <dStorm/engine/InputTraits.h>
+#include "traits/optics_config.h"
+#include "engine/InputTraits.h"
 
 namespace input_simulation {
     class NoiseConfig;

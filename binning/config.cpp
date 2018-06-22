@@ -3,7 +3,7 @@
 #include <boost/mpl/for_each.hpp>
 
 #include "binning/localization_config_impl.h"
-#include "dStorm/localization/Fields.h"
+#include "localization/Fields.h"
 
 namespace dStorm {
 namespace binning {

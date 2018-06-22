@@ -1,17 +1,17 @@
 #include "debug.h"
-#include "plugin.h"
+#include "viewer/plugin.h"
 #include <stdint.h>
-#include "Viewer.h"
+#include "viewer/Viewer.h"
 #include <limits>
 #include <cassert>
-#include <dStorm/engine/Image.h>
+#include "engine/Image.h"
 
 #include <simparm/Message.h>
-#include <dStorm/display/Manager.h>
+#include "display/Manager.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
-#include "ColourScheme.h"
+#include "viewer/ColourScheme.h"
 
 #include <fstream>
 

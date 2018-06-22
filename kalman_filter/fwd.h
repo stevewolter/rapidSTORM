@@ -1,5 +1,5 @@
 #include <memory>
-#include <dStorm/output/OutputSource.h>
+#include "output/OutputSource.h"
 
 namespace dStorm {
 namespace kalman_filter {

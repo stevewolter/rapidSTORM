@@ -1,4 +1,4 @@
-#include "JobMetaFactory.h"
+#include "shell/JobMetaFactory.h"
 #include <ui/serialization/serialize.h>
 #include <ui/serialization/deserialize.h>
 #include <simparm/NodeHandle.h>

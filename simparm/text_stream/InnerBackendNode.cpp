@@ -1,4 +1,4 @@
-#include "InnerBackendNode.h"
+#include "simparm/text_stream/InnerBackendNode.h"
 #include <boost/thread/locks.hpp>
 
 using boost::placeholders::_1;

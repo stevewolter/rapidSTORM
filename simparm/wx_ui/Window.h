@@ -1,7 +1,7 @@
 #ifndef WX_UI_WINDOW_H
 #define WX_UI_WINDOW_H
 
-#include "GUIHandle.h"
+#include "simparm/wx_ui/GUIHandle.h"
 #include <boost/function/function0.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <boost/optional/optional.hpp>

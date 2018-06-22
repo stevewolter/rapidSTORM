@@ -2,9 +2,9 @@
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_IMPL_H
 
 #include <simparm/BoostUnits.h>
-#include "localization_config.h"
-#include "localization_impl.h"
-#include "binning.hpp"
+#include "binning/localization_config.h"
+#include "binning/localization_impl.h"
+#include "binning/binning.hpp"
 #include "binning/always_failing_binner.h"
 #include <sstream>
 

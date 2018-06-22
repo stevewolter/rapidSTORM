@@ -2,10 +2,10 @@
 #define SIMPARM_NODE
 
 #include <string>
-#include "Message.h"
-#include "BaseAttribute.h"
-#include "NodeHandle.h"
-#include "UserLevel.h"
+#include "simparm/Message.h"
+#include "simparm/BaseAttribute.h"
+#include "simparm/NodeHandle.h"
+#include "simparm/UserLevel.h"
 
 namespace dStorm { namespace display { class WindowProperties; class DataSource; class WindowHandle; } }
 namespace dStorm { class Job; }

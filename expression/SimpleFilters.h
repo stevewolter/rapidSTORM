@@ -8,8 +8,8 @@
 #include <simparm/BoostOptional.h>
 #include <simparm/Entry.h>
 #include "CommandLine.h"
-#include <dStorm/units/nanolength.h>
-#include <dStorm/localization/Traits.h>
+#include "units/nanolength.h"
+#include "localization/Traits.h"
 
 namespace dStorm {
 namespace expression {

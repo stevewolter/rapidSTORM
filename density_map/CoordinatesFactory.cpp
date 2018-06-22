@@ -1,7 +1,7 @@
-#include "CoordinatesFactory.h"
-#include "Coordinates.h"
+#include "density_map/CoordinatesFactory.h"
+#include "density_map/Coordinates.h"
 
-#include <dStorm/image/MetaInfo.h>
+#include "image/MetaInfo.h"
 
 #include "binning/config.h"
 #include "binning/inversion.h"

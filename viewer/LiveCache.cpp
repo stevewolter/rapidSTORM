@@ -1,10 +1,10 @@
-#include "LiveCache.h"
-#include "Display.h"
-#include "ColourScheme.h"
-#include "Display.h"
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/MetaInfo.h>
-#include <dStorm/image/iterator.h>
+#include "viewer/LiveCache.h"
+#include "viewer/Display.h"
+#include "viewer/ColourScheme.h"
+#include "viewer/Display.h"
+#include "image/constructors.h"
+#include "image/MetaInfo.h"
+#include "image/iterator.h"
 
 namespace dStorm {
 namespace viewer {
