@@ -13,9 +13,13 @@ namespace nonlinfit {
  *  function.
  */
 template <typename Function>
-class BoundFunction : public Function, private boost::noncopyable {
+class BoundFunction
+: public AbstractFunction<typename Function::Number>,
+  public AbstractMoveable<typename Function::Number>,
+  private boost::noncopyable {
     typedef typename Function::Data Data;
     typedef typename Function::Lambda Lambda;
+    Function f;
     Lambda m;
     Data d;
     typedef VectorPosition<Lambda> Mover;
@@ -42,6 +46,10 @@ class BoundFunction : public Function, private boost::noncopyable {
         { mover.get_position(p); }
     void set_position( const Position & p ) 
         { mover.set_position(p); }
+    int variable_count() const { return f.variable_count(); }
+    bool evaluate(typename Function::Derivatives& p) {
+        return f.evaluate(p);
+    }
 };
 
 }

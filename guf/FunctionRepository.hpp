@@ -23,14 +23,14 @@ struct FunctionRepository<Function>::instantiate
     template <typename Tag, typename Container>
     void operator()( Tag way, Function& expression, Container& target )
     {
-        target.push_back( PlaneFunction<Function>::create(expression, way) );
+        target.push_back( PlaneFunction::create(expression, way) );
     }
 };
 
 template <class Function>
 FunctionRepository<Function>::FunctionRepository() 
 : expression( new Function() ),
-  mover( new nonlinfit::AbstractedMoveable<nonlinfit::VectorPosition<Function> >(*expression) )
+  mover( new nonlinfit::VectorPosition<Function>(*expression) )
 {
     boost::mpl::for_each< evaluation_tags >( 
         boost::bind( instantiate(),

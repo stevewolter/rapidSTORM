@@ -7,8 +7,8 @@
 
 namespace nonlinfit {
 
-template <class ToType, class Function, 
-    bool Trivial = boost::is_same< ToType, typename Function::Number >::value >
+template <class ToType, class FromType, 
+    bool Trivial = boost::is_same< ToType, FromType >::value >
 class FunctionConverter;
 
 /** Derived Function instance to convert the numeric type of a function.
@@ -17,23 +17,17 @@ class FunctionConverter;
  *  in positions and evaluations to the ToType class. If ToType is the same
  *  type as the underlying function's number type, the conversion is Trivial
  *  and a no-op. */
-template <class ToType, class Function, bool Trivial>
+template <class ToType, class FromType, bool Trivial>
 class FunctionConverter
+: public AbstractFunction<ToType>
 {
-    Function base;
+    AbstractFunction<FromType>& base;
+    Evaluation<FromType> buffer;
   public:
-    typedef typename Function::Lambda Lambda;
-    typedef typename Function::Data Data;
-    static const int VariableCount = Function::VariableCount;
-    typedef Evaluation< ToType, VariableCount > Derivatives;
-    typedef ToType Number;
+    FunctionConverter( AbstractFunction<FromType>& a ) : base(a), buffer(base.variable_count()) {}
 
-    FunctionConverter( Lambda& a ) : base(a) {}
-
-    void set_data( const Data& d ) { base.set_data(d); }
     int variable_count() const { return base.variable_count(); }
-    bool evaluate( Derivatives& d ) {
-        typename Function::Derivatives buffer;
+    bool evaluate( Evaluation<ToType>& d ) {
         if ( base.evaluate(buffer) ) {
             d.value = buffer.value;
             d.gradient = buffer.gradient.template cast<ToType>();
@@ -45,15 +39,16 @@ class FunctionConverter
     }
 };
 
-/** \cond */
-template <class ToType, class Function>
-struct FunctionConverter< ToType, Function, true >
-: public Function
+template <class ToType, class FromType>
+class FunctionConverter<ToType, FromType, true>
+: public AbstractFunction<ToType>
 {
-    FunctionConverter( typename Function::Lambda& a ) : Function(a) {}
-
+    AbstractFunction<FromType>& base;
+  public:
+    FunctionConverter( AbstractFunction<FromType>& a ) : base(a) {}
+    int variable_count() const { return base.variable_count(); }
+    bool evaluate( Evaluation<ToType>& d ) { return base.evaluate(d); }
 };
-/** \endcond */
 
 }
 

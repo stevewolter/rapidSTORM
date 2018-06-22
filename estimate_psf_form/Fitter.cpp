@@ -174,7 +174,7 @@ template <typename Lambda>
 VariableReduction<Lambda>::VariableReduction( const Config& config, const input::Traits< engine::ImageStack >& traits, int nop )
 : config(config), 
   first_fluorophore_occurence( traits.fluorophores.size(), -1 ),
-  plane_count(0), max_plane_count(nop)
+  plane_count(0), max_plane_count(nop), result(VariableCount)
 {
     positional = make_bitset( Variables(), is_positional() );
     layer_dependent = make_bitset( Variables(), 
@@ -194,7 +194,7 @@ void VariableReduction<Lambda>::add_plane( const int layer, const int fluorophor
     if ( first_fluorophore_occurence[ fluorophore_type ] == -1 )
         first_fluorophore_occurence[ fluorophore_type ] = i;
 
-    result.add_function( VariableCount, reducer(*this, fluorophore_type, layer) );
+    result.add_function( reducer(*this, fluorophore_type, layer) );
 }
 
 template <typename Lambda>
@@ -252,7 +252,7 @@ class Fitter
         nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > > 
         PlaneFunction;
     typedef nonlinfit::VectorPosition< Lambda > VectorPosition;
-    typedef sum::AbstractFunction< PlaneFunction, PlaneFunction, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
+    typedef sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
 
     /** Optics indexed by input layer. */
     boost::ptr_vector<fit_window::Optics> optics;

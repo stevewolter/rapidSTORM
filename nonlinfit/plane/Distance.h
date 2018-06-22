@@ -5,6 +5,7 @@
 #include <nonlinfit/Evaluator.h>
 #include <nonlinfit/Evaluation.h>
 #include "nonlinfit/plane/Jacobian.h"
+#include "nonlinfit/AbstractFunction.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -23,13 +24,14 @@ namespace plane {
  **/
 template <typename _Lambda, typename _Tag, typename _Metric>
 class Distance
+: public nonlinfit::AbstractFunction<typename _Tag::Number>
 {
     typedef _Tag Tag;
   public:
     typedef _Lambda Lambda;
     typedef typename _Tag::Number Number;
     typedef typename Tag::Data Data;
-    typedef typename get_evaluation< Lambda, Number >::type Derivatives;
+    typedef Evaluation< Number > Derivatives;
 
   private:
     typedef typename Data::ChunkView::value_type DataRow;
@@ -43,9 +45,7 @@ class Distance
     Distance( Lambda& lambda ) : evaluator(lambda) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
-
+    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
 
     typedef void result_type;
     inline void operator()( Derivatives&, const DataRow& );
@@ -91,13 +91,14 @@ class Distance
  **/
 template <typename _Lambda, typename Num, int _ChunkSize, typename P1, typename P2>
 class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
+: public nonlinfit::AbstractFunction<Num>
 {
     typedef Disjoint<Num,_ChunkSize,P1,P2> Tag;
   public:
     typedef _Lambda Lambda;
     typedef Num Number;
     typedef typename Tag::Data Data;
-    typedef typename get_evaluation< Lambda, Num >::type Derivatives;
+    typedef Evaluation< Num > Derivatives;
   private:
     typedef typename Data::ChunkView::value_type DataRow;
     typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
@@ -125,8 +126,7 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     Distance( Lambda& l ) : evaluator(l) {}
     bool evaluate( Derivatives& p );
     void set_data( const Data& data ) { this->data = &data; }
-    static const int VariableCount = Derivatives::VariableCount;
-    int variable_count() const { return VariableCount; }
+    int variable_count() const { return boost::mpl::size<typename Lambda::Variables>::value; }
 
     typedef void result_type;
     inline void operator()( Derivatives&, 

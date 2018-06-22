@@ -45,11 +45,12 @@ public:
 };
 
 template <typename Lambda>
-class BoundMoveable {
+class BoundMoveable 
+: public nonlinfit::AbstractFunction<double>, public nonlinfit::AbstractMoveable<double> {
     Lambda expression;
     nonlinfit::VectorPosition<Lambda> mover;
 public:
-    typedef nonlinfit::Evaluation< double, boost::mpl::size<typename Lambda::Variables>::value > Derivatives;
+    typedef nonlinfit::Evaluation<double> Derivatives;
     typedef typename nonlinfit::VectorPosition<Lambda>::Position Position;
 
     BoundMoveable() : mover(expression) {}
@@ -61,6 +62,8 @@ public:
     const Lambda& get_expression() const { return expression; }
     void get_position( Position& p ) const { mover.get_position(p); }
     void set_position( const Position& p ) { mover.set_position(p); }
+    bool evaluate(Derivatives& p) { assert(false); return false; }
+    int variable_count() const { return nonlinfit::VectorPosition<Lambda>::VariableCount; }
 };
 
 struct ParameterLinearizer::Pimpl 
@@ -73,7 +76,7 @@ struct ParameterLinearizer::Pimpl
 
     std::vector<bool> reducible, plane_independent, constant;
     mutable std::vector< OnePlane, Eigen::aligned_allocator<OnePlane> > planes;
-    typedef nonlinfit::sum::AbstractFunction< OnePlane, OnePlane, nonlinfit::sum::VariableDropPolicy > MultiPlane;
+    typedef nonlinfit::sum::AbstractFunction< double, nonlinfit::sum::VariableDropPolicy > MultiPlane;
     mutable boost::optional< MultiPlane > multiplane;
 
 public:
@@ -97,10 +100,10 @@ ParameterLinearizer::Pimpl::Pimpl( const Config& config )
 void ParameterLinearizer::Pimpl::set_plane_count( int plane_count )
 {
     planes.resize( plane_count );
-    nonlinfit::sum::VariableMap map;
+    nonlinfit::sum::VariableMap map(VariableCount);
     for (int i = 0; i < plane_count; ++i) 
     {
-        map.add_function( VariableCount, boost::bind( &Pimpl::reduce, boost::ref(*this), _1, _2 ) );
+        map.add_function( boost::bind( &Pimpl::reduce, boost::ref(*this), _1, _2 ) );
     }
 
     multiplane = boost::in_place( boost::cref(map) );

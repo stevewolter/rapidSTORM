@@ -25,7 +25,7 @@ template <typename Lambda, typename Assignment>
     struct Bind;
 template <class _Summand, typename _Parameter, class _Dimension> 
     struct DerivationSummand;
-template <class Num, int Vars, int MaxVarCount = Vars> 
+template <class Num> 
     struct Evaluation;
 template <typename Lambda> 
     struct VectorPosition;

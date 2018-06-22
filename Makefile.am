@@ -433,7 +433,6 @@ rapidstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
     nonlinfit/AbstractMoveable.h \
     nonlinfit/AbstractTerminator.h \
-    nonlinfit/AbstractFunctionAdapter.h \
     nonlinfit/access_parameters.hpp \
     nonlinfit/append.h \
     nonlinfit/BoundFunction.h nonlinfit/BoundFunction.hpp \

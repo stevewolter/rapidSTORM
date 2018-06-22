@@ -39,8 +39,8 @@ static void test_VariableMap()
     BOOST_CHECK_NE( map(0,3), map(7,3) );
     BOOST_CHECK_EQUAL( map(0,4), map(7,4) );
 
-    VariableMap map2;
-    for (int i = 0; i < 10; ++i) map2.add_function(5, test_functor() );
+    VariableMap map2(5);
+    for (int i = 0; i < 10; ++i) map2.add_function(test_functor() );
     BOOST_CHECK_EQUAL( map2.function_count(), 10 );
     BOOST_CHECK_EQUAL( map2.output_variable_count(), 10 );
     BOOST_CHECK_EQUAL( map2(9,4), map2(8,0) );

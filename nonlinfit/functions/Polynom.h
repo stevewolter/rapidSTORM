@@ -45,7 +45,7 @@ template <int Dimension, int Dimensions>
 struct SimpleFunction 
 : public nonlinfit::Bind< static_power::Expression, BaseValue >
 {
-    typedef nonlinfit::Evaluation<double,Dimensions> Derivatives;
+    typedef nonlinfit::Evaluation<double> Derivatives;
     static_power::Expression* expression;
 
     SimpleFunction( nonlinfit::Bind< Expression, BaseValue >& m ) 

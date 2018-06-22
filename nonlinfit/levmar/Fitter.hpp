@@ -79,8 +79,6 @@ Fitter::State<_Function,_Moveable>::State( _Function& f, const _Moveable& m, int
   original_hessians_diagonal( n ), scratch(n,n), shift(n),
   use_ldlt( n > 4 )
 {
-    BOOST_STATIC_ASSERT(( _Function::Derivatives::VariableCount == Eigen::Dynamic 
-                       || _Function::Derivatives::VariableCount > 0 ));
     m.get_position( work->parameters );
     bool initial_position_valid = false;
     try {

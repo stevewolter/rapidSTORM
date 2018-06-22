@@ -1,8 +1,9 @@
 #ifndef NONLINFIT_SUM_ABSTRACTFUNCTION_H
 #define NONLINFIT_SUM_ABSTRACTFUNCTION_H
 
-#include <nonlinfit/AbstractFunction.h>
 #include <boost/static_assert.hpp>
+#include "nonlinfit/AbstractFunction.h"
+#include "nonlinfit/AbstractMoveable.h"
 #include "nonlinfit/sum/VariableMap.h"
 
 namespace nonlinfit {
@@ -37,39 +38,32 @@ public:
  *
  *  The contributing functions are not owned by this function.
  */
-template <
-    typename _Function,
-    typename _Moveable = _Function,
-    typename Policy = UnboundedPolicy >
+template <typename Number, typename Policy = UnboundedPolicy >
 class AbstractFunction
+: public nonlinfit::AbstractFunction<Number>,
+  public AbstractMoveable<Number>
 {
-    static const int InputVarC = _Function::Derivatives::VariableCount;
-    static const int OutputVariableCountMax = 
-        ( Policy::PlaneCountMax == Eigen::Dynamic ) 
-            ? Eigen::Dynamic
-            : Policy::PlaneCountMax * InputVarC;
   public:
     /** The input function type. */
-    typedef _Function argument_type;
-    typedef _Moveable moveable_type;
+    typedef nonlinfit::AbstractFunction<Number> argument_type;
+    typedef nonlinfit::AbstractMoveable<Number> moveable_type;
     /** The type of the implemented, resulting function. */
-    typedef Evaluation<
-        typename _Function::Derivatives::Scalar, 
-        Eigen::Dynamic, 
-        OutputVariableCountMax> Derivatives;
+    typedef Evaluation<Number> Derivatives;
     typedef typename Derivatives::Vector Position;
 
   private:
     typedef std::vector< argument_type* > Fitters;
     Fitters fitters;
-    std::vector< _Moveable* > movers;
+    std::vector< moveable_type* > movers;
     const VariableMap map;
     const int plane_count;
+    mutable typename moveable_type::Position position_buffer;
+    mutable typename argument_type::Derivatives evaluation_buffer;
 
   public:
     AbstractFunction( const VariableMap& variable_map );
     /** Use the supplied fitter as the base fitter for the given index. */
-    void set_fitter( int index, argument_type& input, _Moveable& moveable ) {
+    void set_fitter( int index, argument_type& input, moveable_type& moveable ) {
         fitters[index] = &input;
         movers[index] = &moveable;
     }
@@ -77,7 +71,7 @@ class AbstractFunction
     template <typename Iterator>
     void set_fitters( Iterator i, Iterator end ) {
         typename Fitters::iterator j = fitters.begin();
-        typename std::vector< _Moveable* >::iterator k = movers.begin();
+        typename std::vector< moveable_type* >::iterator k = movers.begin();
         for ( ; i != end; ++i, ++j, ++k ) { *j = &*i; *k = &*i; }
     }
 

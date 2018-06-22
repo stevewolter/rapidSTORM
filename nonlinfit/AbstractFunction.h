@@ -18,11 +18,11 @@ namespace nonlinfit {
  *  \tparam MaxVarCount gives an upper bound on the number of variables
  *          if Vars is set to Eigen::Dynamic
  **/
-template <class Derivatives_>
+template <typename Number>
 class AbstractFunction {
   public:
     /** \copydoc nonlinfit::Evaluation */
-    typedef Derivatives_ Derivatives;
+    typedef Evaluation<Number> Derivatives;
 
     virtual ~AbstractFunction() {}
     /** The runtime number of parameters. Equal to Vars for non-dynamic 
@@ -37,15 +37,6 @@ class AbstractFunction {
      *               function's support. */
     virtual bool evaluate( Derivatives& p ) = 0;
 
-};
-
-/** Metafunction to get an instance of AbstractFunction for
- *  a model of Function. */
-template <typename _Lambda, typename _Number>
-struct get_abstract_function {
-    typedef AbstractFunction<
-        typename get_evaluation< _Lambda, _Number >::type 
-    > type;
 };
 
 }

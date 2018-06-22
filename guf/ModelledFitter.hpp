@@ -13,7 +13,7 @@
 #include "gaussian_psf/is_plane_dependent.h"
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/sum/VariableMap.h>
-#include <nonlinfit/AbstractFunctionAdapter.h>
+#include <nonlinfit/AbstractFunction.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include "engine/JobInfo.h"
@@ -59,21 +59,18 @@ double ModelledFitter<_Function>::fit(
         AbstractTerminator;
     typedef nonlinfit::AbstractTerminator< typename Function::Position >
         TerminatorInterface;
-    typedef nonlinfit::AbstractFunctionAdapter< Function > AbstractFunction;
-    typedef nonlinfit::AbstractMoveableAdapter< Function > AbstractMoveable;
+    typedef nonlinfit::AbstractFunction<double> AbstractFunction;
+    typedef nonlinfit::AbstractMoveable<double> AbstractMoveable;
     for ( typename fit_window::Stack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i )
         fitter.set_fitter( i-b, *evaluators[i-b]( *i, mle ), evaluators[i-b].get_moveable() );
 
-    AbstractFunction function( fitter );
-    AbstractMoveable moveable( fitter );
     MyTerminator concrete_terminator(terminator);
     AbstractTerminator abstract_terminator(concrete_terminator);
     return lm.fit< 
-        typename AbstractFunction::abstract_type,
-        typename AbstractMoveable::abstract_type,
+        AbstractFunction,
+        AbstractMoveable,
         TerminatorInterface& >
-        ( function.abstract(), moveable.abstract(),
-                   static_cast<TerminatorInterface&>(abstract_terminator) );
+        ( fitter, fitter, abstract_terminator );
 }
 
 }

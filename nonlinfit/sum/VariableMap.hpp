@@ -9,14 +9,13 @@ namespace nonlinfit {
 namespace sum {
 
 template <typename Function>
-void VariableMap::add_function( int input_variable_count,
-                                const Function& reducer_functor )
+void VariableMap::add_function(const Function& reducer_functor )
 {
     BOOST_STATIC_ASSERT(( boost::is_same< std::pair<int,int>, 
                           typename Function::result_type >::value ));
     int my_row = map.size();
-    map.push_back( Row(input_variable_count) );
-    for (int j = 0; j < input_variable_count; ++j)  {
+    map.push_back( Row(input_var_c) );
+    for (int j = 0; j < input_var_c; ++j)  {
         std::pair<int,int> reduction = reducer_functor( my_row, j );
         assert( reduction.first <= my_row && reduction.second <= j );
         if ( reduction.second < 0 )
