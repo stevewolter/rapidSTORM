@@ -98,6 +98,11 @@ class Evaluator
     }
 
     template <typename Result>
+    void add_value( Result& result ) {
+        for_each( parts, boost::bind( AddValue(), _1, boost::ref(result) ) ); 
+    }
+
+    template <typename Result>
     void value( Result& result ) {
         /* We treat one summand specially here to avoid zero-initialization. */
         boost::fusion::at_c<0>(parts).value( result );

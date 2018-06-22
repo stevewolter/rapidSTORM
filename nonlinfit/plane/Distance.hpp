@@ -43,16 +43,6 @@ template <typename _Function, typename Tag, typename _Metric>
 void Distance<_Function,Tag,_Metric>::evaluate_chunk( 
     Derivatives& p, const DataRow& r, const DataChunk& c )
 {
-    Eigen::Array<Number, Tag::ChunkSize, 1> values;
-
-    this->evaluator.prepare_chunk( r.inputs );
-    this->evaluator.value( values );
-    c.residues = c.output - values;
-
-    this->jac.compute( this->evaluator );
-
-    increment_evaluation< _Metric >()( p, values, c, *this->jac );
-    assert( p.value == p.value );
 }
 
 
@@ -61,17 +51,50 @@ bool Distance<_Function,Tag,_Metric>::evaluate(Derivatives& p)
 {
     p.set_zero();
 
-    if ( ! evaluator.prepare_iteration( *xs ) )
-        return false;
+    for (const auto& term : terms) {
+        if ( ! term->prepare_iteration( *xs ) ) {
+            return false;
+        }
+    }
     
-    jac.precompute( evaluator );
     assert(this->xs->data.size() == this->ys->size());
+    Eigen::Array<Number, Tag::ChunkSize, 1> values;
     auto j = this->ys->begin();
     for (auto i = this->xs->data.begin(); i != this->xs->data.end(); ++i, ++j) {
-        evaluate_chunk(p, *i, *j);
+        values.fill(0);
+
+        int offset = 0;
+        for (const auto& term : terms) {
+            term->evaluate_chunk(i->inputs, values,
+                    jacobian.template block<Tag::ChunkSize, Eigen::Dynamic>(
+                        0, offset, Tag::ChunkSize, term->variable_count));
+            offset += term->variable_count;
+        }
+
+        j->residues = j->output - values;
+        increment_evaluation< _Metric >()( p, values, *j, jacobian );
+        assert( p.value == p.value );
     }
 
     return true;
+}
+
+template <typename _Function, typename Tag, typename _Metric>
+void Distance<_Function,Tag,_Metric>::get_position( Position& p ) const {
+    int offset = 0;
+    for (const auto& term : terms) {
+        term->get_position(p.segment(offset, term->variable_count));
+        offset += term->variable_count;
+    }
+}
+
+template <typename _Function, typename Tag, typename _Metric>
+void Distance<_Function,Tag,_Metric>::set_position( const Position& p ) {
+    int offset = 0;
+    for (const auto& term : terms) {
+        term->set_position(p.segment(offset, term->variable_count));
+        offset += term->variable_count;
+    }
 }
 
 template <typename _Function, typename Num, int _ChunkSize, typename P1, typename P2>
