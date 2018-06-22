@@ -29,7 +29,6 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Num
         output.xs[i] = input.points[i].position.x();
     }
 
-#ifndef NDEBUG
     for (int chunk = 0; chunk < chunk_count; ++chunk) {
         for (int i = 0; i < ChunkSize; ++i) {
             const DataPoint& point = input.points[chunk * ChunkSize + i];
@@ -41,7 +40,6 @@ void chunkify(const fit_window::Plane& input, nonlinfit::plane::DisjointData<Num
             output.data[chunk].residues[i] = 0;
         }
     }
-#endif
 }
 
 template <typename Number, int ChunkSize>

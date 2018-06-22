@@ -36,7 +36,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_evaluator_with_tag, Info ) {
     std::auto_ptr<nonlinfit::AbstractFunction<double>> test =
         guf::PlaneFunction<Data>::create(std::move(tested_evaluators), plane, MLE::value);
 
-    bool is_same = nonlinfit::plane::compare_evaluators<double>(*ref, *test);
+    bool is_same = nonlinfit::plane::compare_evaluators<double>(*test, *ref);
     BOOST_CHECK( is_same );
 }
 
