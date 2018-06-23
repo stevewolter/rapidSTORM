@@ -1,5 +1,7 @@
 #include "guf/NaiveFitter.h"
 
+#include <boost/utility/in_place_factory.hpp>
+
 #include "debug.h"
 #include "engine/InputTraits.h"
 #include "threed_info/No3D.h"

@@ -1,3 +1,6 @@
+#include <deque>
+#include <fstream>
+
 #include "estimate_psf_form/Fitter.h"
 
 #include <Eigen/StdVector>

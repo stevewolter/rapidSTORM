@@ -40,7 +40,11 @@ bool Distance<Tag,_Metric,VariableCount>::evaluate(Derivatives& p)
             p.value -= 2 * (i->residues - i->logoutput + values.log() * i->output).sum();
             typename DataRow::Output quotient = i->output / values;
             typename DataRow::Output square_quotient = quotient / values;
-            p.hessian.noalias() += jacobian.transpose() * square_quotient.matrix().asDiagonal() * jacobian;
+            if (Tag::ChunkSize == 1) {
+                p.hessian.noalias() += jacobian.transpose() * square_quotient(0, 0) * jacobian;
+            } else {
+                p.hessian.noalias() += jacobian.transpose() * square_quotient.matrix().asDiagonal() * jacobian;
+            }
             p.gradient.noalias() += jacobian.transpose() * (quotient - 1).matrix();
         }
 

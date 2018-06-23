@@ -3,6 +3,7 @@
 #include "traits/Projection.h"
 #include "traits/ProjectionFactory.h"
 #include "traits/ProjectionConfig.h"
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <boost/array.hpp>

@@ -88,7 +88,7 @@ std::vector<bool> FitFunctionFactoryImplementation<Kernel, DataTagList>::reducti
         typename Kernel::Variables(), 
         gaussian_psf::is_plane_independent( laempi_fit, disjoint_amplitudes ) );
 
-    for (size_t i = 0; i <  kernels.size(); ++i) {
+    for (size_t i = 0; i < kernels.size(); ++i) {
         std::copy(kernel_set.begin(), kernel_set.end(), std::back_inserter(result));
     }
     if (use_background) {

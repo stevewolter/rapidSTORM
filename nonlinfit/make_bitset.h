@@ -38,7 +38,7 @@ make_bitset( Things, Functor f ) {
             f, 
             typename boost::mpl::lambda< index_of<Things,boost::mpl::_1> >::type(),
             boost::ref(rv),
-            _1 ) );
+            boost::placeholders::_1 ) );
     return rv;
 }
 

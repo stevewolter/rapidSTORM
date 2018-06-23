@@ -2,6 +2,8 @@
  * handling of windows.h. */
 #include <wx/choice.h>
 
+#include <boost/utility/in_place_factory.hpp>
+
 #include "simparm/wx_ui/ChoiceNode.h"
 #include "simparm/wx_ui/WindowNode.h"
 #include "simparm/wx_ui/lambda.h"

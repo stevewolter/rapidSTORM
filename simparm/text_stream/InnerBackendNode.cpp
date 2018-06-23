@@ -18,7 +18,6 @@ void InnerBackendNode::detach_frontend_() {
 }
 
 void InnerBackendNode::add_child( BackendNode& t ) { 
-    assert( &t );
     children.add( t ); 
     std::ostream* o = get_print_stream();
     if (o) t.declare( *o );
