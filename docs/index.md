@@ -12,7 +12,7 @@ You can track announcements, news and new releases for rapidSTORM by subscribing
 
   * **Windows**: Download and run the [RapidSTORM 3.3.1 64 bit installer](https://storage.googleapis.com/rapidstorm/binary-win64/rapidstorm-3.3.1-win64.exe) for Windows. For older systems, there's a [32 bit installer](https://storage.googleapis.com/rapidstorm/binary-win32/rapidstorm-3.3.1-win32.exe). Older versions are linked from the [index page](http://storage.googleapis.com/rapidstorm).
   * **Debian Linux**:
-    * Currently, we support Debian distributions squeeze and wheezy. stretch and buster are in the works.
+    * Currently, we support Debian distributions **stretch** (stable), **wheezy** and **squeeze**.
     * Add my public key to your keyring: 
 
         ```
