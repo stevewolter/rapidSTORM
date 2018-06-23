@@ -1,3 +1,7 @@
+== 3.3.2 ==
+
+ * Ported rapidSTORM to new versions of Eigen (3.3) and Boost.
+
 == 3.3.1 ==
 
  * Worked around broken libtiff 4.x severity levels (error instead of warning)
