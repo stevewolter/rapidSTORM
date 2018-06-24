@@ -40,13 +40,13 @@ class Config {
     }
     Config();
 
-    bool can_work_with(output::Capabilities cap) { 
-        return true; 
+    bool can_work_with(output::Capabilities cap) {
+        return true;
     }
 };
 
 class Output : public output::Output {
-  private: 
+  private:
     std::string filename;
     std::auto_ptr<std::ofstream> fileKeeper;
     std::ostream *file;
@@ -73,12 +73,12 @@ class Output : public output::Output {
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)
-    { 
-        insert_filename_with_check( filename, present_filenames ); 
+    {
+        insert_filename_with_check( filename, present_filenames );
     }
 };
 
-Config::Config() 
+Config::Config()
 : outputFile("ToFile", "Write localizations to", ".txt"),
   xyztI("XYZTI",   "Output only Malk fields (x,y,z,t,I)", false)
 {
@@ -90,7 +90,7 @@ Config::Config()
     outputFile.set_user_level(simparm::Beginner);
     outputFile.setHelpID( "Table_ToFile" );
 
-    xyztI.setHelp( 
+    xyztI.setHelp(
         "Output only the most common subset of the possible information. "
         "The X,Y and Z coordinates will be displayed along with the frame "
         "number and the intensity, but no other columns. If no Z information "
@@ -99,7 +99,7 @@ Config::Config()
 
 void Output::open() {
     if ( filename != "-" ) {
-        fileKeeper.reset( new ofstream( filename.c_str(), 
+        fileKeeper.reset( new ofstream( filename.c_str(),
                                     ios_base::out | ios_base::trunc ) );
         file = fileKeeper.get();
     } else
@@ -145,11 +145,11 @@ void Output::output( const Localization& l ) {
     *file << "\n";
 }
 
-void Output::receiveLocalizations(const EngineResult &er) 
+void Output::receiveLocalizations(const EngineResult &er)
 {
     if ( file == NULL ) return;
-    std::for_each( er.begin(), er.end(), 
-        boost::bind(&Output::output, this, _1) ); 
+    std::for_each( er.begin(), er.end(),
+        boost::bind(&Output::output, this, boost::placeholders::_1) );
     if ( ! (*file) ) {
         simparm::Message m("Unable to write localizations file",
             "Writing localizations to " + filename + " failed.",
