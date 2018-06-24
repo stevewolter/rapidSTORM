@@ -8,7 +8,7 @@ AUTO_DEBSIGN=no
 HOOKDIR="@abs_srcdir@/hook"
 
 case "$DISTRIBUTION" in
-    precise|quantal|saucy|trusty)
+    precise|quantal|saucy|trusty|xenial|bionic)
         MIRRORSITE=http://ftp.halifax.rwth-aachen.de/ubuntu
         DEBOOTSTRAPOPTS=("--keyring" "/usr/share/keyrings/ubuntu-archive-keyring.gpg" "${DEBOOTSTAPOPTS[@]}")
         COMPONENTS="main universe"
