@@ -87,6 +87,7 @@ send "in Car in Run in value set 1\n"
 expect {
     -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); exp_continue; }
     -re "in Progress in value set 0.1" { pass "$test" }
+    -re "in Progress in value set 1" { pass "$test" }
 }
 
 set test "Job can be closed"
@@ -107,6 +108,7 @@ send "in Car in Run in value set 1\n"
 expect {
     -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); exp_continue; }
     -re "in Progress in value set 0.1" { pass "$test" }
+    -re "in Progress in value set 1" { pass "$test" }
 }
 send "terminate_jobs\n"
 
