@@ -7,8 +7,6 @@
 #include <boost/fusion/include/iteration.hpp>
 #include <Eigen/Core>
 
-using namespace boost::placeholders;
-
 namespace dStorm {
 
 struct spacesep_output_streamer {
@@ -31,7 +29,7 @@ std::ostream&
 operator<<(std::ostream &o, const Localization& loc)
 {
     boost::mpl::for_each<localization::Fields>(boost::bind(
-        spacesep_output_streamer(), boost::ref(o), boost::ref(loc), _1));
+        spacesep_output_streamer(), boost::ref(o), boost::ref(loc), boost::arg<1>()));
     return o << "\n";
 }
 

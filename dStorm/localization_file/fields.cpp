@@ -10,8 +10,6 @@
 #include "unknown_field.h"
 #include "children_field.h"
 
-using boost::placeholders::_1;
-
 namespace dStorm {
 namespace localization_file {
 
@@ -153,7 +151,7 @@ void create_localization_fields( const Field::Traits& traits, Field::Fields& res
         LocalizationFieldCreator(),
         boost::ref(traits),
         boost::ref(result),
-        _1));
+        boost::arg<1>()));
 }
 
 std::auto_ptr<Field> Field::construct_xyztI( const Field::Traits& traits )

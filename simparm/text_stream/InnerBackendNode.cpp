@@ -1,8 +1,6 @@
 #include "InnerBackendNode.h"
 #include <boost/thread/locks.hpp>
 
-using boost::placeholders::_1;
-
 namespace simparm {
 namespace text_stream {
 
@@ -57,7 +55,7 @@ void InnerBackendNode::declare( std::ostream& o ) {
         o << "declare " << type << "\n";
         o << "name " << name << "\n";
         if ( frontend ) frontend->declare( o );
-        children.for_each( boost::bind( &BackendNode::declare, _1, boost::ref(o) ) );
+        children.for_each( boost::bind( &BackendNode::declare, boost::arg<1>(), boost::ref(o) ) );
         o << "end" << std::endl;
         declared = true;
     }

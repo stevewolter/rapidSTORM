@@ -9,8 +9,6 @@
 #include "dStorm/localization/Traits.h"
 #include "dejagnu.h"
 
-using boost::placeholders::_1;
-
 namespace dStorm {
 namespace expression {
 
@@ -135,7 +133,7 @@ std::auto_ptr< boost::ptr_vector<Variable> >
 variables_for_localization_fields() {
     boost::ptr_vector<Variable> rv;
     boost::mpl::for_each<localization::Fields>(boost::bind(
-        FieldAdder(), boost::ref(rv), _1));
+        FieldAdder(), boost::ref(rv), boost::arg<1>()));
     return rv.release();
 }
 

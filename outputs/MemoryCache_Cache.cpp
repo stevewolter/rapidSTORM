@@ -8,8 +8,6 @@
 
 #include <iostream>
 
-using boost::placeholders::_1;
-
 namespace dStorm {
 namespace memory_cache {
 
@@ -53,7 +51,7 @@ Store::instantiate_necessary_caches( const input::Traits<Localization>& traits )
 {
     boost::ptr_vector<Store> rv;
     boost::mpl::for_each< localization::Fields >(boost::bind(
-        CacheCreator(), _1, traits, boost::ptr_container::ptr_back_inserter(rv) ));
+        CacheCreator(), boost::arg<1>(), traits, boost::ptr_container::ptr_back_inserter(rv) ));
     return rv;
 }
 

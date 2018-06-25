@@ -9,8 +9,6 @@
 
 #include <dStorm/localization/Fields.h>
 
-using boost::placeholders::_1;
-
 namespace dStorm {
 namespace input {
 namespace join {
@@ -73,7 +71,7 @@ void merge_size( Traits<Localization>& onto, const Traits<Localization> with, in
 {
     boost::mpl::for_each< localization::Fields >(boost::bind( 
         merge_localization_traits(), 
-        _1, boost::ref(onto), boost::ref(with) ) );
+        boost::arg<1>(), boost::ref(onto), boost::ref(with) ) );
     int children_count = std::min( onto.source_traits.size(), with.source_traits.size() );
     onto.source_traits.resize( children_count );
     for ( int i = 0; i < children_count; ++i)

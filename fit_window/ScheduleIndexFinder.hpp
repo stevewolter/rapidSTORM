@@ -54,7 +54,7 @@ ScheduleIndexFinder::ScheduleIndexFinder( Schedule, bool disjoint, bool use_doub
         table.push_back( boost::mpl::size<Schedule>::value - 1 );
         boost::mpl::for_each< Schedule >( 
             boost::bind( create_table<Schedule>(do_disjoint,use_doubles), 
-                         boost::ref(table.back()), window_width, boost::placeholders::_1 ) );
+                         boost::ref(table.back()), window_width, boost::arg<1>() ) );
     }
 }
 
