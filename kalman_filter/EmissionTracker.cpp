@@ -189,6 +189,7 @@ void Output::announceStormSize(const Announcement &a) {
     my_announcement.in_sequence = false;
     my_announcement.input_image_traits.reset();
     my_announcement.group_field = input::GroupFieldSemantic::Molecule;
+    my_announcement.molecule().is_given = true;
 
     dStorm::ImageTypes<2>::Size sizes;
     for (int i = 0; i < 2; ++i) {

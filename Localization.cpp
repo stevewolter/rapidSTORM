@@ -55,7 +55,8 @@ Localization::Localization( const Localization& l )
   two_kernel_improvement(l.two_kernel_improvement), 
   fit_residues(l.fit_residues), fluorophore(l.fluorophore),
   local_background(l.local_background),
-  coefficient_of_determination(l.coefficient_of_determination)
+  coefficient_of_determination(l.coefficient_of_determination),
+  molecule(l.molecule)
 {}
               
 Localization::~Localization() {}

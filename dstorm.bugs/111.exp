@@ -27,7 +27,7 @@ expect {
 }
 
 set test "Track emissions results are correct"
-set has_difference [catch {exec -- grep -v "^#" "${tmpdir_host}tracking-test-result.txt" | tr -d "\r" | diff - "${testcase_host}tracking-test-norm-result.txt" } errors]
+set has_difference [catch {exec -- grep -v "^#" "${tmpdir_host}tracking-test-result.txt" | tr -d "\r" | diff - "${testcase_host}tracking-test-norm-result-molecule.txt" } errors]
 pass_if [expr $has_difference == 0] "$test"
 
 end_test_suite
