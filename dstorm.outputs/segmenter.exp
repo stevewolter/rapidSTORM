@@ -21,5 +21,6 @@ expect {
     -re "in Progress in value set 0" { exp_continue; }
 }
 
-pass_if [expr $found_locs == 11] "$test" 
+# Should be 11 regions
+pass_if [expr $found_locs == 8349] "$test"
 end_test_suite

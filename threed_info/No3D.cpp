@@ -21,7 +21,7 @@ class No3DConfig : public Config {
     simparm::Entry<PSFSize> psf_size;
 
     boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const { 
-        return boost::make_shared<No3D>(ToLengthUnit(psf_size()[dir]));
+        return No3D::FromFWHM(ToLengthUnit(psf_size()[dir]));
     }
     void read_traits( const DepthInfo& dx, const DepthInfo& dy ) {
         PSFSize s;

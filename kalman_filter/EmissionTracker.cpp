@@ -176,13 +176,8 @@ void Output::announceStormSize(const Announcement &a) {
                                  "sigmaposx and sigmaposy variables in a Expression Filter or set the optics parameters "
                                  "for counts per photons and dark current.");
     Announcement my_announcement(a);
-    static_cast< dStorm::input::Traits<Localization>& >(my_announcement) 
-        = dStorm::input::Traits<Localization>();
     my_announcement.in_sequence = true;
-    my_announcement.position_x() = a.position_x();
-    my_announcement.position_y() = a.position_y();
-    my_announcement.amplitude() = a.amplitude();
-    my_announcement.image_number() = a.image_number();
+    my_announcement.input_image_traits.reset();
     my_announcement.group_field = input::GroupFieldSemantic::Molecule;
     my_announcement.molecule().is_given = true;
 

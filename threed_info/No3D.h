@@ -10,11 +10,19 @@ namespace threed_info {
 
 class No3D : public DepthInfo {
   public:
-    No3D(double fwhm) : sigma(fwhm / 2.3548f) {}
-    double fwhm() const { return sigma * 2.3548f; }
+    static boost::shared_ptr<DepthInfo> FromSigma(double sigma) {
+        return boost::shared_ptr<DepthInfo>(new No3D(sigma*2.3548));
+    }
+    static boost::shared_ptr<DepthInfo> FromFWHM(double fwhm) {
+        return boost::shared_ptr<DepthInfo>(new No3D(fwhm));
+    }
+
+    double fwhm() const { return sigma * 2.3548; }
     double stddev() const { return sigma; }
 
   private:
+    No3D(double fwhm) : sigma(fwhm / 2.3548) {}
+
     Sigma sigma;
     std::string config_name_() const OVERRIDE { return "No3D"; }
     Sigma get_sigma_( ZPosition z ) const OVERRIDE { return sigma; }

@@ -408,7 +408,7 @@ class LocalizationMapper
     const std::array< std::unique_ptr<binning::Unscaled>, 2 >& binners;
     typedef std::vector<From> Store;
   public:
-    typedef std::map<const To*, std::unique_ptr<Store> > Map;
+    typedef std::map<const To*, Store > Map;
 
     LocalizationMapper(const std::list<To>& spots, const std::array< std::unique_ptr<binning::Unscaled>, 2 >& binners)
         : spots(spots), binners(binners)
@@ -425,8 +425,7 @@ class LocalizationMapper
             if ( ! v ) return;
             locpos[i] = *v;
         }
-        BOOST_FOREACH( const Spot& spot, spots )
-        {
+        for( const Spot& spot : spots ) {
             double dist = sq(spot.position().x().value() - locpos[0]) +
                             sq(spot.position().y().value() - locpos[1]);
             if (dist < minDist) {
@@ -435,7 +434,7 @@ class LocalizationMapper
             }
         }
         assert( minCand );
-        mapping[minCand]->push_back( loc );
+        mapping[minCand].push_back( loc );
     }
 
     const Map& getMapping() const { return mapping; }
@@ -470,7 +469,7 @@ void Segmenter::maximums() {
     for (const auto& entry : mapper.getMapping()) {
         EngineResult engineResult;
         engineResult.group = group++;
-        std::copy(entry.second->begin(), entry.second->end(),
+        std::copy(entry.second.begin(), entry.second.end(),
                   std::back_inserter(engineResult));
         for (Localization& l : engineResult) {
             l.molecule() = engineResult.group;

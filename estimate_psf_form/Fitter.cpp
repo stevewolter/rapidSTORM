@@ -72,8 +72,7 @@ class Fitter
     }
 
     boost::shared_ptr<const threed_info::DepthInfo> get_3d( const gaussian_psf::No3D& m, int plane, Direction dir ) {
-        return boost::make_shared<threed_info::No3D>(
-                threed_info::Sigma( m.get< gaussian_psf::BestSigma >(dir) ));
+        return threed_info::No3D::FromSigma( m.get< gaussian_psf::BestSigma >(dir) );
     }
 
   public:
