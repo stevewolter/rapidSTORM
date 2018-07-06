@@ -221,6 +221,8 @@ void Segmenter::announceStormSize(const Announcement &a) {
     announcement.reset( new Announcement(a) );
     announcement->group_field = input::GroupFieldSemantic::Molecule;
     announcement->input_image_traits.reset();
+    announcement->input_image_traits.reset();
+    announcement->molecule().is_given = true;
     bins.announceStormSize( a );
     Filter::announceStormSize( *announcement );
 }
@@ -398,6 +400,9 @@ void Segmenter::segment()
         EngineResult result;
         result.group = group++;
         std::copy(trace.begin(), trace.end(), std::back_inserter(result));
+        for (Localization& l : result) {
+            l.molecule() = result.group;
+        }
         Filter::receiveLocalizations(result);
     }
     Filter::store_children_results( true );
@@ -477,6 +482,9 @@ void Segmenter::maximums() {
         engineResult.group = group++;
         std::copy(entry.second->begin(), entry.second->end(),
                   std::back_inserter(engineResult));
+        for (Localization& l : engineResult) {
+            l.molecule() = engineResult.group;
+        }
         Filter::receiveLocalizations(engineResult);
     }
 

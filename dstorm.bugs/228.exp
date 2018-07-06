@@ -9,7 +9,7 @@ send "in Car set Run value set 1\n"
 set job [get_job_number]
 
 expect {
-    -re "by the emission tracker are needed.\r*\nseverity set Error" { pass "$test"; }
+    -re "must be grouped by molecule\r*\nseverity set Error" { pass "$test"; }
     -re "in $job in" { exp_continue; }
     -re "remove $job" { pass "$test"; }
 }

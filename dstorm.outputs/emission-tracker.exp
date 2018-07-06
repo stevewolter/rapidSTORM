@@ -15,6 +15,8 @@ send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in Em
 send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in DiffusionConstant in value set 0\n"
 send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Mobility in value set 0\n"
 send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Output1 in Table in ToFile in value set ${tmpdir_target}output.txt\n"
 
 dstorm_attach
 
@@ -22,14 +24,16 @@ set test "Number of tracked localizations for fixed localization precision is co
 send "in Car in Run in value set 1\n"
 set job [get_job_number]
 set count [get_localization_count $job]
-pass_if [expr $count == 206062] "$test";
+set rv [catch {exec -- tail -n 1 "${tmpdir_host}output.txt" | cut -f 7 -d " "} last_trace]
+pass_if [expr $last_trace == 206061] "$test";
 
 set test "Number of tracked localizations for variable localization precision is consistent"
 send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in Expression in value set 2000 nm/ADC * amp\n"
 send "in Car in Run in value set 1\n"
 set job [get_job_number]
 set count [get_localization_count $job]
-pass_if [expr $count == 180256] "$test";
+set rv [catch {exec -- tail -n 1 "${tmpdir_host}output.txt" | cut -f 7 -d " "} last_trace]
+pass_if [expr $last_trace == 180255] "$test";
 
 set test "Error is thrown when localization precision is not set"
 send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in Expression in value set\n"
