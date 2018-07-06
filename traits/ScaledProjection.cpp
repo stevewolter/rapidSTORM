@@ -1,7 +1,7 @@
 #include "traits/ScaledProjection.h"
 #include "traits/ProjectionConfig.h"
 #include "traits/ProjectionFactory.h"
-#include <simparm/Object.h>
+#include "simparm/Object.h"
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 #include "image/MetaInfo.h"

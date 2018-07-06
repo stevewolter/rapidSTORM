@@ -3,10 +3,10 @@
 
 #include "viewer/DensityMapConfig.h"
 
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
 #include "output/BasenameAdjustedFileEntry.h"
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
 #include "output/Output.h"
 #include "units/microlength.h"
 
@@ -36,7 +36,6 @@ public:
 
     void attach_ui( simparm::NodeHandle at );
     void backend_needs_changing( simparm::BaseAttribute::Listener );
-    static bool can_work_with(output::Capabilities) { return true; }
 
     static std::string get_name() { return "Image"; }
     static std::string get_description() { return "Image display"; }

@@ -6,7 +6,7 @@
 #include <cassert>
 #include "engine/Image.h"
 
-#include <simparm/Message.h>
+#include "simparm/Message.h"
 #include "display/Manager.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
@@ -58,8 +58,7 @@ void Viewer::receiveLocalizations(const EngineResult& er)
     forwardOutput->receiveLocalizations(er);
 }
 
-Output::AdditionalData 
-Viewer::announceStormSize(const Announcement &a) {
+void Viewer::announceStormSize(const Announcement &a) {
     boost::lock_guard<boost::mutex> lock(mutex);
     announcement = a;
     repeater = a.engine;
@@ -67,7 +66,7 @@ Viewer::announceStormSize(const Announcement &a) {
     implementation = Backend::create( this->config.colourScheme().make_backend( this->config.invert() ), *this);
     implementation->set_job_name( a.description );
     forwardOutput = &implementation->getForwardOutput();
-    return forwardOutput->announceStormSize(a);
+    forwardOutput->announceStormSize(a);
 }
 
 Viewer::RunRequirements Viewer::announce_run(const RunAnnouncement& a) {

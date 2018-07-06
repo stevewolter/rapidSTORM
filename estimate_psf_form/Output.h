@@ -3,7 +3,7 @@
 
 #include "traits/optics_config.h"
 #include "estimate_psf_form/decl.h"
-#include <simparm/ProgressEntry.h>
+#include "simparm/ProgressEntry.h"
 #include "estimate_psf_form/Config.h"
 #include "engine/Input.h"
 #include "output/Output.h"
@@ -51,7 +51,7 @@ namespace estimate_psf_form {
         Output* clone() const 
             { throw std::runtime_error("Output unclonable."); }
 
-        AdditionalData announceStormSize(const Announcement&);
+        void announceStormSize(const Announcement&) OVERRIDE;
         RunRequirements announce_run(const RunAnnouncement&) 
             { if ( engine!= NULL ) return RunRequirements().set(MayNeedRestart); else return RunRequirements(); }
         void receiveLocalizations(const EngineResult&);

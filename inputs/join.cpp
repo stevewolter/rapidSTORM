@@ -1,11 +1,11 @@
 #include "debug.h"
 #include "inputs/join.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
-#include <simparm/Entry.h>
-#include <simparm/TabGroup.h>
-#include <simparm/ObjectChoice.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/Entry.h"
+#include "simparm/TabGroup.h"
+#include "simparm/ObjectChoice.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>
@@ -18,7 +18,8 @@
 #include "inputs/join/temporal.h"
 
 namespace dStorm {
-namespace input {
+using namespace input;
+namespace inputs {
 namespace join {
 
 typedef std::vector<std::unique_ptr<BaseSource>> Sources;
@@ -43,10 +44,10 @@ struct Strategist
 }
 }
 
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::input::join::Strategist );
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::inputs::join::Strategist );
 
 namespace dStorm {
-namespace input {
+namespace inputs {
 namespace join {
 
 std::auto_ptr< BaseSource > make_specialized_source( 

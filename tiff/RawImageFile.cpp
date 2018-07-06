@@ -47,9 +47,7 @@ RawImageFile::RawImageFile(const Config& config)
             "No file name supplied for raw image output");
 }
 
-Output::AdditionalData
-RawImageFile::announceStormSize(const Announcement &a) 
-{
+void RawImageFile::announceStormSize(const Announcement &a) {
     last_frame = a.image_number().range().second;
     if ( a.input_image_traits.get() ) {
         size.clear();
@@ -79,8 +77,6 @@ RawImageFile::announceStormSize(const Announcement &a)
     strip_size = TIFFTileSize( tif );
     strips_per_image = TIFFNumberOfTiles( tif );
     next_image = *a.image_number().range().first;
-
-    return AdditionalData().set_source_image();
 }
 
 void RawImageFile::receiveLocalizations(const EngineResult& er)
@@ -90,18 +86,10 @@ void RawImageFile::receiveLocalizations(const EngineResult& er)
     return;
 
   try {
-    DEBUG("Got " << er.forImage << " while expecting " << next_image);
-    /* Got the image in sequence. Write immediately. If forImage is
-     * smaller, indicates engine restart and we don't need to do
-     * anything, if larger, we store the image for later use. */
-    if ( er.forImage == next_image ) {
-        if ( er.source )
-            write_image( *er.source );
-        else
-            next_image = next_image + 1 * camera::frame;
-    } else {
-        assert( er.forImage < next_image );
-        /* Image already written. Drop. */;
+    if (er.source) {
+        assert(er.source->frame_number() >= next_image);
+        write_image(*er.source);
+        next_image = er.source->frame_number() + 1 * camera::frame;
     }
     return;
   } catch ( const std::bad_alloc& a ) {
@@ -181,7 +169,6 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
     }
     if ( TIFFWriteDirectory( tif ) == 0 /* Error occured */ )
         op.throw_exception_for_errors();
-    next_image = next_image + 1 * camera::frame;
 }
 
 void RawImageFile::store_results_( bool ) {

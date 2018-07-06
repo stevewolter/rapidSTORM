@@ -1,12 +1,12 @@
 #ifndef LOCPREC_FLUOROPHORE_DISTRIBUTIONS_H
 #define LOCPREC_FLUOROPHORE_DISTRIBUTIONS_H
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
 #include "input_simulation/FluorophoreDistribution.h"
-#include <simparm/Entry.h>
-#include <simparm/ChoiceEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/ChoiceEntry.h"
 #include "UnitEntries.h"
 
 namespace input_simulation {

@@ -1,8 +1,8 @@
 #ifndef TESTPLUGIN_EXCEPTION_H
 #define TESTPLUGIN_EXCEPTION_H
 
-#include <simparm/Entry.h>
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
+#include "simparm/Entry.h"
 #include "output/Output.h"
 #include "output/OutputBuilder.h"
 #include <iostream>
@@ -23,11 +23,11 @@ struct Exception
     Exception(const Config& config) ;
     Exception* clone() const;
 
-    AdditionalData announceStormSize(const Announcement&)
-        { if ( onAnnouncement ) segfault(); return AdditionalData(); }
-    void receiveLocalizations(const EngineResult& er) {
-        std::cerr << "Got " << er.forImage.value() << " " << onImageNumber << "\n";
-        if ( er.forImage.value() == onImageNumber )
+    void announceStormSize(const Announcement&) OVERRIDE
+        { if ( onAnnouncement ) segfault(); }
+    void receiveLocalizations(const EngineResult& er) OVERRIDE {
+        std::cerr << "Got " << er.group << " " << onImageNumber << "\n";
+        if ( er.group == onImageNumber )
             segfault();
     }
 
@@ -44,8 +44,6 @@ struct Exception::Config
         onAnnouncement.attach_ui( at );
         onImageNumber.attach_ui( at );
     }
-    bool can_work_with(const dStorm::output::Capabilities&)
-        {return true;}
     static std::string get_name() { return "Exception"; }
     static std::string get_description() { return "Exception"; }
     static simparm::UserLevel get_user_level() { return simparm::Debug; }

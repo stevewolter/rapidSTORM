@@ -18,7 +18,7 @@
 #include "installation-directory.h"
 #include "GUIThread.h"
 #include <fstream>
-#include <simparm/GUILabelTable.h>
+#include "simparm/GUILabelTable.h"
 #include <boost/filesystem/fstream.hpp>
 #include "config_file.h"
 

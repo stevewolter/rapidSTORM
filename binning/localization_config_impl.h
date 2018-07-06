@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_IMPL_H
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_IMPL_H
 
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include "binning/localization_config.h"
 #include "binning/localization_impl.h"
 #include "binning/binning.hpp"
@@ -26,6 +26,7 @@ inline std::string get_label(dStorm::localization::FitResidues) { return "FitRes
 inline std::string get_label(dStorm::localization::Fluorophore) { return "Fluorophore"; }
 inline std::string get_label(dStorm::localization::LocalBackground) { return "LocalBackground"; }
 inline std::string get_label(dStorm::localization::CoefficientOfDetermination) { return "CoefficientOfDetermination"; }
+inline std::string get_label(dStorm::localization::Molecule) { return "Molecule"; }
 
 template <typename Tag>
 LocalizationConfig<Tag>::LocalizationConfig(std::string axis, float range) 

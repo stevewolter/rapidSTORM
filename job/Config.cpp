@@ -19,10 +19,10 @@
 #include "output/SourceFactory.h"
 #include "signals/UseSpotFinder.h"
 #include "signals/UseSpotFitter.h"
-#include <simparm/Menu.h>
-#include <simparm/text_stream/RootNode.h>
-#include <simparm/TreeRoot.h>
-#include <simparm/TreeEntry.h>
+#include "simparm/Menu.h"
+#include "simparm/text_stream/RootNode.h"
+#include "simparm/TreeRoot.h"
+#include "simparm/TreeEntry.h"
 #include <ui/serialization/Node.h>
 
 #include "job/Car.h"
@@ -40,29 +40,29 @@ Config::Config( bool localization_replay_mode )
   outputRoot( new OutputTreeRoot() ),
   localization_replay_mode( localization_replay_mode ),
   outputBox("Output", "Output options"),
+  thread_count_("CPUNumber", "Number of CPUs to use", 1),
   configTarget("SaveConfigFile", "Job options file", "-settings.txt"),
-  auto_terminate("AutoTerminate", "Automatically terminate finished jobs", false),
-  pistonCount("CPUNumber", "Number of CPUs to use", 1)
+  auto_terminate("AutoTerminate", "Automatically terminate finished jobs", false)
 {
     configTarget.set_user_level(simparm::Beginner);
     auto_terminate.set_user_level(simparm::Expert);
 
-    pistonCount.set_user_level(simparm::Expert);
-    pistonCount.setHelpID( "#CPUNumber" );
-    pistonCount.setHelp("Use this many parallel threads to compute the "
-                        "STORM result. If you notice a low CPU usage, "
-                        "raise this value to the number of cores you "
-                        "have.");
+    thread_count_.set_user_level(simparm::Expert);
+    thread_count_.setHelpID( "#CPUNumber" );
+    thread_count_.setHelp("Use this many parallel threads to compute the "
+                          "STORM result. If you notice a low CPU usage, "
+                          "raise this value to the number of cores you "
+                          "have.");
 #if defined(_SC_NPROCESSORS_ONLN)
     int pn = sysconf(_SC_NPROCESSORS_ONLN);
-    pistonCount = (pn == 0) ? 8 : pn;
+    thread_count_ = (pn == 0) ? 8 : pn;
 #elif defined(HAVE_WINDOWS_H)
     SYSTEM_INFO info;
     GetSystemInfo(&info);
-    pistonCount = info.dwNumberOfProcessors;
+    thread_count_ = info.dwNumberOfProcessors;
 #else
-    pistonCount.set_user_level(simparm::Beginner);
-    pistonCount = 8;
+    thread_count_.set_user_level(simparm::Beginner);
+    thread_count_ = 8;
 #endif
 
     if ( localization_replay_mode )
@@ -78,9 +78,9 @@ Config::Config(const Config &c)
   outputRoot(c.outputRoot->clone()),
   localization_replay_mode(c.localization_replay_mode),
   outputBox(c.outputBox),
+  thread_count_(c.thread_count_),
   configTarget(c.configTarget),
-  auto_terminate(c.auto_terminate),
-  pistonCount(c.pistonCount)
+  auto_terminate(c.auto_terminate)
 {
     if ( c.input.get() )
         create_input( std::auto_ptr<input::Link>(c.input->clone()) );
@@ -108,7 +108,7 @@ simparm::NodeHandle Config::attach_ui( simparm::NodeHandle at ) {
 void Config::attach_children_ui( simparm::NodeHandle at ) {
     input->registerNamedEntries( at );
     if ( ! localization_replay_mode )
-        pistonCount.attach_ui(  at  );
+        thread_count_.attach_ui(  at  );
     simparm::NodeHandle b = outputBox.attach_ui( at );
     outputRoot->attach_full_ui( b );
     if ( ! localization_replay_mode )
@@ -152,8 +152,6 @@ void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
     else
         configTarget.value = "";
     outputRoot->set_output_file_basename( traits->suggested_output_basename );
-    if ( traits->provides<output::LocalizedImage>() ) 
-        outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );
 }
 
 std::auto_ptr< Job > Config::make_job() {

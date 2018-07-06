@@ -2,8 +2,8 @@
 #define DSTORM_ENGINE_OUTPUTBUILDER_H
 
 #include "output/OutputSource.h"
-#include <simparm/Entry.h>
-#include <simparm/TreeEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/TreeEntry.h"
 
 namespace dStorm {
 namespace output {
@@ -21,11 +21,6 @@ public:
     OutputBuilder* clone() const
         { return new OutputBuilder(*this); }
     ~OutputBuilder() {}
-
-    void set_source_capabilities( Capabilities cap ) 
-    {
-        choice_object.set_visibility( config.can_work_with( cap ) );
-    }
 
     std::auto_ptr<output::Output> make_output() 
     {

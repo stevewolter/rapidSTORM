@@ -1,7 +1,7 @@
 #ifndef DSTORM_ENGINE_ENGINE_H
 #define DSTORM_ENGINE_ENGINE_H
 
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include <memory>
 #include <boost/thread/mutex.hpp>
 #include "engine/Config_decl.h"
@@ -12,6 +12,7 @@
 #include "input/Source.h"
 #include "base/Engine.h"
 #include "engine/Config.h"
+#include "engine/SingleThreadedLocalizer.h"
 
 namespace dStorm {
 namespace engine {
@@ -29,30 +30,28 @@ namespace engine {
         typedef input::Source<output::LocalizedImage>::TraitsPtr TraitsPtr;
       private:
         typedef input::Source<output::LocalizedImage> Base;
-        class WorkHorse;
 
         std::auto_ptr<Input> input;
         Input::TraitsPtr imProp, last_run_meta_info;
 
         Config config;
-        std::vector<std::unique_ptr<WorkHorse>> work_horses;
+        std::vector<std::unique_ptr<SingleThreadedLocalizer>> work_horses;
         boost::mutex mutex;
         simparm::Entry<unsigned long> errors;
 
         void attach_ui_( simparm::NodeHandle );
-        std::vector<float> make_plane_weight_vector() const;
         bool GetNext(int thread, output::LocalizedImage* target) OVERRIDE;
         void set_thread_count(int num_threads) OVERRIDE;
+        void increment_error_count();
 
       public:
         Engine(const Config& config, std::auto_ptr<Input> input);
         virtual ~Engine();
 
         void dispatch(Messages m);
-        TraitsPtr get_traits(Wishes);
+        TraitsPtr get_traits();
 
         BaseSource& upstream() { return *input; }
-        Capabilities capabilities() const { return input->capabilities(); }
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >
             convert_traits( Config&, const input::Traits<engine::ImageStack>& );

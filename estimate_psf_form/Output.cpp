@@ -4,7 +4,7 @@
 #include "estimate_psf_form/Config.h"
 #include "estimate_psf_form/Fitter.h"
 
-#include <simparm/Node.h>
+#include "simparm/Node.h"
 
 #include "output/OutputSource.h"
 #include "output/OutputBuilder.h"
@@ -55,8 +55,7 @@ Output::~Output() {
     gui_result = boost::unique_future<Tiles>();
 }
 
-output::Output::AdditionalData
-Output::announceStormSize(const Announcement& a) 
+void Output::announceStormSize(const Announcement& a) 
 {
     engine = a.engine;
 
@@ -77,7 +76,6 @@ Output::announceStormSize(const Announcement& a)
     result_config.read_traits( *input->traits );
     fitter = FittingVariant::create( config, *input->traits, input->number_of_spots );
     current_limit = 0;
-    return AdditionalData();
 }
 
 class DummyBind {

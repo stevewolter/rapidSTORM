@@ -31,16 +31,6 @@ FilterBuilder<Type,OutputType>* FilterBuilder<Type,OutputType>::clone() const
 { return new FilterBuilder(*this); }
 
 template <class Type, class OutputType>
-void 
-FilterBuilder<Type,OutputType>::set_source_capabilities
-    ( Capabilities cap ) 
-{
-    name_object.set_visibility(
-        config.determine_output_capabilities( cap ) );
-    FilterSource::set_source_capabilities( cap );
-}
-
-template <class Type, class OutputType>
 std::auto_ptr<Output> FilterBuilder<Type,OutputType>::make_output() 
 {
     return std::auto_ptr<Output>( new OutputType( 

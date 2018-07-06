@@ -2,8 +2,8 @@
 #define DSTORM_TEXT_STREAM_UI_WINDOW_H
 
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
-#include <simparm/Entry.h>
-#include <simparm/TriggerEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/TriggerEntry.h"
 #include <boost/thread/recursive_mutex.hpp>
 #include "display/DataSource.h"
 #include "display/Manager.h"

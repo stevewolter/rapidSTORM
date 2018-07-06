@@ -20,7 +20,6 @@ class LocalizationCreator {
     const bool output_sigmas, laempi_fit;
 
     void write_parameters( Localization& loc, const MultiKernelModel&, double chi_sq, const fit_window::Plane& data ) const;
-    void join_localizations( Localization& into, const std::vector<Localization>&, bool ) const;
     void compute_uncertainty( Localization& loc, const MultiKernelModel&, const fit_window::Plane& data ) const;
 
   public:

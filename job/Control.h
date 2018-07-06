@@ -4,7 +4,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include "base/Engine.h"
-#include <simparm/TriggerEntry.h>
+#include "simparm/TriggerEntry.h"
 
 namespace dStorm {
 namespace job {

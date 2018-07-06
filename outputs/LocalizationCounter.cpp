@@ -1,7 +1,7 @@
 #include "output/Output.h"
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Node.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Node.h"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -39,7 +39,6 @@ public:
         simparm::FileEntry output_file;
 
         Config(); 
-        bool can_work_with(Capabilities) { return true; }
         void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); }
         static std::string get_name() { return "Count"; }
         static std::string get_description() { return "Count localizations"; }
@@ -56,13 +55,12 @@ public:
 
         return RunRequirements();
     }
-    AdditionalData announceStormSize(const Announcement &a) {
+    void announceStormSize(const Announcement &a) OVERRIDE {
         update.set_user_level(simparm::Beginner);
         config_increment = 10;
 
         count = 0; 
         index = 0;
-        return AdditionalData();
     }
     void receiveLocalizations(const EngineResult& er) {
         count += er.size(); 

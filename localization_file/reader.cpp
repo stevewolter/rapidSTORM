@@ -96,7 +96,6 @@ File::File(std::string filename, const File::Traits& traits )
   input( (stream_store.get()) ? *stream_store : std::cin),
   traits(traits)
 {
-    this->traits.source_traits.clear();
     std::string line;
     std::getline(input, line);
     if ( ! input ) 
@@ -155,7 +154,7 @@ std::auto_ptr<Source> ChainLink::read_file( simparm::FileEntry& name, const inpu
     }
 }
 
-Source::TraitsPtr Source::get_traits(input::BaseSource::Wishes r) { 
+Source::TraitsPtr Source::get_traits() { 
     TraitsPtr tp( file.getTraits().release() ); 
     return tp;
 }

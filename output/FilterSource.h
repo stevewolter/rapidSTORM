@@ -1,8 +1,8 @@
 #ifndef DSTORM_BASETRANSMISSIONCONFIGS
 #define DSTORM_BASETRANSMISSIONCONFIGS
 
-#include <simparm/TriggerEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/TriggerEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
 #include "output/OutputSource.h"
 #include <map>
 #include <boost/utility.hpp>
@@ -87,8 +87,6 @@ class FilterSource
     /** This method triggers the delayed initialization of the factory
      *  element. */
     virtual void set_output_factory(const SourceFactory& f);
-
-    virtual void set_source_capabilities( Capabilities );
 
     /** Explicitely set the output element. Circumvents the 
      *  \c factory. */

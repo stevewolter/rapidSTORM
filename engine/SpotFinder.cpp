@@ -28,7 +28,7 @@ Base::~Base() {
 }
 
 void Base::findCandidates( Candidates& into ) {
-    into.fill( getSmoothedImage() );
+    into.fill( smoothed );
 }
 
 }

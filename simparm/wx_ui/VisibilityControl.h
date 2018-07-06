@@ -2,7 +2,7 @@
 #define SIMPARM_WX_UI_VISIBILITY_CONTROL_H
 
 #include <boost/signals2/signal.hpp>
-#include <simparm/UserLevel.h>
+#include "simparm/UserLevel.h"
 
 namespace simparm {
 namespace wx_ui {

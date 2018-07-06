@@ -1,7 +1,7 @@
 #include "outputs/SigmaDiff3D.h"
 
-#include <simparm/Object.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Object.h"
+#include "simparm/FileEntry.h"
 
 #include "output/Filter.h"
 #include "output/FilterBuilder.h"
@@ -23,8 +23,8 @@ private:
 
 public:
     SigmaDiff3D( const Config&, std::auto_ptr< Output > );
-    AdditionalData announceStormSize(const Announcement&);
-    void receiveLocalizations(const EngineResult&);
+    void announceStormSize(const Announcement&) OVERRIDE;
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
 };
 
 class SigmaDiff3D::Config {
@@ -41,9 +41,6 @@ class SigmaDiff3D::Config {
         calibration_file.setHelpID( "SigmaDiff3D_CalibrationFile" );
     }
     void attach_ui( simparm::NodeHandle at ) { calibration_file.attach_ui( at ); }
-
-    bool determine_output_capabilities( Capabilities& cap ) 
-        { return true; }
 };
 
 SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )
@@ -54,8 +51,7 @@ SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )
 {
 }
 
-SigmaDiff3D::AdditionalData
-SigmaDiff3D::announceStormSize(const Announcement& a) {
+void SigmaDiff3D::announceStormSize(const Announcement& a) {
     if ( ! a.psf_width_x().is_given || ! a.psf_width_y().is_given )
         throw std::runtime_error("PSF width must be fitted and stored for sigma diff 3D");
 
@@ -65,7 +61,7 @@ SigmaDiff3D::announceStormSize(const Announcement& a) {
     threed_info::ZRange z_range = spline_x.z_range() & spline_y.z_range();
     my_announcement.position_z().range().first = float(lower( z_range ) * 1E-6) * si::meter;
     my_announcement.position_z().range().second = float(upper( z_range ) * 1E-6) * si::meter;
-    return Filter::announceStormSize( my_announcement );
+    Filter::announceStormSize( my_announcement );
 }
 
 void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {

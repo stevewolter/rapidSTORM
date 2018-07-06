@@ -14,13 +14,13 @@ namespace job {
 class Queue {
     boost::mutex ring_buffer_mutex;
     boost::condition producer_can_continue, consumer_can_continue;
-    frame_index next_output;
+    int next_output;
     boost::array< boost::optional<output::LocalizedImage>, 64 > ring_buffer;
     int producer_count;
     boost::exception_ptr error;
     bool interruption;
 
-    int ring() const { return next_output.value() % ring_buffer.size(); }
+    int ring() const { return next_output % ring_buffer.size(); }
   public:
     typedef output::LocalizedImage value_type;
     typedef const output::LocalizedImage& const_reference;

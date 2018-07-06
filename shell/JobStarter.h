@@ -1,7 +1,7 @@
 #ifndef DSTORM_JOBSTARTER_H
 #define DSTORM_JOBSTARTER_H
 
-#include <simparm/TriggerEntry.h>
+#include "simparm/TriggerEntry.h"
 #include "base/Config.h"
 #include "stack_realign.h"
 

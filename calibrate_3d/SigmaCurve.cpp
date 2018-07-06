@@ -1,8 +1,8 @@
-#include <simparm/BoostUnits.h>
+#include "simparm/BoostUnits.h"
 #include "calibrate_3d/fwd.h"
 #include "output/Output.h"
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -14,7 +14,7 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/weighted_mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
-#include <simparm/dummy_ui/fwd.h>
+#include "simparm/dummy_ui/fwd.h"
 
 #include <gsl/gsl_bspline.h>
 #include <gsl/gsl_multifit.h>
@@ -43,10 +43,6 @@ class Configuration {
     void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );
         step_number.attach_ui( at );
-    }
-
-    bool can_work_with(output::Capabilities cap) { 
-        return true; 
     }
 };
 
@@ -141,14 +137,13 @@ public:
     RunRequirements announce_run(const RunAnnouncement&) {
         return RunRequirements();
     }
-    AdditionalData announceStormSize(const Announcement &a) {
+    void announceStormSize(const Announcement &a) OVERRIDE {
         if ( ! a.position_z().is_given )
             throw std::runtime_error("Z ground truth is not given for sigma curve generation");
         if ( ! a.psf_width_x().is_given )
             throw std::runtime_error("PSF width in X is not given for sigma curve generation");
         if ( ! a.psf_width_y().is_given )
             throw std::runtime_error("PSF width in Y is not given for sigma curve generation");
-        return AdditionalData(); 
     }
     void receiveLocalizations(const EngineResult& er) {
         std::copy( er.begin(), er.end(), std::back_inserter( points ) );

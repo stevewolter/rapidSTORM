@@ -1,10 +1,10 @@
-#include <simparm/BoostUnits.h>
-#include <simparm/BoostOptional.h>
+#include "simparm/BoostUnits.h"
+#include "simparm/BoostOptional.h"
 #include "inputs/SampleInfo.h"
 
 #include "debug.h"
-#include <simparm/FileEntry.h>
-#include <simparm/dummy_ui/fwd.h>
+#include "simparm/FileEntry.h"
+#include "simparm/dummy_ui/fwd.h"
 #include "input/AdapterSource.h"
 #include "UnitEntries/PixelSize.h"
 #include "units/nanolength.h"
@@ -27,29 +27,29 @@ class ChainLink;
 
 class Config 
 {
+    friend class ChainLink;
     simparm::Object name_object;
     simparm::Entry<unsigned long> fluorophore_count;
-    friend class ChainLink;
 
   public:
     Config();
     void attach_ui( simparm::NodeHandle );
-    void set_traits( DataSetTraits& ) const;
 };
 
-template <typename ForwardedType>
 class Input 
-: public input::AdapterSource<ForwardedType>
+: public input::AdapterSource<engine::ImageStack>
 {
-    Config config;
-    void modify_traits( input::Traits<ForwardedType>& t ) { config.set_traits(t); }
+    int fluorophore_count;
+    void modify_traits( input::Traits<engine::ImageStack>& t ) {
+        t.fluorophore_count = fluorophore_count;
+    }
     void attach_local_ui_( simparm::NodeHandle ) {}
 
   public:
     Input(
-        std::auto_ptr< input::Source<ForwardedType> > backend,
-        const Config& config ) 
-        : input::AdapterSource<ForwardedType>( backend ), config(config) { this->config.attach_ui( simparm::dummy_ui::make_node() ); }
+        std::auto_ptr< input::Source<engine::ImageStack> > backend,
+        int fluorophore_count ) 
+        : input::AdapterSource<engine::ImageStack>( backend ), fluorophore_count(fluorophore_count) {}
 };
 
 
@@ -68,13 +68,15 @@ class ChainLink
     void notice_traits( const input::MetaInfo&, const input::Traits<Type>& t ) {
         config.fluorophore_count.hide();
     }
-    template <typename Type>
-    void update_traits( input::MetaInfo&, input::Traits<Type>& t ) {
-        config.set_traits( t );
+    void update_traits( input::MetaInfo&, input::Traits<output::LocalizedImage>& t ) {}
+    void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& t ) {
+        t.fluorophore_count = config.fluorophore_count();
     }
-    template <typename Type>
-    Input<Type>* make_source( std::auto_ptr< input::Source<Type> > s ) {
-        return new Input<Type>(s, config);
+    Input* make_source( std::auto_ptr< input::Source<engine::ImageStack> > s ) {
+        return new Input(s, config.fluorophore_count());
+    }
+    Input* make_source( std::auto_ptr< input::Source<output::LocalizedImage> > s ) {
+        throw std::logic_error("Handling localized images is not supported");
     }
     simparm::BaseAttribute::ConnectionStore listening;
 
@@ -86,13 +88,6 @@ class ChainLink
         config.attach_ui( at ); 
     }
 };
-
-inline void Config::set_traits( DataSetTraits& t ) const
-{
-    t.fluorophores.clear();
-    for ( int i = 0; i < int(fluorophore_count()); ++i)
-	t.fluorophores[i].ident = i;
-}
 
 Config::Config()
 : name_object( ChainLink::getName(), "Sample information"),

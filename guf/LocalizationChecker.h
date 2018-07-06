@@ -16,11 +16,9 @@ class LocalizationChecker {
     typedef boost::icl::interval_set< double > AllowedZPositions;
 
     const dStorm::engine::JobInfo& info;
-    const double theta_dist_sq;
+    const double spot_distance_threshold, theta_dist_sq;
     AllowedZPositions allowed_z_positions;
 
-    template <int Dim>
-    bool check_kernel_dimension( const gaussian_psf::BaseExpression&, const guf::Spot&, int plane ) const;
     bool check_kernel( const gaussian_psf::BaseExpression&, const guf::Spot&, int plane ) const;
 
   public:

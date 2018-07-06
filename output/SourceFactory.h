@@ -1,9 +1,8 @@
 #ifndef DSTORM_TRANSMISSIONSOURCEFACTORY_H
 #define DSTORM_TRANSMISSIONSOURCEFACTORY_H
 
-#include <simparm/Object.h>
+#include "simparm/Object.h"
 #include <set>
-#include "output/Capabilities.h"
 #include <boost/utility.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/slot.hpp>
@@ -25,7 +24,6 @@ class SourceFactory
 
     virtual SourceFactory* clone() const = 0;
     virtual void attach_ui( simparm::NodeHandle at ) = 0;
-    virtual void set_source_capabilities(Capabilities) = 0;
     virtual std::auto_ptr<OutputSource> make_output_source() = 0;
     virtual void notify_when_output_source_is_available( const Callback& ) = 0;
 };

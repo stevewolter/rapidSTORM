@@ -8,7 +8,7 @@
 #include <list>
 #include <utility>
 #include <memory>
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 #include "InsertionPlace.h"
 #include <boost/ptr_container/clone_allocator.hpp>
 #include <boost/signals2/slot.hpp>

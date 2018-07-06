@@ -1,9 +1,9 @@
 #ifndef DSTORM_OUTPUT_BINNING_CONFIG_H
 #define DSTORM_OUTPUT_BINNING_CONFIG_H
 
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ObjectChoice.h>
-#include <simparm/ManagedChoiceEntry.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ObjectChoice.h"
+#include "simparm/ManagedChoiceEntry.h"
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "binning/binning_decl.h"

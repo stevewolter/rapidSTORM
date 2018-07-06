@@ -1,7 +1,7 @@
 #include "viewer/colour_schemes/base.h"
 #include <viewer/ColourScheme.h>
 #include <viewer/ColourSchemeFactory.h>
-#include <simparm/Object.h>
+#include "simparm/Object.h"
 
 namespace dStorm {
 namespace viewer {

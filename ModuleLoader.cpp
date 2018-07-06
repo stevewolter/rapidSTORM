@@ -18,7 +18,8 @@
 #include "kalman_filter/fwd.h"
 #include "input_simulation/plugin.h"
 #include "viewer/plugin.h"
-#include "tiff/augment_config.h"
+#include "tiff/RawImageFile.h"
+#include "tiff/TIFF.h"
 #include "andor-sif/augment_config.h"
 #include "calibrate_3d/fwd.h"
 #include "ripley_k/fwd.h"
@@ -41,7 +42,7 @@ void add_image_input_modules( dStorm::Config& car_config )
 
     car_config.add_input( make_input_base(), BeforeEngine );
     car_config.add_input( make_insertion_place_link(AfterChannels), AfterChannels );
-    car_config.add_input( input::join::create_link(), AfterChannels );
+    car_config.add_input( inputs::join::create_link(), AfterChannels );
     car_config.add_input( make_insertion_place_link(BeforeChannels), BeforeChannels );
     car_config.add_input( inputs::InputMethods::create(), BeforeChannels );
     car_config.add_input( input::file_method::makeLink(), InputMethod );
@@ -58,7 +59,9 @@ void add_image_input_modules( dStorm::Config& car_config )
     car_config.add_input( input::sample_info::makeLink(), BeforeEngine );
     car_config.add_input( input::resolution::makeLink(), BeforeEngine );
     input_simulation::input_simulation( car_config );
-    dStorm::tiff::input_driver( car_config );
+#ifdef HAVE_TIFFIO_H
+    car_config.add_input( tiff::make_input(), dStorm::FileReader );
+#endif
     dStorm::andor_sif::augment_config( car_config );
     car_config.add_input( inputs::make_warn_about_localization_file(), FileReader );
 
@@ -75,7 +78,7 @@ void add_stm_input_modules( dStorm::Config& car_config )
 {
     car_config.add_input( engine_stm::make_STM_engine_link(), AsEngine );
     car_config.add_input( make_input_base(), BeforeEngine );
-    car_config.add_input( input::join::create_link(), AfterChannels );
+    car_config.add_input( inputs::join::create_link(), AfterChannels );
     car_config.add_input( inputs::InputMethods::create(), BeforeChannels );
     car_config.add_input( input::file_method::makeLink(), InputMethod );
 
@@ -90,7 +93,10 @@ void add_output_modules( dStorm::Config& car_config )
 {
     dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );
-    dStorm::tiff::output_driver( car_config );
+
+#ifdef HAVE_TIFFIO_H
+    car_config.add_output( new output::FileOutputBuilder<output::RawImageFile::Config,output::RawImageFile>() );
+#endif
 
     car_config.add_output( estimate_psf_form::make_output_source() );
     car_config.add_output( calibrate_3d::make_output_source() );

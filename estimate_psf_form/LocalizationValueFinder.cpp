@@ -15,18 +15,15 @@ namespace PSF = gaussian_psf;
 /* TODO: This class is not Laempi- or disjoint-aware */
 struct LocalizationValueFinder::application {
     typedef void result_type;
-    const Localization& parent, *child;
+    const Localization& localization;
     fit_window::Detector optics;
     guf::TraitValueFinder tvf;
     const dStorm::traits::Optics& plane;
 
     application( 
         const int fluorophore, const dStorm::traits::Optics& plane,
-        const Localization& parent, size_t plane_number )
-        : parent(parent), 
-          child( 
-                (parent.children.is_initialized() && parent.children->size() > plane_number )
-                ? &(*parent.children)[plane_number] : NULL ),
+        const Localization& localization, size_t plane_number )
+        : localization(localization), 
           optics( plane ),
           tvf(fluorophore,plane),
           plane( plane ) {}
@@ -35,17 +32,17 @@ struct LocalizationValueFinder::application {
     void operator()( nonlinfit::Xs<Dim>, Structure& ) const {}
     template <int Dim, typename Structure>
     void operator()( PSF::Mean<Dim> p, Structure& m ) const
-        { m(p) = parent.position()[Dim] / (1E-6 * si::meter); }
+        { m(p) = localization.position()[Dim] / (1E-6 * si::meter); }
     template <typename Structure>
     void operator()( PSF::MeanZ p, Structure& m ) const
-        { m(p) = parent.position()[2] / (1E-6 * si::meter); }
+        { m(p) = localization.position()[2] / (1E-6 * si::meter); }
     template <typename Structure>
     void operator()( PSF::Amplitude p, Structure& m ) const { 
-        m(p) = optics.relative_in_photons( parent.amplitude() ); 
+        m(p) = optics.relative_in_photons( localization.amplitude() ); 
     }
     template <typename Structure>
     void operator()( constant_background::Amount p, Structure& m ) const
-        { m(p) = optics.absolute_in_photons( ( child ) ? child->local_background() : parent.local_background() ); }
+        { m(p) = optics.absolute_in_photons( localization.local_background() ); }
 
     /** This overload is responsible to set the transmission 
      *  coefficient to a positive value. This avoids zero
@@ -65,8 +62,8 @@ struct LocalizationValueFinder::application {
 
 LocalizationValueFinder::LocalizationValueFinder(
         const int fluorophore, const dStorm::traits::Optics& plane,
-        const Localization& parent, size_t plane_number )
-: appl_( new application(fluorophore,plane,parent,plane_number) ) {}
+        const Localization& localization, size_t plane_number )
+: appl_( new application(fluorophore,plane,localization,plane_number) ) {}
 
 void LocalizationValueFinder::find_values( gaussian_psf::DepthInfo3D& z ) {
     boost::mpl::for_each< typename gaussian_psf::DepthInfo3D::Variables >( 

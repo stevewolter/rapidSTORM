@@ -1,12 +1,12 @@
-#include <simparm/BoostUnits.h>
-#include <simparm/TabGroup.h>
+#include "simparm/BoostUnits.h"
+#include "simparm/TabGroup.h"
 #include "output/Output.h"
 #include "output/FilterSource.h"
 #include "output/FileOutputBuilder.h"
 #include "output/BasenameAdjustedFileEntry.h"
 #include "UnitEntries/FrameEntry.h"
-#include <simparm/Entry.h>
-#include <simparm/ChoiceEntry.h>
+#include "simparm/Entry.h"
+#include "simparm/ChoiceEntry.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <stdexcept>
 
@@ -74,9 +74,9 @@ class Slicer : public Output {
     Slicer( const Config&, std::auto_ptr< output::FilterSource > );
     ~Slicer();
 
-    AdditionalData announceStormSize(const Announcement&);
-    RunRequirements announce_run(const RunAnnouncement& a);
-    void receiveLocalizations(const EngineResult&);
+    void announceStormSize(const Announcement&) OVERRIDE;
+    RunRequirements announce_run(const RunAnnouncement& a) OVERRIDE;
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
 };
 
 class Slicer::Config {
@@ -166,12 +166,14 @@ void Slicer::check_for_duplicate_filenames
     avoid_filenames = &present_filenames;
 }
 
-Output::AdditionalData
-Slicer::announceStormSize(const Announcement& a)
-{
+void Slicer::announceStormSize(const Announcement& a) {
+    if (a.group_field != input::GroupFieldSemantic::ImageNumber) {
+        throw std::runtime_error("Input to Slice Localizations must be grouped "
+                                 "by image number");
+    }
     announcement.reset( new Announcement(a) );
 
-    return outputs[0]->announceStormSize(a);
+    outputs[0]->announceStormSize(a);
 }
 
 Output::RunRequirements
@@ -195,7 +197,7 @@ void Slicer::receiveLocalizations(const EngineResult& er)
 {
     frame_count one_frame( 1 * camera::frame );
     frame_index
-        cur_image = er.forImage, 
+        cur_image = er.group * camera::frame, 
         back_image = (cur_image >= slice_size) 
                 ? (cur_image - (slice_size-one_frame))
                 : 0;

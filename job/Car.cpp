@@ -51,7 +51,7 @@ Car::Car (const Config &config)
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
   input(NULL),
   output(NULL),
-  piston_count( config.pistonCount() ),
+  piston_count( config.thread_count() ),
   control( config.auto_terminate() )
 {
     used_output_filenames = config.get_meta_info().forbidden_filenames;
@@ -115,12 +115,11 @@ void Car::run() {
 void Car::drive() {
   bool run_successful = false;
   try {
-    input::BaseSource::Wishes requirements;
-    if ( piston_count > 1 )
-        requirements.set( input::BaseSource::ConcurrentIterators );
-
     DEBUG("Getting input traits from " << input.get());
-    Input::TraitsPtr traits = input->get_traits(requirements);
+    Input::TraitsPtr traits = input->get_traits();
+    if (traits->group_field != input::GroupFieldSemantic::ImageNumber) {
+        throw std::runtime_error("Result of engine must be grouped by image number");
+    }
     first_output = *traits->image_number().range().first;
     DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());
@@ -130,51 +129,13 @@ void Car::drive() {
     announcement.name = "Job" + ident;
     announcement.description = "Result image for Job " + ident;
     DEBUG("Sending announcement");
-    Output::AdditionalData data;
     {
         boost::lock_guard<boost::recursive_mutex> lock(mutex);
-        data = output->announceStormSize(announcement);
+        output->announceStormSize(announcement);
     }
     DEBUG("Sent announcement");
 
-    if ( data.test( output::Capabilities::ClustersWithSources ) ) {
-        simparm::Message m("Unable to provide data",
-                "The selected input module cannot provide localization traces. "
-                "Please select an appropriate output.");
-        m.send( current_ui );
-        return;
-    } else if ( data.test( output::Capabilities::SourceImage ) &&
-                ! announcement.input_image_traits )
-    {
-        simparm::Message m("Unable to provide data",
-                   "One of your output modules needs access to the raw " +
-                   std::string("images of the acquisition. These are not present in ") +
-                   "the input. Either remove the output or " +
-                   "choose a different input file or method.");
-        m.send( current_ui );
-        return;
-    } else if (
-        ( data.test( output::Capabilities::SmoothedImage ) && 
-          ! announcement.smoothed_image_is_set ) ||
-        ( data.test( output::Capabilities::CandidateTree ) && 
-          ! announcement.candidate_tree_is_set ) ||
-        ( data.test( output::Capabilities::InputBuffer ) && 
-          ! announcement.carburettor ) )
-    {
-        std::stringstream ss;
-        ss << 
-            "A selected data processing function "
-            "requires data about the input data ("
-            << data << ") that are not "
-            "present in the current input.";
-        simparm::Message m("Unable to provide data", ss.str());
-        m.send( current_ui );
-        return;
-    }
-
-    int number_of_threads = 1;
-    if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) )
-        number_of_threads = piston_count;
+    int number_of_threads = piston_count;
     bool run_succeeded = false;
     while ( ! run_succeeded && control.continue_computing() ) {
         current_run = boost::make_shared<Run>

@@ -6,8 +6,8 @@
 #include "image/mirror.h"
 #include "input/AdapterSource.h"
 #include "input/Method.hpp"
-#include <simparm/Entry.h>
-#include <simparm/Object.h>
+#include "simparm/Entry.h"
+#include "simparm/Object.h"
 
 namespace dStorm {
 namespace YMirror {
@@ -28,7 +28,7 @@ class Source
   boost::noncopyable
 {
     typedef input::Source<Type> Base;
-    localization::MetaInfo<localization::PositionY>::RangeType range;
+    localization::MetaInfo<localization::PositionY::ValueType>::RangeType range;
 
     void modify_traits( input::Traits<Type>& );
     void attach_local_ui_( simparm::NodeHandle ) {}
@@ -64,7 +64,7 @@ class ChainLink
 };
 
 bool need_range(output::LocalizedImage*) { return true; }
-void mirror(const localization::MetaInfo<localization::PositionY>::RangeType& range,
+void mirror(const localization::MetaInfo<localization::PositionY::ValueType>::RangeType& range,
             output::LocalizedImage& localizations) {
     for (auto& l : localizations) {
         l.position_y() = *range.second - l.position().y() + *range.first;
@@ -72,7 +72,7 @@ void mirror(const localization::MetaInfo<localization::PositionY>::RangeType& ra
 }
 
 bool need_range(engine::ImageStack*) { return false; }
-void mirror(const localization::MetaInfo<localization::PositionY>::RangeType& range,
+void mirror(const localization::MetaInfo<localization::PositionY::ValueType>::RangeType& range,
             dStorm::engine::ImageStack& image) {
     for (int i = 0; i < image.plane_count(); ++i) {
         image.plane(i) = image::mirror(image.plane(i), 1);

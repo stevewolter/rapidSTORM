@@ -10,17 +10,23 @@
 #include <vector>
 #include "base/Engine.h"
 
-namespace boost { struct recursive_mutex; }
-
 namespace dStorm {
 class Engine;
 
 namespace input {
 
+enum class GroupFieldSemantic {
+    None,
+    ImageNumber,
+    Molecule,
+};
+
 template <>
 struct Traits<output::LocalizedImage>
 : public Traits<Localization>
 {
+    GroupFieldSemantic group_field;
+
     /** If the data source knows which carburettor supplies the
         * images, this pointer is set to it, and NULL otherwise. */
     engine::Input* carburettor;
@@ -38,7 +44,6 @@ struct Traits<output::LocalizedImage>
     typedef boost::shared_ptr<Traits> Ptr;
     typedef boost::shared_ptr<const Traits> ConstPtr;
 
-    bool smoothed_image_is_set, candidate_tree_is_set;
     boost::shared_ptr< const engine::InputTraits > input_image_traits;
     std::string name, description;
 };

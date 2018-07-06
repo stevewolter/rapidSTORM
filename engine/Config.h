@@ -1,16 +1,17 @@
 #ifndef DSTORM_CONFIG_H
 #define DSTORM_CONFIG_H
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/BoostOptional.h>
-#include <simparm/Eigen.h>
-#include <simparm/Group.h>
-#include <simparm/Entry.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/BoostOptional.h"
+#include "simparm/Eigen.h"
+#include "simparm/Group.h"
+#include "simparm/Entry.h"
 #include "UnitEntries.h"
-#include <simparm/Entry.h>
-#include <simparm/ChoiceEntry.h>
-#include <simparm/ManagedChoiceEntry.h>
+#include "UnitEntries/Nanometre.h"
+#include "simparm/Entry.h"
+#include "simparm/ChoiceEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
 #include <boost/units/cmath.hpp>
 #include "output/Basename_decl.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -25,7 +26,7 @@
 #include "engine/FitJudgerFactory.h"
 
 #include "units/nanolength.h"
-#include <boost/units/systems/camera/length.hpp>
+#include "boost/units/systems/camera/length.hpp"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
@@ -43,15 +44,11 @@ namespace engine {
         Config();
         ~Config();
 
-        typedef Eigen::Matrix< quantity<camera::length,int>, 2, 1, Eigen::DontAlign > 
-            PixelVector2D;
-        Entry< PixelVector2D > nms;
+        FloatNanometreEntry fit_position_epsilon;
+        simparm::BoolEntry separate_plane_fitting;
 
         /** The method to use for spot detection. */
         simparm::ManagedChoiceEntry<spot_finder::Factory> spotFindingMethod;
-
-        simparm::Object weights;
-        boost::ptr_vector< simparm::Entry<float> > spot_finder_weights;
 
         /** The method to use for spot fitting. */
         simparm::ManagedChoiceEntry< spot_fitter::Factory > spotFittingMethod;

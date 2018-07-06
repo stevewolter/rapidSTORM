@@ -6,8 +6,8 @@
 #include "base/Engine.h"
 #include "viewer/ColourScheme.h"
 #include "viewer/ColourSchemeFactory.h"
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
 
 namespace dStorm {
 namespace viewer {

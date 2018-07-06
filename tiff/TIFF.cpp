@@ -22,10 +22,10 @@
 
 #include <boost/units/base_units/us/inch.hpp>
 
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
-#include <simparm/TriggerEntry.h>
-#include <simparm/text_stream/RootNode.h>
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/TriggerEntry.h"
+#include "simparm/text_stream/RootNode.h"
 
 #include "engine/Image.h"
 #include "image/Image.h"
@@ -78,11 +78,9 @@ public:
     Source(std::auto_ptr<OpenFile> file);
     virtual ~Source();
 
-    TraitsPtr get_traits(typename BaseSource::Wishes);
+    TraitsPtr get_traits();
 
     void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
-    typename BaseSource::Capabilities capabilities() const 
-        { return typename BaseSource::Capabilities(); }
 
 private:
     std::auto_ptr<OpenFile> file;
@@ -165,7 +163,7 @@ ChainLink::makeSource()
 }
 
 Source::TraitsPtr 
-Source::get_traits(typename BaseSource::Wishes) {
+Source::get_traits() {
     TraitsPtr rv = TraitsPtr( file->getTraits(true, count).release() );
     return rv;
 }

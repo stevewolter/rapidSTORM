@@ -43,7 +43,7 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     traits.position_z().is_given = have_z_information;
     traits.amplitude().is_given = true;
     traits.fit_residues().is_given = true;
-    traits.local_background().is_given = (info.traits.plane_count() <= 1);
+    traits.local_background().is_given = true;
     traits.fluorophore().is_given = true;
     if (config.two_kernel_fitting()) {
         traits.two_kernel_improvement().is_given = true;
@@ -57,27 +57,11 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     config.laempi_fit.set_visibility( info.traits.plane_count() > 1 );
     config.disjoint_amplitudes.set_visibility( info.traits.plane_count() > 1 );
 
-    bool all_uncertainties_given = can_compute_uncertainty( info.traits.plane(0) );
-    traits.source_traits.clear();
-    if ( info.traits.plane_count() > 1 ) {
-        boost::shared_ptr< input::Traits<Localization> > p( new input::Traits<Localization>() );
-        p->local_background().is_given = true;
-        p->amplitude().is_given = config.disjoint_amplitudes();
-        p->position_x().is_given = config.laempi_fit();
-        p->position_y().is_given = config.laempi_fit();
-        p->repetitions = info.traits.plane_count();
-        for (int i = 0; i < info.traits.plane_count(); ++i ) {
-            bool have_uncertainty = can_compute_uncertainty( info.traits.plane(i) );
-            all_uncertainties_given = all_uncertainties_given && have_uncertainty;
-        }
-        p->position_uncertainty_x().is_given = all_uncertainties_given;
-        p->position_uncertainty_y().is_given = all_uncertainties_given;
-        p->position_uncertainty_z().is_given = false;
-        traits.source_traits.push_back( p );
-    }
+    bool uncertainty = info.traits.plane_count() == 1 &&
+        can_compute_uncertainty( info.traits.plane(0) );
 
-    traits.position_uncertainty_x().is_given = all_uncertainties_given;
-    traits.position_uncertainty_y().is_given = all_uncertainties_given;
+    traits.position_uncertainty_x().is_given = uncertainty;
+    traits.position_uncertainty_y().is_given = uncertainty;
     traits.position_uncertainty_z().is_given = false;
     my_traits = traits;
 }

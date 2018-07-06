@@ -9,10 +9,8 @@ namespace localization_file {
 
 template <typename Tag>
 class LocalizationField : public Field {
-  public:
-    typedef typename localization::MetaInfo<Tag> TraitsType;
-  private:
     typedef typename Tag::ValueType ValueType;
+    typedef typename localization::MetaInfo<ValueType> TraitsType;
     typedef ValueConverter<ValueType> Converter;
     boost::shared_ptr<Converter> converter;
 

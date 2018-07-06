@@ -12,8 +12,8 @@
 #include <boost/units/Eigen/Array>
 #include <boost/bind/bind.hpp>
 
-#include <simparm/FileEntry.h>
-#include <simparm/Message.h>
+#include "simparm/FileEntry.h"
+#include "simparm/Message.h"
 
 #include "localization/Traits.h"
 #include "output/Output.h"
@@ -39,10 +39,6 @@ class Config {
         xyztI.attach_ui( at );
     }
     Config();
-
-    bool can_work_with(output::Capabilities cap) {
-        return true;
-    }
 };
 
 class Output : public output::Output {
@@ -67,7 +63,7 @@ class Output : public output::Output {
     Output(const Config&);
     ~Output();
 
-    AdditionalData announceStormSize(const Announcement &a);
+    void announceStormSize(const Announcement &a) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement&);
     void receiveLocalizations(const EngineResult&);
 
@@ -126,10 +122,8 @@ std::unique_ptr<TiXmlNode> Output::MakeHeader(const input::Traits<Localization>&
     return std::move(rv);
 }
 
-Output::AdditionalData
-Output::announceStormSize(const Announcement &a) {
+void Output::announceStormSize(const Announcement &a) {
     traits = a;
-    return AdditionalData();
 }
 
 void Output::output( const Localization& l ) {

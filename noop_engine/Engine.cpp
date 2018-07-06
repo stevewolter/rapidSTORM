@@ -19,14 +19,15 @@ Engine::Engine( std::auto_ptr<Input> input )
 {
 }
 
-Engine::TraitsPtr Engine::get_traits(Wishes w) {
-    Engine::TraitsPtr rv = convert_traits( *input->get_traits(w) );
+Engine::TraitsPtr Engine::get_traits() {
+    Engine::TraitsPtr rv = convert_traits( *input->get_traits() );
     rv->carburettor = input.get();
     return rv;
 }
 
 Engine::TraitsPtr Engine::convert_traits( const Input::Traits& p ) {
     Base::TraitsPtr prv( new input::Traits<output::LocalizedImage>("Noop", "Dummy engine data") );
+    prv->group_field = input::GroupFieldSemantic::ImageNumber;
     prv->in_sequence = true;
     prv->image_number() = p.image_number();
     prv->input_image_traits.reset( p.clone() );
@@ -44,10 +45,9 @@ bool Engine::GetNext(int thread, output::LocalizedImage* target) {
         return false;
     }
 
-    target->forImage = image.frame_number();
+    target->group = image.frame_number().value();
     target->clear();
     target->source = image; 
-    target->candidates = NULL;
     return true;
 }
 

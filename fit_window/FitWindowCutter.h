@@ -1,6 +1,8 @@
 #ifndef FIT_WINDOW_CUT_REGION_OF_INTEREST_H
 #define FIT_WINDOW_CUT_REGION_OF_INTEREST_H
 
+#include <set>
+
 #include "engine/InputTraits.h"
 #include "fit_window/Config.h"
 #include "fit_window/Plane.h"

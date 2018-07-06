@@ -7,7 +7,7 @@
 #include "traits/image_resolution.h"
 #include <boost/units/quantity.hpp>
 #include <boost/optional/optional.hpp>
-#include <boost/units/systems/camera/length.hpp>
+#include "boost/units/systems/camera/length.hpp"
 #include "display/fwd.h"
 
 namespace dStorm {

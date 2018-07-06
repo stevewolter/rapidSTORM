@@ -19,7 +19,6 @@ struct Plane {
     double standard_deviation[2];
     int window_width;
     std::vector<DataPoint> points;
-    int highest_pixel_index;
     bool has_per_pixel_background;
 };
 

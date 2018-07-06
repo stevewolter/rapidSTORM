@@ -99,7 +99,6 @@ rapidstorm_SOURCES = \
     InsertionPlace.h \
     Localization_decl.h Localization.h \
     Pixel.h \
-    DataSetTraits.h \
     Job.h UnitEntries.h \
     base/Config.h \
     base/Engine.h types/samplepos.h types/fluorophore.h \
@@ -118,7 +117,6 @@ rapidstorm_SOURCES = \
     localization/Fields.h localization/Fields.cpp \
     output/Basename_decl.h output/Basename.h \
     output/BasenameAdjustedFileEntry_decl.h output/BasenameAdjustedFileEntry.h \
-    output/Capabilities.h \
     output/FileOutputBuilder.h \
     output/FilterBuilder.h output/FilterBuilder_impl.h \
     output/FilterSource.h \
@@ -127,7 +125,6 @@ rapidstorm_SOURCES = \
     output/Output_decl.h output/Output.h output/Filter.h \
     output/OutputSource.h \
     output/Traits_decl.h output/Traits.h \
-    output/TraceReducer.h \
     output/LocalizedImage_decl.h output/LocalizedImage.h output/LocalizedImage_traits.h \
     engine/Candidate_decl.h engine/Candidate.h \
     engine/CandidateTree_decl.h engine/CandidateTree.h \
@@ -147,6 +144,7 @@ rapidstorm_SOURCES = \
     input/fwd.h input/Link.h \
     input/Forwarder.h \
     input/DefaultFilterTypes.h \
+    input/FakeSource.h \
     input/MetaInfo.h \
     input/Source.h \
     input/Traits.h  \
@@ -208,7 +206,7 @@ rapidstorm_SOURCES += \
 rapidstorm_SOURCES += \
     Localization.cpp \
     UnitEntries.cpp \
-    DataSetTraits.cpp units/units.cpp image/MetaInfo.cpp \
+    units/units.cpp image/MetaInfo.cpp \
     localization/Field.cpp \
     localization/Traits.cpp \
     image/instantiate.cpp \
@@ -240,7 +238,6 @@ rapidstorm_SOURCES += \
     output/FilterSource.cpp \
     output/OutputSource.cpp \
     output/Traits.cpp \
-    output/TraceReducers.cpp \
     output/SourceFactory.cpp  \
     output/LocalizedImage_traits.cpp \
     output/Filter.cpp \
@@ -289,6 +286,7 @@ rapidstorm_SOURCES += \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
     inputs/join.h inputs/join.cpp \
+    inputs/join_test.h inputs/join_test.cpp \
     inputs/join/spatial.h inputs/join/spatial.cpp \
     inputs/join/temporal.h inputs/join/temporal.cpp \
     inputs/Splitter.h inputs/Splitter.cpp \
@@ -312,10 +310,15 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
-    engine/Engine.cpp \
-    engine/EngineDebug.h engine/Engine.h \
+    engine/Engine.h engine/Engine.cpp \
+    engine/EngineThread.h engine/EngineThread.cpp \
+    engine/SingleThreadedLocalizer.h engine/SingleThreadedLocalizer.cpp \
+    engine/PlaneSeparator.h engine/PlaneSeparator.cpp \
+    engine/EngineDebug.h \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
-    engine/PlaneFlattener.h engine/PlaneFlattener.cpp
+    engine/FitPositionGenerator.h engine/FitPositionGenerator.cpp \
+    engine/FitPositionRoundRobin.h \
+    engine/FitPositionDeduplicater.h
 
 rapidstorm_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
@@ -418,7 +421,7 @@ rapidstorm_SOURCES += \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
     test-plugin/Verbose.h \
-    test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
+    test-plugin/RepeatTrigger.h \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 
@@ -617,8 +620,7 @@ rapidstorm_SOURCES += \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
-    tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
-    tiff/augment_config.h tiff/augment_config.cpp
+    tiff/TIFFOperation.h tiff/TIFFOperation.cpp
 
 rapidstorm_SOURCES += \
     simparm/Node.h simparm/Node.cpp \

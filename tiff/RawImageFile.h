@@ -53,8 +53,8 @@ class RawImageFile : public Output {
         throw std::runtime_error(
             "RawImageFile::clone not implemented"); }
 
-    AdditionalData announceStormSize(const Announcement &a);
-    void receiveLocalizations(const EngineResult&);
+    void announceStormSize(const Announcement &a) OVERRIDE;
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)
@@ -79,9 +79,6 @@ class RawImageFile::Config {
     static std::string get_name() { return "RawImage"; }
     static std::string get_description() { return "Save raw images"; }
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
-    bool can_work_with(Capabilities cap) { 
-        return cap.test( Capabilities::SourceImage ); 
-    }
     void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );
         save_background.attach_ui( at );

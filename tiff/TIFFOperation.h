@@ -4,8 +4,8 @@
 #include <list>
 #include <tiffio.h>
 #include <stdarg.h>
-#include <simparm/Message.h>
-#include <simparm/NodeHandle.h>
+#include "simparm/Message.h"
+#include "simparm/NodeHandle.h"
 
 namespace dStorm {
 

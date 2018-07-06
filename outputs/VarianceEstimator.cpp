@@ -23,7 +23,6 @@ struct Config
     Config() 
         : tag("Tag", "Tag at start of line", "Precision") {}
     void attach_ui( simparm::NodeHandle at ) { tag.attach_ui(at); }
-    bool can_work_with( dStorm::output::Capabilities ) { return true; }
 };
 
 class Output : public dStorm::output::Output {
@@ -36,12 +35,12 @@ class Output : public dStorm::output::Output {
 
   public:
     Output( const Config& );
-    AdditionalData announceStormSize(const Announcement&);
-    RunRequirements announce_run(const RunAnnouncement&) { 
+    void announceStormSize(const Announcement&) OVERRIDE;
+    RunRequirements announce_run(const RunAnnouncement&) OVERRIDE { 
         for (int j = 0; j < 3; ++j) acc[j] = Accumulator();
         return RunRequirements(); 
     }
-    void receiveLocalizations(const EngineResult&);
+    void receiveLocalizations(const EngineResult&) OVERRIDE;
 
     void check_for_duplicate_filenames
             (std::set<std::string>&) { }
@@ -52,9 +51,7 @@ Output::Output( const Config& config )
 {
 }
 
-Output::AdditionalData Output::announceStormSize(const Announcement& a) {
-    return Output::AdditionalData();
-}
+void Output::announceStormSize(const Announcement& a) {}
 
 void Output::receiveLocalizations(const EngineResult& e) {
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i ) {

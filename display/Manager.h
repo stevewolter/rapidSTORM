@@ -6,7 +6,7 @@
 #include "display/DataSource.h"
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 
 namespace dStorm {
 namespace display {

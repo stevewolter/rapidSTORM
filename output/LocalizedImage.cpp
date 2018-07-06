@@ -4,19 +4,12 @@
 namespace dStorm {
 namespace output {
 
-LocalizedImage::LocalizedImage() 
-: forImage(0 * camera::frame), candidates(NULL)
-{
-}
+LocalizedImage::LocalizedImage() {}
 
-LocalizedImage::LocalizedImage(frame_index i) 
-: forImage(i), candidates(NULL)
-{
-}
+LocalizedImage::LocalizedImage(frame_index frame) : group(frame.value()) {}
 
 LocalizedImage::LocalizedImage(const LocalizedImage& o) 
-: results(o.results), forImage(o.forImage), source(o.source), smoothed(o.smoothed), 
-  candidates(o.candidates)
+: results(o.results), group(o.group), source(o.source)
 {
 }
 
@@ -25,11 +18,9 @@ LocalizedImage::~LocalizedImage()
 }
 
 LocalizedImage& LocalizedImage::operator=( const LocalizedImage& o ) {
-    forImage = o.forImage;
+    group = o.group;
     results = o.results;
     source = o.source;
-    smoothed = o.smoothed;
-    candidates = o.candidates;
     return *this;
 }
 
@@ -46,7 +37,7 @@ LocalizedImage::iterator LocalizedImage::erase( iterator f, iterator t )
 
 void LocalizedImage::set_frame_number( frame_index n ) 
 {
-    forImage = n;
+    group = n.value();
     for ( iterator i = begin(); i != end(); ++i )
         i->frame_number() = n;
 }

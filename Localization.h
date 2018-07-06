@@ -12,10 +12,7 @@
 #include "localization/Field.h"
 #include "localization/Fields.h"
 
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/value_at.hpp>
 #include <boost/optional/optional.hpp>
-#include <vector>
 
 namespace dStorm {
 
@@ -41,20 +38,8 @@ class Localization  {
     FIELD(localization::Fluorophore, fluorophore);
     FIELD(localization::LocalBackground, local_background);
     FIELD(localization::CoefficientOfDetermination, coefficient_of_determination);
+    FIELD(localization::Molecule, molecule);
 #undef FIELD
-
-    typedef std::vector<Localization> Children;
-    boost::optional< Children > children;
-
-  private:
-    template <typename ConstOrMutLoc> struct _iterator;
-  public:
-    typedef _iterator<Localization> iterator;
-    typedef _iterator<const Localization> const_iterator;
-    inline iterator begin();
-    inline iterator end();
-    inline const_iterator begin() const;
-    inline const_iterator end() const;
 
     Localization();
     Localization( const samplepos& position, localization::Amplitude::ValueType strength );

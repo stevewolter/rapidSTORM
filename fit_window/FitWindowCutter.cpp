@@ -29,6 +29,8 @@ Plane FitWindowCutter::cut_region_of_interest(
 ) {
     const float background_part = 0.25;
 
+    int highest_pixel_index = 0;
+
     Plane result;
     result.optics = &optics;
     result.pixel_size = quantity<si::area>(optics.pixel_size(position)).value() * 1E12;
@@ -40,7 +42,6 @@ Plane FitWindowCutter::cut_region_of_interest(
         result.max_coordinate[d] = std::numeric_limits<double>::min();
     }
     result.integral = 0;
-    result.highest_pixel_index = 0;
     result.window_width = -1;
     result.peak_intensity = 0;
 
@@ -90,7 +91,7 @@ Plane FitWindowCutter::cut_region_of_interest(
         }
         result.integral += value;
         if ( value >= result.peak_intensity ) {
-            result.highest_pixel_index = points.size();
+            highest_pixel_index = points.size();
         }
 
         result.points.push_back(data_point);
@@ -109,7 +110,7 @@ Plane FitWindowCutter::cut_region_of_interest(
 
     for (const DataPoint& point : result.points) {
         for (int dim = 0; dim < 2; ++dim) {
-            double offset = point.position[dim] - result.points[result.highest_pixel_index].position[dim];
+            double offset = point.position[dim] - result.points[highest_pixel_index].position[dim];
             double background_estimate = (result.has_per_pixel_background) ? point.background : result.background_estimate;
             double intensity_above_background = 
                 std::max(0.0, double(point.value - background_estimate));

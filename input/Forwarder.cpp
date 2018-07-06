@@ -1,6 +1,6 @@
 #include "debug.h"
 #include "input/Forwarder.h"
-#include <simparm/NodeHandle.h>
+#include "simparm/NodeHandle.h"
 #include "input/Source.h"
 
 namespace dStorm {

@@ -5,16 +5,14 @@
 #include "input/Traits.h"
 #include "engine/Image_decl.h"
 #include "localization/Traits.h"
-#include "DataSetTraits.h"
-#include <boost/units/systems/camera/frame_rate.hpp>
+#include "boost/units/systems/camera/frame_rate.hpp"
 
 namespace dStorm {
 namespace input {
 
 template <>
 class Traits< engine::ImageStack > 
-: public input::BaseTraits,
-  public DataSetTraits
+: public input::BaseTraits
 {
 public:
     int plane_count() const { return planes_.size(); }
@@ -40,11 +38,12 @@ public:
 
     std::pair<samplepos,samplepos> size_in_sample_space() const;
 
-    localization::MetaInfo<localization::ImageNumber>& image_number() { return in; }
-    const localization::MetaInfo<localization::ImageNumber>& image_number() const { return in; }
+    localization::MetaInfo<localization::ImageNumber::ValueType>& image_number() { return in; }
+    const localization::MetaInfo<localization::ImageNumber::ValueType>& image_number() const { return in; }
 
     boost::units::quantity<boost::units::camera::frame_rate>
         frame_rate;
+    int fluorophore_count;
 
     std::string desc() const { return "image"; }
     Traits* clone() const { return new Traits(*this); }
@@ -60,7 +59,7 @@ public:
 
 private:
     std::vector< engine::InputPlane > planes_;
-    localization::MetaInfo<localization::ImageNumber> in;
+    localization::MetaInfo<localization::ImageNumber::ValueType> in;
 };
 
 }

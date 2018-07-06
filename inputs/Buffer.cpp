@@ -31,19 +31,12 @@ class Source : public AdapterSource<Ty>
 
     void dispatch(BaseSource::Messages m);
 
-    BaseSource::Capabilities capabilities() const {
-        return this->base().capabilities().set(BaseSource::Repeatable)
-            .set(BaseSource::ConcurrentIterators);
-    }
-    typename input::Source<Ty>::TraitsPtr get_traits( BaseSource::Wishes );
+    typename input::Source<Ty>::TraitsPtr get_traits();
 
   protected:
     void init( std::auto_ptr< Source<Ty> > );
     /** Discarding license variable. Is set to true on WillNeverRepeatAgain message. */
     bool mayDiscard, need_to_init_iterators;
-    /** When the wishes indicate no buffer is needed, this variable is set 
-        *  to true to avoid buffering. */
-    bool is_transparent;
 
     /** Representation of one saved object */
     typedef std::list<Ty> Slots;
@@ -54,20 +47,12 @@ class Source : public AdapterSource<Ty>
 
     void discard( typename Slots::iterator slot );
     void set_thread_count(int num_threads) OVERRIDE {
-        if (is_transparent) {
-            AdapterSource<Ty>::set_thread_count(num_threads);
-        } else {
-            AdapterSource<Ty>::set_thread_count(1);
-        }
+        AdapterSource<Ty>::set_thread_count(1);
     }
 };
 
 template<typename Type>
 bool Source<Type>::GetNext(int thread, Type* target) {
-    if (is_transparent) {
-        return AdapterSource<Type>::GetNext(thread, target);
-    }
-
     boost::lock_guard<boost::mutex> lock(mutex);
     if ( next_output != buffer.end() ) {
         DEBUG("Returning stored object " << next_output->frame_number() << " for " << this);
@@ -94,7 +79,6 @@ template <typename Object>
 Source<Object>::Source(std::auto_ptr< input::Source<Object> > src) 
 : AdapterSource<Object>(src),
   mayDiscard( false ), need_to_init_iterators(false),
-  is_transparent(true),
   next_output( buffer.begin() )
 {
     need_to_init_iterators = true;
@@ -127,17 +111,9 @@ void Source<Object>::dispatch(BaseSource::Messages m) {
 
 template<typename Object>
 typename input::Source<Object>::TraitsPtr
-Source<Object>::get_traits( BaseSource::Wishes w ) 
+Source<Object>::get_traits() 
 {
-    typename Source<Object>::TraitsPtr t = this->base().get_traits(w);
-    BaseSource::Capabilities c = this->base().capabilities();
-    BaseSource::Capability providing[] = 
-        { BaseSource::Repeatable, BaseSource::ConcurrentIterators };
-    is_transparent = true;
-    for (int i = 0; i < 2; ++i)
-        is_transparent = is_transparent &&
-            ( c.test( providing[i] ) || ! w.test( providing[i] ) );
-    return t;
+    return this->base().get_traits();
 }
 
 class ChainLink 

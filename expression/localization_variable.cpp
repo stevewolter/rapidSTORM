@@ -44,7 +44,7 @@ class ValueVariable : public Variable {
   bool set( const input::Traits<Localization>& localization_traits, Localization& localization, const DynamicQuantity& value ) const {
     const typename Tag::ValueType parsed_value( dynamizer(value) );
     localization.field(Tag()) = parsed_value;
-    const localization::MetaInfo<Tag>& traits = localization_traits;
+    const auto& traits = localization_traits.field(Tag());
     return (!traits.range().first || *traits.range().first <= parsed_value) &&
            (!traits.range().second || *traits.range().second >= parsed_value);
   }

@@ -2,14 +2,13 @@
 #define DSTORM_FORMFITTER_CONFIG_H
 
 #include <boost/units/Eigen/Array>
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Group.h>
-#include "output/Capabilities.h"
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Group.h"
 #include <boost/array.hpp>
 #include <boost/optional/optional.hpp>
 #include "Direction.h"
@@ -41,10 +40,6 @@ struct Config : public calibrate_3d::FormCalibrationConfig
     static std::string get_name() { return "FitPSFForm"; }
     static std::string get_description() { return "Estimate PSF form"; }
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
-
-    bool can_work_with(output::Capabilities cap)  {
-            return cap.test( output::Capabilities::SourceImage );
-    }
 };
 
 }

@@ -12,11 +12,11 @@
 #include <boost/units/systems/si/area.hpp>
 #include <boost/units/quantity.hpp>
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
-#include <simparm/Object.h>
-#include <simparm/Entry.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
+#include "simparm/Object.h"
+#include "simparm/Entry.h"
 
 #include "output/Output.h"
 #include "traits/optics_config.h"
@@ -68,7 +68,7 @@ class Output : public output::Output {
     Output(const Config &config);
     ~Output();
 
-    AdditionalData announceStormSize(const Announcement &);
+    void announceStormSize(const Announcement &) OVERRIDE;
     RunRequirements announce_run(const RunAnnouncement&);
     void receiveLocalizations(const EngineResult&);
     void store_results() {}

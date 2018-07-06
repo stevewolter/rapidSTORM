@@ -8,8 +8,8 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/units/Eigen/Core>
 #include <boost/units/quantity.hpp>
-#include <boost/units/systems/camera/length.hpp>
-#include <boost/units/systems/camera/resolution.hpp>
+#include "boost/units/systems/camera/length.hpp"
+#include "boost/units/systems/camera/resolution.hpp"
 #include <boost/units/systems/si/length.hpp>
 
 #include <Eigen/Core>
@@ -29,11 +29,8 @@ namespace units = boost::units;
 
 struct PlaneConfig;
 
-struct Optics
+class Optics
 {
-    typedef units::quantity< units::camera::resolution, float > Resolution;
-
-  private:
     std::vector<float> tmc;
     boost::shared_ptr< const ProjectionFactory > projection_factory_;
     boost::shared_ptr< const threed_info::DepthInfo > depth_info_[Direction_2D];

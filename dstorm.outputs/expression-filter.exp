@@ -86,7 +86,7 @@ send "in Car in Run in value set 1\n"
 
 expect {
     -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); exp_continue; }
-    -re "in Progress in value set 0.1" { pass "$test" }
+    -re "in Progress in value set 0\." { pass "$test" }
     -re "in Progress in value set 1" { pass "$test" }
 }
 
@@ -107,8 +107,14 @@ send "in Car in Run in value set 1\n"
 
 expect {
     -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); exp_continue; }
+<<<<<<< HEAD
     -re "in Progress in value set 0.1" { pass "$test" }
     -re "in Progress in value set 1" { pass "$test" }
+||||||| merged common ancestors
+    -re "in Progress in value set 0.1" { pass "$test" }
+=======
+    -re "in Progress in value set 0\." { pass "$test" }
+>>>>>>> 4434d1f3462cac91ecac7e383e2e7f9cdc41e184
 }
 send "terminate_jobs\n"
 

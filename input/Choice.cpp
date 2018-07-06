@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "input/Choice.h"
-#include <simparm/ChoiceEntry.h>
-#include <simparm/Message.h>
+#include "simparm/ChoiceEntry.h"
+#include "simparm/Message.h"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
 #include <boost/foreach.hpp>

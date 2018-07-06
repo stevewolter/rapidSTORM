@@ -7,11 +7,11 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <boost/array.hpp>
-#include <boost/units/systems/camera/resolution.hpp>
+#include "boost/units/systems/camera/resolution.hpp"
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
-#include <simparm/Object.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Object.h"
+#include "simparm/FileEntry.h"
 #include "image/MetaInfo.h"
 #include <fstream>
 

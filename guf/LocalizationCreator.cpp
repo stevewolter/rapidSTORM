@@ -26,47 +26,7 @@ LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::en
 void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelStack& pos, double chi_sq, const fit_window::PlaneStack& data ) const
 {
     assert( ! pos.empty() );
-
-    const int plane_count = pos.size();
-    if ( pos.size() == 1 ) {
-        write_parameters( loc, pos[0], chi_sq, data[0] );
-    } else {
-        /* TODO: Can weight_by_uncertainty be computed statically? */
-        bool weight_by_uncertainty = true;
-        std::vector<Localization> by_plane;
-        for ( int plane = 0; plane < plane_count; ++plane ) {
-            by_plane.push_back( Localization() );
-            write_parameters( by_plane.back(), pos[plane], chi_sq, data[plane] );
-            if ( ! data[plane].optics->can_compute_localization_precision() )
-                weight_by_uncertainty = false;
-        }
-        join_localizations( loc, by_plane, weight_by_uncertainty );
-    }
-}
-
-void LocalizationCreator::join_localizations( Localization& result, const std::vector<Localization>& by_plane, bool weight_by_uncertainty ) const
-{
-    result = by_plane[0];
-
-    for (int d = 0; d < 2; ++d) {
-        double accum = 0;
-        double inv_variance, total_inv_variance = 0;
-        for (int p = 0; p < int( by_plane.size() ); ++p ) {
-            if ( weight_by_uncertainty )
-                inv_variance = pow(quantity<si::length>(by_plane[p].position_uncertainty(d)).value() * 1E6, -2.0);
-            else
-                inv_variance = 1.0;
-            accum += quantity<si::length>(by_plane[p].position()[d]).value() * 1E6 * inv_variance;
-            total_inv_variance += inv_variance;
-        }
-        if ( laempi_fit )
-            result.set_position(d, 1E-6f * si::meter * float(accum / total_inv_variance));
-        if ( weight_by_uncertainty )
-            result.set_position_uncertainty(d, samplepos::Scalar(1E-6 * si::meter * sqrt(1.0 / total_inv_variance)));
-        // TODO: This should probably be the total, pre-prefactor amplitude, and the others with PF
-        result.amplitude() = by_plane[0].amplitude();
-    }
-    result.children = by_plane;
+    write_parameters( loc, pos[0], chi_sq, data[0] );
 }
 
 void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKernelModel& m, const fit_window::Plane& p )  const

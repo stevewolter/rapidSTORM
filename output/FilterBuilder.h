@@ -3,8 +3,8 @@
 
 #include "output/FilterSource.h"
 #include <stdexcept>
-#include <simparm/Object.h>
-#include <simparm/TreeEntry.h>
+#include "simparm/Object.h"
+#include "simparm/TreeEntry.h"
 
 namespace dStorm {
 namespace output {
@@ -22,8 +22,6 @@ namespace output {
         FilterBuilder() ;
         FilterBuilder(const FilterBuilder&);
         FilterBuilder* clone() const; 
-
-        virtual void set_source_capabilities( Capabilities cap ); 
 
         virtual std::auto_ptr<Output> make_output();
 

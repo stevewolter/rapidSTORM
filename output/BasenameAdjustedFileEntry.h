@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BASENAMEADJUSTED_H
 #define DSTORM_OUTPUT_BASENAMEADJUSTED_H
 
-#include <simparm/FileEntry.h>
+#include "simparm/FileEntry.h"
 #include "output/BasenameAdjustedFileEntry_decl.h"
 #include "output/Basename.h"
 

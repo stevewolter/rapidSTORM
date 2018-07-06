@@ -5,8 +5,8 @@
 #include "config.h"
 #endif
 
-#include <simparm/Entry.h>
-#include <simparm/Entry.h>
+#include "simparm/Entry.h"
+#include "simparm/Entry.h"
 #include "output/Output.h"
 #include "output/OutputBuilder.h"
 #include <iostream>
@@ -23,10 +23,8 @@ struct Delayer
     ~Delayer();
     Delayer* clone() const;
 
-    AdditionalData announceStormSize(const Announcement& a) { 
-        return AdditionalData(); 
-    }
-    void receiveLocalizations(const EngineResult& er) {
+    void announceStormSize(const Announcement& a) OVERRIDE {}
+    void receiveLocalizations(const EngineResult& er) OVERRIDE {
 #ifdef HAVE_USLEEP
         usleep( 1E5 );
 #elif HAVE_WINDOWS_H
@@ -42,8 +40,6 @@ struct Delayer::Config
     static std::string get_description() { return "Delayer"; }
     static simparm::UserLevel get_user_level() { return simparm::Debug; }
     void attach_ui( simparm::NodeHandle ) {}
-    bool can_work_with(const dStorm::output::Capabilities&)
-        {return true;}
 };
 
 Delayer* Delayer::clone() const { 

@@ -8,8 +8,8 @@
 #include <list>
 #include "Pixel.h"
 #include "image/Image.h"
-#include <boost/units/systems/camera/resolution.hpp>
-#include <boost/units/systems/camera/length.hpp>
+#include "boost/units/systems/camera/resolution.hpp"
+#include "boost/units/systems/camera/length.hpp"
 #include "image/MetaInfo.h"
 #include "image/constructors.h"
 

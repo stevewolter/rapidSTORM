@@ -2,11 +2,11 @@
 #include <set>
 #include <fstream>
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
-#include <simparm/FileEntry.h>
-#include <simparm/Object.h>
+#include "simparm/Eigen_decl.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/Eigen.h"
+#include "simparm/FileEntry.h"
+#include "simparm/Object.h"
 
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
@@ -17,7 +17,7 @@
 #include <boost/spirit/include/support_istream_iterator.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
-#include <boost/units/systems/camera/resolution.hpp>
+#include "boost/units/systems/camera/resolution.hpp"
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>

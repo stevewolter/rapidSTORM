@@ -4,9 +4,9 @@
 
 #include "simparm/text_stream/BackendRoot.h"
 #include <boost/bind/bind.hpp>
-#include <simparm/wx_ui/no_main_window.h>
-#include <simparm/dummy_ui/fwd.h>
-#include <simparm/Node.h>
+#include "simparm/wx_ui/no_main_window.h"
+#include "simparm/dummy_ui/fwd.h"
+#include "simparm/Node.h"
 
 namespace simparm {
 namespace text_stream {

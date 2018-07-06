@@ -30,23 +30,7 @@ class ChainLink
     simparm::BaseAttribute::ConnectionStore listening[4];
 
     void notice_traits( const MetaInfo&, const Traits< ImageStack >& traits ) {
-        int soll = traits.plane_count() - 1;
-        while ( soll > int(config.spot_finder_weights.size()) ) {
-            int id = config.spot_finder_weights.size();
-            std::string ident = boost::lexical_cast<std::string>(id + 1);
-            config.spot_finder_weights.push_back( 
-                new simparm::Entry<float>(
-                    "WeightInPlane" + boost::lexical_cast<std::string>(id + 1),
-                    "Input layer " + boost::lexical_cast<std::string>(id + 2),
-                    1.0f
-                )
-            );
-            config.spot_finder_weights.back().attach_ui( config.weights_insertion_point );
-        }
-
-        for (int i = 0; i < int(config.spot_finder_weights.size()); ++i)
-            config.spot_finder_weights[i].set_visibility( i < soll );
-        config.weights.set_visibility( soll > 0 );
+        config.separate_plane_fitting.set_visibility(traits.plane_count() > 1);
     }
     boost::shared_ptr< BaseTraits > 
     create_traits( MetaInfo& mi, 
@@ -81,11 +65,13 @@ class ChainLink
 
     static std::string getName() { return "Engine"; }
     void attach_ui( simparm::NodeHandle at ) { 
-        listening[2] = config.fit_judging_method.value.notify_on_value_change( 
+        listening[0] = config.fit_judging_method.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
-        listening[2] = config.spotFittingMethod.value.notify_on_value_change( 
+        listening[1] = config.spotFittingMethod.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
-        listening[3] = config.spotFindingMethod.value.notify_on_value_change( 
+        listening[2] = config.spotFindingMethod.value.notify_on_value_change( 
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
+        listening[3] = config.separate_plane_fitting.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
         simparm::NodeHandle a = engine_node.attach_ui(at);
         config.attach_ui( a ); 
@@ -128,11 +114,7 @@ make_rapidSTORM_engine_link()
     return rv;
 }
 
-void check_plane_flattener( TestState& state );
-
 void unit_test( TestState& state ) {
-    check_plane_flattener( state );
-
     std::auto_ptr<input::Link> rv = make_rapidSTORM_engine_link();
     rv.reset();
     state.pass("Destruction of engine works");

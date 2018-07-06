@@ -1,10 +1,10 @@
 #ifndef LOCPREC_NOISEGENERATOR_H
 #define LOCPREC_NOISEGENERATOR_H
 
-#include <simparm/Group.h>
-#include <simparm/Entry.h>
-#include <simparm/Entry.h>
-#include <simparm/FileEntry.h>
+#include "simparm/Group.h"
+#include "simparm/Entry.h"
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
 #include <memory>
 #include <gsl/gsl_rng.h>
 

@@ -62,7 +62,7 @@ std::ostream& Traits< engine::ImageStack >::print_psf_info( std::ostream& o ) co
         if ( j != 0 ) o << ", ";
         o << "plane " << j << " has " << *optics.depth_info(Direction_X) << " in X and "
           << *optics.depth_info(Direction_Y) << " in Y";
-        for ( size_t i = 0; i < fluorophores.size(); ++i )
+        for ( int i = 0; i < fluorophore_count; ++i )
         {
             o << ", fluorophore " << i << " has transmission "
               << optics.transmission_coefficient(i);
