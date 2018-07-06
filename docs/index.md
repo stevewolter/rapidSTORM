@@ -8,6 +8,10 @@ rapidSTORM is currently available in two versions: rapidSTORM 2 is the current s
 
 You can track announcements, news and new releases for rapidSTORM by subscribing to the rapidstorm-announce mailing list. This list is very low volume (typically less than one mail per month) and read-only. Your questions, feedback, and discussions about rapidSTORM are very welcome on the rapidstorm-discuss list.
 
+# Manual
+
+The online manual is at [https://storage.googleapis.com/rapidstorm/doc/index.html](https://storage.googleapis.com/rapidstorm/doc/index.html).
+
 # Download and installation
 
   * **Windows**: Download and run the [RapidSTORM 3.3.1 64 bit installer](https://storage.googleapis.com/rapidstorm/binary-win64/rapidstorm-3.3.1-win64.exe) for Windows. For older systems, there's a [32 bit installer](https://storage.googleapis.com/rapidstorm/binary-win32/rapidstorm-3.3.1-win32.exe). Older versions are linked from the [index page](http://storage.googleapis.com/rapidstorm).
@@ -32,7 +36,7 @@ You can track announcements, news and new releases for rapidSTORM by subscribing
 
     * Install rapidstorm: `sudo apt-get install rapidstorm`
   * **Ubuntu**:
-    * We support the Ubuntu distributions precise, saucy and trusty. Follow the instructions for Debian above and
+    * We support the Ubuntu distributions **precise**, **saucy**, **trusty** and **xenial**. Follow the instructions for Debian above and
       replace "debian" with "ubuntu" everywhere.
   * **Source**: Download the source from the [GitHub repository](https://github.com/stevewolter/rapidSTORM) and follow the instructions in the [INSTALL file](https://github.com/stevewolter/rapidSTORM/blob/master/INSTALL).
 
