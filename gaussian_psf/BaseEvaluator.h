@@ -26,6 +26,7 @@ class BaseParameters {
   public:
     BaseParameters() : expr(NULL) {}
     BaseParameters( const BaseExpression& expr ) : expr(&expr) {}
+    virtual ~BaseParameters() {}
     Eigen::Matrix<Num,2,1> compute_sigma() { return compute_sigma_(); }
 
     bool prepare_iteration( const nonlinfit::plane::GenericData& data ); 

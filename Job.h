@@ -5,7 +5,8 @@
 
 namespace dStorm {
 
-struct Job {
+class Job {
+  public:
     virtual ~Job() {}
     virtual void run() = 0;
     virtual simparm::NodeHandle attach_ui( simparm::NodeHandle ) = 0;

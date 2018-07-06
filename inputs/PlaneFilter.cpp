@@ -1,25 +1,27 @@
 #include "debug.h"
 #include "inputs/PlaneFilter.h"
 
-#include "simparm/BoostUnits.h"
-#include "simparm/ObjectChoice.h"
-#include "simparm/ManagedChoiceEntry.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/io.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant.hpp>
+
+#include "helpers/make_unique.hpp"
+#include "engine/InputTraits.h"
 #include "image/extend.h"
 #include "image/Image.h"
 #include "image/slice.h"
 #include "input/AdapterSource.h"
-#include "input/MetaInfo.h"
+#include "input/FilterFactory.h"
 #include "input/InputMutex.h"
 #include "localization/Traits.h"
-#include "input/Method.hpp"
+#include "simparm/BoostUnits.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/ObjectChoice.h"
 #include "UnitEntries/FrameEntry.h"
 #include "units/frame_count.h"
-#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace plane_filter {
@@ -30,15 +32,6 @@ struct PlaneSelection : public simparm::ObjectChoice {
     virtual bool selects_plane() const = 0;
     virtual int plane_index() const = 0;
 };
-
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::plane_filter::PlaneSelection)
-
-namespace dStorm {
-namespace plane_filter {
-
 
 struct AllPlanes : public PlaneSelection {
     AllPlanes() : PlaneSelection("AllPlanes", "All planes") {}
@@ -76,17 +69,15 @@ class Source
 : public input::AdapterSource< engine::ImageStack >
 {
     const int plane;
-    void attach_local_ui_( simparm::NodeHandle ) {}
+    void attach_local_ui_( simparm::NodeHandle ) OVERRIDE {}
     bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;
 
   public:
-    Source( std::auto_ptr< input::Source<engine::ImageStack> > upstream,
+    Source( std::unique_ptr< input::Source<engine::ImageStack> > upstream,
             int plane)
-        : input::AdapterSource<engine::ImageStack>(upstream), plane(plane) {}
-    Source* clone() const { throw std::logic_error("Not implemented"); }
+        : input::AdapterSource<engine::ImageStack>(std::move(upstream)), plane(plane) {}
 
-    void modify_traits( input::Traits<engine::ImageStack>& p)
-    {
+    void modify_traits( input::Traits<engine::ImageStack>& p) OVERRIDE {
         engine::InputPlane only = p.plane(plane);
         p.clear();
         p.push_back( only );
@@ -104,67 +95,62 @@ bool Source::GetNext(int thread, engine::ImageStack* target) {
     return true;
 }
 
-class ChainLink 
-: public input::Method<ChainLink>
+class Factory : public input::FilterFactory<engine::ImageStack>
 {
-    friend class input::Method<ChainLink>;
+  public:
+    Factory* clone() const OVERRIDE { return new Factory(*this); }
 
+    void attach_ui( simparm::NodeHandle at,
+                    std::function<void()> traits_change_callback) OVERRIDE { 
+        listening = config.which_plane.value.notify_on_value_change(
+                traits_change_callback);
+        config.attach_ui( at ); 
+    }
+
+    std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> p) OVERRIDE {
+        if ( config.which_plane().selects_plane() )
+            return make_unique<Source>( std::move(p), config.which_plane().plane_index() );
+        else
+            return std::move(p);
+    }
+
+    boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
+        boost::shared_ptr<const input::Traits<engine::ImageStack>> t) OVERRIDE {
+        config.which_plane.show();
+        for (int i = config.which_plane.size()-1; i < t->plane_count(); ++i) {
+            config.which_plane.addChoice( new SinglePlane(i) );
+        }
+        for (int i = t->plane_count(); i < config.which_plane.size()-1; ++i)
+            config.which_plane.removeChoice( i );
+
+        if ( config.which_plane().selects_plane() ) {
+            auto mine = boost::make_shared<input::Traits<engine::ImageStack>>(*t);
+            engine::InputPlane only = t->plane( config.which_plane().plane_index() );
+            mine->clear();
+            mine->push_back( only );
+            return mine;
+        } else {
+            return t;
+        }
+    }
+
+  private:
     Config config;
     simparm::BaseAttribute::ConnectionStore listening;
 
-    void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& traits ) {
-        if ( config.which_plane().selects_plane() ) {
-            engine::InputPlane only = traits.plane( config.which_plane().plane_index() );
-            traits.clear();
-            traits.push_back( only );
-        }
-    }
-    template <typename Type>
-    void update_traits( input::MetaInfo&, input::Traits<Type>& traits ) { 
-    }
-
-    void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
-        config.which_plane.show();
-        for (int i = config.which_plane.size()-1; i < t.plane_count(); ++i) {
-            config.which_plane.addChoice( new SinglePlane(i) );
-        }
-        for (int i = t.plane_count(); i < config.which_plane.size()-1; ++i)
-            config.which_plane.removeChoice( i );
-    }
-    template <typename Type>
-    void notice_traits( const input::MetaInfo&, const input::Traits<Type>& ) {
-        config.which_plane.hide();
-    }
-
-    template <typename Type>
-    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) 
-        { return p.release(); }
-    input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
-        if ( config.which_plane().selects_plane() )
-            return new Source( p, config.which_plane().plane_index() );
-        else
-            return p.release();
-    }
-
-  public:
-    void attach_ui( simparm::NodeHandle at ) { 
-        listening = config.which_plane.value.notify_on_value_change( 
-            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
-        config.attach_ui( at ); 
-    }
-    static std::string getName() { return "PlaneFilter"; }
 };
 
 Config::Config() 
-: name_object( ChainLink::getName(), "Image selection filter"),
+: name_object( "PlaneFilter", "Image selection filter"),
   which_plane( "OnlyPlane" )
 {
     which_plane.addChoice( new AllPlanes() );
     which_plane.set_user_level( simparm::Expert );
 }
 
-std::auto_ptr<input::Link> make_link() {
-    return std::auto_ptr<input::Link>( new ChainLink() );
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<Factory>();
 }
 
 }

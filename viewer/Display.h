@@ -33,7 +33,6 @@ private:
     std::auto_ptr<dStorm::EngineBlock> termination_block;
 
     boost::optional<display::ResizeChange> my_size;
-    const Status& status;
     simparm::NodeHandle current_ui;
 
     void setSize( const dStorm::display::ResizeChange& size );

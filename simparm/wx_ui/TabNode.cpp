@@ -16,9 +16,14 @@ namespace wx_ui {
 namespace bl = boost::lambda;
 
 class Notebook : public wxNotebook {
-public:
-    Notebook( boost::shared_ptr<Window> parent )
-        : wxNotebook( *parent, wxID_ANY ) {}
+  private:
+    boost::shared_ptr<bool> notebook_valid_;
+  public:
+    Notebook( boost::shared_ptr<Window> parent, boost::shared_ptr<bool> notebook_valid )
+        : wxNotebook( *parent, wxID_ANY ), notebook_valid_(notebook_valid) {}
+    ~Notebook() {
+        *notebook_valid_ = false;
+    }
     void delete_page( boost::shared_ptr<Window> window ) {
         for (size_t i = 0; i < GetPageCount(); ++i) 
             if ( GetPage(i) == *window ) {
@@ -32,7 +37,7 @@ void TabNode::initialization_finished() {
     run_in_GUI_thread(
         *bl::constant( window.window ) =
         *bl::constant( notebook ) =
-        bl::bind( bl::new_ptr<Notebook>(), InnerNode::get_parent_window() ) );
+        bl::bind( bl::new_ptr<Notebook>(), InnerNode::get_parent_window(), notebook_valid_ ) );
     InnerNode::add_full_width_line( window );
 }
 
@@ -47,11 +52,20 @@ static void add_tab(
     }
 }
 
+static void remove_tab(
+    boost::shared_ptr<Notebook*> notebook,
+    boost::shared_ptr<Window> window,
+    boost::shared_ptr<bool> notebook_valid) {
+    if (*notebook_valid) {
+        (*notebook)->delete_page(window);
+    }
+}
+
 void TabNode::add_entry_line( LineSpecification& ) { throw std::logic_error("Entry cannot be a direct child of tab group"); }
 void TabNode::add_full_width_line( WindowSpecification& w ) {
     run_in_GUI_thread( boost::bind( &add_tab, notebook, w.window, wxString( w.name.c_str(), wxConvUTF8 ) ) );
     w.removal_instructions.push_back( 
-        bl::bind( &Notebook::delete_page, *bl::constant(notebook), w.window ) );
+        boost::bind( &remove_tab, notebook, w.window, notebook_valid_ ) );
 }
 void TabNode::add_full_width_sizer( SizerSpecification& w ) {
     throw std::logic_error("Sizer cannot be a direct child of tab group");

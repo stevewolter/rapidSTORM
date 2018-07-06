@@ -21,14 +21,15 @@ namespace expression {
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
-struct UnitTable : public qi::symbols<char, int>
-{
+class UnitTable : public qi::symbols<char, int> {
+  public:
    UnitTable();
 };
 
 template <typename Iterator>
-struct boost_units_unit_parser : qi::grammar<Iterator, double(), ascii::space_type>
+class boost_units_unit_parser : public qi::grammar<Iterator, double(), ascii::space_type>
 {
+  public:
     boost_units_unit_parser();
 
     const UnitTable table;

@@ -1,24 +1,28 @@
-#include "debug.h"
 #include "display/store_image.h"
+
+#include <cmath>
+#include <stdexcept>
+#include <stdio.h>
+#include <string>
+#include <vector>
+
+#include <boost/ptr_container/ptr_list.hpp>
+
+#include "debug.h"
+#include "display/DataSource.h"
+#include "image/slice.h"
+#include "Pixel.h"
+#include "simparm/Message.h"
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <cmath>
-#include <boost/ptr_container/ptr_list.hpp>
-#include "image/slice.h"
-#include "simparm/Message.h"
-#include <stdio.h>
-#include <string>
-#include "Pixel.h"
-#include <vector>
-#include "display/DataSource.h"
-
 #ifdef USE_GRAPHICSMAGICK
 #include <Magick++.h>
 #endif
 
 static const char *SI_prefixes[]
-= { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
+= { "f", "p", "n", "u", "m", "", "k", "M", "G", "T",
     "E" };
 std::string SIize( float value ) {
     if ( value < 1E-21 ) return "0";

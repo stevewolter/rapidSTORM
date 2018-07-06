@@ -2,11 +2,10 @@
 #define SIMPARM_WX_UI_IMAGE_WINDOW_HANDLE_H
 
 #include "display/Manager.h"
+#include "simparm/ProtocolNode.h"
 
 namespace simparm {
 namespace wx_ui {
-
-class ProtocolNode;
 
 namespace image_window {
 

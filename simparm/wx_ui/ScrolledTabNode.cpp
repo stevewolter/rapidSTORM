@@ -63,11 +63,12 @@ void ScrolledTabNode::add_full_width_sizer( SizerSpecification& w ) {
 }
 
 NodeHandle ScrolledTabNode::create_object( std::string name ) {
-    return NodeHandle( new ScrolledWindowNode( shared_from_this(), name ) );
+    boost::shared_ptr<WindowNode> window( new TopWindowNode(shared_from_this(), "Outer") );
+    return NodeHandle( new ScrolledWindowNode( window, name ) );
 }
 
 NodeHandle ScrolledTabNode::create_group( std::string name ) {
-    return NodeHandle( new ScrolledWindowNode( shared_from_this(), name ) );
+    return create_object(name);
 }
 
 void ScrolledTabNode::serialize_current_tab( std::string filename ) {

@@ -6,6 +6,7 @@
 #include <Eigen/StdVector>
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/variant/apply_visitor.hpp>
 
 #include "constant_background/model.hpp"
@@ -71,9 +72,8 @@ class Fitter
     }
 
     boost::shared_ptr<const threed_info::DepthInfo> get_3d( const gaussian_psf::No3D& m, int plane, Direction dir ) {
-        boost::shared_ptr<threed_info::No3D> rv( new threed_info::No3D() );
-        rv->sigma = threed_info::Sigma( m.get< gaussian_psf::BestSigma >(dir) );
-        return rv;
+        return boost::make_shared<threed_info::No3D>(
+                threed_info::Sigma( m.get< gaussian_psf::BestSigma >(dir) ));
     }
 
   public:

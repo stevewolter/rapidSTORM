@@ -45,6 +45,7 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
     alignment.addChoice( make_scaling_projection_config() );
     alignment.addChoice( make_affine_projection_config() );
     alignment.addChoice( make_support_point_projection_config() );
+    alignment.set_user_level(simparm::Expert);
 
     transmissions.push_back( new TransmissionEntry(0) );
     transmissions.back().hide();

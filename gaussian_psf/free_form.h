@@ -6,8 +6,8 @@
 namespace dStorm {
 namespace gaussian_psf {
 
-struct FreeForm
-{
+class FreeForm {
+  public:
     template <typename Type> struct apply { typedef boost::mpl::false_ type; };
 };
 template <int Dim> struct FreeForm::apply< Mean<Dim> > { typedef boost::mpl::true_ type; };

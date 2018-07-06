@@ -19,7 +19,9 @@ subtract(const Image<PixelType,Dimensions>& a, const Image<PixelType,Dimensions>
     assert((a.sizes() == b.sizes()).all());
     Image<PixelType,Dimensions> result = a.deep_copy();
 
-    for (auto i = a.begin(), j = b.begin(), k = result.begin(); i != a.end(); ++i, ++j, ++k) {
+    auto j = b.begin();
+    auto k = result.begin();
+    for (auto i = a.begin(); i != a.end(); ++i, ++j, ++k) {
         assert(j != b.end());
         assert(k != result.end());
         if (std::is_unsigned<PixelType>::value && *i < *j) {

@@ -19,3 +19,13 @@ boost::unit_test::test_suite* unit_test_suite() {
 
 }
 }
+
+bool init_unit_tests() {
+    boost::unit_test::framework::master_test_suite().
+        add(dStorm::image::unit_test_suite());
+    return true;
+}
+
+int main(int argc, char* argv[]) {
+    return ::boost::unit_test::unit_test_main( &init_unit_tests, argc, argv );
+}

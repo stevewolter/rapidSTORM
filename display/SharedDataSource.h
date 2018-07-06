@@ -6,7 +6,7 @@
 #include <string>
 #include "display/DataSource.h"
 #include <boost/thread/recursive_mutex.hpp>
-#include "simparm/wx_ui/ProtocolNode.h"
+#include "simparm/ProtocolNode.h"
 
 namespace dStorm {
 namespace display {
@@ -17,15 +17,15 @@ class PixelInfo;
 class SharedDataSource : public DataSource {
     boost::recursive_mutex source_mutex;
     DataSource* source;
-    std::auto_ptr< Change > final_change;
+    std::unique_ptr< Change > final_change;
     bool notify_of_closed_window_before_disconnect_;
-    simparm::wx_ui::ProtocolNode protocol_node;
+    simparm::ProtocolNode protocol_node;
 public:
-    SharedDataSource( DataSource& source, simparm::wx_ui::ProtocolNode );
+    SharedDataSource( DataSource& source, simparm::ProtocolNode );
     void disconnect();
     bool notify_of_closed_window_before_disconnect();
 
-    std::auto_ptr< Change > get_changes();
+    std::unique_ptr< Change > get_changes();
     void notice_closed_data_window();
     void look_up_key_values( const DataSource::PixelInfo& info, std::vector<float>& targets );
     void notice_user_key_limits( int index, bool lower, std::string value );

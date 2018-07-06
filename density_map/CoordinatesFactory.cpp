@@ -1,12 +1,12 @@
 #include "density_map/CoordinatesFactory.h"
-#include "density_map/Coordinates.h"
-
-#include "image/MetaInfo.h"
 
 #include "binning/config.h"
-#include "binning/inversion.h"
-#include "binning/dummy_binner.h"
 #include "binning/constant_binner.h"
+#include "binning/dummy_binner.h"
+#include "binning/inversion.h"
+#include "density_map/Coordinates.h"
+#include "helpers/make_unique.hpp"
+#include "image/MetaInfo.h"
 
 namespace dStorm {
 namespace density_map {
@@ -70,12 +70,13 @@ void CoordinatesFactory<Dim>::set_visibility(const input::Traits<Localization>& 
 }
 
 template <int Dim>
-std::auto_ptr< binning::Scaled > CoordinatesFactory<Dim>::make_x() const
-    { return components[0]().make_scaled_binner(); }
+std::unique_ptr< binning::Scaled > CoordinatesFactory<Dim>::make_x() const {
+    return components[0]().make_scaled_binner();
+}
 
 template <int Dim>
-std::auto_ptr< binning::Scaled > CoordinatesFactory<Dim>::make_y() const {
-    std::auto_ptr<binning::Scaled> y( components[1]().make_scaled_binner() );
+std::unique_ptr< binning::Scaled > CoordinatesFactory<Dim>::make_y() const {
+    std::unique_ptr<binning::Scaled> y( components[1]().make_scaled_binner() );
     if ( invert_y_axis() ) {
         boost::shared_ptr<binning::Scaled> base_y( y.release() );
         y.reset( new binning::Inversion<binning::Scaled>(base_y) );
@@ -84,11 +85,11 @@ std::auto_ptr< binning::Scaled > CoordinatesFactory<Dim>::make_y() const {
 }
 
 template <int Dim>
-std::auto_ptr< binning::Unscaled > CoordinatesFactory<Dim>::make_i() const 
+std::unique_ptr< binning::Unscaled > CoordinatesFactory<Dim>::make_i() const 
     { return components[Dim]().make_unscaled_binner(); }
 
 template <int Dim>
-std::auto_ptr< Coordinates<Dim> > CoordinatesFactory<Dim>::make() const
+std::unique_ptr< Coordinates<Dim> > CoordinatesFactory<Dim>::make() const
 {
     boost::ptr_array< binning::Scaled, Dim> spatial;
     boost::ptr_array< binning::Unscaled, Dim> spatial_uncertainty;
@@ -106,12 +107,12 @@ std::auto_ptr< Coordinates<Dim> > CoordinatesFactory<Dim>::make() const
             spatial_uncertainty.replace( i, components[i]().make_uncertainty_binner() );
         }
     }
-    return std::auto_ptr< Coordinates<Dim> >(
-        new Coordinates<Dim>( spatial, spatial_uncertainty, make_i() ) );
+    return make_unique< Coordinates<Dim> >(
+            spatial, spatial_uncertainty, make_i());
 }
 
 template <int Dim>
-std::auto_ptr< binning::Unscaled > CoordinatesFactory<Dim>::make_unscaled(int field) const
+std::unique_ptr< binning::Unscaled > CoordinatesFactory<Dim>::make_unscaled(int field) const
 {
     return components[field]().make_unscaled_binner();
 }

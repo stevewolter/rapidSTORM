@@ -64,7 +64,7 @@ void LiveBackend::set_top_cutoff(float cutoff) {
     discretization.set_top_cutoff(cutoff);
 }
 
-std::auto_ptr<dStorm::display::Change> 
+std::unique_ptr<dStorm::display::Change> 
 LiveBackend::get_changes() {
     boost::lock_guard<boost::mutex> lock( status.mutex );
     image.clean(); 

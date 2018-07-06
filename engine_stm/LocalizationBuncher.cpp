@@ -1,23 +1,19 @@
 #include "debug.h"
 
-#include "engine_stm/LocalizationBuncher.h"
-#include "input/Source.h"
-#include "output/Output.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/get.hpp>
+
+#include "engine_stm/LocalizationBuncher.h"
+#include "input/Source.h"
 #include "localization/record.h"
+#include "output/Output.h"
 
 using namespace dStorm::output;
 
 namespace dStorm {
 namespace engine_stm {
 
-enum VisitResult { KeepComing, IAmFinished, FinishedAndReject };
-
-template <typename InputType>
-Source<output::LocalizedImage>::TraitsPtr
-Source<InputType>::get_traits()
-{
+Source::TraitsPtr Source::get_traits() {
     input::Source<Localization>::TraitsPtr traits  = base->get_traits();
     auto& r = traits->image_number().range();
     this->in_sequence = traits->in_sequence;
@@ -34,18 +30,15 @@ Source<InputType>::get_traits()
     return result;
 }
 
-template <class InputType>
-Source<InputType>::Source( std::auto_ptr<Input> base )
-    : base(base), input_left_over(false), input_exhausted(false) {}
+Source::Source( std::unique_ptr<Input> base )
+    : base(std::move(base)), input_left_over(false), input_exhausted(false) {}
 
-template <class InputType>
-Source<InputType>::~Source()
+Source::~Source()
 {
     canned.clear();
 }
 
-template <class InputType>
-void Source<InputType>::dispatch(Messages m)
+void Source::dispatch(Messages m)
 {
     if ( m.test( RepeatInput ) ) {
         current_image = first_image;
@@ -54,17 +47,12 @@ void Source<InputType>::dispatch(Messages m)
     base->dispatch(m);
 }
 
-template <class InputType>
-void Source<InputType>::set_thread_count(int threads) {
+void Source::set_thread_count(int threads) {
     if (threads != 1) {
         throw std::logic_error("Can only read localizations single-threaded");
     }
 
     base->set_thread_count(threads);
-}
-
-frame_index GetImageNumber(const Localization& input) {
-    return input.frame_number();
 }
 
 frame_index GetImageNumber(const dStorm::localization::Record& input) {
@@ -77,40 +65,21 @@ frame_index GetImageNumber(const dStorm::localization::Record& input) {
     }
 }
 
-VisitResult AddInputToImage(output::LocalizedImage* target, const Localization& input) {
-    if (input.frame_number().value() == target->group) {
-        target->push_back(input);
-        return KeepComing;
-    } else {
-        return FinishedAndReject;
-    }
-}
-
-VisitResult AddInputToImage(output::LocalizedImage* target, const localization::Record& input) {
-    if (boost::get<const localization::EmptyLine>(&input)) {
-        return IAmFinished;
-    } else if (const Localization* localization = boost::get<const Localization>(&input)) {
-        return AddInputToImage(target, *localization);
-    } else {
-        throw std::logic_error("Unhandled localization record type");
-    }
-}
-
-template <typename InputType>
-void Source<InputType>::CollectEntireImage(output::LocalizedImage* target) {
+void Source::CollectEntireImage(output::LocalizedImage* target) {
     assert(input_left_over);
     while (true) {
-        DEBUG("Trying to add localization from " << GetImageNumber(input)
-              << " to image " << target->group);
-        switch (AddInputToImage(target, input)) {
-            case KeepComing:
-                break;
-            case IAmFinished:
-                input_left_over = false;
-                return;
-            case FinishedAndReject:
+        if (boost::get<const localization::EmptyLine>(&input)) {
+            input_left_over = false;
+            return;
+        } else if (const Localization* localization = boost::get<const Localization>(&input)) {
+            if (localization->frame_number().value() == target->group) {
+                target->push_back(*localization);
+            } else {
                 input_left_over = true;
                 return;
+            }
+        } else {
+            throw std::logic_error("Unhandled localization record type");
         }
 
         if (!base->GetNext(0, &input)) {
@@ -122,8 +91,7 @@ void Source<InputType>::CollectEntireImage(output::LocalizedImage* target) {
     }
 }
 
-template <class InputType>
-void Source<InputType>::ReadImage(output::LocalizedImage* target) {
+void Source::ReadImage(output::LocalizedImage* target) {
     while (true) {
         if (!input_left_over) {
             if (!base->GetNext(0, &input)) {
@@ -156,8 +124,7 @@ void Source<InputType>::ReadImage(output::LocalizedImage* target) {
     }
 }
 
-template <class InputType>
-bool Source<InputType>::GetNext(int thread, output::LocalizedImage* target) {
+bool Source::GetNext(int thread, output::LocalizedImage* target) {
     assert(thread == 0);
 
     try {
@@ -186,9 +153,6 @@ bool Source<InputType>::GetNext(int thread, output::LocalizedImage* target) {
         return false;
     }
 }
-
-template class Source<localization::Record>;
-template class Source<Localization>;
 
 }
 }

@@ -1,45 +1,45 @@
 #include "debug.h"
-
 #include "inputs/Buffer.h"
 
+#include <cassert>
+#include <limits>
+#include <list>
+#include <stdexcept>
+
+#include <boost/thread/lock_guard.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
-#include <cassert>
+
 #include "engine/Image_decl.h"
 #include "engine/Image.h"
+#include "helpers/make_unique.hpp"
 #include "input/AdapterSource.h"
-#include "input/Method.hpp"
+#include "input/FilterFactory.h"
 #include "input/Source.h"
 #include "input/Traits.h"
 #include "Localization.h"
-#include <limits>
-#include <stdexcept>
 
 namespace dStorm { 
 namespace input_buffer { 
 
 using namespace input;
 
-template <typename Ty> 
-class Source : public AdapterSource<Ty>
-{
+class Source : public AdapterSource<engine::ImageStack> {
     void attach_local_ui_( simparm::NodeHandle ) {}
-    bool GetNext(int thread, Ty* target) OVERRIDE;
+    bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;
   public:
-    Source(std::auto_ptr< input::Source<Ty> >);
-    ~Source();
+    Source(std::unique_ptr< input::Source<engine::ImageStack> >);
 
     void dispatch(BaseSource::Messages m);
 
-    typename input::Source<Ty>::TraitsPtr get_traits();
+    typename input::Source<engine::ImageStack>::TraitsPtr get_traits();
 
   protected:
-    void init( std::auto_ptr< Source<Ty> > );
     /** Discarding license variable. Is set to true on WillNeverRepeatAgain message. */
     bool mayDiscard, need_to_init_iterators;
 
     /** Representation of one saved object */
-    typedef std::list<Ty> Slots;
+    typedef std::list<engine::ImageStack> Slots;
 
     boost::mutex mutex;
     Slots buffer;
@@ -47,12 +47,11 @@ class Source : public AdapterSource<Ty>
 
     void discard( typename Slots::iterator slot );
     void set_thread_count(int num_threads) OVERRIDE {
-        AdapterSource<Ty>::set_thread_count(1);
+        AdapterSource<engine::ImageStack>::set_thread_count(1);
     }
 };
 
-template<typename Type>
-bool Source<Type>::GetNext(int thread, Type* target) {
+bool Source::GetNext(int thread, engine::ImageStack* target) {
     boost::lock_guard<boost::mutex> lock(mutex);
     if ( next_output != buffer.end() ) {
         DEBUG("Returning stored object " << next_output->frame_number() << " for " << this);
@@ -64,7 +63,7 @@ bool Source<Type>::GetNext(int thread, Type* target) {
         }
         return true;
     } else {
-        if (!AdapterSource<Type>::GetNext(0, target)) {
+        if (!AdapterSource<engine::ImageStack>::GetNext(0, target)) {
             return false;
         }
 
@@ -75,21 +74,14 @@ bool Source<Type>::GetNext(int thread, Type* target) {
     }
 }
 
-template <typename Object>
-Source<Object>::Source(std::auto_ptr< input::Source<Object> > src) 
-: AdapterSource<Object>(src),
+Source::Source(std::unique_ptr< input::Source<engine::ImageStack> > src) 
+: AdapterSource<engine::ImageStack>(std::move(src)),
   mayDiscard( false ), need_to_init_iterators(false),
-  next_output( buffer.begin() )
-{
+  next_output( buffer.begin() ) {
     need_to_init_iterators = true;
 }
 
-template<typename Object>
-Source<Object>::~Source() {
-}
-
-template<typename Object>
-void Source<Object>::dispatch(BaseSource::Messages m) {
+void Source::dispatch(BaseSource::Messages m) {
     DEBUG("Dispatching message " << m.to_string() << " to buffer");
     if ( m.test( BaseSource::WillNeverRepeatAgain ) ) {
         m.reset( BaseSource::WillNeverRepeatAgain );
@@ -109,41 +101,35 @@ void Source<Object>::dispatch(BaseSource::Messages m) {
     DEBUG("Dispatched message " << m.to_string() << " to buffer " << this);
 }
 
-template<typename Object>
-typename input::Source<Object>::TraitsPtr
-Source<Object>::get_traits() 
+typename input::Source<engine::ImageStack>::TraitsPtr
+Source::get_traits() 
 {
     return this->base().get_traits();
 }
 
-class ChainLink 
-: public input::Method<ChainLink>
-{
-    simparm::Object config;
-
-    friend class input::Method<ChainLink>;
-    template <typename Type>
-    BaseSource* make_source( std::auto_ptr< input::Source<Type> > p ) 
-        { return new Source<Type>(p); }
-    template <typename Type>
-    void update_traits( MetaInfo&, Traits<Type>& ) {}
-    template <typename Type>
-    bool changes_traits( const MetaInfo&, const Traits<Type>& )
-        { return false; }
-
+class Factory : public input::FilterFactory<engine::ImageStack> {
   public:
-    ChainLink();
-    static std::string getName() { return "Buffer"; }
-    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
+    Factory() : config("Buffer", "Buffer") {}
+    Factory* clone() const OVERRIDE { return new Factory(*this); }
+    void attach_ui(simparm::NodeHandle at,
+                   std::function<void()> traits_change_callback) OVERRIDE {
+        config.attach_ui( at );
+    }
+    std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> input) OVERRIDE {
+        return make_unique<Source>(std::move(input));
+    }
+    boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
+        boost::shared_ptr<const input::Traits<engine::ImageStack>> input_meta_info) OVERRIDE {
+        return input_meta_info;
+    }
+
+  private:
+    simparm::Object config;
 };
 
-ChainLink::ChainLink() 
-: config(getName(), "Buffer") 
-{
-}
-
-std::auto_ptr<Link> makeLink() { 
-    return std::auto_ptr<Link>( new ChainLink() );
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<Factory>();
 }
 
 }

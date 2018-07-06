@@ -27,6 +27,7 @@ namespace br = boost::range;
 
 namespace dStorm {
 namespace kalman_filter {
+namespace drift_estimator {
 
 struct BeadPosition {
     samplepos position, uncertainty;
@@ -67,7 +68,6 @@ class DriftSection {
     Vector measurements[Dimensions], weights[Dimensions], solutions[Dimensions], covariances[Dimensions];
     int measurement_index, time_offset;
     bool equation_systems_solved;
-    const input::Traits<Localization>& traits;
     std::vector<int> bead_ids;
 
     int time_index( frame_index f ) {
@@ -100,8 +100,7 @@ DriftSection::DriftSection(
   equations_transposed( (end_time-begin_time) - 1 + number_of_beads, number_of_measurements ),
   measurement_index(0),
   time_offset(number_of_beads),
-  equation_systems_solved(false),
-  traits(traits)
+  equation_systems_solved(false)
 {
     bead_ids.reserve( number_of_beads );
     for (int i = 0; i < Dimensions; ++i) {
@@ -314,9 +313,10 @@ public:
 const samplepos::Scalar DriftSection::position_unity = 1E-6f * si::meter;
 const samplepos::Scalar DriftSection::uncertainty_unity = 1E-8f * si::meter;
 
-std::auto_ptr< output::OutputSource > create_drift_correction() {
+std::auto_ptr< output::OutputSource > create() {
     return std::auto_ptr< output::OutputSource >( new output::OutputBuilder< NonlinearDriftEstimator::Config, NonlinearDriftEstimator >() );
 }
 
+}
 }
 }

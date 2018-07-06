@@ -17,7 +17,8 @@ namespace engine {
 
 class InputPlane;
 
-struct FitJudgerFactory : public simparm::Choice {
+class FitJudgerFactory : public simparm::Choice {
+  public:
     typedef boost::units::quantity< boost::units::camera::intensity > CountsPerPhoton;
     virtual ~FitJudgerFactory() {}
     FitJudgerFactory* clone() const = 0;
@@ -30,8 +31,5 @@ std::auto_ptr< FitJudgerFactory > make_square_root_ratio_judger();
 
 }
 }
-
-#include "make_clone_allocator.hpp"
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::FitJudgerFactory)
 
 #endif

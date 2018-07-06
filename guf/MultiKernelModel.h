@@ -10,7 +10,8 @@
 namespace dStorm {
 namespace guf {
 
-struct MultiKernelModel {
+class MultiKernelModel {
+  public:
     typedef boost::indirect_iterator< 
         std::vector<gaussian_psf::BaseExpression*>::const_iterator,
         const gaussian_psf::BaseExpression&> const_iterator;
@@ -37,8 +38,7 @@ struct MultiKernelModel {
     constant_background::Expression* constant;
 };
 
-struct MultiKernelModelStack : public std::vector<MultiKernelModel> 
-{
+class MultiKernelModelStack : public std::vector<MultiKernelModel> {
 };
 
 }

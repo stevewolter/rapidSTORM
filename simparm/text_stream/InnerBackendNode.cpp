@@ -13,7 +13,7 @@ InnerBackendNode::InnerBackendNode( std::string name, std::string type, Frontend
 }
 
 void InnerBackendNode::detach_frontend_() {
-    boost::lock_guard<Mutex> m( *get_mutex() );
+    boost::lock_guard<boost::recursive_mutex> m( *get_mutex() );
     frontend = NULL;
 }
 
@@ -32,7 +32,7 @@ void InnerBackendNode::remove_child( BackendNode& t ) {
 }
 
 InnerBackendNode::~InnerBackendNode() {
-    boost::lock_guard<Mutex> m( *get_mutex() );
+    boost::lock_guard<boost::recursive_mutex> m( *get_mutex() );
     parent->remove_child( *this );
 } 
 

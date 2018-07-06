@@ -22,7 +22,8 @@ namespace plane {
  *  \sa Disjoint
  **/
 template <typename Num, int _ChunkSize, typename FirstParam, typename SecondParam>
-struct Joint {
+class Joint {
+  public:
     static const int ChunkSize = _ChunkSize;
     typedef JointData<Num,_ChunkSize> Data;
     typedef Num Number;

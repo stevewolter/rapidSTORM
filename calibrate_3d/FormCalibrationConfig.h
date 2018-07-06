@@ -1,8 +1,9 @@
 #ifndef DSTORM_CALIBRATE3D_FORMCALIBRATIONCONFIG_H
 #define DSTORM_CALIBRATE3D_FORMCALIBRATIONCONFIG_H
 
+#include <array>
 #include <string>
-#include <boost/array.hpp>
+
 #include "simparm/Entry.h"
 #include "polynomial_3d.h"
 #include "Direction.h"
@@ -11,7 +12,7 @@ namespace dStorm {
 namespace calibrate_3d {
 
 struct FormCalibrationConfig {
-    boost::array< boost::optional< simparm::BoolEntry >, polynomial_3d::Order > z_terms;
+    std::array< boost::optional< simparm::BoolEntry >, polynomial_3d::Order > z_terms;
     simparm::Entry< bool > circular_psf, astigmatism, universal_best_sigma, universal_prefactors;
     simparm::Entry< bool > fit_best_sigma, fit_focus_plane, fit_prefactors;
 

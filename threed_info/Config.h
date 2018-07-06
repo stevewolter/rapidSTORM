@@ -5,7 +5,6 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include "Direction.h"
 #include "simparm/ObjectChoice.h"
-#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace traits { class PlaneConfig; }
@@ -30,7 +29,5 @@ std::auto_ptr< Config > make_lens_3d_config();
 
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::threed_info::Config)
 
 #endif

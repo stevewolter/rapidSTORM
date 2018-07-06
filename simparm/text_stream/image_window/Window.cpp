@@ -132,7 +132,7 @@ void Window::handle_resize(
 }
 
 bool Window::get_and_handle_change() {
-    std::auto_ptr<dStorm::display::Change> c = handler->get_changes();
+    std::unique_ptr<dStorm::display::Change> c = handler->get_changes();
     if ( !c.get() ) { handle_disassociation(); return false; }
 
     bool has_changed = c->do_resize || c->do_clear ||
@@ -209,7 +209,7 @@ void Window::save_window( const dStorm::display::SaveRequest& i ) {
 
     assert( state.do_clear );
 
-    std::auto_ptr<dStorm::display::Change>
+    std::unique_ptr<dStorm::display::Change>
         rv( new dStorm::display::Change(state) );
     if ( ! rv->do_resize )
         throw std::runtime_error("State not yet initialized");

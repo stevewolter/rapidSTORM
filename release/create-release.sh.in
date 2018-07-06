@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 declare -r SRCDIR=@abs_top_srcdir@
 declare -r VERSION=@VERSION@
 
@@ -14,7 +12,10 @@ dpkg-buildpackage -S -us -uc
 declare -r DEBIAN_VERSION="$(dpkg-parsechangelog | sed -n -e 's/^Version: //p' | sed -e 's/^[0-9]*://')"
 cd ..
 
-backportpackage -d precise -s saucy rapidstorm_${DEBIAN_VERSION}.dsc -w .
+backportpackage -d precise -s stretch rapidstorm_${DEBIAN_VERSION}.dsc -w .
+backportpackage -d xenial -s stretch rapidstorm_${DEBIAN_VERSION}.dsc -w .
+backportpackage -d saucy -s stretch rapidstorm_${DEBIAN_VERSION}.dsc -w .
+backportpackage -d trusty -s stretch rapidstorm_${DEBIAN_VERSION}.dsc -w .
 backportpackage -d wheezy -s stretch rapidstorm_${DEBIAN_VERSION}.dsc -w .
 
 for arch in i386 amd64; do
@@ -22,10 +23,21 @@ for arch in i386 amd64; do
     if [[ "$arch" = i386 ]]; then
         EXTRAFLAGS="--debbuildopts -B"
     fi
-    for distribution in stretch saucy; do
-        sudo pbuilder --build --distribution ${distribution} --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS rapidstorm_${DEBIAN_VERSION}.dsc
-    done
-    sudo pbuilder --build --distribution precise --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS "rapidstorm_${DEBIAN_VERSION}~ubuntu12.04.1.dsc"
+    if [[ -z "$TARGET_DISTRIBUTION" ]] || [[ "x$TARGET_DISTRIBUTION" = "xstretch" ]]; then
+        sudo pbuilder --build --distribution stretch --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS rapidstorm_${DEBIAN_VERSION}.dsc
+    fi
+    if [[ -z "$TARGET_DISTRIBUTION" ]] || [[ "x$TARGET_DISTRIBUTION" = "xxenial" ]]; then
+        sudo pbuilder --build --distribution xenial --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS "rapidstorm_${DEBIAN_VERSION}~ubuntu16.04.1.dsc"
+    fi
+    if [[ -z "$TARGET_DISTRIBUTION" ]] || [[ "x$TARGET_DISTRIBUTION" = "xtrusty" ]]; then
+        sudo pbuilder --build --distribution trusty --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS "rapidstorm_${DEBIAN_VERSION}~ubuntu14.04.1.dsc"
+    fi
+    if [[ -z "$TARGET_DISTRIBUTION" ]] || [[ "x$TARGET_DISTRIBUTION" = "xprecise" ]]; then
+        sudo pbuilder --build --distribution precise --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS "rapidstorm_${DEBIAN_VERSION}~ubuntu12.04.1.dsc"
+    fi
+    if [[ -z "$TARGET_DISTRIBUTION" ]] || [[ "x$TARGET_DISTRIBUTION" = "xwheezy" ]]; then
+        sudo pbuilder --build --distribution wheezy --architecture ${arch} --configfile release/pbuilder/pbuilderrc $EXTRAFLAGS "rapidstorm_${DEBIAN_VERSION}~debian7.0.1.dsc"
+    fi
 done
 
 for arch in mingw-i686 mingw-amd64; do

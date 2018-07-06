@@ -35,7 +35,8 @@ class Localization<Tag, IsUnscaled> {
 };
 
 template <typename Tag>
-struct Localization<Tag, Bounded> : public Localization<Tag,IsUnscaled> {
+class Localization<Tag, Bounded> : public Localization<Tag,IsUnscaled> {
+  public:
     typedef Localization<Tag,IsUnscaled> Base;
     typedef typename Base::value value;
 

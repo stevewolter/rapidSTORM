@@ -12,6 +12,7 @@ class FrontendNode {
     virtual void declare_( std::ostream& ) = 0;
 
 public:
+    virtual ~FrontendNode() {}
     void process_attribute_command( std::string name, std::istream& o )
         { process_attribute_command_(name, o ); }
     void declare( std::ostream& o ) { declare_(o); }

@@ -10,7 +10,8 @@
 namespace dStorm {
 namespace estimate_psf_form {
 
-struct FittingVariant {
+class FittingVariant {
+  public:
     virtual ~FittingVariant() {}
 
     /** Virtual constructor. 

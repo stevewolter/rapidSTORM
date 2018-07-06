@@ -14,7 +14,6 @@
 
 #include <boost/units/quantity.hpp>
 #include "boost/units/systems/camera/length.hpp"
-#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace engine {
@@ -73,9 +72,5 @@ class Job {
 }
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::spot_finder::Base)
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::spot_finder::Factory)
-
 
 #endif

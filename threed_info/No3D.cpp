@@ -21,14 +21,12 @@ class No3DConfig : public Config {
     simparm::Entry<PSFSize> psf_size;
 
     boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const { 
-        boost::shared_ptr<No3D> rv( new No3D() );
-        rv->sigma = ToLengthUnit(psf_size()[dir] / 2.35);
-        return rv;
+        return boost::make_shared<No3D>(ToLengthUnit(psf_size()[dir]));
     }
     void read_traits( const DepthInfo& dx, const DepthInfo& dy ) {
         PSFSize s;
-        s[Direction_X] = PSFSize::Scalar( FromLengthUnit(dynamic_cast<const No3D&>(dx).sigma * 2.35f) );
-        s[Direction_Y] = PSFSize::Scalar( FromLengthUnit(dynamic_cast<const No3D&>(dy).sigma * 2.35f) );
+        s[Direction_X] = PSFSize::Scalar( FromLengthUnit(dynamic_cast<const No3D&>(dx).fwhm()) );
+        s[Direction_Y] = PSFSize::Scalar( FromLengthUnit(dynamic_cast<const No3D&>(dy).fwhm()) );
         psf_size = s;
     }
     void set_context() {}

@@ -2,10 +2,12 @@
 #include "inputs/Splitter.h"
 #include <boost/mpl/vector.hpp>
 #include "engine/Image.h"
+#include "engine/InputTraits.h"
+#include "helpers/make_unique.hpp"
 #include "image/constructors.h"
 #include "image/iterator.h"
 #include "input/AdapterSource.h"
-#include "input/Method.hpp"
+#include "input/FilterFactory.h"
 #include "input/Source.h"
 #include "simparm/ChoiceEntry.h"
 #include "simparm/ManagedChoiceEntry.h"
@@ -13,29 +15,19 @@
 #include "simparm/Message.h"
 #include "simparm/Object.h"
 #include "simparm/ObjectChoice.h"
-#include "make_clone_allocator.hpp"
 
 using namespace dStorm::engine;
 
 namespace dStorm {
-namespace Splitter {
+namespace splitter {
 
 struct Split : public simparm::ObjectChoice {
     Split( std::string name, std::string desc ) : simparm::ObjectChoice(name,desc) {}
     virtual Split* clone() const = 0;
     virtual input::Source<engine::ImageStack>* make_source
-        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) = 0;
+        ( std::unique_ptr< input::Source<engine::ImageStack> > p ) = 0;
     virtual int split_dimension() const = 0;
 };
-
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::Splitter::Split)
-
-namespace dStorm {
-namespace Splitter {
-
 
 struct Config 
 {
@@ -54,7 +46,7 @@ class Source
     void modify_traits( input::Traits<engine::ImageStack>& );
     void attach_local_ui_( simparm::NodeHandle ) {}
   public:
-    Source(bool vertical, std::auto_ptr< input::Source<engine::ImageStack> > base);
+    Source(bool vertical, std::unique_ptr< input::Source<engine::ImageStack> > base);
 
     bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;
 };
@@ -62,7 +54,7 @@ class Source
 struct NoSplit : public Split {
     Split* clone() const { return new NoSplit(*this); }
     input::Source<engine::ImageStack>* make_source
-        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
+        ( std::unique_ptr< input::Source<engine::ImageStack> > p ) 
         { return p.release(); }
     int split_dimension() const { return -1; }
     void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
@@ -73,8 +65,8 @@ struct NoSplit : public Split {
 struct HorizontalSplit : public Split {
     Split* clone() const { return new HorizontalSplit(*this); }
     input::Source<engine::ImageStack>* make_source
-        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
-        { return new Source( false, p ); }
+        ( std::unique_ptr< input::Source<engine::ImageStack> > p ) 
+        { return new Source( false, std::move(p) ); }
     int split_dimension() const { return 0; }
     void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
 
@@ -84,41 +76,45 @@ struct HorizontalSplit : public Split {
 struct VerticalSplit : public Split {
     Split* clone() const { return new VerticalSplit(*this); }
     input::Source<engine::ImageStack>* make_source
-        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
-        { return new Source( true, p ); }
+        ( std::unique_ptr< input::Source<engine::ImageStack> > p ) 
+        { return new Source( true, std::move(p) ); }
     int split_dimension() const { return 1; }
     void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
 
     VerticalSplit() : Split("Vertically", "Top and bottom") {}
 };
 
-class ChainLink
-: public input::Method<ChainLink>
+class SourceFactory
+: public input::FilterFactory<engine::ImageStack>
 {
-    friend class input::Method<ChainLink>;
-    typedef boost::mpl::vector< dStorm::engine::ImageStack > SupportedTypes;
-
-    bool ignore_unknown_type() const { return true; }
-
-    input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
-        return config.biplane_split().make_source( p );
+    std::unique_ptr<input::Source<engine::ImageStack>>
+    make_source( std::unique_ptr< input::Source<engine::ImageStack> > p ) OVERRIDE {
+        return std::unique_ptr<input::Source<engine::ImageStack>>(
+            config.biplane_split().make_source( std::move(p) ));
     }
 
-    void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& t ) {
+    boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
+        boost::shared_ptr<const input::Traits<engine::ImageStack>> t) OVERRIDE {
+        boost::shared_ptr<input::Traits<engine::ImageStack>> n(
+            new input::Traits<engine::ImageStack>(*t));
         int split_dim = config.biplane_split().split_dimension();
-        if ( split_dim >= 0 ) split_planes( t, split_dim );
+        if ( split_dim >= 0 ) split_planes( *n, split_dim );
+        return n;
     }
+
+    void attach_ui(simparm::NodeHandle at,
+                   std::function<void()> traits_change_callback) OVERRIDE { 
+        listening = config.biplane_split.value.notify_on_value_change(traits_change_callback);
+        config.attach_ui( at ); 
+    }
+
+    SourceFactory* clone() const { return new SourceFactory(*this); }
 
     Config config;
     simparm::BaseAttribute::ConnectionStore listening;
+
   public:
 
-    static std::string getName() { return "BiplaneSplitter"; }
-    void attach_ui( simparm::NodeHandle at ) { 
-        listening = config.biplane_split.value.notify_on_value_change( 
-            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
-        config.attach_ui( at ); 
-    }
     static void split_planes( input::Traits<engine::ImageStack>& t, int dim )
     {
         input::Traits<engine::ImageStack> old( t );
@@ -134,7 +130,7 @@ class ChainLink
 };
 
 Config::Config() 
-: name_object( ChainLink::getName(), "Split dual view image"),
+: name_object( "BiplaneSplitter", "Split dual view image"),
   biplane_split("DualView")
 {
     biplane_split.addChoice( std::auto_ptr<Split>( new NoSplit() ) );
@@ -144,12 +140,12 @@ Config::Config()
     biplane_split.set_user_level( simparm::Intermediate );
 }
 
-Source::Source(bool vertical, std::auto_ptr<input::Source<engine::ImageStack> > base)
-: input::AdapterSource<engine::ImageStack>(base), splitdim(vertical ? 1 : 0) {
+Source::Source(bool vertical, std::unique_ptr<input::Source<engine::ImageStack> > base)
+: input::AdapterSource<engine::ImageStack>(std::move(base)), splitdim(vertical ? 1 : 0) {
 }
 
 void Source::modify_traits( input::Traits<engine::ImageStack>& s ) {
-    ChainLink::split_planes( s, splitdim );
+    SourceFactory::split_planes( s, splitdim );
 }
 
 bool Source::GetNext(int thread, engine::ImageStack* result) {
@@ -181,8 +177,8 @@ bool Source::GetNext(int thread, engine::ImageStack* result) {
     return true;
 }
 
-std::auto_ptr<input::Link> makeLink() {
-    return std::auto_ptr<input::Link>( new ChainLink() );
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<SourceFactory>();
 }
 
 }

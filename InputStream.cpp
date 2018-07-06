@@ -11,6 +11,7 @@
 #include "shell/ReplayJob.h"
 
 #include "simparm/text_stream/BackendRoot.h"
+#include "simparm/wx_ui/no_main_window.h"
 #include <ui/serialization/serialize.h>
 
 namespace dStorm {
@@ -20,8 +21,8 @@ class InputStream::Backend : public simparm::text_stream::BackendRoot {
     InputStream& frontend;
 public:
     Backend(  InputStream& frontend, bool wxWidgets ) 
-        : BackendRoot(&std::cout, wxWidgets), frontend(frontend) {}
-    Mutex* get_mutex() { return simparm::text_stream::BackendRoot::get_mutex(); }
+        : BackendRoot(&std::cout, wxWidgets ? simparm::wx_ui::no_main_window() : simparm::NodeHandle()), frontend(frontend) {}
+    boost::recursive_mutex* get_mutex() { return simparm::text_stream::BackendRoot::get_mutex(); }
 };
 
 InputStream::InputStream( const JobConfig& config, bool wxWidgets )

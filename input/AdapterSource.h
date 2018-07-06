@@ -21,6 +21,7 @@ class AdapterSource
     Source<Type>& base() { return *_base; }
     const Source<Type>& base() const { return *_base; }
     AdapterSource( std::auto_ptr< Source<Type> > b ) : _base(b) {}
+    AdapterSource( std::unique_ptr< Source<Type> > b ) : _base(b.release()) {}
   public:
     void set_thread_count(int num_threads) OVERRIDE { _base->set_thread_count(num_threads); }
     bool GetNext(int thread, Type* target) OVERRIDE { return _base->GetNext(thread, target); }

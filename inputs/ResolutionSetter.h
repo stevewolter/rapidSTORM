@@ -2,16 +2,14 @@
 #define DSTORM_INPUT_RESOLUTIONSETTER_DECL_H
 
 #include <memory>
-#include "input/fwd.h"
-
-class TestState;
+#include "engine/Image.h"
+#include "input/FilterFactory.h"
 
 namespace dStorm {
 namespace input {
 namespace resolution {
 
-std::auto_ptr<Link> makeLink();
-void unit_test( TestState& );
+std::unique_ptr<FilterFactory<engine::ImageStack>> create();
 
 }
 }

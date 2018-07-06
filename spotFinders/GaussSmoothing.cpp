@@ -10,6 +10,7 @@
 #include "engine/SpotFinderBuilder.h"
 #include "Direction.h"
 #include "simparm/GUILabelTable.h"
+#include "helpers/make_unique.hpp"
 
 using namespace std;
 using namespace dStorm::engine;
@@ -90,9 +91,8 @@ void GaussSmoother::smooth( const engine::Image2D &in )
     }
 }
 
-std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
-    return std::auto_ptr<engine::spot_finder::Factory>(
-        new engine::spot_finder::Builder<Config,GaussSmoother>()); 
+std::unique_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
+    return make_unique<engine::spot_finder::Builder<Config,GaussSmoother>>(); 
 }
 
 }

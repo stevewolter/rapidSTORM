@@ -12,7 +12,8 @@ namespace dStorm { class Job; }
 
 namespace simparm {
 
-struct Node {
+class Node {
+  public:
     virtual ~Node() {}
     virtual NodeHandle create_object( std::string name ) = 0;
     virtual NodeHandle create_textfield( std::string name, std::string type ) = 0;

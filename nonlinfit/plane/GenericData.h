@@ -8,7 +8,8 @@ namespace nonlinfit {
 namespace plane {
 
 /** This class is the base class for the tagged data classes. */
-struct GenericData  {
+class GenericData  {
+  public:
     double pixel_size;
     Eigen::Matrix< double, 2, 1, Eigen::DontAlign> min, max;
 };

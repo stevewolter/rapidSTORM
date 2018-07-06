@@ -13,7 +13,10 @@ class wxWindow;
 namespace simparm {
 namespace wx_ui {
 
+class Treebook;
+
 class TreeRepresentation {
+    boost::shared_ptr<bool> widget_valid;
     wxTreebook* widget;
     boost::shared_ptr< TreeRepresentation > parent;
     std::vector< TreeRepresentation* > children;

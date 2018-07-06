@@ -23,17 +23,17 @@ class BackendRoot : public BackendNode {
     bool attached;
     bool should_quit;
     std::ostream* out;
-    Mutex mutex;
+    boost::recursive_mutex mutex;
 
     image_window::MainThread display_manager;
-    NodeHandle wx_ui_handler;
+    NodeHandle image_handler;
 
     ChildrenList< BackendNode > children;
 protected:
     virtual void process_command_( const std::string& command, std::istream& rest );
-    virtual Mutex* get_mutex();
+    virtual boost::recursive_mutex* get_mutex();
 public:
-    BackendRoot( std::ostream*, bool wxWidgets );
+    BackendRoot( std::ostream*, NodeHandle image_handler );
     ~BackendRoot();
     void processCommand( std::istream& );
     void attach_ui( simparm::NodeHandle h ) { display_manager.attach_ui(h); }

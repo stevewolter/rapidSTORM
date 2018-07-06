@@ -7,7 +7,7 @@ namespace dStorm {
 namespace localization_file {
 
 template <typename Type>
-struct Unknown : public Field {
+class Unknown : public Field {
     void parse(std::istream& input, Localization&) 
         { Type ignore; input >> ignore; }
     void write(std::ostream&, const Localization&) {}

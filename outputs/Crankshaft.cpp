@@ -8,6 +8,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/units/io.hpp>
 
+#include "input/Source.h"
 #include "simparm/Object.h"
 
 #include "debug.h"

@@ -102,11 +102,6 @@ class OutputChoiceNode::SubNode : public InnerNode {
 public:
     SubNode( boost::shared_ptr<OutputChoiceNode> parent, std::string name )
         : InnerNode(parent, name), parent(parent), name(name), visibility( *parent->get_visibility_control() ), showed_choice(false) {}
-    ~SubNode() {
-        if ( showed_choice )
-            run_in_GUI_thread(
-                bl::bind( &OutputChoiceButton::remove_choice, *bl::constant(parent->choice), this, name, description ) );
-    }
 
     virtual void set_description( std::string d ) { description = d; }
     virtual void set_visibility( bool b ) { visibility.set_visibility(b); show_or_hide_choice();  }

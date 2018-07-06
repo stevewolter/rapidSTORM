@@ -1,4 +1,4 @@
-#include "inputs/MedianFilter_test.h"
+#include "inputs/MedianFilter.h"
 
 #include <vector>
 
@@ -44,9 +44,9 @@ void TestRandomSequence(int window_width, int stride, int frames) {
     }
 
 
-    std::auto_ptr<input::Source<engine::ImageStack>> filter(
+    std::unique_ptr<input::Source<engine::ImageStack>> filter(
         make_source(
-            std::auto_ptr<input::Source<engine::ImageStack>>(
+            std::unique_ptr<input::Source<engine::ImageStack>>(
                 new input::FakeSource<engine::ImageStack>(meta_info, images)),
             frame_index::from_value(window_width),
             frame_index::from_value(stride)));
@@ -92,48 +92,36 @@ void TestRandomSequence(int window_width, int stride, int frames) {
     BOOST_CHECK(!filter->GetNext(0, &output));
 }
 
-void TestNoOp() {
+BOOST_AUTO_TEST_CASE(TestNoOp) {
     TestRandomSequence(1, 1, 100);
 }
 
-void TestSimpleMedian() {
+BOOST_AUTO_TEST_CASE(TestSimpleMedian) {
     TestRandomSequence(3, 1, 100);
 }
 
-void TestNoOpWithStride() {
+BOOST_AUTO_TEST_CASE(TestNoOpWithStride) {
     TestRandomSequence(1, 2, 100);
 }
 
-void TestMedianWithStride() {
+BOOST_AUTO_TEST_CASE(TestMedianWithStride) {
     TestRandomSequence(11, 3, 100);
 }
 
-void TestEvenNumberOfImages() {
+BOOST_AUTO_TEST_CASE(TestEvenNumberOfImages) {
     TestRandomSequence(11, 3, 99);
 }
 
-void TestExactSizeOfSequence() {
+BOOST_AUTO_TEST_CASE(TestExactSizeOfSequence) {
     TestRandomSequence(11, 3, 33);
 }
 
-void TestTooSmallSequence() {
+BOOST_AUTO_TEST_CASE(TestTooSmallSequence) {
     try {
         TestRandomSequence(11, 3, 10);
         BOOST_CHECK(false);
     } catch (const std::runtime_error& e) {
     }
-}
-
-boost::unit_test::test_suite* unit_test_suite() {
-    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "median_filter" );
-    rv->add( BOOST_TEST_CASE( &TestNoOp ) );
-    rv->add( BOOST_TEST_CASE( &TestSimpleMedian ) );
-    rv->add( BOOST_TEST_CASE( &TestNoOpWithStride ) );
-    rv->add( BOOST_TEST_CASE( &TestMedianWithStride ) );
-    rv->add( BOOST_TEST_CASE( &TestEvenNumberOfImages ) );
-    rv->add( BOOST_TEST_CASE( &TestExactSizeOfSequence ) );
-    rv->add( BOOST_TEST_CASE( &TestTooSmallSequence ) );
-    return rv;
 }
 
 }

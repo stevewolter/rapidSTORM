@@ -1,49 +1,46 @@
 #include "simparm/Eigen_decl.h"
-#include "simparm/BoostUnits.h"
-#include "simparm/Eigen.h"
-
-#include <boost/thread/locks.hpp>
-#include <boost/ptr_container/ptr_array.hpp>
-
-#include "binning/config.h"
-#include "output/OutputSource.h"
-#include "density_map/DensityMap.h"
-#include "density_map/CoordinatesFactory.h"
-#include "density_map/DummyListener.h"
-#include "engine/Image.h"
-#include "display/Manager.h"
-#include <boost/thread/mutex.hpp>
-#include "simparm/Entry.h"
-#include "simparm/ChoiceEntry.h"
-#include "simparm/FileEntry.h"
-#include <cassert>
-#include "simparm/ObjectChoice.h"
-#include "simparm/ManagedChoiceEntry.h"
-#include "simparm/Node.h"
-
 #include "outputs/RegionSegmenter.h"
+
+#include <array>
+#include <cassert>
 #include <limits>
 #include <stdio.h>
-#include "image/iterator.h"
-#include "engine/Spot.h"
-#include "image/dilation.h"
-#include "image/extend.h"
-#include "helpers/back_inserter.h"
-#include "engine/CandidateTree.h"
-#include <boost/units/quantity.hpp>
+
+#include <boost/foreach.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
-#include <boost/ptr_container/ptr_map.hpp>
-#include <boost/foreach.hpp>
+#include <boost/units/quantity.hpp>
+
+#include "binning/binning.h"
+#include "binning/config.h"
+#include "density_map/CoordinatesFactory.h"
+#include "density_map/Coordinates.h"
+#include "density_map/DensityMap.h"
+#include "density_map/DummyListener.h"
+#include "density_map/LinearInterpolation.h"
+#include "display/Manager.h"
+#include "engine/CandidateTree.h"
+#include "engine/Image.h"
+#include "engine/Spot.h"
+#include "helpers/back_inserter.h"
+#include "image/dilation.h"
+#include "image/dilation_impl.h"
+#include "image/extend.h"
+#include "image/Image.hpp"
+#include "image/iterator.h"
 #include "output/FilterBuilder.h"
 #include "output/Filter.h"
-#include "density_map/LinearInterpolation.h"
-
-#include "image/Image.hpp"
-#include "image/dilation_impl.h"
-#include "binning/binning.h"
-
-#include "make_clone_allocator.hpp"
+#include "output/OutputSource.h"
+#include "simparm/BoostUnits.h"
+#include "simparm/ChoiceEntry.h"
+#include "simparm/Eigen.h"
+#include "simparm/Entry.h"
+#include "simparm/FileEntry.h"
+#include "simparm/ManagedChoiceEntry.h"
+#include "simparm/Node.h"
+#include "simparm/ObjectChoice.h"
 
 namespace dStorm { 
 namespace outputs {
@@ -63,7 +60,7 @@ class Segmenter : public dStorm::output::Filter,
 
     std::auto_ptr<Announcement> announcement;
     SegmentationType howToSegment;
-    boost::ptr_array< binning::Unscaled, 2 > binners;
+    std::array< std::unique_ptr<binning::Unscaled>, 2 > binners;
     simparm::Entry<double> threshold;
     simparm::Entry<unsigned long> dilation;
     std::vector<Localization> points;
@@ -71,7 +68,7 @@ class Segmenter : public dStorm::output::Filter,
     dStorm::density_map::DummyListener<2> dummy_binning_listener;
     dStorm::density_map::DensityMap< dStorm::density_map::DummyListener<2>, 2 > bins;
 
-    std::auto_ptr< dStorm::display::Change > next_change;
+    std::unique_ptr< dStorm::display::Change > next_change;
     std::auto_ptr< dStorm::display::WindowHandle > display;
 
     std::auto_ptr< dStorm::output::Output > output;
@@ -82,7 +79,7 @@ class Segmenter : public dStorm::output::Filter,
 
     static ColorImage color_regions( const RegionImage& );
     void display_image( const ColorImage& );
-    std::auto_ptr<dStorm::display::Change> get_changes();
+    std::unique_ptr<dStorm::display::Change> get_changes();
 
     void store_results_( bool success ) {
         boost::lock_guard<boost::mutex> lock(mutex);
@@ -154,15 +151,8 @@ struct RegionSegmentationMethod : public SegmentationMethod {
     Segmenter::SegmentationType type() const { return Segmenter::Region; }
 };
 
-}
-}
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::outputs::SegmentationMethod )
-
-namespace dStorm {
-namespace outputs {
-
-struct Segmenter::Config {
+class Segmenter::Config {
+  public:
     simparm::ManagedChoiceEntry<SegmentationMethod> method;
     dStorm::density_map::CoordinatesFactory<2> selector;
 
@@ -207,8 +197,8 @@ Segmenter::Segmenter(
   load_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).load_segmentation() ),
   save_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).save_segmentation() ) 
 {
-    binners.replace(0, config.selector.make_x());
-    binners.replace(1, config.selector.make_y());
+    binners[0] = config.selector.make_x();
+    binners[1] = config.selector.make_y();
 }
 
 Segmenter::~Segmenter() {
@@ -217,7 +207,7 @@ Segmenter::~Segmenter() {
 void Segmenter::announceStormSize(const Announcement &a) {
     boost::lock_guard<boost::mutex> lock( mutex );
     for (int i = 0; i < 2; ++i)
-        binners[i].announce( a );
+        binners[i]->announce( a );
     announcement.reset( new Announcement(a) );
     announcement->group_field = input::GroupFieldSemantic::Molecule;
     announcement->input_image_traits.reset();
@@ -374,7 +364,7 @@ void Segmenter::segment()
         int bins[2];
         bool good = true;
         for (int i = 0; i < 2; ++i) {
-            boost::optional<float> v = binners[i].bin_point(point);
+            boost::optional<float> v = binners[i]->bin_point(point);
             if ( ! v ) 
                 good = false;
             else
@@ -415,12 +405,12 @@ class LocalizationMapper
     : public unary_function<void, From>
 {
     const std::list<To>& spots;
-    const boost::ptr_array< binning::Unscaled, 2 >& binners;
+    const std::array< std::unique_ptr<binning::Unscaled>, 2 >& binners;
     typedef std::vector<From> Store;
   public:
-    typedef boost::ptr_map<const To*, Store > Map;
+    typedef std::map<const To*, std::unique_ptr<Store> > Map;
 
-    LocalizationMapper(const std::list<To>& spots, const boost::ptr_array< binning::Unscaled, 2 >& binners)
+    LocalizationMapper(const std::list<To>& spots, const std::array< std::unique_ptr<binning::Unscaled>, 2 >& binners)
         : spots(spots), binners(binners)
     {
     }
@@ -431,7 +421,7 @@ class LocalizationMapper
         const To* minCand = NULL;
         float locpos[2];
         for (int i = 0; i < 2; ++i) {
-            boost::optional<float> v = binners[i].bin_point(loc);
+            boost::optional<float> v = binners[i]->bin_point(loc);
             if ( ! v ) return;
             locpos[i] = *v;
         }
@@ -445,7 +435,7 @@ class LocalizationMapper
             }
         }
         assert( minCand );
-        mapping[minCand].push_back( loc );
+        mapping[minCand]->push_back( loc );
     }
 
     const Map& getMapping() const { return mapping; }
@@ -497,7 +487,7 @@ void Segmenter::display_image( const ColorImage& img ) {
     new_size.set_size( img.sizes() );
     new_size.keys.push_back( dStorm::display::KeyDeclaration( "Segment", "Index of associated region", 1+(sizeof(colors)/sizeof(colors[0])) ));
     for (int i = 0; i < 2; ++i)
-        new_size.pixel_sizes[i] = binners[i].resolution();
+        new_size.pixel_sizes[i] = binners[i]->resolution();
 
     if ( display.get() == NULL ) {
         dStorm::display::WindowProperties props;
@@ -518,8 +508,8 @@ void Segmenter::display_image( const ColorImage& img ) {
     next_change->image_change.new_image = extend( img, dStorm::display::Image() );
 }
 
-std::auto_ptr<dStorm::display::Change> Segmenter::get_changes() {
-    std::auto_ptr<dStorm::display::Change> fresh( new dStorm::display::Change(1) );
+std::unique_ptr<dStorm::display::Change> Segmenter::get_changes() {
+    std::unique_ptr<dStorm::display::Change> fresh( new dStorm::display::Change(1) );
     boost::lock_guard<boost::mutex> lock(mutex);
     std::swap( fresh, next_change );
     return fresh;

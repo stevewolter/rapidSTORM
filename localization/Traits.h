@@ -47,9 +47,10 @@ struct MetaInfo {
 namespace input {
 
 template <>
-struct Traits< Localization > 
+class Traits< Localization > 
 : public input::BaseTraits
 {
+  public:
     Traits();
     Traits* clone() const;
     std::string desc() const;

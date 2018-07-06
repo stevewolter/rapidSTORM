@@ -55,9 +55,10 @@ struct is_always_zero {
 };
 
 template <typename Num, typename Expression, int ChunkSize>
-struct DisjointEvaluator
+class DisjointEvaluator
 : public Parameters< Num, Expression >
 {
+  public:
     typedef Parameters< Num, Expression > Base;
     typedef Eigen::Array<Num, ChunkSize, 1> ChunkVector;
     typedef Eigen::Array<Num, 1, 1> SingleElement;

@@ -1,25 +1,26 @@
 #include "debug.h"
 #include "alignment_fitter.h"
-#include "Job.h"
 
-#include "localization_file/reader.h"
-#include <boost/variant/get.hpp>
-
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-
-#include <gsl/gsl_multimin.h>
-#include <boost/units/Eigen/Array>
-#include <boost/lexical_cast.hpp>
-#include <iomanip>
-#include "simparm/text_stream/RootNode.h"
-#include "simparm/Group.h"
-#include "simparm/TriggerEntry.h"
-#include "simparm/ProgressEntry.h"
+#include <array>
 #include <fstream>
+#include <iomanip>
+
+#include <boost/lexical_cast.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/units/Eigen/Array>
+#include <boost/variant/get.hpp>
+#include <gsl/gsl_multimin.h>
+
+#include "Job.h"
+#include "localization_file/reader.h"
+#include "simparm/Group.h"
+#include "simparm/ProgressEntry.h"
+#include "simparm/text_stream/RootNode.h"
+#include "simparm/TriggerEntry.h"
 
 typedef std::list<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > PositionList;
-typedef std::map< int, boost::array< PositionList, 2 > > ImageMap;
+typedef std::map< int, std::array< PositionList, 2 > > ImageMap;
 
 class ProgressStepLimit {
     int steps, total_steps;

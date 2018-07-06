@@ -4,7 +4,7 @@
 namespace dStorm {
 namespace guf {
 
-struct Config;
+class Config;
 
 }
 }

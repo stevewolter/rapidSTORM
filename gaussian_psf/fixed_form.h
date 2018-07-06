@@ -6,8 +6,8 @@
 namespace dStorm {
 namespace gaussian_psf {
 
-struct FixedForm
-{
+class FixedForm {
+  public:
     template <typename Type> struct apply { typedef boost::mpl::false_ type; };
 };
 template <int Dim> struct FixedForm::apply< Mean<Dim> > {typedef boost::mpl::true_ type; };

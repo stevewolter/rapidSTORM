@@ -6,14 +6,14 @@ namespace expression {
 
 namespace source {
 
-struct LValue;
-struct Filter;
+class LValue;
+class Filter;
 
 LValue* new_clone( const LValue& );
 
 };
 
-struct Source;
+class Source;
 
 std::auto_ptr<output::OutputSource> make_output_source();
 

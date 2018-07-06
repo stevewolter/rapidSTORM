@@ -23,6 +23,7 @@ Config::Config()
   two_kernel_fitting("TwoKernelFitting", false),
   mle_fitting("MLEFitting", false)
 {
+    name_object.set_user_level( simparm::Intermediate );
     allow_disjoint.set_user_level( (simparm::Expert) );
     double_computation.set_user_level( (simparm::Intermediate) );
     free_sigmas.set_user_level( simparm::Intermediate );
@@ -34,6 +35,9 @@ Config::Config()
     relative_epsilon.set_user_level( (simparm::Intermediate) );
     maximumIterationSteps.set_user_level( (simparm::Intermediate) );
     marquardtStartLambda.set_user_level( (simparm::Expert) );
+    two_kernel_fitting.set_user_level( simparm::Expert );
+    laempi_fit.set_user_level( simparm::Expert );
+    disjoint_amplitudes.set_user_level( simparm::Expert );
 }
 
 void Config::attach_ui( simparm::NodeHandle at )

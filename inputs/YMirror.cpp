@@ -1,11 +1,11 @@
 #include "inputs/YMirror.h"
 
-#include <boost/smart_ptr/shared_array.hpp>
-#include <boost/variant/apply_visitor.hpp>
+#include "engine/Image.h"
+#include "helpers/make_unique.hpp"
 #include "image/Image.h"
 #include "image/mirror.h"
 #include "input/AdapterSource.h"
-#include "input/Method.hpp"
+#include "input/FilterFactory.h"
 #include "simparm/Entry.h"
 #include "simparm/Object.h"
 
@@ -14,104 +14,72 @@ namespace YMirror {
 
 struct Config
 {
-    typedef input::DefaultTypes SupportedTypes;
-
     simparm::Object name_object;
     simparm::BoolEntry mirror_y;
     Config();
     void attach_ui( simparm::NodeHandle at ) { mirror_y.attach_ui( name_object.attach_ui(at) ); }
 };
 
-template <typename Type>
 class Source
-: public input::AdapterSource< Type >,
+: public input::AdapterSource< engine::ImageStack >,
   boost::noncopyable
 {
-    typedef input::Source<Type> Base;
-    localization::MetaInfo<localization::PositionY::ValueType>::RangeType range;
-
-    void modify_traits( input::Traits<Type>& );
     void attach_local_ui_( simparm::NodeHandle ) {}
-    bool GetNext(int thread, Type* target) OVERRIDE;
+    bool GetNext(int thread, engine::ImageStack* target) OVERRIDE;
 
   public:
-    Source( std::auto_ptr< Base > base ) : input::AdapterSource<Type>(base) {}
+    Source( std::unique_ptr<input::Source<engine::ImageStack>> base )
+        : input::AdapterSource<engine::ImageStack>(std::move(base)) {}
 };
 
-class ChainLink
-: public input::Method< ChainLink >
-{
-    friend class input::Method< ChainLink >;
-
-    template <typename Type>
-    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) 
-    {
-        if ( config.mirror_y() )
-            return new Source<Type>(p);
-        else
-            return p.release();
+bool Source::GetNext(int thread, engine::ImageStack* target) {
+    if (!input::AdapterSource<engine::ImageStack>::GetNext(thread, target)) {
+        return false;
     }
-    template <typename Type>
-    bool changes_traits( const input::MetaInfo&, const input::Traits<Type>& ) 
-        { return false; }
+
+    for (int i = 0; i < target->plane_count(); ++i) {
+        target->plane(i) = image::mirror(target->plane(i), 1);
+    }
+
+    return true;
+}
+
+class ChainLink
+: public input::FilterFactory<engine::ImageStack>
+{
+    boost::shared_ptr<const input::Traits<engine::ImageStack>> make_meta_info(
+        boost::shared_ptr<const input::Traits<engine::ImageStack>> input_meta_info)
+        OVERRIDE {
+        return input_meta_info;
+    }
+    std::unique_ptr<input::Source<engine::ImageStack>> make_source(
+        std::unique_ptr<input::Source<engine::ImageStack>> input) OVERRIDE {
+        if ( config.mirror_y() )
+            return make_unique<Source>(std::move(input));
+        else
+            return std::move(input);
+    }
 
     Config config;
   public:
     ChainLink() {}
+    ChainLink* clone() const OVERRIDE { return new ChainLink(); }
 
-    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
-    static std::string getName() { return "Mirror"; }
+    void attach_ui(simparm::NodeHandle at,
+                   std::function<void()> traits_change_callback) OVERRIDE {
+        config.attach_ui( at ); 
+    }
 };
 
-bool need_range(output::LocalizedImage*) { return true; }
-void mirror(const localization::MetaInfo<localization::PositionY::ValueType>::RangeType& range,
-            output::LocalizedImage& localizations) {
-    for (auto& l : localizations) {
-        l.position_y() = *range.second - l.position().y() + *range.first;
-    }
-}
-
-bool need_range(engine::ImageStack*) { return false; }
-void mirror(const localization::MetaInfo<localization::PositionY::ValueType>::RangeType& range,
-            dStorm::engine::ImageStack& image) {
-    for (int i = 0; i < image.plane_count(); ++i) {
-        image.plane(i) = image::mirror(image.plane(i), 1);
-    }
-}
-
-template <typename Type>
-bool Source<Type>::GetNext(int thread, Type* target) {
-    if ( need_range(target) &&
-            (! range.first.is_initialized() || ! range.second.is_initialized()) ) {
-        throw std::runtime_error("Range for Y coordinate unknown, cannot mirror results");
-    }
-
-    if (!input::AdapterSource<Type>::GetNext(thread, target)) {
-        return false;
-    }
-
-    mirror(range, *target);
-    return true;
-}
-
-
-template <typename Type>
-void Source< Type >::modify_traits( input::Traits<Type>& t ) {
-    range = t.position_y().range();
-}
-
-template <>
-void Source< engine::ImageStack >::modify_traits( input::Traits<engine::ImageStack>& ) {}
-
 Config::Config() 
-: name_object( ChainLink::getName(), "Mirror input data along Y axis"),
+: name_object( "Mirror", "Mirror input data along Y axis"),
   mirror_y("MirrorY", false)
 {
     mirror_y.set_user_level( simparm::Expert );
 }
 
-std::auto_ptr<input::Link> makeLink() {
-    return std::auto_ptr<input::Link>( new ChainLink() );
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<ChainLink>();
 }
 
 }

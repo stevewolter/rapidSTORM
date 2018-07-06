@@ -449,11 +449,11 @@
                so that every fluorophore is on for many images and you want only a single, very precise position.
                It is also useful for drift correction.</para>
          <para>For every frame, the Kalman model computes the expected position and the position uncertainty for
-             all known traces. Every localization that is within <et:elemref linkend="EmissionTracker_Distance_Threshold"/>
+             all known traces. Every localization that is within <et:elemref linkend="DistanceThreshold"/>
              confidence intervals of an active trace is appended to the active trace. All other localizations start
              new traces, with an initial expected position and uncertainty identical to the creating localization and an initial
              velocity of 0. The module uses a simple movement model consisting of position and velocity.</para>
-         <para>When no localizations were added to a trace after more than <et:elemref linkend="EmissionTracker_Allow_Blinking"/>
+         <para>When no localizations were added to a trace after more than <et:elemref linkend="AllowBlinking"/>
              frames, the trace is considered inactive, and no further localizations are added to it.</para>
          <para>The module uses the localization fields for position uncertainty. Therefore, you don't give explicit distance
              thresholds, but rather the threshold in confidence intervals.</para>

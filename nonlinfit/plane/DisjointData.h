@@ -17,8 +17,9 @@ namespace plane {
  *  the #xs member and the inner dimension residing in
  *  DataRow::inputs. */
 template <typename Number_, int _ChunkSize>
-struct DisjointData : public GenericData
+class DisjointData : public GenericData
 {
+  public:
     BOOST_STATIC_ASSERT((_ChunkSize != Eigen::Dynamic));
     static const int ChunkSize = _ChunkSize;
     typedef Number_ Number;

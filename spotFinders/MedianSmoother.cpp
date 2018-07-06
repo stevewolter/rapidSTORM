@@ -10,6 +10,7 @@
 #include "engine/SpotFinderBuilder.h"
 #include "engine/Image.h"
 #include "simparm/GUILabelTable.h"
+#include "helpers/make_unique.hpp"
 
 namespace dStorm {
 namespace median_smoother {
@@ -322,12 +323,10 @@ static int modMap[500];
 static int modMapInit = -1;
 
 template <int strucSize>
-void ahmadMedian(const engine::Image2D &in, SmoothedImage& out, int mw, int mh)
-
-{
+void ahmadMedian(const engine::Image2D &in, SmoothedImage& out, int mw, int mh) {
     const int W = in.width_in_pixels(), H = in.height_in_pixels(), xoff = -mw/2, yoff = mw/2;
     StormPixel median;
-    SortedList<StormPixel,strucSize*2> sortedColumns[W];
+    std::vector<SortedList<StormPixel,strucSize*2>> sortedColumns(W);
 
     int targetPixInSS1 = mw*mh/2+1;
 
@@ -445,8 +444,8 @@ void MedianSmoother::chooseAhmad(int msx, int msy) {
     }
 }
 
-std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
-    return std::auto_ptr<engine::spot_finder::Factory>(new engine::spot_finder::Builder<Config,MedianSmoother>()); 
+std::unique_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
+    return make_unique<engine::spot_finder::Builder<Config,MedianSmoother>>(); 
 }
 
 }

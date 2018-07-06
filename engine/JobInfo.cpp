@@ -7,19 +7,19 @@ namespace dStorm {
 namespace engine {
 
 JobInfo::JobInfo( boost::shared_ptr<const InputTraits> t, int fluorophore, const FitJudgerFactory& f )
-: traits_store(t),
-  traits(*traits_store),
-  fluorophore(fluorophore)
+: traits(*t),
+  fluorophore(fluorophore),
+  traits_store(t)
 {
     for (int i = 0; i < traits.plane_count(); ++i)
         judgers.push_back( f.make_fit_judger( traits.plane(i) ) );
 }
 
 JobInfo::JobInfo( const JobInfo& o ) 
-: judgers(o.judgers),
-  traits_store(o.traits_store),
-  traits(*traits_store),
-  fluorophore(o.fluorophore)
+: traits(*o.traits_store),
+  fluorophore(o.fluorophore),
+  judgers(o.judgers),
+  traits_store(o.traits_store)
 {
 }
 

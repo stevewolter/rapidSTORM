@@ -31,14 +31,14 @@ class Config : public dStorm::Config
     simparm::NodeHandle current_ui;
 
     std::auto_ptr<OutputTreeRoot> outputRoot;
-    std::auto_ptr<input::Link> input;
+    std::unique_ptr<input::Link> input;
     input::Link::Connection input_listener;
     bool localization_replay_mode;
     simparm::Group outputBox;
     simparm::Entry<unsigned long> thread_count_;
 
     void traits_changed( boost::shared_ptr<const input::MetaInfo> );
-    void create_input( std::auto_ptr<input::Link> );
+    void create_input( std::unique_ptr<input::Link> );
     void attach_children_ui( simparm::NodeHandle at );
 
 public:
@@ -55,13 +55,11 @@ public:
 
     const output::OutputSource& output_tree() const { return *outputRoot; }
 
-    void add_input( std::auto_ptr<input::Link>, InsertionPlace );
-    void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> );
-    void add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> );
+    void add_input( std::unique_ptr<input::Link> );
     void add_output( std::auto_ptr<output::OutputSource> );
 
     const input::MetaInfo& get_meta_info() const;
-    std::auto_ptr<input::BaseSource> makeSource() const;
+    std::unique_ptr<input::BaseSource> makeSource() const;
 
     std::auto_ptr< Job > make_job();
 

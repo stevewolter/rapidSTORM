@@ -4,7 +4,7 @@
 #include "simparm/Message.h"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
-#include <boost/foreach.hpp>
+#include "input/Source.h"
 
 namespace boost {
 
@@ -94,31 +94,30 @@ BaseSource* Choice::makeSource() {
     return choices().link().make_source().release();
 }
 
-Choice* Choice::clone() const 
-    { return new Choice(*this); }
+Choice* Choice::clone() const {
+    return new Choice(*this);
+}
+
 void Choice::registerNamedEntries( simparm::NodeHandle node ) {
     value_change_listen = choices.value.notify_on_value_change( boost::bind( &Choice::publish_traits_locked, this ) );
     choices.attach_ui( node );
 }
 
-void Choice::add_choice( std::auto_ptr<Link> fresh ) 
-{
-    std::auto_ptr< LinkAdaptor > adaptor( new LinkAdaptor(fresh) );
+void Choice::add_choice( std::unique_ptr<Link> fresh ) {
+    std::unique_ptr< LinkAdaptor > adaptor( new LinkAdaptor(std::move(fresh)) );
     adaptor->connect( *this );
-    choices.addChoice( adaptor );
+    choices.addChoice( std::move(adaptor) );
 }
 
-Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::Link> l ) 
-    :  _link(l) 
-{
-}
+Choice::LinkAdaptor::LinkAdaptor( std::unique_ptr<input::Link> l )
+    :  _link(std::move(l)) {}
 
 Choice::LinkAdaptor::~LinkAdaptor() {
     _link.reset();
 }
 
-void Choice::insert_new_node( std::auto_ptr<Link> l, Place p ) {
-    choices.begin()->link().insert_new_node(l,p); 
+void Choice::insert_new_node( std::unique_ptr<Link> l ) {
+    choices.begin()->link().insert_new_node(std::move(l)); 
 }
 
 void Choice::publish_meta_info() {

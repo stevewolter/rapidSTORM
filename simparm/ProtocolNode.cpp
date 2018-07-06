@@ -1,8 +1,7 @@
-#include "simparm/wx_ui/ProtocolNode.h"
+#include "simparm/ProtocolNode.h"
 #include <iostream>
 
 namespace simparm {
-namespace wx_ui {
 
 ProtocolNode::ProtocolNode( const ProtocolNode& parent, std::string name ) 
 : path( parent.path + " in " + name),
@@ -16,5 +15,4 @@ void ProtocolNode::protocol( std::string message ) const {
         *target << path << " " << message << std::endl;
 }
 
-}
 }

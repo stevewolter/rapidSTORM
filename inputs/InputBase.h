@@ -6,7 +6,7 @@
 
 namespace dStorm {
 
-std::auto_ptr< input::Link > make_input_base();
+std::unique_ptr< input::Link > make_input_base();
 
 }
 

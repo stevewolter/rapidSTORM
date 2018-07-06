@@ -24,8 +24,8 @@ namespace estimate_psf_form {
 using boost::units::quantity;
 namespace si = boost::units::si;
 
-struct Config : public calibrate_3d::FormCalibrationConfig
-{
+class Config : public calibrate_3d::FormCalibrationConfig {
+  public:
     simparm::Group multiplane;
     simparm::BoolEntry mle;
     simparm::Entry<unsigned long> number_of_spots; 

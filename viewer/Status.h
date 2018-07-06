@@ -12,9 +12,10 @@ namespace dStorm {
 namespace display { class Manager; }
 namespace viewer {
 
-struct Status {
+class Status {
+  public:
     Status(const Config&);
-    ~Status();
+    virtual ~Status();
 
     Config config;
     simparm::TriggerEntry save;

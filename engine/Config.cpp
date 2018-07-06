@@ -25,6 +25,8 @@ Config::Config()
 {
     DEBUG("Building dStorm Config");
 
+    fit_position_epsilon.set_user_level(simparm::Intermediate);
+
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
     motivation.set_user_level(simparm::Intermediate);

@@ -5,17 +5,12 @@
 #include "test-plugin/Verbose.h"
 #include "test-plugin/Delayer.h"
 #include "test-plugin/BasenamePrinter.h"
-#include "test-plugin/DummyFileInput.h"
 #include "test-plugin/RepeatTrigger.h"
 
 using namespace dStorm::output;
 
 namespace dStorm {
 namespace test {
-
-void input_modules ( dStorm::Config* config ) {
-    config->add_input( dummy_file_input::make(), dStorm::FileReader );
-}
 
 void output_modules( dStorm::Config* config ) {
     config->add_output( new dStorm::output::OutputBuilder< Exception::Config, Exception >() );

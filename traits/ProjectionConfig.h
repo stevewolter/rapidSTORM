@@ -1,9 +1,9 @@
 #ifndef DSTORM_TRAITS_PROJECTION_CONFIG_H
 #define DSTORM_TRAITS_PROJECTION_CONFIG_H
 
-#include "simparm/ObjectChoice.h"
 #include <memory>
-#include "make_clone_allocator.hpp"
+
+#include "simparm/ObjectChoice.h"
 
 namespace dStorm {
 namespace traits {
@@ -30,7 +30,5 @@ std::auto_ptr<ProjectionConfig> make_support_point_projection_config();
 
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::traits::ProjectionConfig)
 
 #endif

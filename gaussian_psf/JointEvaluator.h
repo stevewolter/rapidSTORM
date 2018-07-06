@@ -14,9 +14,9 @@ namespace dStorm {
 namespace gaussian_psf {
 
 template <typename Num, typename Expression, int ChunkSize>
-struct JointEvaluator
-: public Parameters<Num, Expression >
-{
+class JointEvaluator
+: public Parameters<Num, Expression > {
+  public:
     Eigen::Array<Num, ChunkSize, 2> normed, squared;
     Eigen::Array<Num, ChunkSize, 1> exp_term, expT;
 

@@ -23,7 +23,7 @@ struct InnerBackendNode : public BackendNode {
         { return parent->send_(m); }
     void process_child_command_( const std::string& child, std::istream& rest );
     const std::string& get_name() const { return name; }
-    Mutex* get_mutex() { return tree_mutex; }
+    boost::recursive_mutex* get_mutex() { return tree_mutex; }
     void add_child( BackendNode& t );
     void remove_child( BackendNode& t ); 
     void declare( std::ostream& o );

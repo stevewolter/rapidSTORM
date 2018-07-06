@@ -13,7 +13,7 @@ namespace dStorm {
 namespace output {
 
 class FilterSource::Suboutput {
-    boost::clone_ptr<OutputSource> unadorned;
+    clone_ptr<OutputSource> unadorned;
     simparm::Object config_node, removal_node;
 
 public:

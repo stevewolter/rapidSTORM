@@ -13,7 +13,7 @@ class Object {
     Object(std::string name, std::string desc);
     Object(std::string name);
     Object( const Object& );
-    ~Object();
+    virtual ~Object();
 
     std::string getName() const;
     std::string getDesc() const;

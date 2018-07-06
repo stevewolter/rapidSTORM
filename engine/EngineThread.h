@@ -14,7 +14,6 @@ namespace dStorm {
 namespace engine {
 
 class EngineThread : public SingleThreadedLocalizer {
-    Config& config;
     Input::TraitsPtr meta_info;
 
     boost::ptr_vector<spot_fitter::Implementation> fitter;

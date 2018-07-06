@@ -9,8 +9,7 @@
 namespace dStorm {
 namespace output {
 
-struct LocalizedImage
-{
+class LocalizedImage {
     std::vector<Localization> results;
   public:
     int group;

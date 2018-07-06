@@ -1,4 +1,4 @@
-#include "kalman_filter/fwd.h"
+#include "kalman_filter/EmissionTracker.h"
 
 #include <algorithm>
 #include <cassert>
@@ -10,7 +10,6 @@
 #include <boost/ptr_container/ptr_set.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/units/Eigen/Array>
-#include <boost/units/Eigen/Array>
 #include <boost/utility/in_place_factory.hpp>
 #include <Eigen/Core>
 
@@ -18,48 +17,76 @@
 #include "binning/binning.hpp"
 #include "binning/localization_impl.h"
 #include "helpers/back_inserter.h"
+#include "helpers/make_unique.hpp"
 #include "image/iterator.h"
 #include "kalman_filter/KalmanTrace.h"
 #include "output/FilterBuilder.h"
 #include "output/Filter.h"
 #include "simparm/BoostUnits.h"
 #include "simparm/Entry.h"
-#include "simparm/Entry.h"
-#include "simparm/FileEntry.h"
-#include "UnitEntries/Nanometre.h"
 
 using namespace std;
 using namespace boost::units::camera;
 
 namespace dStorm {
 namespace kalman_filter {
+namespace emission_tracker {
+namespace {
 
 template <typename Type>
 struct address_is_less : public std::binary_function<Type,Type,bool> {
     bool operator()( const Type& a, const Type& b ) const { return &a < &b; };
 };
 
+class TracedObject {
+  public:
+    boost::optional<Eigen::Vector2i> cache_position;
+
+    TracedObject(const KalmanMetaInfo& kalman_info, int molecule_id);
+
+    void add( const dStorm::Localization& l) {
+        trace.add(make_observation(l));
+        result.push_back(l);
+        result.back().molecule() = result.group;
+    }
+
+    float sq_distance_in_sigmas(const Localization& position) {
+        return trace.sq_distance_in_sigmas(make_observation(position));
+    }
+
+    Localization position_estimate() {
+        Localization result;
+        Eigen::Vector2f position_estimate = trace.getPositionEstimate().cast<float>();
+        result.position_x() = position_estimate.x() * si::meter;
+        result.position_y() = position_estimate.y() * si::meter;
+        return result;
+    }
+
+    const output::LocalizedImage& engine_result() const { return result; }
+
+  private:
+    KalmanTrace::Observation make_observation(const Localization& l) {
+        Eigen::Vector2d position;
+        Eigen::Matrix2d covariance = Eigen::Matrix2d::Zero();
+        for (int i = 0; i < 2; ++i) {
+            position[i] = l.position(i) / si::metre;
+            covariance(i,i) = pow<2>(l.position_uncertainty(i) / si::metre);
+        }
+        int time = l.frame_number() / camera::frame;
+        return {position, covariance, time};
+    }
+
+    output::LocalizedImage result;
+    KalmanTrace trace;
+};
+
 class Output 
 : public dStorm::output::Filter
 {
-public:
-    class Config;
-
+  public:
+    typedef emission_tracker::Config Config;
 private:
     class lowest_mahalanobis_distance;
-    class TracedObject : public KalmanTrace<2> {
-      public:
-        boost::optional<Eigen::Vector2i> cache_position;
-        output::LocalizedImage result;
-
-        TracedObject(const KalmanMetaInfo<2>& kalman_info, int molecule_id);
-        ~TracedObject();
-
-        void add( const dStorm::Localization& l) {
-            KalmanTrace<2>::add(l);
-            result.push_back(l);
-        }
-    };
 
     std::auto_ptr<binning::Scaled> binners[2];
     float binner_starts[2];
@@ -75,7 +102,7 @@ private:
     struct TrackingInformation;
     boost::ptr_vector<TrackingInformation> tracking;
 
-    KalmanMetaInfo<2> kalman_info;
+    KalmanMetaInfo kalman_info;
 
     TracedObject* search_closest_trace(
         const dStorm::Localization &loc, 
@@ -84,38 +111,20 @@ private:
     void finalizeImage(int i);
 
     const double maxDist;
-    void store_results_( bool success ); 
 
 public:
     Output( const Config& config,
                         std::auto_ptr<dStorm::output::Output> output );
-    ~Output();
-    Output( const Output& );
-    Output *clone() const
-        {throw std::logic_error("Emission tracker is not cloneable.");}
-    Output& operator=( const Output& );
+    ~Output() OVERRIDE;
+    Output( const Output& ) = delete;
+    Output& operator=( const Output& ) = delete;
 
     void announceStormSize(const Announcement &) OVERRIDE;
-    RunRequirements announce_run(const RunAnnouncement &);
-    void receiveLocalizations(const EngineResult &);
+    void receiveLocalizations(const EngineResult &) OVERRIDE;
+    void store_results_( bool success ) OVERRIDE;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
-
-class Output::Config  {
-public:
-    Config();
-    void attach_ui( simparm::NodeHandle at );
-    static std::string get_name() { return "EmissionTracker"; }
-    static std::string get_description() { return "Track emissions"; }
-    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
-
-    simparm::Entry< quantity<camera::time,int> > allowBlinking;
-    simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
-    simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::mobility_unit> > mobility;
-    simparm::Entry<float> distance_threshold;
-};
-
 
 struct Output::TrackingInformation {
     int imageNumber;
@@ -132,28 +141,9 @@ struct Output::TrackingInformation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-Output::TracedObject::TracedObject(const KalmanMetaInfo<2>& kalman_info, int molecule_id)
-: KalmanTrace<2>(kalman_info)
-{
+TracedObject::TracedObject(const KalmanMetaInfo& kalman_info, int molecule_id)
+: trace(kalman_info) {
     result.group = molecule_id;
-}
-Output::TracedObject::~TracedObject() {
-}
-
-Output::Config::Config() 
-: allowBlinking("AllowBlinking", 0 * camera::frame),
-  diffusion("DiffusionConstant", boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit>::from_value(0) ),
-  mobility("Mobility", boost::units::quantity<KalmanMetaInfo<2>::mobility_unit>::from_value(0) ),
-  distance_threshold("DistanceThreshold", 2)
-{
-}
-
-void Output::Config::attach_ui( simparm::NodeHandle at )
-{
-    distance_threshold.attach_ui( at );
-    allowBlinking.attach_ui( at );
-    diffusion.attach_ui( at );
-    mobility.attach_ui( at );
 }
 
 Output::Output( 
@@ -186,8 +176,13 @@ void Output::announceStormSize(const Announcement &a) {
                                  "sigmaposx and sigmaposy variables in a Expression Filter or set the optics parameters "
                                  "for counts per photons and dark current.");
     Announcement my_announcement(a);
-    my_announcement.in_sequence = false;
-    my_announcement.input_image_traits.reset();
+    static_cast< dStorm::input::Traits<Localization>& >(my_announcement) 
+        = dStorm::input::Traits<Localization>();
+    my_announcement.in_sequence = true;
+    my_announcement.position_x() = a.position_x();
+    my_announcement.position_y() = a.position_y();
+    my_announcement.amplitude() = a.amplitude();
+    my_announcement.image_number() = a.image_number();
     my_announcement.group_field = input::GroupFieldSemantic::Molecule;
     my_announcement.molecule().is_given = true;
 
@@ -204,12 +199,9 @@ void Output::announceStormSize(const Announcement &a) {
     Filter::announceStormSize(my_announcement);
 }
 
-Output::RunRequirements Output::announce_run(const RunAnnouncement & a) {
-    return Filter::announce_run(a);
-}
-
-struct Output::lowest_mahalanobis_distance
+class Output::lowest_mahalanobis_distance
 : public std::binary_function< TracedObject*, TracedObject*, TracedObject* > {
+  public:
     const Localization& to;
     const std::set<TracedObject*>& excluded;
     const double max_sq_distance;
@@ -234,12 +226,9 @@ struct Output::lowest_mahalanobis_distance
     }
 };
 
-Output::TracedObject*
-Output::search_closest_trace(
+TracedObject* Output::search_closest_trace(
     const Localization &loc,
-    const std::set<TracedObject*>& excluded
-    )
-{
+    const std::set<TracedObject*>& excluded) {
     int range[2][2];
     for (int i = 0; i < 2; ++i) {
         boost::optional<float> v = binners[i]->bin_point(loc);
@@ -264,10 +253,7 @@ Output::search_closest_trace(
 void
 Output::update_positional( TracedObject& object ) 
 {
-    dStorm::Localization estimate;
-    Eigen::Vector2f position_estimate = object.getPositionEstimate().cast<float>();
-    estimate.position_x() = position_estimate.x() * si::meter;
-    estimate.position_y() = position_estimate.y() * si::meter;
+    dStorm::Localization estimate = object.position_estimate();;
     Eigen::Array2i new_pos;
     for (int i = 0; i < 2; ++i) {
         boost::optional<float> v = binners[i]->bin_point(estimate);
@@ -296,8 +282,7 @@ Output::receiveLocalizations(const EngineResult &er)
 
     current.prepare( imNum );
 
-    for (const Localization& localization : er) 
-    {
+    for (const Localization& localization : er) {
         TracedObject* trace = search_closest_trace( localization, current.emissions );
         if ( trace == NULL ) {
             std::auto_ptr<TracedObject> new_trace( new TracedObject(kalman_info, molecule_id++) );
@@ -305,9 +290,7 @@ Output::receiveLocalizations(const EngineResult &er)
             traced_objects.insert( new_trace );
         }
 
-        Localization added(localization);
-        added.molecule() = trace->result.group;
-        trace->add( added );
+        trace->add( localization );
         update_positional( *trace );
         for (int i= 1; i < track_modulo && i <= imNum; ++i) {
             tracking[(imNum-i) % track_modulo].emissions.erase( trace );
@@ -325,7 +308,7 @@ void Output::finalizeImage(int imNum) {
     TrackingInformation &data = tracking[imNum % track_modulo];
 
     for ( TracedObject* o : data.emissions ) {
-        Filter::receiveLocalizations(o->result);
+        Filter::receiveLocalizations(o->engine_result());
         if ( o->cache_position.is_initialized() )
             positional( o->cache_position->x(), o->cache_position->y() ).erase( o );
         traced_objects.erase( *o );
@@ -342,11 +325,33 @@ void Output::store_results_( bool success ) {
     Filter::store_children_results( success );
 }
 
+}
+
+Config::Config() 
+: allowBlinking("AllowBlinking", 0 * camera::frame),
+  diffusion("DiffusionConstant", boost::units::quantity<diffusion_unit>::from_value(0) ),
+  mobility("Mobility", boost::units::quantity<mobility_unit>::from_value(0) ),
+  distance_threshold("DistanceThreshold", 2) {}
+
+void Config::attach_ui( simparm::NodeHandle at ) {
+    distance_threshold.attach_ui( at );
+    allowBlinking.attach_ui( at );
+    diffusion.attach_ui( at );
+    mobility.attach_ui( at );
+}
+
 std::auto_ptr<dStorm::output::OutputSource> create()
 {
     return std::auto_ptr<dStorm::output::OutputSource>( 
         new dStorm::output::FilterBuilder<Output::Config,Output>() );
 }
 
+std::unique_ptr<output::Output> create_default(
+    const Config& config,
+    std::unique_ptr<output::Output> suboutput) {
+    return make_unique<Output>(config, std::auto_ptr<output::Output>(suboutput.release()));
+}
+
+}
 }
 }

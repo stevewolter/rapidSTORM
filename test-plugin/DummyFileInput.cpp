@@ -149,8 +149,6 @@ class Method
     Source* makeSource();
 
     Method* clone() const { return new Method(*this); }
-
-    void registerNamedEntries();
 };
 
 Source::Source(const Config& config, std::auto_ptr<OpenFile> of) 

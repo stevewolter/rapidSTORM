@@ -8,7 +8,6 @@
 #include "simparm/TriggerEntry.h"
 #include "output/SourceFactory_decl.h"
 #include "output/BasenameAdjustedFileEntry_decl.h"
-#include "make_clone_allocator.hpp"
 
 namespace simparm { class FileEntry; }
 
@@ -71,7 +70,5 @@ class OutputSource : public simparm::Choice
 
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::output::OutputSource )
 
 #endif

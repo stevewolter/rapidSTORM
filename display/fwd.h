@@ -3,19 +3,19 @@
 
 namespace dStorm {
 
-struct Pixel;
+class Pixel;
 
 namespace display {
 
 typedef dStorm::Pixel Color;
-struct ClearChange;
-struct KeyDeclaration;
-struct ResizeChange;
-struct ImageChange;
-struct PixelChange;
-struct KeyChange;
-struct Change;
-struct DataSource;
+class ClearChange;
+class KeyDeclaration;
+class ResizeChange;
+class ImageChange;
+class PixelChange;
+class KeyChange;
+class Change;
+class DataSource;
 
 }
 }

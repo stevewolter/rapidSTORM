@@ -25,7 +25,7 @@ class LiveBackend
 
     Status& status;
 
-    std::auto_ptr<dStorm::display::Change> get_changes();
+    std::unique_ptr<dStorm::display::Change> get_changes();
 
     Accumulator image;
     std::auto_ptr<ColourScheme> colorizer;

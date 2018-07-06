@@ -1,5 +1,4 @@
 #include <boost/test/unit_test.hpp>
-#include "dejagnu.h"
 #include "image/iterator.h"
 #include "image/constructors.h"
 

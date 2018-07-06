@@ -1,8 +1,10 @@
 #ifndef SIMPARM_MANAGED_CHOICE_ENTRY_HH
 #define SIMPARM_MANAGED_CHOICE_ENTRY_HH
 
-#include "simparm/ChoiceEntry.h"
 #include <boost/ptr_container/ptr_vector.hpp>
+
+#include "helpers/virtual_clone_allocator.hpp"
+#include "simparm/ChoiceEntry.h"
 
 namespace simparm {
 
@@ -10,7 +12,7 @@ template <typename BaseClass>
 class ManagedChoiceEntry 
 : public ChoiceEntry<BaseClass>
 {
-    typedef boost::ptr_vector<BaseClass> Choices;
+    typedef boost::ptr_vector<BaseClass, VirtualCloneAllocator<BaseClass>> Choices;
     Choices choices;
 
     struct equal_address {
@@ -30,6 +32,9 @@ public:
             ChoiceEntry<BaseClass>::addChoice(*i);
     }
 
+    void addChoice( std::unique_ptr<BaseClass> choice ) {
+        addChoice(std::auto_ptr<BaseClass>(choice.release()));
+    }
     void addChoice( std::auto_ptr<BaseClass> choice ) {
         ChoiceEntry<BaseClass>::addChoice(*choice);
         choices.push_back(choice);

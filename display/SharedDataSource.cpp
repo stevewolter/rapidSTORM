@@ -5,7 +5,7 @@
 namespace dStorm {
 namespace display {
 
-SharedDataSource::SharedDataSource( DataSource& source, simparm::wx_ui::ProtocolNode protocol )
+SharedDataSource::SharedDataSource( DataSource& source, simparm::ProtocolNode protocol )
 : source(&source), notify_of_closed_window_before_disconnect_(false), protocol_node(protocol) {}
 
 void SharedDataSource::disconnect() {
@@ -15,12 +15,12 @@ void SharedDataSource::disconnect() {
     source = NULL;
 }
 
-std::auto_ptr< Change > SharedDataSource::get_changes() {
+std::unique_ptr< Change > SharedDataSource::get_changes() {
     boost::lock_guard< boost::recursive_mutex > lock(source_mutex);
     if ( source )
         return source->get_changes();
     else 
-        return final_change;
+        return std::unique_ptr<Change>(final_change.release());
 }
 
 bool SharedDataSource::notify_of_closed_window_before_disconnect() {

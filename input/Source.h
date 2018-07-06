@@ -44,8 +44,8 @@ namespace input {
         template <typename Type> bool can_provide() const;
         template <typename Type> Source<Type>& downcast() const;
         template <typename Type>
-        inline static std::auto_ptr< Source<Type> >
-            downcast( std::auto_ptr<BaseSource> );
+        inline static std::unique_ptr< Source<Type> >
+            downcast( std::unique_ptr<BaseSource> );
     };
 
     /** A Source object of some given type. Provides default 
@@ -79,10 +79,10 @@ namespace input {
         { return dynamic_cast<Source<Type>&>(*this); }
 
     template <typename Type> 
-    std::auto_ptr< Source<Type> >
-    BaseSource::downcast(std::auto_ptr< BaseSource > p)
+    std::unique_ptr< Source<Type> >
+    BaseSource::downcast(std::unique_ptr< BaseSource > p)
     {
-        return std::auto_ptr< Source<Type> >
+        return std::unique_ptr< Source<Type> >
             ( &dynamic_cast<Source<Type>&>(*p.release()) );
     }
 

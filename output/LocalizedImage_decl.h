@@ -4,14 +4,7 @@
 #include "input/Traits.h"
 
 namespace dStorm {
-namespace output {
-
-class LocalizedImage;
-
-}
-namespace input {
-struct Traits<output::LocalizedImage>;
-}
+namespace output { class LocalizedImage; }
 }
 
 #endif

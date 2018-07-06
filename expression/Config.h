@@ -14,8 +14,8 @@ namespace expression {
 
 class Parser;
 
-struct Config : public config::ExpressionManager
-{
+class Config : public config::ExpressionManager {
+  public:
     typedef Source Output;
 
     Config();

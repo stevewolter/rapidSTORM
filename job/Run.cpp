@@ -76,8 +76,9 @@ Run::Result Run::run() {
     return Succeeded;
 }
 
-struct Run::Block : public EngineBlock {
+class Run::Block : public EngineBlock {
     Run& m;
+  public:
     Block( Run& m ) : m(m) {
         boost::unique_lock<boost::recursive_mutex> lock(m.mutex);
         DEBUG( "Block in place" );

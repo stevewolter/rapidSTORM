@@ -18,8 +18,8 @@ namespace density_map {
 template <typename Listener_, int Dim>
 DensityMap<Listener_,Dim>::DensityMap(
     Listener_* listener,
-    std::auto_ptr< Coordinates<Dim> > strategy, InterpolatorPtr interpolator, Crop crop
-) : crop(crop), listener(listener), strategy(strategy), binningInterpolator(interpolator)
+    std::unique_ptr< Coordinates<Dim> > strategy, InterpolatorPtr interpolator, Crop crop
+) : crop(crop), listener(listener), strategy(std::move(strategy)), binningInterpolator(interpolator)
 {
     assert( this->strategy.get() );
     assert( this->binningInterpolator.get() );

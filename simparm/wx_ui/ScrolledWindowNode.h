@@ -26,11 +26,29 @@ public:
 };
 
 class ScrolledWindowNode : public WindowNode {
+    boost::shared_ptr<Node> outer_window;
     GUIHandle< ScrolledWindow > scrolled_window;
     virtual boost::shared_ptr<Window> create_window();
 public:
     ScrolledWindowNode( boost::shared_ptr<Node> n, std::string name ) 
-        : WindowNode(n, name) {}
+        : WindowNode(n, name), outer_window(n) {
+        set_self_growing();
+    }
+    void set_description( std::string d ) OVERRIDE {
+        outer_window->set_description(d);
+        WindowNode::set_description(d);
+    }
+    void initialization_finished() OVERRIDE {
+        outer_window->initialization_finished();
+        WindowNode::initialization_finished();
+    }
+    NodeHandle create_trigger( std::string name ) OVERRIDE {
+        if (name == "Run") {
+            return outer_window->create_trigger(name);
+        } else {
+            return WindowNode::create_trigger(name);
+        }
+    }
     boost::function0<void> get_relayout_function() ;
     void set_config( boost::shared_ptr< dStorm::shell::JobFactory > );
     void stop_job_on_ui_detachment( boost::shared_ptr<dStorm::Job> );

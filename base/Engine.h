@@ -6,11 +6,14 @@
 
 namespace dStorm {
 
-struct EngineBlock {
+class EngineBlock {
+  public:
     virtual ~EngineBlock() {}
 };
 
-struct Engine {
+class Engine {
+  public:
+    virtual ~Engine() {}
     virtual void restart() = 0;
     virtual void stop() = 0;
     virtual void repeat_results() = 0;

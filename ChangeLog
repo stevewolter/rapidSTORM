@@ -1,3 +1,7 @@
+== 3.3.2 ==
+
+ * Updated code to build with newer versions of Boost and Eigen libraries.
+
 == 3.3.1 ==
 
  * Worked around broken libtiff 4.x severity levels (error instead of warning)

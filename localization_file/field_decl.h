@@ -1,10 +1,10 @@
 namespace dStorm {
 namespace localization_file {
 
-template <typename Type> class type_string;
-template <> class type_string<int>;
-template <> class type_string<float>;
-template <> class type_string<double>;
+template <typename Type> struct type_string;
+template <> struct type_string<int>;
+template <> struct type_string<float>;
+template <> struct type_string<double>;
 
 class Field; 
 inline Field *new_clone( const Field& i );

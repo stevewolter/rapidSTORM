@@ -2,36 +2,35 @@
 #include "simparm/BoostOptional.h"
 #include "inputs/SampleInfo.h"
 
-#include "debug.h"
-#include "simparm/FileEntry.h"
-#include "simparm/dummy_ui/fwd.h"
-#include "input/AdapterSource.h"
-#include "UnitEntries/PixelSize.h"
-#include "units/nanolength.h"
-#include "localization/Traits.h"
-#include "input/MetaInfo.h"
-#include "input/Source.h"
-#include "engine/Image.h"
-#include "Localization.h"
-#include "localization/Traits.h"
-#include "input/InputMutex.h"
-#include "input/Method.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+
+#include "debug.h"
+#include "engine/Image.h"
+#include "engine/InputTraits.h"
+#include "helpers/make_unique.hpp"
+#include "input/AdapterSource.h"
+#include "input/FilterFactory.h"
+#include "input/InputMutex.h"
+#include "input/Source.h"
+#include "Localization.h"
+#include "localization/Traits.h"
+#include "localization/Traits.h"
+#include "simparm/dummy_ui/fwd.h"
+#include "simparm/FileEntry.h"
+#include "UnitEntries/PixelSize.h"
+#include "units/nanolength.h"
 
 namespace dStorm {
 namespace input {
 namespace sample_info {
 
-class ChainLink;
-
 class Config 
 {
-    friend class ChainLink;
     simparm::Object name_object;
+  public:
     simparm::Entry<unsigned long> fluorophore_count;
 
-  public:
     Config();
     void attach_ui( simparm::NodeHandle );
 };
@@ -47,50 +46,44 @@ class Input
 
   public:
     Input(
-        std::auto_ptr< input::Source<engine::ImageStack> > backend,
+        std::unique_ptr< input::Source<engine::ImageStack> > backend,
         int fluorophore_count ) 
-        : input::AdapterSource<engine::ImageStack>( backend ), fluorophore_count(fluorophore_count) {}
+        : input::AdapterSource<engine::ImageStack>( std::move(backend) ), fluorophore_count(fluorophore_count) {}
 };
 
 
-class ChainLink 
-: public input::Method<ChainLink>
+class SourceFactory 
+: public input::FilterFactory<engine::ImageStack>
 {
-    friend class input::Method<ChainLink>;
-    friend class Check;
-
     Config config;
 
-    void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
-        config.fluorophore_count.set_visibility( t.plane_count() > 1 );
+    SourceFactory* clone() const { return new SourceFactory(*this); }
+    boost::shared_ptr<const input::Traits<engine::ImageStack>>
+    make_meta_info( boost::shared_ptr<const input::Traits<engine::ImageStack>> t ) {
+        if (!t) return t;
+
+        boost::shared_ptr<input::Traits<engine::ImageStack>> n(
+            new input::Traits<engine::ImageStack>(*t));
+        config.fluorophore_count.set_visibility( t->plane_count() > 1 );
+        n->fluorophore_count = config.fluorophore_count();
+        return n;
     }
-    template <typename Type>
-    void notice_traits( const input::MetaInfo&, const input::Traits<Type>& t ) {
-        config.fluorophore_count.hide();
-    }
-    void update_traits( input::MetaInfo&, input::Traits<output::LocalizedImage>& t ) {}
-    void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& t ) {
-        t.fluorophore_count = config.fluorophore_count();
-    }
-    Input* make_source( std::auto_ptr< input::Source<engine::ImageStack> > s ) {
-        return new Input(s, config.fluorophore_count());
-    }
-    Input* make_source( std::auto_ptr< input::Source<output::LocalizedImage> > s ) {
-        throw std::logic_error("Handling localized images is not supported");
+    std::unique_ptr<input::Source<engine::ImageStack>>
+    make_source( std::unique_ptr< input::Source<engine::ImageStack> > s ) {
+        return std::unique_ptr<input::Source<engine::ImageStack>>(
+            new Input(std::move(s), config.fluorophore_count()));
     }
     simparm::BaseAttribute::ConnectionStore listening;
 
   public:
-    static std::string getName() { return "SampleInfo"; }
-    void attach_ui( simparm::NodeHandle at ) { 
-        listening = config.fluorophore_count.value.notify_on_value_change( 
-            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
+    void attach_ui( simparm::NodeHandle at, std::function<void()> cb ) OVERRIDE { 
+        listening = config.fluorophore_count.value.notify_on_value_change( cb );
         config.attach_ui( at ); 
     }
 };
 
 Config::Config()
-: name_object( ChainLink::getName(), "Sample information"),
+: name_object( "SampleInfo", "Sample information"),
   fluorophore_count("FluorophoreCount", 1)
 {
     fluorophore_count.min = 1;
@@ -103,8 +96,8 @@ void Config::attach_ui( simparm::NodeHandle at ) {
     fluorophore_count.attach_ui( r );
 }
 
-std::auto_ptr<Link> makeLink() {
-    return std::auto_ptr<Link>( new ChainLink() );
+std::unique_ptr<input::FilterFactory<engine::ImageStack>> create() {
+    return make_unique<SourceFactory>();
 }
 
 }

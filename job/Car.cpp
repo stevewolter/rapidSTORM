@@ -57,7 +57,7 @@ Car::Car (const Config &config)
     used_output_filenames = config.get_meta_info().forbidden_filenames;
 
     DEBUG("Trying to make source");
-    std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
+    std::unique_ptr<input::BaseSource> rawinput( config.makeSource() );
     if ( ! rawinput.get() )
         throw std::logic_error("No input source was created");
     DEBUG("Made source");

@@ -12,8 +12,8 @@ namespace dStorm {
 namespace guf {
 
 /** This class collects configuration options for the GUF fitter. */
-struct Config
-{
+class Config {
+  public:
     simparm::Group name_object;
     fit_window::Config fit_window_config;
     simparm::BoolEntry allow_disjoint, double_computation;

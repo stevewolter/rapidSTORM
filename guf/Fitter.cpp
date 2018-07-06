@@ -26,10 +26,8 @@ using guf::Spot;
 
 Fitter::Fitter(
     const dStorm::engine::JobInfo& info,
-    const Config& config
-)
-: traits(info.traits),
-  info(info),
+    const Config& config)
+: info(info),
   data_creator( config.fit_window_config, this->info.traits, desired_fit_window_widths(config), config.double_computation() ? 0 : 1 ),
   initial_value_finder( config, this->info ),
   one_kernel_fitter( config, info, 1 ),

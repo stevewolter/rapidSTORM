@@ -10,7 +10,8 @@
 
 namespace simparm {
 
-struct BaseAttribute {
+class BaseAttribute {
+  public:
     typedef std::auto_ptr< boost::signals2::scoped_connection > Connection;
     typedef dStorm::nocopy_ptr< boost::signals2::scoped_connection > ConnectionStore;
     typedef boost::signals2::slot<void()> Listener;

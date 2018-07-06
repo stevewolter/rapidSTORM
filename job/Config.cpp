@@ -14,16 +14,15 @@
 #include "input/Forwarder.h"
 #include "input/InputMutex.h"
 #include "input/MetaInfo.h"
+#include "input/Source.h"
 #include "output/Basename.h"
 #include "output/FilterSource.h"
 #include "output/SourceFactory.h"
-#include "signals/UseSpotFinder.h"
-#include "signals/UseSpotFitter.h"
 #include "simparm/Menu.h"
 #include "simparm/text_stream/RootNode.h"
 #include "simparm/TreeRoot.h"
 #include "simparm/TreeEntry.h"
-#include <ui/serialization/Node.h>
+#include "ui/serialization/Node.h"
 
 #include "job/Car.h"
 #include "job/Config.h"
@@ -83,7 +82,7 @@ Config::Config(const Config &c)
   auto_terminate(c.auto_terminate)
 {
     if ( c.input.get() )
-        create_input( std::auto_ptr<input::Link>(c.input->clone()) );
+        create_input( std::unique_ptr<input::Link>(c.input->clone()) );
     input->publish_meta_info();
 }
 
@@ -94,9 +93,9 @@ Config::~Config() {
     input.reset();
 }
 
-void Config::create_input( std::auto_ptr<input::Link> p ) {
+void Config::create_input( std::unique_ptr<input::Link> p ) {
     input_listener = p->notify( boost::bind(&Config::traits_changed, this, _1) );
-    input = p;
+    input = std::move(p);
 }
 
 simparm::NodeHandle Config::attach_ui( simparm::NodeHandle at ) {
@@ -116,28 +115,18 @@ void Config::attach_children_ui( simparm::NodeHandle at ) {
     auto_terminate.attach_ui(  at  );
 }
 
-void Config::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> finder) {
-    input->publish_meta_info();
-    input->current_meta_info()->get_signal< signals::UseSpotFinder >()( *finder );
-}
-
-void Config::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> fitter) {
-    input->publish_meta_info();
-    input->current_meta_info()->get_signal< signals::UseSpotFitter >()( *fitter );
-}
-
-void Config::add_input( std::auto_ptr<input::Link> l, InsertionPlace p) {
+void Config::add_input( std::unique_ptr<input::Link> l) {
     if ( input.get() )
-        input->insert_new_node( l, p );
+        input->insert_new_node( std::move(l) );
     else
-        create_input( l );
+        create_input( std::move(l) );
 }
 
 void Config::add_output( std::auto_ptr<output::OutputSource> o ) {
     outputRoot->root_factory().addChoice( o.release() );
 }
 
-std::auto_ptr<input::BaseSource> Config::makeSource() const {
+std::unique_ptr<input::BaseSource> Config::makeSource() const {
     return input->make_source();
 }
 

@@ -91,7 +91,7 @@ Plane FitWindowCutter::cut_region_of_interest(
         }
         result.integral += value;
         if ( value >= result.peak_intensity ) {
-            highest_pixel_index = points.size();
+            highest_pixel_index = i - points.begin();
         }
 
         result.points.push_back(data_point);

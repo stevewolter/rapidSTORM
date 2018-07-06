@@ -35,7 +35,7 @@ class MainThread::Handle
         const dStorm::display::WindowProperties& properties,
         dStorm::display::DataSource& source,
         MainThread& m ) 
-    : m(m), data_source( new dStorm::display::SharedDataSource(source, simparm::wx_ui::ProtocolNode(NULL) ) ),
+    : m(m), data_source( new dStorm::display::SharedDataSource(source, simparm::ProtocolNode(NULL) ) ),
       window( new Window(m, properties, data_source, m.number++) )
     {
         window->attach_ui( m.current_ui );

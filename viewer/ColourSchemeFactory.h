@@ -5,14 +5,14 @@
 #include "simparm/BaseAttribute.h"
 #include <memory>
 #include "viewer/Backend.h"
-#include "make_clone_allocator.hpp"
 
 namespace dStorm {
 namespace viewer {
 
 class ColourScheme;
 
-struct ColourSchemeFactory : public simparm::ObjectChoice {
+class ColourSchemeFactory : public simparm::ObjectChoice {
+  public:
     ColourSchemeFactory( std::string name, std::string desc )
         : simparm::ObjectChoice(name,desc) {}
     virtual ColourSchemeFactory* clone() const = 0;
@@ -23,7 +23,5 @@ struct ColourSchemeFactory : public simparm::ObjectChoice {
 
 }
 }
-
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::viewer::ColourSchemeFactory)
 
 #endif

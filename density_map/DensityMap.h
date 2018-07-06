@@ -11,7 +11,7 @@
 namespace dStorm {
 namespace density_map {
 
-template <int Dim> struct Coordinates;
+template <int Dim> class Coordinates;
 
 /** This class accumulates the Localization results of an Engine
     *  into a single image. This image is not normalized
@@ -42,10 +42,10 @@ private:
     BinnedImage base_image;
     /** Copy of the announcement made by announceStormSize. 
         *  Used in set_resolution_enhancement. */
-    std::auto_ptr<Announcement> announcement;
+    std::unique_ptr<Announcement> announcement;
 
     Listener_* listener;
-    std::auto_ptr< Coordinates<Dim> > strategy;
+    std::unique_ptr< Coordinates<Dim> > strategy;
     InterpolatorPtr binningInterpolator;
 
     void set_base_image_size();
@@ -58,7 +58,7 @@ public:
         *              image borders. */
     DensityMap(
         Listener_* listener,
-        std::auto_ptr< Coordinates<Dim> > strategy, 
+        std::unique_ptr< Coordinates<Dim> > strategy, 
         InterpolatorPtr interpolator,
         Crop crop = no_crop);
     DensityMap(const DensityMap&);

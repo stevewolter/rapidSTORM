@@ -7,7 +7,7 @@
 namespace simparm {
 namespace text_stream {
 
-struct BackendRoot;
+class BackendRoot;
 
 class RootNode : public Node {
     BackendRoot* const root_backend;

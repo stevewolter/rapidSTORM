@@ -70,7 +70,6 @@ class PrecisionEstimator
 	const float h_value;
 
 	// initialize the needed chiSquare values
-	float chiSquare_500_Value;
 	float distance_threshold_sq, variance_correction;
 
         std::ofstream printTo;
@@ -180,20 +179,20 @@ class PrecisionEstimator::SubSet
 
 };
 
-struct PrecisionEstimator::EstimationResult
-{	
-	/* robust center */
-	Point center;
-	/* lenght of the principal component vectors */
-	Eigen::Matrix<float, Dimensions, 1> sd;
-	/* vector pointing in the direction of the main prinicpal component */
-	Eigen::Matrix<float, Dimensions, 2> pcs;
-	/* robust covariancematrix */
-	PrecisionEstimator::PointMatrix covariance;
-	/* size of original cluster */
-	int size;
-	/* localizations cosidered to be non outliers */
-	PointSet good_points;
+class PrecisionEstimator::EstimationResult {	
+  public:
+    /* robust center */
+    Point center;
+    /* lenght of the principal component vectors */
+    Eigen::Matrix<float, Dimensions, 1> sd;
+    /* vector pointing in the direction of the main prinicpal component */
+    Eigen::Matrix<float, Dimensions, 2> pcs;
+    /* robust covariancematrix */
+    PrecisionEstimator::PointMatrix covariance;
+    /* size of original cluster */
+    int size;
+    /* localizations cosidered to be non outliers */
+    PointSet good_points;
 };
 	
 const int PrecisionEstimator::Dimensions;

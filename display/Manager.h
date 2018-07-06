@@ -88,7 +88,8 @@ class WindowHandle {
 /** The WindowProperties class provides the data
     *  necessary for creation of a data window by the
     *  register_data_source method. */
-struct WindowProperties {
+class WindowProperties {
+  public:
     /** Displayed name of the window. */
     std::string name;
     /** Flags used to modify window behaviour. Will
