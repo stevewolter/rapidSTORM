@@ -16,7 +16,7 @@ send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in Em
 send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Mobility in value set 0\n"
 send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in ChooseTransmission in value set Count\n"
 send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in ChooseTransmission in value set Table\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Output1 in Table in ToFile in value set ${tmpdir_target}output.txt\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Output1 in Table in ToFile in value set ${tmpdir_target}output-fixed.txt\n"
 
 dstorm_attach
 
@@ -24,15 +24,18 @@ set test "Number of tracked localizations for fixed localization precision is co
 send "in Car in Run in value set 1\n"
 set job [get_job_number]
 set count [get_localization_count $job]
-set rv [catch {exec -- tail -n 1 "${tmpdir_host}output.txt" | cut -f 7 -d " "} last_trace]
+set rv [catch {exec -- grep -v "^#" "${tmpdir_host}output-fixed.txt" | cut -f 7 -d " " | sort -n | tail -n 1} last_trace]
+verbose "Fixed localizations got $last_trace traces and rv $rv"
 pass_if [expr $last_trace == 206061] "$test";
 
 set test "Number of tracked localizations for variable localization precision is consistent"
 send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in Expression in value set 2000 nm/ADC * amp\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Output1 in Table in ToFile in value set ${tmpdir_target}output-variable.txt\n"
 send "in Car in Run in value set 1\n"
 set job [get_job_number]
 set count [get_localization_count $job]
-set rv [catch {exec -- tail -n 1 "${tmpdir_host}output.txt" | cut -f 7 -d " "} last_trace]
+set rv [catch {exec -- grep -v "^#" "${tmpdir_host}output-variable.txt" | cut -f 7 -d " " | sort -n | tail -n 1} last_trace]
+verbose "Variable localizations got $last_trace traces and rv $rv"
 pass_if [expr $last_trace == 180255] "$test";
 
 set test "Error is thrown when localization precision is not set"
